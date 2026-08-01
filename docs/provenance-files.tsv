@@ -1,6 +1,7 @@
 path	origin	author_or_holder	derivation	copyright	license	status
 .config/dotnet-tools.json	Forma extraction	Igor Hipólito Vieira	Pinned MGCB and Microsoft API compatibility tool manifest	Igor Hipólito Vieira	MIT	classified
 .github/workflows/ci.yml	Forma extraction	Igor Hipólito Vieira	Cross-platform build, test, compliance, and package workflow	Igor Hipólito Vieira	MIT	classified
+.github/workflows/release.yml	Forma extraction	Igor Hipólito Vieira	Validated approval-gated NuGet trusted publishing workflow	Igor Hipólito Vieira	MIT	classified
 .gitignore	Forma extraction	Igor Hipólito Vieira	Repository ignore rules	Igor Hipólito Vieira	MIT	classified
 Directory.Build.props	Forma extraction	Igor Hipólito Vieira	Shared build and package metadata	Igor Hipólito Vieira	MIT	classified
 Forma.slnx	Forma extraction	Igor Hipólito Vieira	Standalone solution definition	Igor Hipólito Vieira	MIT	classified

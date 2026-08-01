@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Validate release version
+        shell: bash
+        run: |
+          core_version="$(dotnet msbuild src/Forma/Forma.csproj -getProperty:Version -nologo)"
+          media_version="$(dotnet msbuild src/Forma.Media/Forma.Media.csproj -getProperty:Version -nologo)"
+          test "$core_version" = "$media_version"
+          if [[ "$GITHUB_REF_TYPE" == 'tag' ]]; then
+            test "$GITHUB_REF_NAME" = "v$core_version"
+          fi
+          printf 'Release version: %s\n' "$core_version"
+      - run: bash scripts/check-compliance.sh
+      - run: bash scripts/check-clean-source.sh
+      - run: bash scripts/test-package-consumer.sh
+      - name: Upload validated packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: |
+            Artifacts/packages/*.nupkg
+            Artifacts/packages/*.snupkg
+          if-no-files-found: error
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    environment: nuget.org
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: packages
+      - name: Log in to NuGet
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+      - name: Publish packages
+        shell: bash
+        run: |
+          for package_file in packages/*.nupkg packages/*.snupkg; do
+            dotnet nuget push "$package_file" \
+              --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+              --source https://www.nuget.org/api/v2/package \
+              --skip-duplicate
+          done

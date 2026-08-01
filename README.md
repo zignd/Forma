@@ -82,6 +82,17 @@ bash scripts/check-clean-source.sh
 The latest local candidate results and outstanding external release gates are recorded in the
 [release validation report](docs/release-validation.md).
 
+## Release
+
+Running the `Release` workflow manually builds, validates, and uploads the NuGet packages as a
+workflow artifact without publishing them. A matching version tag, such as `v0.1.0-alpha.1`, also
+enters the protected `nuget.org` environment and publishes through NuGet trusted publishing.
+
+Before tagging, configure that GitHub environment for required reviewer approval, add the repository
+variable `NUGET_USER`, and register the `release.yml` workflow and `nuget.org` environment as a
+trusted publishing policy for both package IDs on nuget.org. Do not approve publication until the
+external legal and name-clearance gates are complete.
+
 ## Licensing
 
 Forma-authored portions are available under the MIT License. Adapted and third-party portions keep

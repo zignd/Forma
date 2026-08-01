@@ -6,6 +6,7 @@ package_output="$repository_root/Artifacts/packages"
 package_path="$package_output/Forma.0.1.0-alpha.1.nupkg"
 media_package_path="$package_output/Forma.Media.0.1.0-alpha.1.nupkg"
 consumer_packages="$package_output/.consumer-packages"
+commit_sha="$(git -C "$repository_root" rev-parse HEAD)"
 
 rm -rf "$package_output" "$repository_root/tests/Forma.PackageConsumer/bin" "$repository_root/tests/Forma.PackageConsumer/obj"
 dotnet tool restore
@@ -30,6 +31,11 @@ if unzip -p "$package_path" Forma.nuspec | grep -Fq 'MonoGame.Framework.'; then
   printf 'Forma must not impose a transitive MonoGame backend package.\n' >&2
   exit 1
 fi
+unzip -p "$package_path" Forma.nuspec |
+  grep -Fq "repository type=\"git\" url=\"https://github.com/zignd/Forma\" commit=\"$commit_sha\""
+unzip -p "$package_output/Forma.0.1.0-alpha.1.snupkg" lib/net10.0/Forma.pdb |
+  strings |
+  grep -F "raw.githubusercontent.com/zignd/Forma/$commit_sha" >/dev/null
 
 media_package_entries="$(unzip -Z1 "$media_package_path")"
 for required_entry in \
@@ -46,6 +52,11 @@ if unzip -p "$media_package_path" Forma.Media.nuspec | grep -Fq 'MonoGame.Framew
   printf 'Forma.Media must not impose a transitive MonoGame backend package.\n' >&2
   exit 1
 fi
+unzip -p "$media_package_path" Forma.Media.nuspec |
+  grep -Fq "repository type=\"git\" url=\"https://github.com/zignd/Forma\" commit=\"$commit_sha\""
+unzip -p "$package_output/Forma.Media.0.1.0-alpha.1.snupkg" lib/net10.0/Forma.Media.pdb |
+  strings |
+  grep -F "raw.githubusercontent.com/zignd/Forma/$commit_sha" >/dev/null
 
 test -f "$package_output/Forma.0.1.0-alpha.1.snupkg"
 test -f "$package_output/Forma.Media.0.1.0-alpha.1.snupkg"

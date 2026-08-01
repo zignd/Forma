@@ -46,9 +46,9 @@ confirmed that neither package imposes a transitive MonoGame backend, and ran an
 with a private package cache. The compliance scan classified all 18 implementation source files and
 reported no pending source classification.
 
-Source Link remains incomplete until the repository has its first commit. A public candidate must be
-repacked and reinspected from committed source before release artifacts can pass the final technical
-gate.
+Both package manifests identify the exact repository commit, and both portable PDBs contain Source
+Link URLs rooted at that commit. Public artifacts must still be rebuilt from the published commit
+before release.
 
 ### Identity review
 

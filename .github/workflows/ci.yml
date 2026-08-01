@@ -26,7 +26,17 @@ jobs:
       - run: bash scripts/check-backend-references.sh
       - run: bash scripts/check-api-compatibility.sh
       - run: dotnet test tests/Forma.Tests/Forma.Tests.csproj --configuration Release --no-build
-      - name: Validate catalog metrics baseline
+      - name: Validate Linux catalog and render tests
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a bash scripts/check-catalog-smoke.sh
+          xvfb-run -a dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build
+      - name: Validate Windows catalog and render tests
+        if: runner.os == 'Windows'
+        run: |
+          bash scripts/check-catalog-smoke.sh
+          dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build
+      - name: Validate macOS catalog metrics baseline
         if: runner.os == 'macOS'
         run: bash scripts/check-catalog-smoke.sh
       - name: Validate macOS render-test isolation

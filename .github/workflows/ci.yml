@@ -26,8 +26,14 @@ jobs:
       - run: bash scripts/check-backend-references.sh
       - run: bash scripts/check-api-compatibility.sh
       - run: dotnet test tests/Forma.Tests/Forma.Tests.csproj --configuration Release --no-build
+      - name: Install Linux Vulkan software driver
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends mesa-vulkan-drivers
       - name: Validate Linux catalog and render tests
         if: runner.os == 'Linux'
+        env:
+          LIBGL_ALWAYS_SOFTWARE: 1
+          VK_DRIVER_FILES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
         run: |
           xvfb-run -a bash scripts/check-catalog-smoke.sh
           xvfb-run -a dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build

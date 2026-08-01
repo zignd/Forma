@@ -15,15 +15,22 @@ if ! command -v jq >/dev/null; then
   exit 2
 fi
 
-if [[ "${CatalogNativeBacktrace:-0}" == "1" ]]; then
+if [[ -n "${CatalogNativeDebugger:-}" ]]; then
   dotnet build "$repository_root/samples/Forma.Catalog/Forma.Catalog.csproj" --configuration Release
-  gdb --batch \
-    -ex run \
-    -ex "thread apply all backtrace" \
-    --args dotnet "$repository_root/samples/Forma.Catalog/bin/Release/net10.0/Forma.Catalog.dll" \
-      --metrics "$actual" \
-      --frames 3 \
-      --display-scale 2
+  catalog_command=(
+    dotnet "$repository_root/samples/Forma.Catalog/bin/Release/net10.0/Forma.Catalog.dll"
+    --metrics "$actual"
+    --frames 3
+    --display-scale 2
+  )
+  if [[ "$CatalogNativeDebugger" == "gdb" ]]; then
+    gdb --batch -ex run -ex "thread apply all backtrace" --args "${catalog_command[@]}"
+  elif [[ "$CatalogNativeDebugger" == "lldb" ]]; then
+    lldb --batch -o run -k "thread backtrace all" -- "${catalog_command[@]}"
+  else
+    printf 'Unsupported catalog native debugger: %s\n' "$CatalogNativeDebugger" >&2
+    exit 2
+  fi
 else
   dotnet run --project "$repository_root/samples/Forma.Catalog/Forma.Catalog.csproj" \
     --configuration Release \

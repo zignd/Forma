@@ -7035,16 +7035,18 @@ namespace Forma.Tests
         public void FileDialog_TracksMultiSelectionAndEmitsSelectedFiles()
         {
             var dialog = new FileDialog { FileMode = FileDialogMode.OpenFiles };
+            var firstPath = Path.GetFullPath(Path.Combine("tmp", "first.txt"));
+            var secondPath = Path.GetFullPath(Path.Combine("tmp", "second.txt"));
             var selected = new string[0];
             dialog.FilesSelected += (_, files) =>
             {
                 selected = new string[files.Count];
                 for (var index = 0; index < files.Count; index++) selected[index] = files[index];
             };
-            dialog.SelectFile("/tmp/first.txt");
-            dialog.SelectFile("/tmp/second.txt", append: true);
+            dialog.SelectFile(firstPath);
+            dialog.SelectFile(secondPath, append: true);
             dialog.Confirm();
-            Assert.That(selected, Is.EqualTo(new[] { "/tmp/first.txt", "/tmp/second.txt" }));
+            Assert.That(selected, Is.EqualTo(new[] { firstPath, secondPath }));
         }
 
         [Test]

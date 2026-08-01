@@ -2,9 +2,9 @@
 
 ## 2026-08-01 local candidate review
 
-This review was performed on macOS Arm64 with .NET SDK 10.0.103. Linux and Windows runtime
-validation, legal review, name and trademark clearance, publication, and tagging remain external
-release gates.
+This review began on macOS Arm64 with .NET SDK 10.0.103 and was extended through hosted Linux and
+Windows CI. Native/Metal and Native/Vulkan runtime validation, legal review, name and trademark
+clearance, publication, and tagging remain external release gates.
 
 ### Baselines
 
@@ -12,11 +12,11 @@ release gates.
   `docs/provenance.md`.
 - The normalized pre-extraction API baseline contains 185 types and 3,615 declaration lines.
 - The current unit and catalog inventory suite discovers and passes 396 tests.
-- The current render fixture contains five tests. It compiles on macOS, where NUnit excludes runtime
-  execution before fixture setup because SDL graphics-device creation requires the process main
-  thread.
+- The current render fixture contains five tests. Four execute on hosted Linux DesktopGL and Windows
+  Direct3D; one interactive-only test remains explicitly ignored. On macOS, NUnit excludes the
+  fixture before setup because SDL graphics-device creation requires the process main thread.
 - The catalog smoke host runs three frames, inventories 74 stories, selects the 2x density font, and
-  records a 720x450 logical viewport.
+  records a 720x450 logical viewport on hosted Linux DesktopGL and Windows Direct3D.
 
 ### Candidate validation
 
@@ -34,11 +34,14 @@ bash scripts/test-package-consumer.sh
 ```
 
 `check-backend-references.sh` compiled the DesktopGL, WindowsDX, and Native reference surfaces.
-This is compile validation, not Linux or Windows runtime validation.
+GitHub Actions run `30687738568` additionally passed the catalog smoke and four executable render
+tests on Linux DesktopGL and WindowsDX, alongside the macOS DesktopGL catalog smoke and documented
+render-test isolation policy.
 
-The DesktopGL catalog smoke passed on macOS. A Native/Metal launch reached runtime initialization
-but could not load `mgruntime.dylib`; no locally built MonoGame Native runtime was available. The
-macOS Metal runtime gate therefore remains open alongside Linux Vulkan and Windows Direct3D.
+The DesktopGL catalog smoke passed on macOS and hosted Linux, and the WindowsDX catalog smoke passed
+on hosted Windows. A Native/Metal launch reached runtime initialization but could not load
+`mgruntime.dylib`; no locally built MonoGame Native runtime was available. Native/Metal and
+Native/Vulkan runtime gates therefore remain open.
 
 The package check produced `Forma` and `Forma.Media` packages and symbol packages, verified their
 assemblies, XML documentation, license, notice, README, third-party notices, and migration guide,

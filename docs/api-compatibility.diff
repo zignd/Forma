@@ -1,10 +1,6 @@
 --- Phase 0 normalized baseline
 +++ Approved Forma core
-@@ -3536,54 +3536,6 @@
-         Center = 1,
-         Bottom = 2,
-         Fill = 3,
--    }
+@@ -3540,48 +3539,0 @@ namespace Forma
 -    public sealed class VideoStreamPlayer : Forma.Control, System.IDisposable
 -    {
 -        public VideoStreamPlayer() { }
@@ -52,6 +48,4 @@
 -        public void SetVolume(float volume) { }
 -        public void SetVolumeDb(float db) { }
 -        public void Stop() { }
-     }
-     public sealed class ViewPanner
-     {
+-    }

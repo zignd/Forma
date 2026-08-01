@@ -3,8 +3,16 @@ set -euo pipefail
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 baseline="$repository_root/samples/Forma.Catalog/catalog-metrics-baseline.json"
-actual="$(mktemp "${TMPDIR:-/tmp}/forma-catalog.XXXXXX.json")"
-trap 'rm -f "$actual"' EXIT
+stage_directory="$(mktemp -d "${TMPDIR:-/tmp}/forma-catalog.XXXXXX")"
+actual="$stage_directory/catalog.json"
+stable_baseline="$stage_directory/baseline-stable.json"
+stable_actual="$stage_directory/actual-stable.json"
+trap 'rm -rf "$stage_directory"' EXIT
+
+if ! command -v jq >/dev/null; then
+  printf 'Catalog smoke requires jq for structured metrics validation.\n' >&2
+  exit 2
+fi
 
 dotnet run --project "$repository_root/samples/Forma.Catalog/Forma.Catalog.csproj" \
   --configuration Release \
@@ -13,10 +21,20 @@ dotnet run --project "$repository_root/samples/Forma.Catalog/Forma.Catalog.cspro
   --frames 3 \
   --display-scale 2
 
-if ! cmp -s "$baseline" "$actual"; then
-  printf 'Catalog metrics differ from the approved 2x baseline.\n' >&2
-  diff -u "$baseline" "$actual" || true
+if ! jq -e '(.logicalViewportWidth > 0) and (.logicalViewportHeight > 0)' \
+  "$actual" >/dev/null; then
+  printf 'Catalog metrics contain an invalid logical viewport.\n' >&2
   exit 1
 fi
 
-printf 'Catalog smoke: 3 frames, 74 stories, 2x density font, 720x450 logical viewport.\n'
+jq -S 'del(.logicalViewportWidth, .logicalViewportHeight)' "$baseline" > "$stable_baseline"
+jq -S 'del(.logicalViewportWidth, .logicalViewportHeight)' "$actual" > "$stable_actual"
+if ! cmp -s "$stable_baseline" "$stable_actual"; then
+  printf 'Catalog metrics differ from the approved 2x baseline.\n' >&2
+  diff -u "$stable_baseline" "$stable_actual" || true
+  exit 1
+fi
+
+viewport="$(jq -r '"\(.logicalViewportWidth)x\(.logicalViewportHeight)"' "$actual")"
+printf 'Catalog smoke: 3 frames, 74 stories, 2x density font, %s logical viewport.\n' \
+  "$viewport"

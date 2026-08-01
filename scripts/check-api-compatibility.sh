@@ -50,10 +50,20 @@ if ! cmp -s "$approved_media" "$actual_media_api"; then
   exit 1
 fi
 
+baseline_copy="$stage_directory/Phase 0 normalized baseline"
+approved_copy="$stage_directory/Approved Forma core"
+raw_delta="$stage_directory/api-compatibility.raw.diff"
 actual_delta="$stage_directory/api-compatibility.diff"
+cp "$baseline" "$baseline_copy"
+cp "$approved" "$approved_copy"
 delta_status=0
-diff -u -L 'Phase 0 normalized baseline' -L 'Approved Forma core' \
-  "$baseline" "$approved" > "$actual_delta" || delta_status=$?
+(
+  cd "$stage_directory"
+  git diff --no-index --text --no-prefix --unified=0 \
+    'Phase 0 normalized baseline' 'Approved Forma core'
+) > "$raw_delta" || delta_status=$?
+tail -n +3 "$raw_delta" |
+  sed -e '1,2s/[[:space:]]*$//' > "$actual_delta"
 if ((delta_status != 1)) || ! cmp -s "$approved_delta" "$actual_delta"; then
   printf 'The documented baseline-to-core API delta is stale.\n' >&2
   diff -u "$approved_delta" "$actual_delta" || true

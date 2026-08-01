@@ -99,18 +99,27 @@ namespace Forma.RenderTests
         }
 
         [Test]
-        public void CatalogDensityFontProvidesDoubleResolutionAtlas()
+        public void CatalogDensityFontsProvideDoubleResolutionAtlases()
         {
             var logicalFont = content.Load<SpriteFont>("Fonts/Catalog");
             var densityFont = content.Load<SpriteFont>("Fonts/Catalog@2x");
+            var logicalCodeFont = content.Load<SpriteFont>("Fonts/CatalogCode");
+            var densityCodeFont = content.Load<SpriteFont>("Fonts/CatalogCode@2x");
 
             Assert.That(densityFont.LineSpacing, Is.InRange(logicalFont.LineSpacing * 1.9f, logicalFont.LineSpacing * 2.1f));
+            Assert.That(densityCodeFont.LineSpacing, Is.InRange(logicalCodeFont.LineSpacing * 1.9f, logicalCodeFont.LineSpacing * 2.1f));
             Assert.That(densityFont.Texture.Width, Is.GreaterThan(logicalFont.Texture.Width));
             Assert.That(densityFont.Texture.Height, Is.GreaterThan(logicalFont.Texture.Height));
+            Assert.That(densityCodeFont.Texture.Width, Is.GreaterThan(logicalCodeFont.Texture.Width));
+            Assert.That(densityCodeFont.Texture.Height, Is.GreaterThan(logicalCodeFont.Texture.Height));
             Assert.That(logicalFont.DefaultCharacter, Is.EqualTo('?'));
             Assert.That(densityFont.DefaultCharacter, Is.EqualTo('?'));
+            Assert.That(logicalCodeFont.DefaultCharacter, Is.EqualTo('?'));
+            Assert.That(densityCodeFont.DefaultCharacter, Is.EqualTo('?'));
             Assert.DoesNotThrow(() => logicalFont.MeasureString("café 🔎"));
             Assert.DoesNotThrow(() => densityFont.MeasureString("café 🔎"));
+            Assert.DoesNotThrow(() => logicalCodeFont.MeasureString("using Forma;"));
+            Assert.DoesNotThrow(() => densityCodeFont.MeasureString("using Forma;"));
 
             using var renderTarget = new RenderTarget2D(gd, 256, 64);
             using var ui = new UIContext

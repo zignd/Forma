@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Purpose: Run the catalog for three frames and compare its 2x metrics with the approved baseline.
+# Usage: `bash scripts/check-catalog-smoke.sh` from any directory; a graphical environment and `jq`
+# are required. DesktopGL is expected by default; set `CatalogBackend` or `MonoGamePlatform` to
+# override the expected backend name.
+
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 baseline="$repository_root/samples/Forma.Catalog/catalog-metrics-baseline.json"
 stage_directory="$(mktemp -d "${TMPDIR:-/tmp}/forma-catalog.XXXXXX")"
@@ -42,5 +47,5 @@ if ! cmp -s "$stable_baseline" "$stable_actual"; then
 fi
 
 viewport="$(jq -r '"\(.logicalViewportWidth)x\(.logicalViewportHeight)"' "$actual")"
-printf 'Catalog smoke: %s, 3 frames, 74 stories, 2x density font, %s logical viewport.\n' \
+printf 'Catalog smoke: %s, 3 frames, 75 stories, 2x density font, %s logical viewport.\n' \
   "$expected_backend" "$viewport"

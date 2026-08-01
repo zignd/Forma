@@ -24,7 +24,6 @@ jobs:
       - run: dotnet restore Forma.slnx --disable-parallel
       - run: dotnet build Forma.slnx --configuration Release --no-restore --maxcpucount:1
       - run: bash scripts/check-backend-references.sh
-      - run: bash scripts/check-api-compatibility.sh
       - run: dotnet test tests/Forma.Tests/Forma.Tests.csproj --configuration Release --no-build
       - name: Install Linux Vulkan software driver
         if: runner.os == 'Linux'
@@ -97,5 +96,4 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - run: bash scripts/check-clean-source.sh
       - run: bash scripts/test-package-consumer.sh

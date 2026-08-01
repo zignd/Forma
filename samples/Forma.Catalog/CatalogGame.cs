@@ -18,6 +18,8 @@ public sealed class CatalogGame : Game
     private CatalogShell _catalog;
     private SpriteFont _font;
     private SpriteFont _displayFont;
+    private SpriteFont _codeFont;
+    private SpriteFont _displayCodeFont;
     private Texture2D _catalogTexture;
     private readonly CatalogMetricsOptions _metricsOptions;
     private readonly VertexPositionColorTexture[] _hotReloadVertices =
@@ -51,13 +53,19 @@ public sealed class CatalogGame : Game
     {
         _font = Content.Load<SpriteFont>("Fonts/Catalog");
         _displayFont = Content.Load<SpriteFont>("Fonts/Catalog@2x");
+        _codeFont = Content.Load<SpriteFont>("Fonts/CatalogCode");
+        _displayCodeFont = Content.Load<SpriteFont>("Fonts/CatalogCode@2x");
         _catalogTexture = CreateCatalogTexture();
         Window.Title = $"Forma Catalog - {CatalogBackend.Name}";
         _ui.TooltipFont = _font;
-        _ui.DisplayFontResolver = (font, scale) => ReferenceEquals(font, _font) && scale > 1f ? _displayFont : null;
+        _ui.DisplayFontResolver = (font, scale) => scale > 1f
+            ? ReferenceEquals(font, _font) ? _displayFont
+            : ReferenceEquals(font, _codeFont) ? _displayCodeFont
+            : null
+            : null;
         var stories = StoryCatalog.Create(_catalogTexture);
         _storyCount = stories.Count;
-        _catalog = new CatalogShell(stories, _font);
+        _catalog = new CatalogShell(stories, _font, _codeFont);
         _ui.Add(_catalog);
         if (_metricsOptions?.WatchedEffectPath != null)
         {

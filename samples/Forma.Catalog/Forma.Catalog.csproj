@@ -15,12 +15,14 @@
     <PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="$(MonoGameVersion)" Condition="'$(MonoGamePlatform)' == 'Native' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('Linux'))" />
     <PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="$(MonoGameVersion)" Condition="'$(MonoGamePlatform)' == 'Native' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('OSX'))" />
     <ProjectReference Include="../../src/Forma/Forma.csproj" />
+    <ProjectReference Include="../../src/Forma.Media/Forma.Media.csproj" />
     <MonoGameContentReference Include="Content/Content.mgcb" />
     <Content Include="$(NativeRuntimePath)" Link="$([System.IO.Path]::GetFileName('$(NativeRuntimePath)'))" CopyToOutputDirectory="PreserveNewest" Condition="'$(MonoGamePlatform)' == 'Native' And '$(NativeRuntimePath)' != ''" />
     <None Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../NOTICE.md" Link="NOTICE.md" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../tests/Assets/Fonts/IBMPlexSans-Regular-License-OFL.txt" Link="Content/Fonts/IBMPlexSans-Regular-License-OFL.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/LICENSE.Inter.txt" Link="Content/Fonts/LICENSE.Inter.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/LICENSE.JetBrainsMono.txt" Link="Content/Fonts/LICENSE.JetBrainsMono.txt" CopyToOutputDirectory="PreserveNewest" />
     <AssemblyMetadata Include="FormaCatalogBackend" Value="$(CatalogBackend)" />
   </ItemGroup>
 

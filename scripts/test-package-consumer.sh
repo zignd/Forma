@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Purpose: Rebuild deterministic font assets, pack Forma and Forma.Media, inspect package metadata
+# and contents, then build an isolated public-API consumer against those packages.
+# Usage: `bash scripts/test-package-consumer.sh` from any directory; `dotnet`, `unzip`, and `strings`
+# are required. The script replaces `Artifacts/packages` and the package consumer's `bin` and `obj`
+# directories before writing fresh packages and restore output.
+
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 package_output="$repository_root/Artifacts/packages"
 package_path="$package_output/Forma.0.1.0-alpha.1.nupkg"
@@ -13,6 +19,8 @@ dotnet tool restore
 dotnet build "$repository_root/samples/Forma.Catalog/Forma.Catalog.csproj" --configuration Release
 cmp "$repository_root/tests/Assets/Fonts/Catalog.xnb" "$repository_root/samples/Forma.Catalog/bin/Release/net10.0/Content/Fonts/Catalog.xnb"
 cmp "$repository_root/tests/Assets/Fonts/Catalog@2x.xnb" "$repository_root/samples/Forma.Catalog/bin/Release/net10.0/Content/Fonts/Catalog@2x.xnb"
+cmp "$repository_root/tests/Assets/Fonts/CatalogCode.xnb" "$repository_root/samples/Forma.Catalog/bin/Release/net10.0/Content/Fonts/CatalogCode.xnb"
+cmp "$repository_root/tests/Assets/Fonts/CatalogCode@2x.xnb" "$repository_root/samples/Forma.Catalog/bin/Release/net10.0/Content/Fonts/CatalogCode@2x.xnb"
 dotnet pack "$repository_root/src/Forma/Forma.csproj" --configuration Release --output "$package_output"
 dotnet pack "$repository_root/src/Forma.Media/Forma.Media.csproj" --configuration Release --output "$package_output"
 
@@ -23,8 +31,7 @@ for required_entry in \
   LICENSE \
   NOTICE.md \
   README.md \
-  THIRD-PARTY-NOTICES.md \
-  docs/migration.md; do
+  THIRD-PARTY-NOTICES.md; do
   grep -Fxq "$required_entry" <<<"$package_entries"
 done
 if unzip -p "$package_path" Forma.nuspec | grep -Fq 'MonoGame.Framework.'; then
@@ -44,8 +51,7 @@ for required_entry in \
   LICENSE \
   NOTICE.md \
   README.md \
-  THIRD-PARTY-NOTICES.md \
-  docs/migration.md; do
+  THIRD-PARTY-NOTICES.md; do
   grep -Fxq "$required_entry" <<<"$media_package_entries"
 done
 if unzip -p "$media_package_path" Forma.Media.nuspec | grep -Fq 'MonoGame.Framework.'; then

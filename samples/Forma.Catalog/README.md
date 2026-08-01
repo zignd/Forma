@@ -42,7 +42,7 @@ Native Metal` target by setting `NativeRuntimePath` to its `libmgruntime.dylib` 
 `CatalogBackend=Metal`. Because MGCB 3.8.5 does not define a `Native` content platform, Native
 catalog builds compile their assets with the compatible `DesktopVK` content profile.
 
-The build uses the repository-local MGCB 3.8.5 tool to generate `Catalog.xnb` and `Catalog@2x.xnb`
-from the IBM Plex Sans source and `.spritefont` descriptions under `tests/Assets/Fonts`. Canonical
-copies remain there for render tests and are byte-compared with fresh Release outputs by
-`scripts/test-package-consumer.sh`. The OFL-1.1 license is copied beside the runtime assets.
+The build uses the repository-local MGCB 3.8.5 tool to generate 1x and 2x Inter UI atlases and
+JetBrains Mono code atlases from the inputs under `tests/Assets/Fonts`. Canonical copies remain
+there for render tests and are byte-compared with fresh Release outputs by
+`scripts/test-package-consumer.sh`. Both OFL-1.1 licenses are copied beside the runtime assets.

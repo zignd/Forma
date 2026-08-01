@@ -115,34 +115,21 @@ change. To the extent permitted under your local laws, the contributors exclude
 the implied warranties of merchantability, fitness for a particular purpose and
 non-infringement.
 
-## IBM Plex Sans
+## Inter
 
-Copyright (c) 2017 IBM Corp. with Reserved Font Name "Plex"
+Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter)
 
-The catalog font inputs and generated XNB artifacts are licensed under the SIL Open Font License,
-Version 1.1. The complete license is distributed at
-`tests/Assets/Fonts/IBMPlexSans-Regular-License-OFL.txt` and beside the catalog runtime assets.
+The catalog UI font input is a TTF expansion of Godot's bundled `Inter_Regular.woff2`. The font and
+generated XNB artifacts are licensed under the SIL Open Font License, Version 1.1. The complete
+license is distributed at `tests/Assets/Fonts/LICENSE.Inter.txt` and beside the catalog runtime
+assets.
 
-## PublicApiGenerator
+## JetBrains Mono
 
-`tools/Forma.ApiInventory` uses PublicApiGenerator 11.5.4 as a development-only dependency.
+Copyright 2020, The JetBrains Mono Project Authors
+(https://github.com/JetBrains/JetBrainsMono)
 
-Copyright Jake Ginnivan 2010-2025. All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+The catalog code font input is a TTF expansion of Godot's bundled `JetBrainsMono_Regular.woff2`.
+The font and generated XNB artifacts are licensed under the SIL Open Font License, Version 1.1. The
+complete license is distributed at `tests/Assets/Fonts/LICENSE.JetBrainsMono.txt` and beside the
+catalog runtime assets.

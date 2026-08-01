@@ -41,7 +41,8 @@ public static class StoryCatalog
             [typeof(SplitContainer)] = () => new SplitContainer(Orientation.Horizontal),
             [typeof(FlowContainer)] = () => new FlowContainer(Orientation.Horizontal),
         };
-        foreach (var type in controlType.Assembly.GetTypes()
+        foreach (var type in new[] { controlType.Assembly, typeof(VideoStreamPlayer).Assembly }
+                     .SelectMany(assembly => assembly.GetTypes())
                      .Where(type => type.IsPublic && !type.IsAbstract && controlType.IsAssignableFrom(type))
                      .Where(type => type.GetConstructor(Type.EmptyTypes) != null || explicitFactories.ContainsKey(type))
                      .OrderBy(type => GetCategory(type))
@@ -50,7 +51,9 @@ public static class StoryCatalog
             stories.Add(new ComponentStory(
                 GetCategory(type),
                 type.Name,
-                $"Interactive example of [color=#30b9a4]{type.FullName}[/color]. Use the property inspector to change its public writable values at runtime.",
+                type == typeof(VideoStreamPlayer)
+                    ? "Optional [color=#30b9a4]Forma.Media[/color] video control configured for autoplay, looping, and responsive expansion. Assign a content-loaded Video to begin playback."
+                    : $"Interactive example of [color=#30b9a4]{type.FullName}[/color]. Use the property inspector to change its public writable values at runtime.",
                 () => CreateExample(type, texture, explicitFactories)));
         }
         return stories;
@@ -68,6 +71,27 @@ public static class StoryCatalog
 
     private static void SeedExample(Control control, string name, Texture2D texture)
     {
+        if (control is VideoStreamPlayer videoPlayer)
+        {
+            videoPlayer.Autoplay = true;
+            videoPlayer.Loop = true;
+            videoPlayer.Expand = true;
+            videoPlayer.Volume = .75f;
+            videoPlayer.AddChild(new ColorRect
+            {
+                Size = new Vector2(560, 315),
+                Color = new Color(16, 20, 27),
+            });
+            videoPlayer.AddChild(new Label
+            {
+                Position = new Vector2(180, 124),
+                Size = new Vector2(200, 68),
+                Text = "VIDEO\nNO STREAM",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            });
+            return;
+        }
         if (control is Popup embeddedPopup)
         {
             embeddedPopup.Modal = false;
@@ -394,10 +418,12 @@ public static class StoryCatalog
         typeof(Container).IsAssignableFrom(type) ||
         type == typeof(Tree) || type == typeof(ItemList) || type == typeof(TextEdit) ||
         type == typeof(CodeEdit) || type == typeof(RichTextLabel) || type == typeof(GraphEdit) ||
-        type == typeof(ColorPicker) || typeof(Popup).IsAssignableFrom(type);
+        type == typeof(ColorPicker) || type == typeof(VideoStreamPlayer) ||
+        typeof(Popup).IsAssignableFrom(type);
 
     private static string GetCategory(Type type)
     {
+        if (type == typeof(VideoStreamPlayer)) return "Media";
         if (typeof(Popup).IsAssignableFrom(type) || type.Name.Contains("Dialog", StringComparison.Ordinal)) return "Overlays";
         if (type.Name.Contains("Text", StringComparison.Ordinal) || type == typeof(Label) || type == typeof(LineEdit) || type == typeof(CodeEdit)) return "Text";
         if (type.Name.Contains("Graph", StringComparison.Ordinal) || type == typeof(Tree) || type == typeof(ItemList) || type.Name.Contains("Tab", StringComparison.Ordinal) || type.Name.Contains("Menu", StringComparison.Ordinal)) return "Data & navigation";
@@ -410,12 +436,14 @@ public static class StoryCatalog
 
 public static class FontApplicator
 {
-    public static void Apply(Control control, SpriteFont font)
+    public static void Apply(Control control, SpriteFont font, SpriteFont codeFont)
     {
         switch (control)
         {
+            case CodeEdit codeEdit: codeEdit.Font = codeFont; break;
+            case TextEdit textEdit: textEdit.Font = font; break;
             case Label label: label.Font = font; break;
-            case MenuButton menuButton: menuButton.Font = font; Apply(menuButton.Menu, font); break;
+            case MenuButton menuButton: menuButton.Font = font; Apply(menuButton.Menu, font, codeFont); break;
             case BaseButton button: button.Font = font; break;
             case PopupMenu popupMenu: popupMenu.Font = font; break;
             case LineEdit lineEdit: lineEdit.Font = font; break;
@@ -428,6 +456,6 @@ public static class FontApplicator
             case ItemList itemList: itemList.Font = font; break;
             case TabBar tabBar: tabBar.Font = font; break;
         }
-        foreach (var child in control.Children) Apply(child, font);
+        foreach (var child in control.Children) Apply(child, font, codeFont);
     }
 }

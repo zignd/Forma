@@ -22,6 +22,8 @@
     <ProjectReference Include="../../src/Forma/Forma.csproj" />
     <Content Include="../Assets/Fonts/Catalog.xnb" Link="Content/Fonts/Catalog.xnb" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Assets/Fonts/Catalog@2x.xnb" Link="Content/Fonts/Catalog@2x.xnb" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Assets/Fonts/CatalogCode.xnb" Link="Content/Fonts/CatalogCode.xnb" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Assets/Fonts/CatalogCode@2x.xnb" Link="Content/Fonts/CatalogCode@2x.xnb" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

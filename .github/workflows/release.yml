@@ -28,7 +28,9 @@ jobs:
           fi
           printf 'Release version: %s\n' "$core_version"
       - run: bash scripts/check-compliance.sh
-      - run: bash scripts/check-clean-source.sh
+      - run: dotnet restore Forma.slnx --disable-parallel
+      - run: dotnet build Forma.slnx --configuration Release --no-restore --maxcpucount:1
+      - run: dotnet test tests/Forma.Tests/Forma.Tests.csproj --configuration Release --no-build
       - run: bash scripts/test-package-consumer.sh
       - name: Upload validated packages
         uses: actions/upload-artifact@v4

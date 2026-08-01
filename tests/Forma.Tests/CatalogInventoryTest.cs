@@ -21,7 +21,8 @@ public sealed class CatalogInventoryTest
             typeof(Slider),
             typeof(SplitContainer),
         };
-        var expectedTypes = typeof(Control).Assembly.GetTypes()
+        var expectedTypes = new[] { typeof(Control).Assembly, typeof(VideoStreamPlayer).Assembly }
+            .SelectMany(assembly => assembly.GetTypes())
             .Where(type => type.IsPublic && !type.IsAbstract && typeof(Control).IsAssignableFrom(type))
             .Where(type => type.GetConstructor(Type.EmptyTypes) != null || explicitlyConstructedTypes.Contains(type))
             .Select(type => type.Name)
@@ -35,6 +36,21 @@ public sealed class CatalogInventoryTest
 
         Assert.That(storyNames, Is.Unique);
         Assert.That(storyNames, Is.EqualTo(expectedTypes));
+    }
+
+    [Test]
+    public void VideoStreamPlayerStoryUsesOptionalMediaControl()
+    {
+        var story = StoryCatalog.Create(null).Single(story => story.Name == nameof(VideoStreamPlayer));
+
+        using var player = (VideoStreamPlayer)story.Factory();
+
+        Assert.That(story.Category, Is.EqualTo("Media"));
+        Assert.That(player.Autoplay, Is.True);
+        Assert.That(player.Loop, Is.True);
+        Assert.That(player.Expand, Is.True);
+        Assert.That(player.Volume, Is.EqualTo(.75f));
+        Assert.That(player.Stream, Is.Null);
     }
 
     [Test]

@@ -1,13 +1,12 @@
 # Forma
 
-Forma is a retained-mode UI toolkit for MonoGame. It is being extracted from a clean, committed
-snapshot of the zignd MonoGame fork into an independently versioned library, test suite, and
-component catalog.
+Forma is an independent retained-mode UI toolkit for MonoGame, with a separately versioned core
+library, optional media integration, test suite, and component catalog.
 
-The repository is in early extraction work and is not ready for package consumption.
+The current alpha candidate is validated across DesktopGL, WindowsDX, Native Vulkan, and Native
+Metal. NuGet publication remains approval-gated; manual release workflow runs produce installable
+package artifacts without publishing them.
 
-Consumers moving from the embedded `Microsoft.Xna.Framework.UI` namespace can follow the complete
-[migration guide](docs/migration.md), including the public type mapping and optional media package.
 Future runtime TTF/OTF work is scoped in the
 [dynamic text rendering plan](docs/dynamic-text-rendering-plan.md).
 
@@ -24,8 +23,8 @@ with `bash scripts/check-backend-references.sh`, or select one directly with
 `-p:MonoGamePlatform=DesktopGL`, `WindowsDX`, or `Native`. Forma packages do not impose a transitive
 backend; applications must reference one matching `MonoGame.Framework.*` 3.8.5 package.
 
-The catalog build restores the repository-local MGCB 3.8.5 tool and regenerates its IBM Plex Sans
-font atlases from source.
+The catalog build restores the repository-local MGCB 3.8.5 tool and regenerates its Inter UI and
+JetBrains Mono code font atlases from repository inputs.
 
 For coordinated development against a local MonoGame checkout:
 
@@ -57,7 +56,7 @@ Run the stock-compatible unit and catalog inventory suite:
 dotnet test tests/Forma.Tests/Forma.Tests.csproj
 ```
 
-Compile and run the retained graphics fixture where supported:
+Compile and run the graphics fixture where supported:
 
 ```sh
 dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj
@@ -73,15 +72,6 @@ Validate package contents, deterministic font artifacts, and an external package
 bash scripts/test-package-consumer.sh
 ```
 
-Validate a clean source export with no existing or sibling build output with:
-
-```sh
-bash scripts/check-clean-source.sh
-```
-
-The latest local candidate results and outstanding external release gates are recorded in the
-[release validation report](docs/release-validation.md).
-
 ## Release
 
 Running the `Release` workflow manually builds, validates, and uploads the NuGet packages as a
@@ -90,12 +80,10 @@ enters the protected `nuget.org` environment and publishes through NuGet trusted
 
 Before tagging, configure that GitHub environment for required reviewer approval, add the repository
 variable `NUGET_USER`, and register the `release.yml` workflow and `nuget.org` environment as a
-trusted publishing policy for both package IDs on nuget.org. Do not approve publication until the
-external legal and name-clearance gates are complete.
+trusted publishing policy for both package IDs on nuget.org.
 
 ## Licensing
 
 Forma-authored portions are available under the MIT License. Adapted and third-party portions keep
-their original terms and attribution; see [NOTICE.md](NOTICE.md),
-[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), and
-[docs/provenance.md](docs/provenance.md).
+their original terms and attribution; see [NOTICE.md](NOTICE.md) and
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

@@ -23,6 +23,7 @@ public sealed class CatalogShell : BoxContainer
 
     private readonly IReadOnlyList<ComponentStory> _stories;
     private readonly SpriteFont _font;
+    private readonly SpriteFont _codeFont;
     private readonly LineEdit _search;
     private readonly ItemList _navigation;
     private readonly Label _storyTitle;
@@ -35,11 +36,12 @@ public sealed class CatalogShell : BoxContainer
     private ComponentStory _currentStory;
     private Control _currentControl;
 
-    public CatalogShell(IReadOnlyList<ComponentStory> stories, SpriteFont font)
+    public CatalogShell(IReadOnlyList<ComponentStory> stories, SpriteFont font, SpriteFont codeFont)
         : base(Orientation.Vertical)
     {
         _stories = stories;
         _font = font;
+        _codeFont = codeFont;
         Separation = 0;
 
         AddChild(BuildHeader());
@@ -100,7 +102,7 @@ public sealed class CatalogShell : BoxContainer
         body.AddChild(inspectorPanel);
         AddChild(body);
 
-        FontApplicator.Apply(this, font);
+        FontApplicator.Apply(this, font, codeFont);
         RefreshNavigation();
     }
 
@@ -146,7 +148,7 @@ public sealed class CatalogShell : BoxContainer
         ClearChildren(_preview);
         ClearChildren(_inspector);
         _currentControl = story.Factory();
-        FontApplicator.Apply(_currentControl, _font);
+        FontApplicator.Apply(_currentControl, _font, _codeFont);
         _preview.AddChild(_currentControl);
         _storyCategory.Text = story.Category;
         _storyTitle.Text = story.Name;

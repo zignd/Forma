@@ -113,7 +113,8 @@ public sealed class CatalogGame : Game
     {
         if (disposing)
         {
-            Window.TextInput -= OnTextInput;
+            var window = Window;
+            if (window != null) window.TextInput -= OnTextInput;
             _hotReload?.Dispose();
             _ui.Dispose();
             _catalogTexture?.Dispose();

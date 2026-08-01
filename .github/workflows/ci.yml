@@ -33,6 +33,7 @@ jobs:
           xvfb-run -a dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build
       - name: Validate Windows catalog and render tests
         if: runner.os == 'Windows'
+        shell: bash
         env:
           MonoGamePlatform: WindowsDX
         run: |

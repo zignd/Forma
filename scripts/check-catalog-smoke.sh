@@ -15,12 +15,23 @@ if ! command -v jq >/dev/null; then
   exit 2
 fi
 
-dotnet run --project "$repository_root/samples/Forma.Catalog/Forma.Catalog.csproj" \
-  --configuration Release \
-  -- \
-  --metrics "$actual" \
-  --frames 3 \
-  --display-scale 2
+if [[ "${CatalogNativeBacktrace:-0}" == "1" ]]; then
+  dotnet build "$repository_root/samples/Forma.Catalog/Forma.Catalog.csproj" --configuration Release
+  gdb --batch \
+    -ex run \
+    -ex "thread apply all backtrace" \
+    --args dotnet "$repository_root/samples/Forma.Catalog/bin/Release/net10.0/Forma.Catalog.dll" \
+      --metrics "$actual" \
+      --frames 3 \
+      --display-scale 2
+else
+  dotnet run --project "$repository_root/samples/Forma.Catalog/Forma.Catalog.csproj" \
+    --configuration Release \
+    -- \
+    --metrics "$actual" \
+    --frames 3 \
+    --display-scale 2
+fi
 
 if ! jq -e '(.logicalViewportWidth > 0) and (.logicalViewportHeight > 0)' \
   "$actual" >/dev/null; then

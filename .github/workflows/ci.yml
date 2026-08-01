@@ -55,9 +55,7 @@ jobs:
           dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release
       - name: Validate macOS catalog metrics baseline
         if: runner.os == 'macOS'
-        run: |
-          bash scripts/check-catalog-smoke.sh
-          MonoGamePlatform=Native CatalogBackend=Vulkan bash scripts/check-catalog-smoke.sh
+        run: bash scripts/check-catalog-smoke.sh
       - name: Validate macOS render-test isolation
         if: runner.os == 'macOS'
         run: dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build

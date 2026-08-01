@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet tool restore
+      - run: bash scripts/check-compliance.sh
+      - run: dotnet restore Forma.slnx --disable-parallel
+      - run: dotnet build Forma.slnx --configuration Release --no-restore --maxcpucount:1
+      - run: bash scripts/check-backend-references.sh
+      - run: bash scripts/check-api-compatibility.sh
+      - run: dotnet test tests/Forma.Tests/Forma.Tests.csproj --configuration Release --no-build
+      - name: Validate catalog metrics baseline
+        if: runner.os == 'macOS'
+        run: bash scripts/check-catalog-smoke.sh
+      - name: Validate macOS render-test isolation
+        if: runner.os == 'macOS'
+        run: dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build
+
+  package-consumer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: bash scripts/check-clean-source.sh
+      - run: bash scripts/test-package-consumer.sh

@@ -1,0 +1,65 @@
+namespace Forma
+{
+    public interface IVideoPlaybackBackend : System.IDisposable
+    {
+        bool IsLooped { get; set; }
+        System.TimeSpan PlayPosition { get; }
+        Microsoft.Xna.Framework.Media.MediaState State { get; }
+        float Volume { get; set; }
+        Microsoft.Xna.Framework.Graphics.Texture2D GetTexture();
+        void Pause();
+        void Play(Microsoft.Xna.Framework.Media.Video stream);
+        void Resume();
+        void Stop();
+        bool TrySetPlayPosition(System.TimeSpan position);
+    }
+    public sealed class VideoStreamPlayer : Forma.Control, System.IDisposable
+    {
+        public VideoStreamPlayer() { }
+        public VideoStreamPlayer(Forma.IVideoPlaybackBackend backend) { }
+        public int AudioTrack { get; set; }
+        public bool Autoplay { get; set; }
+        public int BufferingMsec { get; set; }
+        public string Bus { get; set; }
+        public bool Expand { get; set; }
+        public bool Loop { get; set; }
+        public bool Paused { get; set; }
+        public Microsoft.Xna.Framework.Media.MediaState PlaybackState { get; }
+        public float SpeedScale { get; set; }
+        public Microsoft.Xna.Framework.Media.Video Stream { get; set; }
+        public float Volume { get; set; }
+        public event System.EventHandler Finished;
+        public void Dispose() { }
+        public int GetAudioTrack() { }
+        public int GetBufferingMsec() { }
+        public string GetBus() { }
+        public override Microsoft.Xna.Framework.Vector2 GetMinimumSize() { }
+        public float GetSpeedScale() { }
+        public Microsoft.Xna.Framework.Media.Video GetStream() { }
+        public double GetStreamLength() { }
+        public string GetStreamName() { }
+        public double GetStreamPosition() { }
+        public Microsoft.Xna.Framework.Graphics.Texture2D GetVideoTexture() { }
+        public float GetVolume() { }
+        public float GetVolumeDb() { }
+        public bool HasAutoplay() { }
+        public bool HasExpand() { }
+        public bool HasLoop() { }
+        public bool IsPaused() { }
+        public bool IsPlaying() { }
+        public void Play() { }
+        public void SetAudioTrack(int track) { }
+        public void SetAutoplay(bool enabled) { }
+        public void SetBufferingMsec(int msec) { }
+        public void SetBus(string bus) { }
+        public void SetExpand(bool enable) { }
+        public void SetLoop(bool loop) { }
+        public void SetPaused(bool paused) { }
+        public void SetSpeedScale(float speedScale) { }
+        public void SetStream(Microsoft.Xna.Framework.Media.Video stream) { }
+        public void SetStreamPosition(double position) { }
+        public void SetVolume(float volume) { }
+        public void SetVolumeDb(float db) { }
+        public void Stop() { }
+    }
+}

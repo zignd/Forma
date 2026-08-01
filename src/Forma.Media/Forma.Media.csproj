@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Forma.Media</AssemblyName>
+    <RootNamespace>Forma</RootNamespace>
+    <PackageId>Forma.Media</PackageId>
+    <VersionPrefix>0.1.0-alpha.1</VersionPrefix>
+    <Description>Optional MonoGame video integration for Forma.</Description>
+    <PackageTags>monogame;ui;video;media;game-development</PackageTags>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <ProjectReference Include="../Forma/Forma.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MonoGameProjectPath)' == ''">
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../NOTICE.md" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" />
+    <None Include="../../docs/migration.md" Pack="true" PackagePath="docs" />
+  </ItemGroup>
+
+</Project>

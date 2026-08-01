@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <RepositoryUrl>https://github.com/zignd/Forma</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Authors>Igor Hipólito Vieira</Authors>
+    <Copyright>Copyright (c) 2026 Igor Hipólito Vieira</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile Condition="'$(IsPackable)' == 'true'">true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <MonoGameVersion>3.8.5</MonoGameVersion>
+    <MonoGamePlatform Condition="'$(MonoGamePlatform)' == ''">DesktopGL</MonoGamePlatform>
+    <MonoGamePackageId>MonoGame.Framework.$(MonoGamePlatform)</MonoGamePackageId>
+    <TargetFramework Condition="'$(MonoGamePlatform)' == 'WindowsDX'">net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting Condition="'$(MonoGamePlatform)' == 'WindowsDX'">true</EnableWindowsTargeting>
+  </PropertyGroup>
+</Project>

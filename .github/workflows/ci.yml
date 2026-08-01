@@ -75,7 +75,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: zignd/MonoGame
-          ref: 704c267f62d918d8752439f680501350a9b442e9
+          ref: b8793eddda64e46c3d5e7ab8f89e547ca72c1dc3
           path: .native/MonoGame
           submodules: recursive
       - name: Build MonoGame Metal runtime

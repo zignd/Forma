@@ -33,9 +33,11 @@ jobs:
           xvfb-run -a dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build
       - name: Validate Windows catalog and render tests
         if: runner.os == 'Windows'
+        env:
+          MonoGamePlatform: WindowsDX
         run: |
           bash scripts/check-catalog-smoke.sh
-          dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build
+          dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release
       - name: Validate macOS catalog metrics baseline
         if: runner.os == 'macOS'
         run: bash scripts/check-catalog-smoke.sh

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <FormaPackageVersion>0.1.0-alpha.1</FormaPackageVersion>
+    <FormaPackageSource Condition="'$(FormaPackageSource)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../Artifacts/packages'))</FormaPackageSource>
+    <RestoreSources>$(FormaPackageSource);https://api.nuget.org/v3/index.json</RestoreSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Forma" Version="$(FormaPackageVersion)" />
+    <PackageReference Include="Forma.Media" Version="$(FormaPackageVersion)" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5" />
+  </ItemGroup>
+</Project>

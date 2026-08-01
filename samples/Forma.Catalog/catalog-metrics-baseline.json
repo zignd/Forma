@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 2,
+  "backend": "DesktopGL",
+  "renderedFrames": 3,
+  "storyCount": 74,
+  "displayScale": 2,
+  "logicalViewportWidth": 720,
+  "logicalViewportHeight": 450,
+  "densityFontSelected": true,
+  "hotReloadEnabled": false,
+  "hotReloadSucceeded": null,
+  "hotReloadMilliseconds": null,
+  "hotReloadMessage": null
+}

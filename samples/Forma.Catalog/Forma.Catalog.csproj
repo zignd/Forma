@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.Catalog</AssemblyName>
+    <RootNamespace>Forma.Catalog</RootNamespace>
+    <UseAppHost>false</UseAppHost>
+    <Nullable>disable</Nullable>
+    <CatalogBackend Condition="'$(CatalogBackend)' == ''">$(MonoGamePlatform)</CatalogBackend>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="$(MonoGameVersion)" />
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(MonoGameProjectPath)' == ''" />
+    <ProjectReference Include="../../src/Forma/Forma.csproj" />
+    <MonoGameContentReference Include="Content/Content.mgcb" />
+    <None Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../NOTICE.md" Link="NOTICE.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/IBMPlexSans-Regular-License-OFL.txt" Link="Content/Fonts/IBMPlexSans-Regular-License-OFL.txt" CopyToOutputDirectory="PreserveNewest" />
+    <AssemblyMetadata Include="FormaCatalogBackend" Value="$(CatalogBackend)" />
+  </ItemGroup>
+
+</Project>

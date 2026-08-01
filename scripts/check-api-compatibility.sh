@@ -63,6 +63,7 @@ delta_status=0
     'Phase 0 normalized baseline' 'Approved Forma core'
 ) > "$raw_delta" || delta_status=$?
 tail -n +3 "$raw_delta" |
+  tr -d '\r' |
   sed -e '1,2s/[[:space:]]*$//' > "$actual_delta"
 if ((delta_status != 1)) || ! cmp -s "$approved_delta" "$actual_delta"; then
   printf 'The documented baseline-to-core API delta is stale.\n' >&2

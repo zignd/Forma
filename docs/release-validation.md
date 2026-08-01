@@ -2,9 +2,9 @@
 
 ## 2026-08-01 local candidate review
 
-This review began on macOS Arm64 with .NET SDK 10.0.103 and was extended through hosted Linux and
-Windows CI. Native/Metal and Native/Vulkan runtime validation, legal review, name and trademark
-clearance, publication, and tagging remain external release gates.
+This review began on macOS Arm64 with .NET SDK 10.0.103 and was extended through hosted Linux,
+Windows, and macOS Intel CI. Legal review, name and trademark clearance, publication, and tagging
+remain external release gates.
 
 ### Baselines
 
@@ -39,9 +39,16 @@ tests on Linux DesktopGL and WindowsDX, alongside the macOS DesktopGL catalog sm
 render-test isolation policy.
 
 The DesktopGL catalog smoke passed on macOS and hosted Linux, and the WindowsDX catalog smoke passed
-on hosted Windows. A Native/Metal launch reached runtime initialization but could not load
-`mgruntime.dylib`; no locally built MonoGame Native runtime was available. Native/Metal and
-Native/Vulkan runtime gates therefore remain open.
+on hosted Windows. Native Vulkan passed locally on macOS using the published
+`MonoGame.Runtime.Mac.Vulkan` 3.8.5 package and on hosted Linux using SwiftShader. Native Metal
+passed locally and on hosted macOS Intel after building MonoGame's official `Build Native Metal`
+target at commit `99716f1b02ba9db2130c754606d6b0303d039d15` and staging its
+`libmgruntime.dylib` beside the catalog output. Native catalog assets are compiled with MGCB's
+supported `DesktopVK` content profile because MGCB 3.8.5 does not define a `Native` target. All
+Native smoke runs rendered three frames, inventoried 74 stories, selected the 2x density font, and
+recorded a 720x450 logical viewport. Clean CI run `30692342601` passed the Linux Vulkan, macOS Intel
+Metal, WindowsDX, package-consumer, unit, render, compliance, API, and backend-reference gates
+without debugger or validation-layer instrumentation.
 
 The package check produced `Forma` and `Forma.Media` packages and symbol packages, verified their
 assemblies, XML documentation, license, notice, README, third-party notices, and migration guide,
@@ -52,6 +59,12 @@ reported no pending source classification.
 Both package manifests identify the exact repository commit, and both portable PDBs contain Source
 Link URLs rooted at that commit. Public artifacts must still be rebuilt from the published commit
 before release.
+
+Release workflow run `30688898501` rebuilt and validated both packages from published commit
+`a5febeffe3d1df4b80c28c37897df785ad62cc2e`, uploaded the two `.nupkg` and two `.snupkg` files as
+the `nuget-packages` artifact, and skipped publication because the run was manually dispatched from
+`main`. Tag-triggered publication requires approval through the protected `nuget.org` environment
+and authenticates with NuGet trusted publishing instead of a stored API key.
 
 ### Identity review
 

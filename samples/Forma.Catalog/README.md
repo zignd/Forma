@@ -31,6 +31,17 @@ not part of the stock-compatible catalog.
 Run `bash scripts/check-catalog-smoke.sh` on a graphical host to compare a three-frame forced-2x run
 with `catalog-metrics-baseline.json`.
 
+Run the published Native Vulkan backend and runtime packages with:
+
+```sh
+MonoGamePlatform=Native CatalogBackend=Vulkan bash scripts/check-catalog-smoke.sh
+```
+
+The currently unpublished macOS Metal runtime can be validated after building MonoGame's `Build
+Native Metal` target by setting `NativeRuntimePath` to its `libmgruntime.dylib` output and
+`CatalogBackend=Metal`. Native catalog builds copy the canonical XNBs because MGCB 3.8.5 does not
+define a `Native` content platform.
+
 The build uses the repository-local MGCB 3.8.5 tool to generate `Catalog.xnb` and `Catalog@2x.xnb`
 from the IBM Plex Sans source and `.spritefont` descriptions under `tests/Assets/Fonts`. Canonical
 copies remain there for render tests and are byte-compared with fresh Release outputs by

@@ -31,6 +31,7 @@ jobs:
         run: |
           xvfb-run -a bash scripts/check-catalog-smoke.sh
           xvfb-run -a dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build
+          MonoGamePlatform=Native CatalogBackend=Vulkan xvfb-run -a bash scripts/check-catalog-smoke.sh
       - name: Validate Windows catalog and render tests
         if: runner.os == 'Windows'
         shell: bash
@@ -41,10 +42,42 @@ jobs:
           dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release
       - name: Validate macOS catalog metrics baseline
         if: runner.os == 'macOS'
-        run: bash scripts/check-catalog-smoke.sh
+        run: |
+          bash scripts/check-catalog-smoke.sh
+          MonoGamePlatform=Native CatalogBackend=Vulkan bash scripts/check-catalog-smoke.sh
       - name: Validate macOS render-test isolation
         if: runner.os == 'macOS'
         run: dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release --no-build
+      - name: Install macOS Metal build prerequisites
+        if: runner.os == 'macOS'
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+      - name: Set up Premake
+        if: runner.os == 'macOS'
+        uses: abel0b/setup-premake@v2.4
+        with:
+          version: 5.0.0-beta2
+      - name: Check out MonoGame Metal runtime source
+        if: runner.os == 'macOS'
+        uses: actions/checkout@v4
+        with:
+          repository: zignd/MonoGame
+          ref: 3d1dcd7a4be508ff4b5e06197296cb81f6fae355
+          path: .native/MonoGame
+          submodules: recursive
+      - name: Build MonoGame Metal runtime
+        if: runner.os == 'macOS'
+        working-directory: .native/MonoGame
+        run: ./build.sh --target='Build Native Metal'
+      - name: Validate macOS Metal catalog
+        if: runner.os == 'macOS'
+        env:
+          MonoGamePlatform: Native
+          CatalogBackend: Metal
+          NativeRuntimePath: ${{ github.workspace }}/.native/MonoGame/Artifacts/native/mgruntime/desktopmetal/macosx/Release/libmgruntime.dylib
+        run: bash scripts/check-catalog-smoke.sh
 
   package-consumer:
     runs-on: ubuntu-latest

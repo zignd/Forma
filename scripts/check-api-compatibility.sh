@@ -54,6 +54,7 @@ baseline_copy="$stage_directory/Phase 0 normalized baseline"
 approved_copy="$stage_directory/Approved Forma core"
 raw_delta="$stage_directory/api-compatibility.raw.diff"
 actual_delta="$stage_directory/api-compatibility.diff"
+normalized_approved_delta="$stage_directory/api-compatibility.approved.diff"
 cp "$baseline" "$baseline_copy"
 cp "$approved" "$approved_copy"
 delta_status=0
@@ -65,9 +66,10 @@ delta_status=0
 tail -n +3 "$raw_delta" |
   tr -d '\r' |
   sed -e '1,2s/[[:space:]]*$//' > "$actual_delta"
-if ((delta_status != 1)) || ! cmp -s "$approved_delta" "$actual_delta"; then
+tr -d '\r' < "$approved_delta" > "$normalized_approved_delta"
+if ((delta_status != 1)) || ! cmp -s "$normalized_approved_delta" "$actual_delta"; then
   printf 'The documented baseline-to-core API delta is stale.\n' >&2
-  diff -u "$approved_delta" "$actual_delta" || true
+  diff -u "$normalized_approved_delta" "$actual_delta" || true
   exit 1
 fi
 

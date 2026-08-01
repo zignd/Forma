@@ -39,8 +39,8 @@ MonoGamePlatform=Native CatalogBackend=Vulkan bash scripts/check-catalog-smoke.s
 
 The currently unpublished macOS Metal runtime can be validated after building MonoGame's `Build
 Native Metal` target by setting `NativeRuntimePath` to its `libmgruntime.dylib` output and
-`CatalogBackend=Metal`. Native catalog builds copy the canonical XNBs because MGCB 3.8.5 does not
-define a `Native` content platform.
+`CatalogBackend=Metal`. Because MGCB 3.8.5 does not define a `Native` content platform, Native
+catalog builds compile their assets with the compatible `DesktopVK` content profile.
 
 The build uses the repository-local MGCB 3.8.5 tool to generate `Catalog.xnb` and `Catalog@2x.xnb`
 from the IBM Plex Sans source and `.spritefont` descriptions under `tests/Assets/Fonts`. Canonical

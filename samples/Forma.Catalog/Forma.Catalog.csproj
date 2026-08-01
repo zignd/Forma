@@ -7,7 +7,6 @@
     <UseAppHost>false</UseAppHost>
     <Nullable>disable</Nullable>
     <CatalogBackend Condition="'$(CatalogBackend)' == ''">$(MonoGamePlatform)</CatalogBackend>
-    <EnableMGCBItems Condition="'$(MonoGamePlatform)' == 'Native'">false</EnableMGCBItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,9 +15,7 @@
     <PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="$(MonoGameVersion)" Condition="'$(MonoGamePlatform)' == 'Native' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('Linux'))" />
     <PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="$(MonoGameVersion)" Condition="'$(MonoGamePlatform)' == 'Native' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('OSX'))" />
     <ProjectReference Include="../../src/Forma/Forma.csproj" />
-    <MonoGameContentReference Include="Content/Content.mgcb" Condition="'$(MonoGamePlatform)' != 'Native'" />
-    <Content Include="../../tests/Assets/Fonts/Catalog.xnb" Link="Content/Fonts/Catalog.xnb" CopyToOutputDirectory="PreserveNewest" Condition="'$(MonoGamePlatform)' == 'Native'" />
-    <Content Include="../../tests/Assets/Fonts/Catalog@2x.xnb" Link="Content/Fonts/Catalog@2x.xnb" CopyToOutputDirectory="PreserveNewest" Condition="'$(MonoGamePlatform)' == 'Native'" />
+    <MonoGameContentReference Include="Content/Content.mgcb" />
     <Content Include="$(NativeRuntimePath)" Link="$([System.IO.Path]::GetFileName('$(NativeRuntimePath)'))" CopyToOutputDirectory="PreserveNewest" Condition="'$(MonoGamePlatform)' == 'Native' And '$(NativeRuntimePath)' != ''" />
     <None Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../NOTICE.md" Link="NOTICE.md" CopyToOutputDirectory="PreserveNewest" />
@@ -26,5 +23,18 @@
     <None Include="../../tests/Assets/Fonts/IBMPlexSans-Regular-License-OFL.txt" Link="Content/Fonts/IBMPlexSans-Regular-License-OFL.txt" CopyToOutputDirectory="PreserveNewest" />
     <AssemblyMetadata Include="FormaCatalogBackend" Value="$(CatalogBackend)" />
   </ItemGroup>
+
+  <Target Name="UseVulkanContentForNativeCatalog" BeforeTargets="CollectContentReferences" Condition="'$(MonoGamePlatform)' == 'Native'">
+    <PropertyGroup>
+      <_FormaCatalogRuntimePlatform>$(MonoGamePlatform)</_FormaCatalogRuntimePlatform>
+      <MonoGamePlatform>DesktopVK</MonoGamePlatform>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="RestoreNativeCatalogPlatform" AfterTargets="IncludeContent" Condition="'$(_FormaCatalogRuntimePlatform)' != ''">
+    <PropertyGroup>
+      <MonoGamePlatform>$(_FormaCatalogRuntimePlatform)</MonoGamePlatform>
+    </PropertyGroup>
+  </Target>
 
 </Project>

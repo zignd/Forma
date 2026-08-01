@@ -28,13 +28,17 @@ jobs:
       - run: dotnet test tests/Forma.Tests/Forma.Tests.csproj --configuration Release --no-build
       - name: Install Linux Vulkan software driver
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends mesa-vulkan-drivers vulkan-tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends mesa-vulkan-drivers vulkan-tools
+          lavapipe_icd=$(find /usr/share/vulkan/icd.d -name 'lvp_icd*.json' -print -quit)
+          test -n "$lavapipe_icd"
+          echo "VK_ICD_FILENAMES=$lavapipe_icd" >> "$GITHUB_ENV"
+          echo "VK_DRIVER_FILES=$lavapipe_icd" >> "$GITHUB_ENV"
       - name: Validate Linux catalog and render tests
         if: runner.os == 'Linux'
         env:
           LIBGL_ALWAYS_SOFTWARE: 1
-          VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
-          VK_DRIVER_FILES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
         run: |
           xvfb-run -a vulkaninfo --summary
           xvfb-run -a bash scripts/check-catalog-smoke.sh

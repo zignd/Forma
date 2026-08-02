@@ -1,0 +1,149 @@
+SHELL := /bin/bash
+.DEFAULT_GOAL := help
+.NOTPARALLEL:
+
+DOTNET ?= dotnet
+CONFIGURATION ?= Debug
+CATALOG_ARGS ?=
+MONOGAME_PROJECT ?= $(abspath ../MonoGame/MonoGame.Framework/MonoGame.Framework.DesktopGL.csproj)
+FNA_PROJECT ?= $(abspath ../FNA/FNA.Core.csproj)
+PLAN ?= docs/dynamic-text-rendering-plan.md
+TRACK_ARGS ?= --summary
+
+MONOGAME_CATALOG := samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj
+FNA_CATALOG := samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj
+UNIT_TESTS := tests/Forma.Tests/Forma.Tests.csproj
+RENDER_TESTS := tests/Forma.RenderTests/Forma.RenderTests.csproj
+DOTNET_ARGS := --configuration "$(CONFIGURATION)" --nologo
+
+.PHONY: help setup tools restore restore-monogame restore-fna \
+	build build-monogame build-fna \
+	test test-unit test-unit-monogame test-unit-fna \
+	test-render test-render-monogame test-render-fna \
+	catalog-monogame catalog-monogame-local catalog-fna catalog-fna-local \
+	smoke smoke-monogame smoke-fna render-parity video-smoke \
+	text-spike text-spike-local text-baseline \
+	compliance backend-references parity packages nativeaot check check-all \
+	icons icons-import icons-verify unicode unicode-verify track clean
+
+help: ## Show available targets and configuration variables.
+	@awk 'BEGIN { FS = ":.*## "; printf "Forma development targets\n\n" } /^[a-zA-Z0-9_.-]+:.*## / { printf "  %-24s %s\n", $$1, $$2 } END { printf "\nVariables: CONFIGURATION, DOTNET, CATALOG_ARGS, MONOGAME_PROJECT, FNA_PROJECT, PLAN, TRACK_ARGS\n" }' $(MAKEFILE_LIST)
+
+setup: tools restore ## Restore local tools and both runtime dependency graphs.
+
+tools: ## Restore repository-local .NET tools.
+	$(DOTNET) tool restore
+
+restore: restore-monogame restore-fna ## Restore both runtime dependency graphs.
+
+restore-monogame: ## Restore the MonoGame catalog graph.
+	$(DOTNET) restore $(MONOGAME_CATALOG) -p:FormaRuntime=MonoGame --nologo
+
+restore-fna: ## Restore the FNA catalog graph.
+	$(DOTNET) restore $(FNA_CATALOG) -p:FormaRuntime=FNA --nologo
+
+build: build-monogame build-fna ## Build both complete runtime graphs.
+
+build-monogame: ## Build the complete MonoGame graph.
+	$(DOTNET) build $(MONOGAME_CATALOG) $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
+
+build-fna: ## Build the complete FNA graph.
+	$(DOTNET) build $(FNA_CATALOG) $(DOTNET_ARGS) -p:FormaRuntime=FNA
+
+test: test-unit test-render ## Run unit and render tests for both runtimes.
+
+test-unit: test-unit-monogame test-unit-fna ## Run unit tests for both runtimes.
+
+test-unit-monogame: ## Run MonoGame unit and catalog inventory tests.
+	$(DOTNET) test $(UNIT_TESTS) $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
+
+test-unit-fna: ## Run FNA unit and catalog inventory tests.
+	$(DOTNET) test $(UNIT_TESTS) $(DOTNET_ARGS) -p:FormaRuntime=FNA
+
+test-render: test-render-monogame test-render-fna ## Run render tests for both runtimes.
+
+test-render-monogame: ## Run MonoGame render tests.
+	$(DOTNET) test $(RENDER_TESTS) $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
+
+test-render-fna: ## Run FNA render tests.
+	$(DOTNET) test $(RENDER_TESTS) $(DOTNET_ARGS) -p:FormaRuntime=FNA
+
+catalog-monogame: ## Launch the interactive MonoGame catalog.
+	$(DOTNET) run --project $(MONOGAME_CATALOG) --configuration "$(CONFIGURATION)" -p:FormaRuntime=MonoGame $(CATALOG_ARGS)
+
+catalog-monogame-local: ## Launch the catalog against a local MonoGame fork.
+	@test -f "$(MONOGAME_PROJECT)" || { echo "MONOGAME_PROJECT does not exist: $(MONOGAME_PROJECT)" >&2; exit 2; }
+	$(DOTNET) run --project $(MONOGAME_CATALOG) --configuration "$(CONFIGURATION)" -p:FormaRuntime=MonoGame -p:MonoGameProjectPath="$(MONOGAME_PROJECT)" $(CATALOG_ARGS)
+
+catalog-fna: ## Launch the interactive FNA catalog.
+	$(DOTNET) run --project $(FNA_CATALOG) --configuration "$(CONFIGURATION)" -p:FormaRuntime=FNA $(CATALOG_ARGS)
+
+catalog-fna-local: ## Launch the catalog against a local FNA fork.
+	@test -f "$(FNA_PROJECT)" || { echo "FNA_PROJECT does not exist: $(FNA_PROJECT)" >&2; exit 2; }
+	$(DOTNET) run --project $(FNA_CATALOG) --configuration "$(CONFIGURATION)" -p:FormaRuntime=FNA -p:FnaProjectPath="$(FNA_PROJECT)" $(CATALOG_ARGS)
+
+smoke: smoke-monogame smoke-fna ## Run both bounded catalog smoke checks.
+
+smoke-monogame: ## Run the bounded MonoGame catalog smoke check.
+	bash scripts/check-catalog-smoke.sh
+
+smoke-fna: ## Run the bounded FNA catalog smoke check.
+	FormaRuntime=FNA bash scripts/check-catalog-smoke.sh
+
+render-parity: ## Compare deterministic catalog rendering across runtimes.
+	bash scripts/check-catalog-render-parity.sh
+
+video-smoke: ## Validate FNA Theora playback through Forma.Media.
+	bash scripts/check-fna-video-smoke.sh
+
+text-spike: ## Validate dynamic text shaping, rasterization, and atlas upload against both packages.
+	bash scripts/check-dynamic-text-spike.sh
+
+text-spike-local: ## Validate the dynamic text spike against packaged peers and a local FNA fork.
+	@test -f "$(FNA_PROJECT)" || { echo "FNA_PROJECT does not exist: $(FNA_PROJECT)" >&2; exit 2; }
+	FNA_PROJECT="$(FNA_PROJECT)" bash scripts/check-dynamic-text-spike.sh
+
+text-baseline: ## Capture the pre-dynamic-text catalog screenshots and metrics at 1x and 2x.
+	bash scripts/capture-dynamic-text-baseline.sh
+
+compliance: ## Validate licenses, notices, and SPDX identifiers.
+	bash scripts/check-compliance.sh
+
+backend-references: ## Compile Forma.Media against supported MonoGame backends.
+	bash scripts/check-backend-references.sh
+
+parity: ## Build/test both runtimes and compare references and public APIs.
+	bash scripts/check-runtime-parity.sh
+
+packages: ## Build and validate all peer packages and isolated consumers.
+	bash scripts/test-package-consumer.sh
+
+nativeaot: ## Validate trim-only and NativeAOT package consumers on macOS arm64.
+	bash scripts/test-nativeaot-package-consumer.sh
+
+icons: ## Regenerate canonical 1x/2x default theme icon atlases.
+	$(DOTNET) run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- generate
+
+icons-import: ## Import mapped icons from GODOT_ROOT at the pinned revision.
+	@test -n "$(GODOT_ROOT)" || { echo "GODOT_ROOT is required." >&2; exit 2; }
+	$(DOTNET) run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- import "$(GODOT_ROOT)"
+
+icons-verify: ## Regenerate and byte-compare committed icon outputs.
+	$(DOTNET) run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- verify
+
+unicode: ## Regenerate canonical Unicode 17 managed tables and conformance cases.
+	$(DOTNET) run --project tools/Forma.UnicodePipeline/Forma.UnicodePipeline.csproj -- generate
+
+unicode-verify: ## Download pinned Unicode sources and byte-compare generated outputs.
+	$(DOTNET) run --project tools/Forma.UnicodePipeline/Forma.UnicodePipeline.csproj -- verify
+
+check: compliance icons-verify unicode-verify parity ## Run the portable CI validation gates.
+
+check-all: check backend-references smoke render-parity video-smoke packages ## Run every validation, including graphical and package checks.
+
+track: ## Show plan progress; override PLAN and TRACK_ARGS as needed.
+	bash scripts/track-plan.sh $(TRACK_ARGS) "$(PLAN)"
+
+clean: ## Clean both runtime variants across the solution.
+	$(DOTNET) clean Forma.slnx $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
+	$(DOTNET) clean Forma.slnx $(DOTNET_ARGS) -p:FormaRuntime=FNA

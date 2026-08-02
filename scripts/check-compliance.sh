@@ -10,11 +10,39 @@ repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 for required_file in LICENSE NOTICE.md THIRD-PARTY-NOTICES.md \
   tests/Assets/Fonts/LICENSE.Inter.txt \
-  tests/Assets/Fonts/LICENSE.JetBrainsMono.txt; do
+  tests/Assets/Fonts/LICENSE.JetBrainsMono.txt \
+  tests/Assets/Fonts/LICENSE.NotoSansArabic.txt \
+  tests/Assets/Fonts/NotoSansArabic_Variable.ttf \
+  tests/Assets/Text/multilingual-corpus.json \
+  tests/Assets/Text/README.md \
+  tests/Assets/Video/README.md \
+  tests/Assets/Video/forma-video-smoke.ogv \
+  assets/unicode/manifest.json \
+  assets/theme-icons/imports.json \
+  assets/theme-icons/LICENSE.Godot.txt \
+  src/Forma/Resources/ThemeIcons/theme-icons-1x.png \
+  src/Forma/Resources/ThemeIcons/theme-icons-2x.png \
+  src/Forma/Resources/ThemeIcons/theme-icons.json \
+  docs/images/catalog-monogame.png \
+  docs/images/catalog-fna.png; do
   test -s "$repository_root/$required_file"
 done
 
-for required_notice in "Godot Engine" "Bjorn Ottosson" "MonoGame" "Inter" "JetBrains Mono"; do
+icon_source_count="$(find "$repository_root/assets/theme-icons/svg" -type f -name '*.svg' | wc -l | tr -d ' ')"
+icon_manifest_count="$(jq '.Icons | length' "$repository_root/assets/theme-icons/imports.json")"
+test "$icon_source_count" -eq "$icon_manifest_count"
+test "$icon_source_count" -gt 0
+if find "$repository_root/assets/theme-icons/svg" -type f ! -name '*.svg' | grep -q .; then
+  printf 'Theme icon input directory contains an unclassified file.\n' >&2
+  exit 1
+fi
+jq -e 'all(.Icons[]; .License == "Godot-MIT" and (.Source | startswith("scene/theme/icons/")) and (.Sha256 | test("^[0-9a-f]{64}$")))' \
+  "$repository_root/assets/theme-icons/imports.json" >/dev/null
+grep -Fq 'Svg.Skia' "$repository_root/THIRD-PARTY-NOTICES.md"
+jq -e '.unicodeVersion == "17.0.0" and (.files | length > 0) and all(.files[]; (.url | startswith("https://www.unicode.org/Public/17.0.0/")) and (.sha256 | test("^[0-9a-f]{64}$")))' \
+  "$repository_root/assets/unicode/manifest.json" >/dev/null
+
+for required_notice in "Godot Engine" "Bjorn Ottosson" "MonoGame" "FNA.NET" "Inter" "JetBrains Mono" "Noto Sans Arabic" "FreeType" "HarfBuzz" "Unicode Character Database" "Unicode License V3"; do
   grep -Fq "$required_notice" "$repository_root/THIRD-PARTY-NOTICES.md"
 done
 
@@ -31,4 +59,4 @@ grep -Fq "Microsoft Public License (Ms-PL)" "$repository_root/THIRD-PARTY-NOTICE
 
 grep -Fq "Copyright (c) 2021 Björn Ottosson" "$repository_root/src/Forma/OkColor.cs"
 
-printf 'Compliance: %d tracked C# files carry SPDX license identifiers.\n' "$source_count"
+printf 'Compliance: %d tracked C# files and %d classified theme icons validated.\n' "$source_count" "$icon_source_count"

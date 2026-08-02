@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Application>
+    <Assembly Name="FNA.NET">
+      <Type Name="Microsoft.Xna.Framework.Content.SpriteFontReader" Dynamic="Required All" />
+      <Type Name="Microsoft.Xna.Framework.Content.Texture2DReader" Dynamic="Required All" />
+      <Type Name="Microsoft.Xna.Framework.Content.ListReader`1" Dynamic="Required All" />
+      <Type Name="Microsoft.Xna.Framework.Content.RectangleReader" Dynamic="Required All" />
+      <Type Name="Microsoft.Xna.Framework.Content.CharReader" Dynamic="Required All" />
+      <Type Name="Microsoft.Xna.Framework.Content.Vector3Reader" Dynamic="Required All" />
+    </Assembly>
+  </Application>
+</Directives>

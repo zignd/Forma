@@ -2,14 +2,38 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
+    <FormaRuntime Condition="'$(FormaRuntime)' == ''">MonoGame</FormaRuntime>
+    <FormaMediaRuntime Condition="'$(FormaMediaRuntime)' == ''">$(FormaRuntime)</FormaMediaRuntime>
+    <IncludeFormaMedia Condition="'$(IncludeFormaMedia)' == ''">true</IncludeFormaMedia>
+    <IncludeDynamicText Condition="'$(IncludeDynamicText)' == ''">false</IncludeDynamicText>
+    <ExerciseSpriteFont Condition="'$(ExerciseSpriteFont)' == ''">false</ExerciseSpriteFont>
+    <ExpectDynamicTextDefault Condition="'$(ExpectDynamicTextDefault)' == '' and '$(IncludeDynamicText)' == 'true'">true</ExpectDynamicTextDefault>
     <FormaPackageVersion>0.1.0-alpha.1</FormaPackageVersion>
-    <FormaPackageSource Condition="'$(FormaPackageSource)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../Artifacts/packages'))</FormaPackageSource>
-    <RestoreSources>$(FormaPackageSource);https://api.nuget.org/v3/index.json</RestoreSources>
+    <FormaPackageSource Condition="'$(FormaPackageSource)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../Artifacts/packages/$(FormaRuntime)'))</FormaPackageSource>
+    <RestoreSources>$(FormaPackageSource);$(FormaAdditionalPackageSource);https://api.nuget.org/v3/index.json</RestoreSources>
+    <DefineConstants Condition="'$(IncludeFormaMedia)' != 'true'">$(DefineConstants);FORMA_CORE_ONLY</DefineConstants>
+    <DefineConstants Condition="'$(IncludeDynamicText)' == 'true'">$(DefineConstants);FORMA_DYNAMIC_TEXT</DefineConstants>
+    <DefineConstants Condition="'$(ExerciseSpriteFont)' == 'true'">$(DefineConstants);FORMA_SPRITEFONT_DRAW</DefineConstants>
+    <DefineConstants Condition="'$(ExpectDynamicTextDefault)' == 'true'">$(DefineConstants);FORMA_DYNAMIC_TEXT_DEFAULT</DefineConstants>
+    <DefineConstants Condition="'$(FormaRuntime)' == 'MonoGame'">$(DefineConstants);FORMA_MONOGAME</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Forma" Version="$(FormaPackageVersion)" />
-    <PackageReference Include="Forma.Media" Version="$(FormaPackageVersion)" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5" />
+    <PackageReference Include="Forma.$(FormaRuntime)" Version="$(FormaPackageVersion)" />
+    <PackageReference Include="Forma.DynamicText.$(FormaRuntime)" Version="$(FormaPackageVersion)" Condition="'$(IncludeDynamicText)' == 'true'" />
+    <PackageReference Include="Forma.Media.$(FormaMediaRuntime)" Version="$(FormaPackageVersion)" Condition="'$(IncludeFormaMedia)' == 'true'" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5" Condition="'$(FormaRuntime)' == 'MonoGame'" />
+    <PackageReference Include="FNA.NET" Version="2.2.11.2602" Condition="'$(FormaRuntime)' == 'FNA'" />
+    <PackageReference Include="FNA.NET.NativeAssets" Version="2.1.2.2602" Condition="'$(FormaRuntime)' == 'FNA'" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IncludeDynamicText)' == 'true'">
+    <None Include="../Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../../docs/examples/DynamicTextQuickStart.cs" Link="Examples/DynamicTextQuickStart.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ExerciseSpriteFont)' == 'true'">
+    <Content Include="../Assets/Fonts/Catalog.xnb" Link="Content/Fonts/Catalog.xnb" CopyToOutputDirectory="PreserveNewest" />
+    <RdXmlFile Include="FnaNativeAot.rd.xml" Condition="'$(FormaRuntime)' == 'FNA' and '$(PublishAot)' == 'true'" />
   </ItemGroup>
 </Project>

@@ -3,8 +3,7 @@ set -euo pipefail
 
 # Purpose: Run the catalog for three frames and compare its 2x metrics with the approved baseline.
 # Usage: `bash scripts/check-catalog-smoke.sh` from any directory; a graphical environment and `jq`
-# are required. DesktopGL is expected by default; set `CatalogBackend` or `MonoGamePlatform` to
-# override the expected backend name.
+# are required. Set `FormaRuntime=FNA` for the FNA host; MonoGame is the default.
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 baseline="$repository_root/samples/Forma.Catalog/catalog-metrics-baseline.json"
@@ -12,7 +11,21 @@ stage_directory="$(mktemp -d "${TMPDIR:-/tmp}/forma-catalog.XXXXXX")"
 actual="$stage_directory/catalog.json"
 stable_baseline="$stage_directory/baseline-stable.json"
 stable_actual="$stage_directory/actual-stable.json"
-expected_backend="${CatalogBackend:-${MonoGamePlatform:-DesktopGL}}"
+runtime="${FormaRuntime:-MonoGame}"
+case "$runtime" in
+  MonoGame)
+    project="$repository_root/samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj"
+    expected_backend="${CatalogBackend:-${MonoGamePlatform:-DesktopGL}}"
+    ;;
+  FNA)
+    project="$repository_root/samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj"
+    expected_backend="FNA"
+    ;;
+  *)
+    printf 'FormaRuntime must be either MonoGame or FNA.\n' >&2
+    exit 2
+    ;;
+esac
 trap 'rm -rf "$stage_directory"' EXIT
 
 if ! command -v jq >/dev/null; then
@@ -20,8 +33,9 @@ if ! command -v jq >/dev/null; then
   exit 2
 fi
 
-dotnet run --project "$repository_root/samples/Forma.Catalog/Forma.Catalog.csproj" \
+dotnet run --project "$project" \
   --configuration Release \
+  -p:FormaRuntime="$runtime" \
   -- \
   --metrics "$actual" \
   --frames 3 \
@@ -38,8 +52,53 @@ if ! jq -e --arg backend "$expected_backend" '.backend == $backend' "$actual" >/
   exit 1
 fi
 
-jq -S 'del(.backend, .logicalViewportWidth, .logicalViewportHeight)' "$baseline" > "$stable_baseline"
-jq -S 'del(.backend, .logicalViewportWidth, .logicalViewportHeight)' "$actual" > "$stable_actual"
+for story_name in "Complete icon inventory" "Override and suppression" "Atlas diagnostics"; do
+  story_actual="$stage_directory/$(tr ' ' '-' <<<"$story_name").json"
+  dotnet run --project "$project" \
+    --configuration Release \
+    -p:FormaRuntime="$runtime" \
+    -- \
+    --metrics "$story_actual" \
+    --frames 3 \
+    --display-scale 2 \
+    --story "$story_name"
+  jq -e '(.themeIconDensity == 2) and (.themeIconAtlasCount >= 1) and (.themeIconTextureBytes > 0) and (.themeIconMissingCount == 0)' \
+    "$story_actual" >/dev/null
+done
+
+for story_name in "Dynamic Sizes" "Display Density" "Fallback Chain" "Shaping and Features" "Bidirectional Text" "Wrapping and Selection" "SpriteFont Compatibility" "Atlas Inspector" "Failure States"; do
+  story_actual="$stage_directory/$(tr ' ' '-' <<<"$story_name").json"
+  dotnet run --project "$project" \
+    --configuration Release \
+    -p:FormaRuntime="$runtime" \
+    -- \
+    --metrics "$story_actual" \
+    --frames 3 \
+    --display-scale 2 \
+    --story "$story_name"
+  jq -e --arg story "$story_name" '
+    .selectedStory == $story and
+    .dynamicGlyphPageCount <= 8 and
+    .dynamicGlyphBytes <= 33554432 and
+    .dynamicGlyphPendingUploads == 0 and
+    .dynamicGlyphFailures == 0
+  ' "$story_actual" >/dev/null
+done
+
+inventory_1x="$stage_directory/icon-inventory-1x.json"
+dotnet run --project "$project" \
+  --configuration Release \
+  -p:FormaRuntime="$runtime" \
+  -- \
+  --metrics "$inventory_1x" \
+  --frames 3 \
+  --display-scale 1 \
+  --story "Complete icon inventory"
+jq -e '(.themeIconDensity == 1) and (.themeIconAtlasCount == 1) and (.themeIconTextureBytes > 0) and (.themeIconMissingCount == 0)' \
+  "$inventory_1x" >/dev/null
+
+jq -S 'del(.backend, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$baseline" > "$stable_baseline"
+jq -S 'del(.backend, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$actual" > "$stable_actual"
 if ! cmp -s "$stable_baseline" "$stable_actual"; then
   printf 'Catalog metrics differ from the approved 2x baseline.\n' >&2
   diff -u "$stable_baseline" "$stable_actual" || true
@@ -47,5 +106,6 @@ if ! cmp -s "$stable_baseline" "$stable_actual"; then
 fi
 
 viewport="$(jq -r '"\(.logicalViewportWidth)x\(.logicalViewportHeight)"' "$actual")"
-printf 'Catalog smoke: %s, 3 frames, 75 stories, 2x density font, %s logical viewport.\n' \
-  "$expected_backend" "$viewport"
+story_count="$(jq -r '.storyCount' "$actual")"
+printf 'Catalog smoke: %s, 3 frames, %s stories, 2x density font, %s logical viewport.\n' \
+  "$expected_backend" "$story_count" "$viewport"

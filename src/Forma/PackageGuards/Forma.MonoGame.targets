@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <FormaCoreMonoGamePackageReferenced>true</FormaCoreMonoGamePackageReferenced>
+  </PropertyGroup>
+  <Target Name="ValidateFormaMonoGamePackageGraph" BeforeTargets="ResolveReferences">
+    <Error Condition="'$(FormaCoreFnaPackageReferenced)' == 'true'"
+           Text="Forma.MonoGame and Forma.FNA cannot be referenced by the same project. Select one Forma runtime variant." />
+    <Error Condition="'$(FormaMediaFnaPackageReferenced)' == 'true'"
+           Text="Forma.MonoGame cannot be combined with Forma.Media.FNA. Reference Forma.Media.MonoGame instead." />
+  </Target>
+</Project>

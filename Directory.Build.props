@@ -26,13 +26,15 @@
     <MonoGameVersion>3.8.5</MonoGameVersion>
     <MonoGamePlatform Condition="'$(MonoGamePlatform)' == ''">DesktopGL</MonoGamePlatform>
     <MonoGamePackageId>MonoGame.Framework.$(MonoGamePlatform)</MonoGamePackageId>
+    <MonoGamePackageId Condition="'$(MonoGamePlatform)' == 'Windows'">MonoGame.Framework.WindowsDX</MonoGamePackageId>
+    <MonoGamePackageId Condition="'$(FormaNativeRuntime)' == 'true' And '$(MonoGamePlatform)' == 'DesktopVK'">MonoGame.Framework.Native</MonoGamePackageId>
     <FnaVersion>2.2.11.2602</FnaVersion>
     <FnaPackageId>FNA.NET</FnaPackageId>
     <FnaNativeAssetsVersion>2.1.2.2602</FnaNativeAssetsVersion>
     <FreeTypeSharpVersion>3.1.0</FreeTypeSharpVersion>
     <HarfBuzzSharpVersion>14.2.1.1</HarfBuzzSharpVersion>
-    <TargetFramework Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGamePlatform)' == 'WindowsDX'">net10.0-windows</TargetFramework>
-    <EnableWindowsTargeting Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGamePlatform)' == 'WindowsDX'">true</EnableWindowsTargeting>
+    <TargetFramework Condition="'$(FormaRuntime)' == 'MonoGame' and ('$(MonoGamePlatform)' == 'Windows' or '$(MonoGamePlatform)' == 'WindowsDX')">net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting Condition="'$(FormaRuntime)' == 'MonoGame' and ('$(MonoGamePlatform)' == 'Windows' or '$(MonoGamePlatform)' == 'WindowsDX')">true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>

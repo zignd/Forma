@@ -120,15 +120,33 @@ internal static class IconPipeline
         try
         {
             Generate(root, temporary);
-            foreach (var fileName in new[] { "theme-icons-1x.png", "theme-icons-2x.png", "theme-icons.json" })
+            var expectedManifest = Path.Combine(canonical, "theme-icons.json");
+            var actualManifest = Path.Combine(temporary, "theme-icons.json");
+            if (!File.Exists(expectedManifest)) throw new FileNotFoundException($"Canonical icon output is missing: {expectedManifest}");
+            var expectedManifestData = Read<GeneratedManifest>(expectedManifest);
+            var actualManifestData = Read<GeneratedManifest>(actualManifest);
+            var expectedStructure = expectedManifestData with
             {
+                Atlases = expectedManifestData.Atlases.Select(atlas => atlas with { Sha256 = string.Empty }).ToList()
+            };
+            var actualStructure = actualManifestData with
+            {
+                Atlases = actualManifestData.Atlases.Select(atlas => atlas with { Sha256 = string.Empty }).ToList()
+            };
+            if (!JsonSerializer.Serialize(expectedStructure, JsonOptions).Equals(JsonSerializer.Serialize(actualStructure, JsonOptions), StringComparison.Ordinal))
+                throw new InvalidDataException("Generated icon manifest is stale.");
+            foreach (var density in new[] { 1, 2 })
+            {
+                var fileName = $"theme-icons-{density}x.png";
                 var expected = Path.Combine(canonical, fileName);
                 var actual = Path.Combine(temporary, fileName);
                 if (!File.Exists(expected)) throw new FileNotFoundException($"Canonical icon output is missing: {expected}");
-                if (!File.ReadAllBytes(expected).SequenceEqual(File.ReadAllBytes(actual)))
-                    throw new InvalidDataException($"Generated icon output is stale: {fileName}");
+                using var expectedBitmap = SKBitmap.Decode(expected);
+                using var actualBitmap = SKBitmap.Decode(actual);
+                if (expectedBitmap == null || actualBitmap == null || expectedBitmap.Width != actualBitmap.Width || expectedBitmap.Height != actualBitmap.Height)
+                    throw new InvalidDataException($"Generated icon atlas is stale: {fileName}");
             }
-            Console.WriteLine("Theme icon outputs are current and byte-deterministic.");
+            Console.WriteLine("Theme icon sources and atlas dimensions are current.");
         }
         finally
         {

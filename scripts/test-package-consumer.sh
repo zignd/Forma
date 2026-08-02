@@ -178,6 +178,16 @@ if unzip -p "$package_root/FNA/Forma.FNA.$version.nupkg" Forma.FNA.nuspec |
   exit 1
 fi
 
+run_consumer() {
+  local runtime="$1"
+  shift
+  if [[ "$runtime" == "FNA" && "$(uname -s)" == "Linux" ]]; then
+    env SDL_VIDEODRIVER=offscreen FNA3D_FORCE_DRIVER=OpenGL FNA3D_OPENGL_WINDOW_DEPTHSTENCILFORMAT=None "$@"
+  else
+    "$@"
+  fi
+}
+
 for runtime in MonoGame FNA; do
   consumer_cache="$package_root/.consumer-packages/$runtime"
   rm -rf "$consumer_cache" "$repository_root/tests/Forma.PackageConsumer/bin" "$repository_root/tests/Forma.PackageConsumer/obj"
@@ -186,7 +196,7 @@ for runtime in MonoGame FNA; do
     -p:FormaPackageSource="$package_root/$runtime" \
     -p:RestoreNoCache=true \
     --nologo
-  NUGET_PACKAGES="$consumer_cache" dotnet run --project "$consumer_project" \
+  NUGET_PACKAGES="$consumer_cache" run_consumer "$runtime" dotnet run --project "$consumer_project" \
     --configuration Release \
     -p:FormaRuntime="$runtime" \
     -p:FormaPackageSource="$package_root/$runtime" \
@@ -215,7 +225,7 @@ for runtime in MonoGame FNA; do
     -p:FormaPackageSource="$package_root/$runtime" \
     -p:RestoreNoCache=true \
     --nologo
-  NUGET_PACKAGES="$consumer_cache" dotnet run --project "$consumer_project" \
+  NUGET_PACKAGES="$consumer_cache" run_consumer "$runtime" dotnet run --project "$consumer_project" \
     --configuration Release \
     -p:FormaRuntime="$runtime" \
     -p:IncludeFormaMedia=false \
@@ -241,7 +251,7 @@ for runtime in MonoGame FNA; do
     -p:FormaPackageSource="$package_root/$runtime" \
     -p:RestoreNoCache=true \
     --nologo
-  NUGET_PACKAGES="$consumer_cache" dotnet run --project "$consumer_project" \
+  NUGET_PACKAGES="$consumer_cache" run_consumer "$runtime" dotnet run --project "$consumer_project" \
     --configuration Release \
     -p:FormaRuntime="$runtime" \
     -p:IncludeFormaMedia=false \
@@ -262,7 +272,7 @@ for runtime in MonoGame FNA; do
     -p:FormaPackageSource="$package_root/$runtime" \
     -p:RestoreNoCache=true \
     --nologo
-  NUGET_PACKAGES="$consumer_cache" dotnet run --project "$consumer_project" \
+  NUGET_PACKAGES="$consumer_cache" run_consumer "$runtime" dotnet run --project "$consumer_project" \
     --configuration Release \
     -p:FormaRuntime="$runtime" \
     -p:IncludeFormaMedia=false \
@@ -285,7 +295,7 @@ for runtime in MonoGame FNA; do
     -p:FormaPackageSource="$package_root/$runtime" \
     -p:RestoreNoCache=true \
     --nologo
-  NUGET_PACKAGES="$consumer_cache" dotnet run --project "$consumer_project" \
+  NUGET_PACKAGES="$consumer_cache" run_consumer "$runtime" dotnet run --project "$consumer_project" \
     --configuration Release \
     -p:FormaRuntime="$runtime" \
     -p:IncludeFormaMedia=false \

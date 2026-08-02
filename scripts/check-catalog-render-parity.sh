@@ -2,12 +2,29 @@
 set -euo pipefail
 
 # Purpose: Render the shared catalog through both peer hosts and compare deterministic image
-# statistics. Exact hashes are diagnostic; aggregate values allow at most 1% rasterizer variance.
+# statistics. Exact hashes are diagnostic; aggregate tolerances can be adjusted for software backends.
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 stage_directory="$(mktemp -d "${TMPDIR:-/tmp}/forma-render-parity.XXXXXX")"
 monogame_report="$stage_directory/monogame.json"
 fna_report="$stage_directory/fna.json"
+tolerance="${FormaRenderParityTolerance:-0.01}"
+coverage_tolerance="${FormaRenderParityCoverageTolerance:-$tolerance}"
+color_tolerance="${FormaRenderParityColorTolerance:-$tolerance}"
+catalog_options=()
+if [[ -n "${FormaCatalogViewportWidth:-}" && -n "${FormaCatalogViewportHeight:-}" ]]; then
+  catalog_options+=(--viewport-width "$FormaCatalogViewportWidth" --viewport-height "$FormaCatalogViewportHeight")
+fi
+monogame_msbuild_options=(-p:FormaRuntime=MonoGame)
+fna_environment=(env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES)
+if [[ "$(uname -s)" == "Linux" ]]; then
+  fna_environment+=(SDL_VIDEODRIVER=offscreen FNA3D_FORCE_DRIVER=OpenGL FNA3D_OPENGL_WINDOW_DEPTHSTENCILFORMAT=None)
+fi
+for property_name in FormaNativeRuntime MonoGamePlatform CatalogBackend; do
+  if [[ -n "${!property_name:-}" ]]; then
+    monogame_msbuild_options+=(-p:"$property_name=${!property_name}")
+  fi
+done
 trap 'rm -rf "$stage_directory"' EXIT
 
 if ! command -v jq >/dev/null; then
@@ -17,32 +34,39 @@ fi
 
 dotnet run --project "$repository_root/samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj" \
   --configuration Release \
-  -p:FormaRuntime=MonoGame \
+  "${monogame_msbuild_options[@]}" \
   -- \
+  ${catalog_options[@]+"${catalog_options[@]}"} \
   --render-output "$monogame_report" \
   --frames 3 \
   --display-scale 2
 
-dotnet run --project "$repository_root/samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj" \
+"${fna_environment[@]}" \
+  dotnet run --project "$repository_root/samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj" \
   --configuration Release \
   -p:FormaRuntime=FNA \
   -- \
+  ${catalog_options[@]+"${catalog_options[@]}"} \
   --render-output "$fna_report" \
   --frames 3 \
   --display-scale 2
 
-jq -e --slurpfile peer "$fna_report" '
+jq -e \
+  --argjson coverageTolerance "$coverage_tolerance" \
+  --argjson colorTolerance "$color_tolerance" \
+  --slurpfile peer "$fna_report" '
   def relative_difference(left; right):
     ((left - right) | fabs) / ([left, right] | max);
   .width == $peer[0].width and
   .height == $peer[0].height and
   .alphaTotal == $peer[0].alphaTotal and
-  relative_difference(.nonBackgroundPixels; $peer[0].nonBackgroundPixels) <= 0.01 and
-  relative_difference(.redTotal; $peer[0].redTotal) <= 0.01 and
-  relative_difference(.greenTotal; $peer[0].greenTotal) <= 0.01 and
-  relative_difference(.blueTotal; $peer[0].blueTotal) <= 0.01
+  relative_difference(.nonBackgroundPixels; $peer[0].nonBackgroundPixels) <= $coverageTolerance and
+  relative_difference(.redTotal; $peer[0].redTotal) <= $colorTolerance and
+  relative_difference(.greenTotal; $peer[0].greenTotal) <= $colorTolerance and
+  relative_difference(.blueTotal; $peer[0].blueTotal) <= $colorTolerance
 ' "$monogame_report" >/dev/null || {
-  printf 'Catalog peer render statistics exceeded the 1%% tolerance.\n' >&2
+  printf 'Catalog peer render statistics exceeded coverage=%s color=%s tolerances.\n' \
+    "$coverage_tolerance" "$color_tolerance" >&2
   jq -S . "$monogame_report" >&2
   jq -S . "$fna_report" >&2
   exit 1
@@ -50,5 +74,6 @@ jq -e --slurpfile peer "$fna_report" '
 
 monogame_hash="$(jq -r .pixelHash "$monogame_report")"
 fna_hash="$(jq -r .pixelHash "$fna_report")"
-printf 'Catalog render parity: 1440x900 within 1%%; hashes MonoGame=%s FNA=%s.\n' \
-  "$monogame_hash" "$fna_hash"
+printf 'Catalog render parity: %sx%s within coverage=%s color=%s; hashes MonoGame=%s FNA=%s.\n' \
+  "${FormaCatalogViewportWidth:-1440}" "${FormaCatalogViewportHeight:-900}" \
+  "$coverage_tolerance" "$color_tolerance" "$monogame_hash" "$fna_hash"

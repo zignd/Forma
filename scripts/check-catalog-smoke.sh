@@ -12,6 +12,16 @@ actual="$stage_directory/catalog.json"
 stable_baseline="$stage_directory/baseline-stable.json"
 stable_actual="$stage_directory/actual-stable.json"
 runtime="${FormaRuntime:-MonoGame}"
+catalog_options=()
+if [[ -n "${FormaCatalogViewportWidth:-}" && -n "${FormaCatalogViewportHeight:-}" ]]; then
+  catalog_options+=(--viewport-width "$FormaCatalogViewportWidth" --viewport-height "$FormaCatalogViewportHeight")
+fi
+msbuild_options=(-p:FormaRuntime="$runtime")
+for property_name in FormaNativeRuntime MonoGamePlatform CatalogBackend; do
+  if [[ -n "${!property_name:-}" ]]; then
+    msbuild_options+=(-p:"$property_name=${!property_name}")
+  fi
+done
 case "$runtime" in
   MonoGame)
     project="$repository_root/samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj"
@@ -33,10 +43,18 @@ if ! command -v jq >/dev/null; then
   exit 2
 fi
 
+dotnet build "$project" \
+  --configuration Release \
+  "${msbuild_options[@]}" \
+  --nologo \
+  -m:1
+
 dotnet run --project "$project" \
   --configuration Release \
-  -p:FormaRuntime="$runtime" \
+  "${msbuild_options[@]}" \
+  --no-build \
   -- \
+  ${catalog_options[@]+"${catalog_options[@]}"} \
   --metrics "$actual" \
   --frames 3 \
   --display-scale 2
@@ -56,8 +74,10 @@ for story_name in "Complete icon inventory" "Override and suppression" "Atlas di
   story_actual="$stage_directory/$(tr ' ' '-' <<<"$story_name").json"
   dotnet run --project "$project" \
     --configuration Release \
-    -p:FormaRuntime="$runtime" \
+    "${msbuild_options[@]}" \
+    --no-build \
     -- \
+    ${catalog_options[@]+"${catalog_options[@]}"} \
     --metrics "$story_actual" \
     --frames 3 \
     --display-scale 2 \
@@ -70,8 +90,10 @@ for story_name in "Dynamic Sizes" "Display Density" "Fallback Chain" "Shaping an
   story_actual="$stage_directory/$(tr ' ' '-' <<<"$story_name").json"
   dotnet run --project "$project" \
     --configuration Release \
-    -p:FormaRuntime="$runtime" \
+    "${msbuild_options[@]}" \
+    --no-build \
     -- \
+    ${catalog_options[@]+"${catalog_options[@]}"} \
     --metrics "$story_actual" \
     --frames 3 \
     --display-scale 2 \
@@ -88,8 +110,10 @@ done
 inventory_1x="$stage_directory/icon-inventory-1x.json"
 dotnet run --project "$project" \
   --configuration Release \
-  -p:FormaRuntime="$runtime" \
+  "${msbuild_options[@]}" \
+  --no-build \
   -- \
+  ${catalog_options[@]+"${catalog_options[@]}"} \
   --metrics "$inventory_1x" \
   --frames 3 \
   --display-scale 1 \
@@ -97,8 +121,8 @@ dotnet run --project "$project" \
 jq -e '(.themeIconDensity == 1) and (.themeIconAtlasCount == 1) and (.themeIconTextureBytes > 0) and (.themeIconMissingCount == 0)' \
   "$inventory_1x" >/dev/null
 
-jq -S 'del(.backend, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$baseline" > "$stable_baseline"
-jq -S 'del(.backend, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$actual" > "$stable_actual"
+jq -S 'del(.backend, .physicalViewportWidth, .physicalViewportHeight, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$baseline" > "$stable_baseline"
+jq -S 'del(.backend, .physicalViewportWidth, .physicalViewportHeight, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$actual" > "$stable_actual"
 if ! cmp -s "$stable_baseline" "$stable_actual"; then
   printf 'Catalog metrics differ from the approved 2x baseline.\n' >&2
   diff -u "$stable_baseline" "$stable_actual" || true

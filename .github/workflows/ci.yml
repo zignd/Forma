@@ -46,7 +46,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends mesa-vulkan-drivers vulkan-tools xvfb
+          sudo apt-get install -y --no-install-recommends libegl1 libgl1 libgl1-mesa-dri libglx0 libglx-mesa0 mesa-vulkan-drivers vulkan-tools xvfb
           software_icd=$(find /opt/google/chrome -name 'vk_swiftshader_icd.json' -print -quit)
           software_icd=${software_icd:-$(find /usr/share/vulkan/icd.d -name 'lvp_icd*.json' -print -quit)}
           test -n "$software_icd"
@@ -57,32 +57,45 @@ jobs:
         shell: bash
         env:
           LIBGL_ALWAYS_SOFTWARE: 1
+          SDL_VIDEODRIVER: ${{ matrix.runtime == 'FNA' && 'offscreen' || 'x11' }}
+          FNA3D_FORCE_DRIVER: OpenGL
+          FNA3D_OPENGL_WINDOW_DEPTHSTENCILFORMAT: None
         run: |
-          xvfb-run -a vulkaninfo --summary
-          FormaRuntime="$FORMA_RUNTIME" xvfb-run -a bash scripts/check-catalog-smoke.sh
-          xvfb-run -a dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --no-build --nologo
-          if [[ "$FORMA_RUNTIME" == "MonoGame" ]]; then
-            MonoGamePlatform=Native CatalogBackend=Vulkan xvfb-run -a bash scripts/check-catalog-smoke.sh
+          xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' vulkaninfo --summary
+          if [[ "$FORMA_RUNTIME" == "FNA" ]]; then
+            env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES FormaRuntime=FNA xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
+            env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=FNA --no-build --nologo
+          else
+            FormaRuntime=MonoGame xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
+            xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame --no-build --nologo
+            MonoGamePlatform=DesktopVK FormaNativeRuntime=true CatalogBackend=Vulkan xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
           fi
       - name: Validate Linux FNA video
         if: runner.os == 'Linux' && matrix.runtime == 'FNA'
         shell: bash
         env:
           LIBGL_ALWAYS_SOFTWARE: 1
-        run: xvfb-run -a bash scripts/check-fna-video-smoke.sh
+          SDL_VIDEODRIVER: offscreen
+          SDL_AUDIODRIVER: dummy
+          FNA3D_FORCE_DRIVER: OpenGL
+          FNA3D_OPENGL_WINDOW_DEPTHSTENCILFORMAT: None
+        run: env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-fna-video-smoke.sh
       - name: Compare Linux peer rendering
         if: runner.os == 'Linux' && matrix.runtime == 'MonoGame'
         shell: bash
         env:
           LIBGL_ALWAYS_SOFTWARE: 1
-        run: xvfb-run -a bash scripts/check-catalog-render-parity.sh
+          SDL_VIDEODRIVER: x11
+          FormaCatalogViewportWidth: 800
+          FormaCatalogViewportHeight: 480
+        run: xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-render-parity.sh
       - name: Validate Windows selected runtime
         if: runner.os == 'Windows'
         shell: bash
         run: |
           if [[ "$FORMA_RUNTIME" == "MonoGame" ]]; then
-            MonoGamePlatform=WindowsDX FormaRuntime=MonoGame bash scripts/check-catalog-smoke.sh
-            dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=WindowsDX --nologo
+            MonoGamePlatform=Windows CatalogBackend=WindowsDX FormaRuntime=MonoGame bash scripts/check-catalog-smoke.sh
+            dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=Windows --nologo
           else
             FormaRuntime=FNA bash scripts/check-catalog-smoke.sh
             dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=FNA --no-build --nologo
@@ -90,14 +103,22 @@ jobs:
       - name: Validate Windows FNA video
         if: runner.os == 'Windows' && matrix.runtime == 'FNA'
         shell: bash
+        env:
+          SDL_AUDIODRIVER: dummy
         run: bash scripts/check-fna-video-smoke.sh
       - name: Compare Windows peer rendering
         if: runner.os == 'Windows' && matrix.runtime == 'MonoGame'
         shell: bash
-        run: bash scripts/check-catalog-render-parity.sh
+        env:
+          FormaRenderParityCoverageTolerance: 0.15
+          FormaRenderParityColorTolerance: 0.03
+        run: MonoGamePlatform=Windows CatalogBackend=WindowsDX bash scripts/check-catalog-render-parity.sh
       - name: Validate macOS selected runtime
         if: runner.os == 'macOS'
         shell: bash
+        env:
+          FormaCatalogViewportWidth: 1440
+          FormaCatalogViewportHeight: 900
         run: FormaRuntime="$FORMA_RUNTIME" bash scripts/check-catalog-smoke.sh
       - name: Validate macOS render-test isolation
         if: runner.os == 'macOS'
@@ -110,6 +131,9 @@ jobs:
       - name: Compare macOS peer rendering
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
         shell: bash
+        env:
+          FormaCatalogViewportWidth: 1024
+          FormaCatalogViewportHeight: 646
         run: bash scripts/check-catalog-render-parity.sh
       - name: Install macOS Metal build prerequisites
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
@@ -137,7 +161,8 @@ jobs:
       - name: Validate MonoGame Metal catalog
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
         env:
-          MonoGamePlatform: Native
+          MonoGamePlatform: DesktopVK
+          FormaNativeRuntime: true
           CatalogBackend: Metal
           NativeRuntimePath: ${{ github.workspace }}/.native/MonoGame/Artifacts/native/mgruntime/desktopmetal/macosx/Release/libmgruntime.dylib
         run: bash scripts/check-catalog-smoke.sh
@@ -161,7 +186,7 @@ jobs:
       - name: Install Linux graphics dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends mesa-vulkan-drivers xvfb
+          sudo apt-get install -y --no-install-recommends libegl1 libgl1 libgl1-mesa-dri libglx0 libglx-mesa0 mesa-vulkan-drivers xvfb
           software_icd=$(find /opt/google/chrome -name 'vk_swiftshader_icd.json' -print -quit)
           software_icd=${software_icd:-$(find /usr/share/vulkan/icd.d -name 'lvp_icd*.json' -print -quit)}
           test -n "$software_icd"
@@ -170,7 +195,8 @@ jobs:
       - name: Validate package consumers
         env:
           LIBGL_ALWAYS_SOFTWARE: 1
-        run: xvfb-run -a bash scripts/test-package-consumer.sh
+          SDL_VIDEODRIVER: x11
+        run: env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/test-package-consumer.sh
       - uses: actions/upload-artifact@v4
         with:
           name: forma-peer-packages

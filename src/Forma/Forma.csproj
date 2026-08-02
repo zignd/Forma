@@ -61,7 +61,10 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame'">
-    <EmbeddedResource Include="Resources/Alpha8Coverage.mgfxo.b64" LogicalName="Forma.Alpha8Coverage.mgfxo.b64" />
+    <EmbeddedResource Include="Resources/Alpha8Coverage.OpenGL.mgfxo.b64" LogicalName="Forma.Alpha8Coverage.OpenGL.mgfxo.b64" />
+    <EmbeddedResource Include="Resources/Alpha8Coverage.DirectX11.mgfxo.b64" LogicalName="Forma.Alpha8Coverage.DirectX11.mgfxo.b64" />
+    <EmbeddedResource Include="Resources/Alpha8Coverage.DirectX12.mgfxo.b64" LogicalName="Forma.Alpha8Coverage.DirectX12.mgfxo.b64" />
+    <EmbeddedResource Include="Resources/Alpha8Coverage.Vulkan.mgfxo.b64" LogicalName="Forma.Alpha8Coverage.Vulkan.mgfxo.b64" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(FormaRuntime)' == 'FNA'">

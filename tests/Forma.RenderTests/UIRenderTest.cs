@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 using System.Collections.Generic;
+using System.Reflection;
 using Forma;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -108,10 +109,10 @@ namespace Forma.RenderTests
 
             Assert.That(densityFont.LineSpacing, Is.InRange(logicalFont.LineSpacing * 1.9f, logicalFont.LineSpacing * 2.1f));
             Assert.That(densityCodeFont.LineSpacing, Is.InRange(logicalCodeFont.LineSpacing * 1.9f, logicalCodeFont.LineSpacing * 2.1f));
-            Assert.That(densityFont.Texture.Width, Is.GreaterThan(logicalFont.Texture.Width));
-            Assert.That(densityFont.Texture.Height, Is.GreaterThan(logicalFont.Texture.Height));
-            Assert.That(densityCodeFont.Texture.Width, Is.GreaterThan(logicalCodeFont.Texture.Width));
-            Assert.That(densityCodeFont.Texture.Height, Is.GreaterThan(logicalCodeFont.Texture.Height));
+            Assert.That(GetFontTexture(densityFont).Width, Is.GreaterThan(GetFontTexture(logicalFont).Width));
+            Assert.That(GetFontTexture(densityFont).Height, Is.GreaterThan(GetFontTexture(logicalFont).Height));
+            Assert.That(GetFontTexture(densityCodeFont).Width, Is.GreaterThan(GetFontTexture(logicalCodeFont).Width));
+            Assert.That(GetFontTexture(densityCodeFont).Height, Is.GreaterThan(GetFontTexture(logicalCodeFont).Height));
             Assert.That(logicalFont.DefaultCharacter, Is.EqualTo('?'));
             Assert.That(densityFont.DefaultCharacter, Is.EqualTo('?'));
             Assert.That(logicalCodeFont.DefaultCharacter, Is.EqualTo('?'));
@@ -135,18 +136,120 @@ namespace Forma.RenderTests
             gd.SetRenderTarget(null);
         }
 
+        [Test]
+        public void DefaultThemeIcons_LoadLazilySharePerDeviceAndRecreateAfterLastOwnerDisposes()
+        {
+            var first = new DefaultThemeIconResources(gd);
+            var second = new DefaultThemeIconResources(gd);
+            Assert.That(first.Diagnostics.AtlasCount, Is.Zero);
+            Assert.That(DefaultThemeIconResources.ManifestIconCount, Is.EqualTo(67));
+
+            first.Ensure(1f);
+            var firstIcon = first.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Default OptionButton arrow is missing.");
+            Assert.That(first.Diagnostics.ActiveDensity, Is.EqualTo(1));
+            Assert.That(first.Diagnostics.AtlasCount, Is.EqualTo(1));
+            Assert.That(first.Diagnostics.TextureBytes, Is.GreaterThan(0));
+
+            second.Ensure(1.25f);
+            var sharedIcon = second.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Shared OptionButton arrow is missing.");
+            Assert.That(sharedIcon.Texture, Is.SameAs(firstIcon.Texture));
+            Assert.That(second.Diagnostics.Generation, Is.EqualTo(1));
+            second.Ensure(1.25f);
+            Assert.That(second.Diagnostics.Generation, Is.EqualTo(1), "Warm cache access must not decode or create another texture.");
+
+            second.Ensure(1.5f);
+            var densityIcon = second.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("2x OptionButton arrow is missing.");
+            Assert.That(densityIcon.Density, Is.EqualTo(2));
+            Assert.That(densityIcon.LogicalSize, Is.EqualTo(firstIcon.LogicalSize));
+            Assert.That(densityIcon.Texture, Is.Not.SameAs(firstIcon.Texture));
+            Assert.That(second.Diagnostics.AtlasCount, Is.EqualTo(2));
+            Assert.That(second.Diagnostics.Generation, Is.EqualTo(2));
+            densityIcon.Texture.Dispose();
+            second.Ensure(2f);
+            var recreatedDensityIcon = second.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Recreated 2x OptionButton arrow is missing.");
+            Assert.That(recreatedDensityIcon.Texture, Is.Not.SameAs(densityIcon.Texture));
+            Assert.That(second.Diagnostics.Generation, Is.EqualTo(3));
+
+            var originalTexture = firstIcon.Texture;
+            first.Dispose();
+            Assert.That(originalTexture.IsDisposed, Is.False);
+            second.Dispose();
+            Assert.That(originalTexture.IsDisposed, Is.True);
+
+            using var replacement = new DefaultThemeIconResources(gd);
+            replacement.Ensure(1f);
+            var replacementIcon = replacement.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Recreated OptionButton arrow is missing.");
+            Assert.That(replacementIcon.Texture, Is.Not.SameAs(originalTexture));
+            Assert.That(replacementIcon.Texture.IsDisposed, Is.False);
+        }
+
+        [Test]
+        public void DefaultThemeIcons_IsolateCachesForSeparateGraphicsDevices()
+        {
+            using var secondGame = new Game();
+            _ = new GraphicsDeviceManager(secondGame) { GraphicsProfile = GraphicsProfile.HiDef };
+            ((IGraphicsDeviceManager)secondGame.Services.GetService(typeof(IGraphicsDeviceManager))).CreateDevice();
+            using var first = new DefaultThemeIconResources(gd);
+            using var second = new DefaultThemeIconResources(secondGame.GraphicsDevice);
+
+            first.Ensure(1f);
+            second.Ensure(1f);
+            var firstIcon = first.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("First-device arrow is missing.");
+            var secondIcon = second.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Second-device arrow is missing.");
+
+            Assert.That(firstIcon.Texture, Is.Not.SameAs(secondIcon.Texture));
+            Assert.That(firstIcon.Texture.GraphicsDevice, Is.SameAs(gd));
+            Assert.That(secondIcon.Texture.GraphicsDevice, Is.SameAs(secondGame.GraphicsDevice));
+        }
+
+        [Test]
+        public void ThemeIconDrawing_DoesNotLeakTextureOrColorStateIntoFollowingPrimitives()
+        {
+            using var iconTexture = new Texture2D(gd, 1, 1);
+            iconTexture.SetData(new[] { Color.Red });
+            using var renderTarget = new RenderTarget2D(gd, 8, 4, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+            using var renderer = new UIRenderContext(gd, new Theme());
+            var icon = new ThemeIcon(iconTexture, new Rectangle(0, 0, 1, 1), new Point(2, 2));
+
+            gd.SetRenderTarget(renderTarget);
+            gd.Clear(Color.Blue);
+            renderer.Begin();
+            renderer.Icon(icon, new Rectangle(0, 0, 2, 2), Color.White);
+            renderer.Fill(new Rectangle(4, 0, 2, 2), Color.Lime);
+            renderer.End();
+            gd.SetRenderTarget(null);
+            var pixels = new Color[8 * 4];
+            renderTarget.GetData(pixels);
+
+            Assert.That(pixels[0], Is.EqualTo(Color.Red));
+            Assert.That(pixels[4], Is.EqualTo(Color.Lime));
+            Assert.That(pixels[3], Is.EqualTo(Color.Blue));
+        }
+
         private static SpriteFont CreateSingleGlyphFont(Texture2D texture, int glyphSize)
         {
-            return new SpriteFont(
-                texture,
-                new List<Rectangle> { new Rectangle(0, 0, glyphSize, glyphSize) },
-                new List<Rectangle> { new Rectangle(0, 0, glyphSize, glyphSize) },
-                new List<char> { 'A' },
-                glyphSize,
-                0,
-                new List<Vector3> { new Vector3(0, glyphSize, 0) },
+            return (SpriteFont)Activator.CreateInstance(
+                typeof(SpriteFont),
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                [
+                    texture,
+                    new List<Rectangle> { new Rectangle(0, 0, glyphSize, glyphSize) },
+                    new List<Rectangle> { new Rectangle(0, 0, glyphSize, glyphSize) },
+                    new List<char> { 'A' },
+                    glyphSize,
+                    0f,
+                    new List<Vector3> { new Vector3(0, glyphSize, 0) },
+                    null,
+                ],
                 null);
         }
+
+        private static Texture2D GetFontTexture(SpriteFont font) =>
+            (Texture2D)typeof(SpriteFont)
+                .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Single(field => typeof(Texture2D).IsAssignableFrom(field.FieldType))
+                .GetValue(font);
 
         [Test]
         [Ignore("Requires a drawable desktop graphics context; run from the interactive visual test runner.")]

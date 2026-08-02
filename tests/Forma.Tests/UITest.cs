@@ -25,9 +25,19 @@ namespace Forma.Tests
         private static Texture2D CreateHeadlessTexture(int width, int height)
         {
             var texture = (Texture2D)RuntimeHelpers.GetUninitializedObject(typeof(Texture2D));
-            typeof(Texture2D).GetField("width", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(texture, width);
-            typeof(Texture2D).GetField("height", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(texture, height);
+            SetTextureDimension(texture, nameof(Texture2D.Width), "width", width);
+            SetTextureDimension(texture, nameof(Texture2D.Height), "height", height);
             return texture;
+        }
+
+        private static void SetTextureDimension(Texture2D texture, string propertyName, string fieldName, int value)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            var property = typeof(Texture2D).GetProperty(propertyName, flags)!;
+            var setter = property.GetSetMethod(true);
+            if (setter != null) setter.Invoke(texture, [value]);
+            else typeof(Texture2D).GetField(fieldName, flags)!.SetValue(texture, value);
+            if ((int)property.GetValue(texture)! != value) throw new InvalidOperationException($"Failed to set Texture2D.{propertyName}.");
         }
 
         /// <summary>Builds a headless SpriteFont (no GraphicsDevice/texture needed for MeasureString) spanning the same 32-126 ASCII range and no DefaultCharacter as this project's bundled test font, to exercise Font.MeasureString deterministically.</summary>
@@ -44,7 +54,7 @@ namespace Forma.Tests
                 cropping.Add(new Rectangle(0, 0, 8, 16));
                 kerning.Add(new Vector3(0, 8, 0));
             }
-            return new SpriteFont(null, bounds, cropping, characters, 16, 0, kerning, null);
+            return (SpriteFont)Activator.CreateInstance(typeof(SpriteFont), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, [null, bounds, cropping, characters, 16, 0f, kerning, null], null)!;
         }
 
         [Test]
@@ -454,6 +464,19 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void ThemeIconRect_UsesLogicalSizeWithoutOwningTheAtlasTexture()
+        {
+            var texture = CreateHeadlessTexture(64, 64);
+            var icon = new ThemeIcon(texture, new Rectangle(8, 12, 32, 24), new Point(16, 12), 2);
+            var display = new ThemeIconRect { Icon = icon };
+
+            Assert.That(display.GetMinimumSize(), Is.EqualTo(new Vector2(16, 12)));
+            display.Icon = null;
+            Assert.That(display.GetMinimumSize(), Is.EqualTo(Vector2.Zero));
+            Assert.That(texture.IsDisposed, Is.False);
+        }
+
+        [Test]
         public void TextureRectAndNinePatchRect_DefaultToGodotsMouseFilterFromTheirConstructors()
         {
             Assert.That(new TextureRect().MouseFilter, Is.EqualTo(MouseFilter.Pass), "Godot's TextureRect() constructor calls set_mouse_filter(MOUSE_FILTER_PASS).");
@@ -657,6 +680,231 @@ namespace Forma.Tests
             Assert.That(label.GetCharacterBounds(0).Y, Is.EqualTo(0));
             Assert.That(label.GetCharacterBounds(2).Y, Is.EqualTo(16));
             Assert.That(label.GetCharacterBounds(4).Y, Is.EqualTo(37));
+        }
+
+        [Test]
+        public void Label_DynamicFontUsesRetainedLayoutForMeasureWrapAndCharacterBounds()
+        {
+            using var latinFace = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            using var arabicFace = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/NotoSansArabic_Variable.ttf");
+            var label = new Label
+            {
+                UIFont = new DynamicUIFont(latinFace, 18, UIFontHinting.Default, arabicFace),
+                Text = "Forma مرحبا Forma",
+                AutowrapMode = LabelAutowrapMode.Word,
+                TextDirection = TextDirection.Auto,
+                Language = "ar",
+                Padding = new Thickness(0),
+                Size = new Vector2(90, 80)
+            };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(label.GetMinimumSize().Y, Is.GreaterThan(0));
+                Assert.That(label.GetLineCount(), Is.GreaterThan(1));
+                Assert.That(label.GetLineHeight(), Is.GreaterThan(0));
+                Assert.That(label.GetCharacterBounds(0), Is.Not.EqualTo(Rectangle.Empty));
+                Assert.That(label.GetCharacterBounds(7), Is.Not.EqualTo(Rectangle.Empty));
+            });
+        }
+
+        [Test]
+        public void ButtonAndProgressBarMeasureDynamicFontsThroughSharedLayouts()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var font = new DynamicUIFont(face, 18);
+            var button = new Button { UIFont = font, Text = "Dynamic button" };
+            var progress = new ProgressBar { UIFont = font, Value = 50 };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(button.GetMinimumSize().X, Is.GreaterThan(button.Padding.Horizontal));
+                Assert.That(button.GetMinimumSize().Y, Is.GreaterThan(button.Padding.Vertical));
+                Assert.That(progress.UIFont, Is.SameAs(font));
+                Assert.That(progress.Font, Is.Null);
+            });
+        }
+
+        [Test]
+        public void TextControlsResolveDynamicFontFamilyAndSizeThroughParentTheme()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var inherited = new Theme
+            {
+                FontFamily = new UIFontFamily(new[] { new DynamicUIFont(face, 12) }),
+                FontSize = 20,
+                FontHinting = UIFontHinting.Auto,
+                FontOpenTypeFeatures = new[] { new UIFontOpenTypeFeature("kern", 0) }
+            };
+            var context = new UIContext { Theme = new Theme { Parent = inherited } };
+            var button = new Button { Text = "Inherited" };
+            var label = new Label { Text = "AV", Padding = new Thickness(0) };
+            context.Add(button);
+            context.Add(label);
+
+            var themedFont = (DynamicUIFont)button.EffectiveUIFont;
+            var themedLayout = new TextLayoutEngine().Layout(themedFont, label.Text);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(button.UIFont, Is.Null);
+                Assert.That(themedFont.Size, Is.EqualTo(20));
+                Assert.That(themedFont.Hinting, Is.EqualTo(UIFontHinting.Auto));
+                Assert.That(themedLayout.Options.OpenTypeFeatures, Is.EqualTo(new[] { new UIFontOpenTypeFeature("kern", 0) }));
+                Assert.That(label.GetLineHeight(), Is.GreaterThan(12));
+            });
+
+            label.SetOpenTypeFeatures(new[] { new UIFontOpenTypeFeature("kern", 1) });
+            Assert.That(label.GetMinimumSize().X, Is.LessThan(themedLayout.Size.X));
+
+            var local = new DynamicUIFont(face, 14);
+            button.UIFont = local;
+            Assert.That(button.EffectiveUIFont, Is.SameAs(local));
+        }
+
+        [Test]
+        public void TextLayoutInvalidatesForFontLocaleDirectionWidthAndThemeButNotDensity()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var context = new UIContext
+            {
+                Theme = new Theme { FontFamily = new UIFontFamily(new[] { new DynamicUIFont(face, 12) }) }
+            };
+            var localTheme = new Theme { FontSize = 18 };
+            var label = new Label
+            {
+                ThemeOverride = localTheme,
+                Text = "AV shaped text",
+                AutowrapMode = LabelAutowrapMode.Word,
+                Size = new Vector2(160, 40)
+            };
+            context.Add(label);
+            context.Layout();
+            var layouts = 0;
+            label.LayoutChanged += (_, _) => layouts++;
+
+            localTheme.FontSize = 24;
+            context.Layout();
+            Assert.That(label.EffectiveUIFont.Size, Is.EqualTo(24));
+
+            localTheme.FontOpenTypeFeatures = new[] { new UIFontOpenTypeFeature("kern", 0) };
+            context.Layout();
+            Assert.That(new TextLayoutEngine().Layout(label.EffectiveUIFont, "AV").Options.OpenTypeFeatures, Is.EqualTo(new[] { new UIFontOpenTypeFeature("kern", 0) }));
+
+            label.UIFont = new DynamicUIFont(face, 20);
+            context.Layout();
+            label.Language = "en-US";
+            context.Layout();
+            label.TextDirection = TextDirection.LeftToRight;
+            context.Layout();
+            label.Size = new Vector2(90, 40);
+            context.Layout();
+
+            var layoutsBeforeDensityChange = layouts;
+            var logicalSizeBeforeDensityChange = label.GetMinimumSize();
+            context.DisplayScale = 2;
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(layoutsBeforeDensityChange, Is.GreaterThanOrEqualTo(6));
+                Assert.That(layouts, Is.EqualTo(layoutsBeforeDensityChange));
+                Assert.That(label.GetMinimumSize(), Is.EqualTo(logicalSizeBeforeDensityChange));
+            });
+        }
+
+        [Test]
+        public void LineEditDynamicLayoutMovesAndDeletesWholeGraphemes()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var lineEdit = new LineEdit { UIFont = new DynamicUIFont(face, 18), Text = "A😀e\u0301" };
+            lineEdit.KeyPressed(Keys.End);
+
+            lineEdit.KeyPressed(Keys.Left);
+            Assert.That(lineEdit.CaretColumn, Is.EqualTo(3));
+            lineEdit.KeyPressed(Keys.Left);
+            Assert.That(lineEdit.CaretColumn, Is.EqualTo(1));
+            lineEdit.KeyPressed(Keys.Delete);
+            Assert.That(lineEdit.Text, Is.EqualTo("Ae\u0301"));
+        }
+
+        [Test]
+        public void LineEditKeepsShapedCaretVisibleAndHitTestsThroughHorizontalScroll()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var lineEdit = new LineEdit
+            {
+                UIFont = new DynamicUIFont(face, 18),
+                Text = "A😀e\u0301 long shaped text",
+                Size = new Vector2(90, 28)
+            };
+
+            lineEdit.KeyPressed(Keys.End);
+            var endOffset = lineEdit.GetScrollOffset();
+            lineEdit.PointerPressed(new Point((int)lineEdit.Padding.Left + 1, 10));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(endOffset, Is.GreaterThan(0));
+                Assert.That(lineEdit.CaretColumn, Is.GreaterThan(0));
+            });
+
+            lineEdit.KeyPressed(Keys.Home);
+            Assert.That(lineEdit.GetScrollOffset(), Is.Zero);
+        }
+
+        [Test]
+        public void LineEditKeepsImePreeditSeparateAndCommitsItsReplacementRange()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var context = new UIContext();
+            var lineEdit = new LineEdit { UIFont = new DynamicUIFont(face, 18), Text = "Cafe" };
+            context.Add(lineEdit);
+            lineEdit.GrabFocus();
+            lineEdit.Select(3, 4);
+
+            context.TextComposition("e\u0301", 0, 2);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(lineEdit.Text, Is.EqualTo("Cafe"));
+                Assert.That(lineEdit.ImeCompositionText, Is.EqualTo("e\u0301"));
+                Assert.That(lineEdit.ImeCompositionSelection, Is.EqualTo(new Point(0, 2)));
+            });
+
+            lineEdit.CommitImeComposition();
+            Assert.Multiple(() =>
+            {
+                Assert.That(lineEdit.Text, Is.EqualTo("Cafe\u0301"));
+                Assert.That(lineEdit.CaretColumn, Is.EqualTo(5));
+                Assert.That(lineEdit.HasImeComposition, Is.False);
+            });
+
+            context.TextComposition("x", 0, 1);
+            context.TextInput('X');
+            Assert.That(lineEdit.Text, Is.EqualTo("Cafe\u0301X"));
+        }
+
+        [Test]
+        public void LineEditShapesMixedScriptTextThroughFallbackRuns()
+        {
+            using var latin = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            using var arabic = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/NotoSansArabic_Variable.ttf");
+            var lineEdit = new LineEdit
+            {
+                UIFont = new DynamicUIFont(latin, 18, UIFontHinting.Default, arabic),
+                Text = "AمرحباB"
+            };
+
+            var layout = lineEdit.GetEditingLayout();
+            lineEdit.KeyPressed(Keys.End);
+            lineEdit.KeyPressed(Keys.Left);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(layout.Runs.Select(run => run.Font.Identity).Distinct().Count(), Is.GreaterThanOrEqualTo(2));
+                Assert.That(lineEdit.CaretColumn, Is.EqualTo(lineEdit.Text.Length - 1));
+            });
         }
 
         [Test]
@@ -2414,24 +2662,124 @@ namespace Forma.Tests
             Assert.That(backend.IsDisposed, Is.True);
         }
 
+        [Test]
+        public void VideoStreamPlayer_ReportsRuntimeCapabilities()
+        {
+            var runtime = typeof(VideoStreamPlayer).Assembly
+                .GetCustomAttributes<AssemblyMetadataAttribute>()
+                .Single(attribute => attribute.Key == "FormaRuntime").Value;
+            var capabilities = VideoStreamPlayer.RuntimeCapabilities;
+
+            Assert.That(capabilities.HasFlag(VideoPlaybackCapabilities.BuiltInPlayback), Is.True);
+            Assert.That(capabilities.HasFlag(VideoPlaybackCapabilities.Looping), Is.True);
+            Assert.That(capabilities.HasFlag(VideoPlaybackCapabilities.Audio), Is.True);
+            Assert.That(capabilities.HasFlag(VideoPlaybackCapabilities.LocalFileLoading),
+                Is.EqualTo(runtime == "FNA"));
+        }
+
+        [Test]
+        public void VideoStreamPlayer_ReportsAnUnavailableBackendWithoutThrowing()
+        {
+            var backend = new UnavailableVideoPlaybackBackendStub();
+            using var player = new VideoStreamPlayer(backend)
+            {
+                Stream = CreateHeadlessVideo(),
+            };
+
+            Assert.DoesNotThrow(player.Play);
+            Assert.That(player.IsPlaybackAvailable, Is.False);
+            Assert.That(player.PlaybackUnavailableReason, Is.EqualTo("Video playback is unavailable."));
+            Assert.That(player.PlaybackState, Is.EqualTo(MediaState.Stopped));
+            Assert.That(backend.IsDisposed, Is.True);
+        }
+
+        [Test]
+        public void VideoStreamPlayer_ForwardsCommonPlaybackStateAndConfiguration()
+        {
+            var backend = new VideoPlaybackBackendStub();
+            using var player = new VideoStreamPlayer(backend)
+            {
+                Stream = CreateHeadlessVideo(),
+                Loop = true,
+                Volume = .4f,
+            };
+
+            player.Play();
+            Assert.That(backend.PlayCount, Is.EqualTo(1));
+            Assert.That(player.IsPlaying(), Is.True);
+            Assert.That(backend.IsLooped, Is.True);
+            Assert.That(backend.Volume, Is.EqualTo(.4f));
+
+            player.SetPaused(true);
+            Assert.That(player.PlaybackState, Is.EqualTo(MediaState.Paused));
+            player.SetPaused(false);
+            Assert.That(player.PlaybackState, Is.EqualTo(MediaState.Playing));
+            player.Stop();
+            Assert.That(player.PlaybackState, Is.EqualTo(MediaState.Stopped));
+        }
+
+        [Test]
+        public void VideoStreamPlayer_RaisesFinishedOnceWhenPlaybackCompletes()
+        {
+            var backend = new VideoPlaybackBackendStub();
+            using var player = new VideoStreamPlayer(backend)
+            {
+                Stream = CreateHeadlessVideo(),
+            };
+            var finishedCount = 0;
+            player.Finished += (_, _) => finishedCount++;
+
+            player.Play();
+            backend.Complete();
+            player.Process(Time);
+            player.Process(Time);
+
+            Assert.That(finishedCount, Is.EqualTo(1));
+        }
+
+        private static Video CreateHeadlessVideo()
+        {
+            var video = (Video)RuntimeHelpers.GetUninitializedObject(typeof(Video));
+            GC.SuppressFinalize(video);
+            return video;
+        }
+
         private sealed class VideoPlaybackBackendStub : IVideoPlaybackBackend
         {
-            public MediaState State => MediaState.Stopped;
+            public MediaState State { get; private set; } = MediaState.Stopped;
             public TimeSpan PlayPosition => RequestedPosition;
             public bool IsLooped { get; set; }
             public float Volume { get; set; }
+            public int PlayCount { get; private set; }
             public TimeSpan RequestedPosition { get; private set; }
             public bool IsDisposed { get; private set; }
-            public void Play(Video stream) { }
-            public void Pause() { }
-            public void Resume() { }
-            public void Stop() { }
+            public void Play(Video stream) { PlayCount++; State = MediaState.Playing; }
+            public void Pause() => State = MediaState.Paused;
+            public void Resume() => State = MediaState.Playing;
+            public void Stop() => State = MediaState.Stopped;
+            public void Complete() => State = MediaState.Stopped;
             public Texture2D GetTexture() => null;
             public bool TrySetPlayPosition(TimeSpan position)
             {
                 RequestedPosition = position;
                 return true;
             }
+            public void Dispose() => IsDisposed = true;
+        }
+
+        private sealed class UnavailableVideoPlaybackBackendStub : IVideoPlaybackBackend
+        {
+            public MediaState State => MediaState.Stopped;
+            public TimeSpan PlayPosition => TimeSpan.Zero;
+            public bool IsLooped { get; set; }
+            public float Volume { get; set; }
+            public bool IsDisposed { get; private set; }
+            public void Play(Video stream) => throw new PlatformNotSupportedException("Video playback is unavailable.");
+            public void Pause() { }
+            public void Resume() { }
+            public void Stop() { }
+            public Texture2D GetTexture() => null;
+            public bool TrySetPlayPosition(TimeSpan position) => false;
             public void Dispose() => IsDisposed = true;
         }
 
@@ -9219,6 +9567,41 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void TextEditWrapsShapedGraphemesAndInvalidatesOnlyEditedLineLayouts()
+        {
+            using var latin = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            using var arabic = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/NotoSansArabic_Variable.ttf");
+            var edit = new TextEdit
+            {
+                UIFont = new DynamicUIFont(latin, 18, UIFontHinting.Default, arabic),
+                Text = "stable first\nA😀e\u0301 مرحبا shaped middle line\nstable last",
+                Size = new Vector2(130, 100)
+            };
+            edit.SetLineWrappingMode(TextEditLineWrappingMode.Boundary);
+
+            edit.GetLineWrapCount(0);
+            var wrapped = edit.GetLineWrappedText(1);
+            edit.GetLineWrapCount(2);
+            var initialBuilds = edit.WrapLayoutBuildCount;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(string.Concat(wrapped), Is.EqualTo(edit.GetLine(1)));
+                Assert.That(wrapped.Any(part => part.Length > 0 && char.IsHighSurrogate(part[^1])), Is.False);
+                Assert.That(wrapped.Any(part => part.Length > 0 && char.IsLowSurrogate(part[0])), Is.False);
+                Assert.That(wrapped.Skip(1).Any(part => part.Length > 0 && System.Globalization.CharUnicodeInfo.GetUnicodeCategory(part, 0) == System.Globalization.UnicodeCategory.NonSpacingMark), Is.False);
+            });
+
+            edit.SetLine(1, "A😀e\u0301 changed middle line");
+            edit.GetLineWrapCount(0);
+            edit.GetLineWrapCount(2);
+            Assert.That(edit.WrapLayoutBuildCount, Is.EqualTo(initialBuilds));
+
+            edit.GetLineWrapCount(1);
+            Assert.That(edit.WrapLayoutBuildCount, Is.EqualTo(initialBuilds + 1));
+        }
+
+        [Test]
         public void CodeEdit_MapsGodotWrappedGuttersAndMinimapViewport()
         {
             var code = new CodeEdit
@@ -9240,10 +9623,60 @@ namespace Forma.Tests
             Assert.That(viewport.Top, Is.GreaterThan(code.GetMinimapBounds().Top));
             Assert.That(viewport.Bottom, Is.LessThanOrEqualTo(code.GetMinimapBounds().Bottom));
             Assert.That(viewport.Width, Is.EqualTo(code.GetMinimapBounds().Width - 2));
-
             code.DrawMinimap = false;
             Assert.That(code.GetMinimapBounds(), Is.EqualTo(Rectangle.Empty));
             Assert.That(code.GetMinimapViewportBounds(), Is.EqualTo(Rectangle.Empty));
+        }
+
+        [Test]
+        public void DynamicTextEditAndCodeEditShareShapedLayoutsAcrossEditorFeatures()
+        {
+            using var latin = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            using var arabic = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/NotoSansArabic_Variable.ttf");
+            var font = new DynamicUIFont(latin, 18, UIFontHinting.Default, arabic);
+            var edit = new TextEdit
+            {
+                UIFont = font,
+                Text = "var\tname = \"مرحبا\";\nnext line",
+                Size = new Vector2(170, 80)
+            };
+            edit.SetLineWrappingMode(TextEditLineWrappingMode.Boundary);
+            edit.AddGutter();
+            edit.SetLineGutterText(0, 0, "1");
+            var highlighter = new CodeHighlighter();
+            highlighter.AddKeywordColor("var", Color.CornflowerBlue);
+            highlighter.AddColorRegion("\"", "\"", Color.Orange);
+            edit.SetSyntaxHighlighter(highlighter);
+
+            var firstHighlight = edit.GetLineSyntaxHighlighting(0);
+            edit.GetLineSyntaxHighlighting(1);
+            edit.Select(0, 0, 0, edit.GetLine(0).Length);
+            var selection = edit.GetSelectionRectangles();
+            var shapedLine = edit.GetEditingLayout(edit.GetLine(0));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(shapedLine.Runs.Select(run => run.Font.Identity).Distinct().Count(), Is.GreaterThanOrEqualTo(2));
+                Assert.That(edit.GetLineGutterText(0, 0), Is.EqualTo("1"));
+                Assert.That(firstHighlight, Is.Not.Empty);
+                Assert.That(selection, Is.Not.Empty);
+                Assert.That(edit.GetLineWidth(0), Is.GreaterThan(0));
+            });
+
+            edit.SetLine(1, "changed line");
+            Assert.That(edit.GetLineSyntaxHighlighting(0), Is.SameAs(firstHighlight));
+
+            var code = new CodeEdit { UIFont = font, Text = "obj.pri", Size = new Vector2(220, 80) };
+            code.SetCaret(0, code.Text.Length);
+            code.AddCodeCompletionOption(CodeCompletionKind.Function, "print(value)", "print");
+            code.UpdateCodeCompletionOptions(forced: true);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(code.IsCodeCompletionActive, Is.True);
+                Assert.That(code.CodeCompletionOptions, Has.Count.EqualTo(1));
+                Assert.That(code.GetEditingLayout(code.Text).Size.X, Is.GreaterThan(0));
+            });
         }
 
         [Test]
@@ -9424,6 +9857,124 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void ThemeIcons_ResolveLocalTypedSharedAndParentEntries()
+        {
+            var texture = (Texture2D)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(Texture2D));
+            var shared = new ThemeIcon(texture, new Rectangle(0, 0, 8, 8), new Point(8, 8));
+            var baseTyped = new ThemeIcon(texture, new Rectangle(8, 0, 10, 10), new Point(10, 10));
+            var derivedTyped = new ThemeIcon(texture, new Rectangle(18, 0, 12, 12), new Point(12, 12));
+            var local = new ThemeIcon(texture, new Rectangle(30, 0, 14, 14), new Point(14, 14));
+            var parent = new Theme();
+            parent.SetIcon("state", shared);
+            parent.SetIcon("state", baseTyped, nameof(BaseButton));
+            var child = new Theme { Parent = parent };
+            child.SetIcon("state", derivedTyped, nameof(Button));
+            var context = new UIContext { Theme = child };
+            var button = new Button();
+            context.Add(button);
+
+            Assert.That(button.GetThemeIcon("state"), Is.EqualTo(derivedTyped));
+            child.RemoveIcon("state", nameof(Button));
+            Assert.That(button.GetThemeIcon("state"), Is.EqualTo(baseTyped));
+            button.AddThemeIconOverride("state", local);
+            Assert.That(button.GetThemeIcon("state"), Is.EqualTo(local));
+            button.RemoveThemeIconOverride("state");
+            Assert.That(button.GetThemeIcon("state"), Is.EqualTo(baseTyped));
+            Assert.That(new Control { ThemeOverride = child }.GetThemeIcon("missing"), Is.Null);
+        }
+
+        [Test]
+        public void ThemeIcons_SuppressionStopsInheritanceUntilRemoved()
+        {
+            var texture = (Texture2D)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(Texture2D));
+            var inherited = new ThemeIcon(texture, new Rectangle(0, 0, 8, 8), new Point(8, 8));
+            var root = new Theme();
+            root.SetIcon("arrow", inherited, nameof(OptionButton));
+            var child = new Theme { Parent = root };
+            child.SuppressIcon("arrow", nameof(OptionButton));
+            var context = new UIContext { Theme = child };
+            var option = new OptionButton();
+            context.Add(option);
+
+            Assert.That(option.GetThemeIcon("arrow"), Is.Null);
+            child.RemoveIcon("arrow", nameof(OptionButton));
+            Assert.That(option.GetThemeIcon("arrow"), Is.EqualTo(inherited));
+            option.SuppressThemeIcon("arrow");
+            Assert.That(option.GetThemeIcon("arrow"), Is.Null);
+            option.RemoveThemeIconOverride("arrow");
+            Assert.That(option.GetThemeIcon("arrow"), Is.EqualTo(inherited));
+        }
+
+        [Test]
+        public void ThemeIcon_IsImmutableAndDoesNotOwnItsTexture()
+        {
+            var texture = (Texture2D)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(Texture2D));
+            var icon = new ThemeIcon(texture, new Rectangle(4, 6, 20, 24), new Point(10, 12), 2);
+
+            Assert.That(icon.Texture, Is.SameAs(texture));
+            Assert.That(icon.SourceRectangle, Is.EqualTo(new Rectangle(4, 6, 20, 24)));
+            Assert.That(icon.LogicalSize, Is.EqualTo(new Point(10, 12)));
+            Assert.That(icon.Density, Is.EqualTo(2));
+            Assert.That(icon, Is.Not.InstanceOf<IDisposable>());
+        }
+
+        [TestCase(0.75f, 1)]
+        [TestCase(1f, 1)]
+        [TestCase(1.25f, 1)]
+        [TestCase(1.49f, 1)]
+        [TestCase(1.5f, 2)]
+        [TestCase(2f, 2)]
+        [TestCase(3f, 2)]
+        [TestCase(float.NaN, 1)]
+        public void ThemeIcons_SelectDensityAtDocumentedThreshold(float displayScale, int expectedDensity)
+        {
+            Assert.That(DefaultThemeIconResources.SelectDensity(displayScale), Is.EqualTo(expectedDensity));
+        }
+
+        [Test]
+        public void AdvancedThemeIcons_PreserveGraphPortGeometryAndExplicitTexturePrecedence()
+        {
+            var texture = (Texture2D)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(Texture2D));
+            var theme = new Theme();
+            theme.SetIcon("port", new ThemeIcon(texture, new Rectangle(0, 0, 10, 6), new Point(10, 6)), nameof(GraphNode));
+            var context = new UIContext { Theme = theme };
+            var node = new GraphNode { Size = new Vector2(120, 80) };
+            node.SetSlot(0, true, 0, Color.White, true, 0, Color.White);
+            context.Add(node);
+
+            Assert.That(node.GetInputPortDrawBounds(0), Is.EqualTo(new Rectangle(0, 31, 10, 6)));
+            Assert.That(node.GetOutputPortDrawBounds(0), Is.EqualTo(new Rectangle(110, 31, 10, 6)));
+
+            node.SetSlot(0, true, 0, Color.White, true, 0, Color.White, texture, texture);
+            Assert.That(node.GetInputPortDrawBounds(0), Is.EqualTo(new Rectangle(0, 28, 12, 12)));
+            Assert.That(node.GetOutputPortDrawBounds(0), Is.EqualTo(new Rectangle(108, 28, 12, 12)));
+        }
+
+        [Test]
+        public void AdvancedThemeIcons_SelectFoldableDirectionAndGraphToolbarOwnerBindings()
+        {
+            var texture = (Texture2D)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(Texture2D));
+            var icon = new ThemeIcon(texture, new Rectangle(0, 0, 8, 8), new Point(8, 8));
+            var theme = new Theme();
+            theme.SetIcon("zoom_out", icon, nameof(GraphEdit));
+            var context = new UIContext { Theme = theme };
+            var graph = new GraphEdit();
+            context.Add(graph);
+
+            Assert.That(graph.ZoomOutButton.DecorativeIconProvider(), Is.EqualTo(icon));
+            Assert.That(graph.ZoomInButton.DecorativeIconProvider(), Is.Null, "A missing optional sibling icon must remain a graceful text fallback.");
+
+            var foldable = new FoldableContainer();
+            Assert.That(foldable.GetArrowIconName(), Is.EqualTo("expanded_arrow"));
+            foldable.Folded = true;
+            Assert.That(foldable.GetArrowIconName(), Is.EqualTo("folded_arrow"));
+            foldable.LayoutDirection = LayoutDirection.RightToLeft;
+            Assert.That(foldable.GetArrowIconName(), Is.EqualTo("folded_arrow_mirrored"));
+            foldable.Folded = false;
+            Assert.That(foldable.GetArrowIconName(), Is.EqualTo("expanded_arrow_mirrored"));
+        }
+
+        [Test]
         public void Tooltip_AppearsAfterDelayAndUsesNearestAncestorWithText()
         {
             var context = new UIContext { TooltipDelay = TimeSpan.FromMilliseconds(100) };
@@ -9521,6 +10072,28 @@ namespace Forma.Tests
             Assert.That(label.Spans[1].Bold, Is.True);
             Assert.That(label.Spans[1].Color, Is.EqualTo(Color.Red));
             Assert.That(label.Spans[3].Underline, Is.True);
+        }
+
+        [Test]
+        public void RichTextLabelDynamicLayoutWrapsAndMapsWholeGraphemeClusters()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var font = new DynamicUIFont(face, 18);
+            var emojiWidth = TextMetrics.Measure(font, "😀").X;
+            var richText = new RichTextLabel
+            {
+                UIFont = font,
+                Text = "😀😀",
+                AutowrapMode = LabelAutowrapMode.Arbitrary,
+                Size = new Vector2(emojiWidth + 1 + 6, 80),
+            };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(richText.GetLineCount(), Is.EqualTo(2));
+                Assert.That(richText.GetLineRange(0), Is.EqualTo(new Point(0, 2)));
+                Assert.That(richText.GetLineRange(1), Is.EqualTo(new Point(2, 4)));
+            });
         }
 
         [Test]

@@ -8,7 +8,10 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
-    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(MonoGameProjectPath)' == ''" />
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' == ''" />
+    <ProjectReference Include="$(MonoGameProjectPath)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' != ''" />
+    <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''" />
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit.Analyzers" Version="4.7.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
@@ -19,9 +22,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../samples/Forma.Catalog/Forma.Catalog.csproj" />
-    <ProjectReference Include="../../src/Forma/Forma.csproj" />
-    <ProjectReference Include="../../src/Forma.Media/Forma.Media.csproj" />
+    <ProjectReference Include="../../samples/Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.DynamicText/Forma.DynamicText.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.Media/Forma.Media.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../tools/Forma.IconPipeline/Forma.IconPipeline.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoSansArabic_Variable.ttf" Link="Fonts/NotoSansArabic_Variable.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoSansDevanagari_Subset.ttf" Link="Fonts/NotoSansDevanagari_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoSansThai_Subset.ttf" Link="Fonts/NotoSansThai_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoSansHebrew_Subset.ttf" Link="Fonts/NotoSansHebrew_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoSansCJK_Subset.ttf" Link="Fonts/NotoSansCJK_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoEmoji_Subset.ttf" Link="Fonts/NotoEmoji_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Text/BidiTest.txt.gz" Link="Unicode/BidiTest.txt.gz" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Text/BidiCharacterTest.txt.gz" Link="Unicode/BidiCharacterTest.txt.gz" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

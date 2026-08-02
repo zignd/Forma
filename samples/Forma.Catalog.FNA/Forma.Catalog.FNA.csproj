@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.Catalog.FNA</AssemblyName>
+    <RootNamespace>Forma.Catalog</RootNamespace>
+    <UseAppHost>false</UseAppHost>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+    <DefineConstants>$(DefineConstants);FORMA_CATALOG_FNA</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="$(MonoGameVersion)" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FnaProjectPath)' == ''" />
+    <PackageReference Include="FNA.NET.NativeAssets" Version="$(FnaNativeAssetsVersion)" Condition="'$(FnaProjectPath)' != ''" />
+    <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FnaProjectPath)' != ''" />
+    <ProjectReference Include="../Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=FNA;CatalogBackend=FNA" />
+    <Compile Include="../Forma.Catalog/Program.cs" Link="Program.cs" />
+    <MonoGameContentReference Include="../Forma.Catalog/Content/Content.mgcb" />
+    <None Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../NOTICE.md" Link="NOTICE.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/LICENSE.Inter.txt" Link="Content/Fonts/LICENSE.Inter.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/LICENSE.JetBrainsMono.txt" Link="Content/Fonts/LICENSE.JetBrainsMono.txt" CopyToOutputDirectory="PreserveNewest" />
+    <AssemblyMetadata Include="FormaCatalogBackend" Value="FNA" />
+  </ItemGroup>
+
+</Project>

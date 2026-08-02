@@ -172,6 +172,7 @@ namespace Forma
     /// <summary>Graph node with named input and output port metadata.</summary>
     public class GraphNode : GraphElement
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private sealed class SlotLayout
         {
             public Control Child;
@@ -213,7 +214,9 @@ namespace Forma
         private string _title = string.Empty;
         public GraphNode() { CustomMinimumSize = new Vector2(140, 80); }
         public string Title { get => _title; set { value ??= string.Empty; if (_title == value) return; _title = value; QueueLayout(); } }
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         /// <summary>Allows this node to accept an interactive connection whose type is not otherwise compatible.</summary>
         public bool IgnoreInvalidConnectionType { get; set; }
         public IReadOnlyList<string> InputPorts => GetPortNames(_inputPorts);
@@ -435,7 +438,7 @@ namespace Forma
             context.Border(Bounds, Selected ? context.Theme.FocusColor : context.Theme.PanelBorderColor, Selected ? 2 : 1);
             var titleRect = new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, Math.Min(24, Bounds.Height));
             context.Fill(titleRect, context.Theme.AccentColor);
-            if (Font != null && !string.IsNullOrEmpty(Title)) context.Text(Font, Title, new Vector2(titleRect.X + 6, titleRect.Y + Math.Max(2, (titleRect.Height - Font.LineSpacing) / 2)), context.Theme.TextColor);
+            if (EffectiveUIFont != null && !string.IsNullOrEmpty(Title)) context.Text(EffectiveUIFont, Title, new Vector2(titleRect.X + 6, titleRect.Y + Math.Max(2, (titleRect.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.TextColor);
             DrawSlotStyleBoxes(context);
             DrawPorts(context, _inputPorts, false); DrawPorts(context, _outputPorts, true);
             DrawResizeHandle(context);
@@ -492,7 +495,7 @@ namespace Forma
         private Vector2 GetNodeTitlebarSize(bool desired = false)
         {
             var margin = GetThemeStyleBox("titlebar")?.ContentMargin ?? new Thickness();
-            var content = Font != null && !string.IsNullOrEmpty(Title) ? Font.MeasureString(Title) : Vector2.Zero;
+            var content = EffectiveUIFont != null && !string.IsNullOrEmpty(Title) ? TextMetrics.Measure(EffectiveUIFont, Title) : Vector2.Zero;
             return new Vector2(content.X + margin.Horizontal, Math.Max(24, content.Y + margin.Vertical));
         }
         private Vector2 GetNodeSize(bool desired)
@@ -526,8 +529,8 @@ namespace Forma
         private Rectangle GetPortDrawBounds(Port port, bool output)
         {
             var position = GetPortPosition(port, output);
-            var size = port.Icon != null ? 12 : 8;
-            return new Rectangle(Bounds.X + (int)MathF.Round(position.X) - (output ? size : 0), Bounds.Y + (int)MathF.Round(position.Y) - size / 2, size, size);
+            var size = port.Icon != null ? new Point(12, 12) : GetThemeIcon("port")?.LogicalSize ?? new Point(8, 8);
+            return new Rectangle(Bounds.X + (int)MathF.Round(position.X) - (output ? size.X : 0), Bounds.Y + (int)MathF.Round(position.Y) - size.Y / 2, size.X, size.Y);
         }
         private void DrawSlotStyleBoxes(UIRenderContext context)
         {
@@ -539,8 +542,8 @@ namespace Forma
                 if (style != null) style.Draw(context, bounds);
                 else
                 {
-                    context.Fill(bounds, new Color(context.Theme.HoverColor, (byte)72));
-                    context.Border(bounds, new Color(context.Theme.PanelBorderColor, (byte)120));
+                    context.Fill(bounds, context.Theme.HoverColor.WithAlpha(72));
+                    context.Border(bounds, context.Theme.PanelBorderColor.WithAlpha(120));
                 }
             }
         }
@@ -550,11 +553,16 @@ namespace Forma
             {
                 var position = GetPortPosition(port, output); var bounds = GetPortDrawBounds(port, output);
                 if (port.Icon != null) context.SpriteBatch.Draw(port.Icon, bounds, port.Color);
-                else { context.Fill(bounds, port.Color); context.Border(bounds, context.Theme.PanelBorderColor); }
-                if (Font != null && !string.IsNullOrEmpty(port.Name))
+                else
                 {
-                    var textX = output ? Bounds.Right - 8 - Font.MeasureString(port.Name).X : Bounds.X + 10;
-                    context.Text(Font, port.Name, new Vector2(textX, Bounds.Y + position.Y - Font.LineSpacing / 2), context.Theme.TextColor);
+                    var icon = GetThemeIcon("port");
+                    if (icon.HasValue) context.Icon(icon.Value, bounds, port.Color);
+                    else { context.Fill(bounds, port.Color); context.Border(bounds, context.Theme.PanelBorderColor); }
+                }
+                if (EffectiveUIFont != null && !string.IsNullOrEmpty(port.Name))
+                {
+                    var textX = output ? Bounds.Right - 8 - TextMetrics.Measure(EffectiveUIFont, port.Name).X : Bounds.X + 10;
+                    context.Text(EffectiveUIFont, port.Name, new Vector2(textX, Bounds.Y + position.Y - TextMetrics.LineHeight(EffectiveUIFont) / 2), context.Theme.TextColor);
                 }
             }
         }
@@ -605,7 +613,7 @@ namespace Forma
         {
             var margin = GetThemeStyleBox("titlebar")?.ContentMargin ?? new Thickness();
             var minimum = _titlebarHBox.GetMinimumSize();
-            if (Font != null && !string.IsNullOrEmpty(Title)) minimum = Vector2.Max(minimum, Font.MeasureString(Title));
+            if (EffectiveUIFont != null && !string.IsNullOrEmpty(Title)) minimum = Vector2.Max(minimum, TextMetrics.Measure(EffectiveUIFont, Title));
             return new Vector2(minimum.X + margin.Horizontal, Math.Max(24, minimum.Y + margin.Vertical));
         }
         /// <summary>Returns the titlebar, body-child, and frame style minimum required by Godot's GraphFrame layout.</summary>
@@ -636,11 +644,11 @@ namespace Forma
         public Color GetTintColor() => TintColor;
         internal override void Draw(UIRenderContext context)
         {
-            context.Fill(Bounds, TintColorEnabled ? TintColor : new Color(context.Theme.PanelColor, (byte)128));
+            context.Fill(Bounds, TintColorEnabled ? TintColor : context.Theme.PanelColor.WithAlpha(128));
             context.Border(Bounds, context.Theme.PanelBorderColor);
             var titleHeight = Math.Min(24, Bounds.Height);
-            context.Fill(new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, titleHeight), new Color(context.Theme.AccentColor, (byte)160));
-            if (Font != null && !string.IsNullOrEmpty(Title)) context.Text(Font, Title, new Vector2(Bounds.X + 6, Bounds.Y + Math.Max(2, (titleHeight - Font.LineSpacing) / 2)), context.Theme.TextColor);
+            context.Fill(new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, titleHeight), context.Theme.AccentColor.WithAlpha(160));
+            if (EffectiveUIFont != null && !string.IsNullOrEmpty(Title)) context.Text(EffectiveUIFont, Title, new Vector2(Bounds.X + 6, Bounds.Y + Math.Max(2, (titleHeight - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.TextColor);
         }
         protected override void ArrangeChildren()
         {
@@ -664,7 +672,7 @@ namespace Forma
             var titlebarMargin = GetThemeStyleBox("titlebar")?.ContentMargin ?? new Thickness();
             var panelMargin = GetThemeStyleBox("panel")?.ContentMargin ?? new Thickness();
             var titlebarSize = desired ? _titlebarHBox.GetBoundDesiredSize() : _titlebarHBox.GetMinimumSize();
-            if (Font != null && !string.IsNullOrEmpty(Title)) titlebarSize = Vector2.Max(titlebarSize, Font.MeasureString(Title));
+            if (EffectiveUIFont != null && !string.IsNullOrEmpty(Title)) titlebarSize = Vector2.Max(titlebarSize, TextMetrics.Measure(EffectiveUIFont, Title));
             var minimum = titlebarSize + new Vector2(titlebarMargin.Horizontal, titlebarMargin.Vertical);
             minimum.Y = Math.Max(24, minimum.Y);
             foreach (var child in Children)
@@ -840,6 +848,8 @@ namespace Forma
             ZoomLabel = new Label { Name = "_zoom_label", Text = "100%", CustomMinimumSize = new Vector2(48, 24), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Visible = false };
             ZoomOutButton = CreateToolbarButton("-", 24); ZoomResetButton = CreateToolbarButton("1:1", 32); ZoomInButton = CreateToolbarButton("+", 24);
             GridToggleButton = CreateToolbarButton("Grid", 38, true); SnappingToggleButton = CreateToolbarButton("Snap", 40, true); MinimapToggleButton = CreateToolbarButton("Map", 34, true); ArrangeButton = CreateToolbarButton("Arrange", 54);
+            ConfigureToolbarIcon(ZoomOutButton, "zoom_out"); ConfigureToolbarIcon(ZoomResetButton, "zoom_reset"); ConfigureToolbarIcon(ZoomInButton, "zoom_in");
+            ConfigureToolbarIcon(GridToggleButton, "grid_toggle"); ConfigureToolbarIcon(SnappingToggleButton, "snapping_toggle"); ConfigureToolbarIcon(MinimapToggleButton, "minimap_toggle"); ConfigureToolbarIcon(ArrangeButton, "layout");
             SnappingDistanceSpinBox = new SpinBox { Name = "_snapping_distance_spinbox", MinValue = 2, MaxValue = 100, Step = 1, Value = _snappingDistance, CustomMinimumSize = new Vector2(52, 24) };
             GridToggleButton.SetPressedNoSignal(true); SnappingToggleButton.SetPressedNoSignal(true); MinimapToggleButton.SetPressedNoSignal(true);
             ZoomOutButton.Pressed += (_, _) => ZoomOut(); ZoomResetButton.Pressed += (_, _) => ZoomReset(); ZoomInButton.Pressed += (_, _) => ZoomIn();
@@ -937,6 +947,11 @@ namespace Forma
         public event Action<GraphEdit, float> ZoomChanged;
         public event Action<GraphEdit, Vector2> ScrollOffsetChanged;
         public event Action<GraphEdit> NodesArranged;
+        private void ConfigureToolbarIcon(Button button, string iconName)
+        {
+            button.DecorativeIconProvider = () => GetThemeIcon(iconName);
+            button.HideTextWhenDecorativeIconAvailable = true;
+        }
         /// <summary>Sets zoom while keeping the graph coordinate under the viewport center fixed.</summary>
         public void SetZoom(float zoom) => SetZoomCustom(zoom, Size * .5f);
         /// <summary>Sets zoom while preserving the graph point under a local viewport coordinate.</summary>
@@ -1839,11 +1854,12 @@ namespace Forma
         public Rectangle GetCodeHintBounds()
         {
             if (string.IsNullOrEmpty(CodeHint)) return Rectangle.Empty;
-            var lineHeight = Math.Max(1, Font?.LineSpacing ?? 16); var width = 0; var lines = CodeHint.Split('\n');
-            foreach (var line in lines) width = Math.Max(width, (int)MathF.Ceiling(Font?.MeasureString(line).X ?? line.Length * 8));
-            width += 12; var height = lines.Length * lineHeight + 8;
-            var x = (int)(GlobalPosition.X + Padding.Left + TextContentLeftInset + (Font == null ? CaretColumnInLine * 8 : Font.MeasureString(GetLine(CaretLine).Substring(0, CaretColumnInLine)).X));
-            var caretY = (int)(GlobalPosition.Y + Padding.Top + Math.Max(0, GetVisibleRow(CaretLine, GetLineWrapIndexAtColumn(CaretLine, CaretColumnInLine))) * lineHeight);
+            var lineHeight = EffectiveUIFont == null ? 16 : Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont)); var width = 0; var lines = CodeHint.Split('\n');
+            foreach (var line in lines) width = Math.Max(width, (int)MathF.Ceiling(EffectiveUIFont == null ? line.Length * 8 : TextMetrics.Measure(EffectiveUIFont, line).X));
+            width += 12; var height = lines.Length * lineHeight + 8; var wrapIndex = GetLineWrapIndexAtColumn(CaretLine, CaretColumnInLine); var wrapStart = GetLineWrapStartColumn(CaretLine, wrapIndex);
+            var caretX = EffectiveUIFont == null ? (CaretColumnInLine - wrapStart) * 8 : TextMetrics.Layout(EffectiveUIFont, GetLine(CaretLine).Substring(wrapStart, GetLineWrapLength(CaretLine, wrapIndex))).GetCaretPosition(CaretColumnInLine - wrapStart).X;
+            var x = (int)(GlobalPosition.X + Padding.Left + TextContentLeftInset + caretX);
+            var caretY = (int)(GlobalPosition.Y + Padding.Top + Math.Max(0, GetVisibleRow(CaretLine, wrapIndex)) * lineHeight);
             var y = CodeHintDrawBelow ? caretY + lineHeight : caretY - height;
             if (y < Bounds.Top && caretY + lineHeight + height <= Bounds.Bottom) y = caretY + lineHeight;
             y = MathHelper.Clamp(y, Bounds.Top, Math.Max(Bounds.Top, Bounds.Bottom - height));
@@ -1860,7 +1876,7 @@ namespace Forma
         /// <summary>Returns the screen-space x coordinate for a configured guideline column.</summary>
         public int GetLineLengthGuidelineX(int column)
         {
-            var characterWidth = Font == null ? 8 : Font.MeasureString("0").X;
+            var characterWidth = EffectiveUIFont == null ? 8 : TextMetrics.Measure(EffectiveUIFont, "0").X;
             var x = (int)MathF.Round(GlobalPosition.X + Padding.Left + TextContentLeftInset + characterWidth * Math.Max(0, column));
             return IsLayoutRtl() ? Bounds.Right - (x - Bounds.Left) : x;
         }
@@ -1869,11 +1885,11 @@ namespace Forma
         /// <summary>Returns complete source text with U+FFFF at the last pointer position used for symbol lookup, or the caret when there is none.</summary>
         public string GetTextForSymbolLookup()
         {
-            if (_lastSymbolLookupPosition.X >= 0 && _lastSymbolLookupPosition.Y >= 0 && Font != null)
+            if (_lastSymbolLookupPosition.X >= 0 && _lastSymbolLookupPosition.Y >= 0 && EffectiveUIFont != null)
             {
-                var row = (int)((_lastSymbolLookupPosition.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, Font.LineSpacing));
-                var line = GetLineAtVisibleRow(row); var wrapIndex = GetLineWrapIndexAtVisibleRow(row); var start = GetLineWrapStartColumn(line, wrapIndex); var length = GetLineWrapLength(line, wrapIndex); var localX = _lastSymbolLookupPosition.X - GlobalPosition.X - Padding.Left - TextContentLeftInset; var column = start;
-                for (var index = 1; index <= length; index++) if (Font.MeasureString(GetLine(line).Substring(start, index)).X <= localX) column = start + index;
+                var row = (int)((_lastSymbolLookupPosition.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont)));
+                var line = GetLineAtVisibleRow(row); var wrapIndex = GetLineWrapIndexAtVisibleRow(row); var start = GetLineWrapStartColumn(line, wrapIndex); var length = GetLineWrapLength(line, wrapIndex); var localX = _lastSymbolLookupPosition.X - GlobalPosition.X - Padding.Left - TextContentLeftInset;
+                var column = start + TextMetrics.Layout(EffectiveUIFont, GetLine(line).Substring(start, length)).HitTest(new Vector2(localX, 0));
                 return GetTextWithCursorChar(line, column);
             }
             return GetTextWithCursorChar(CaretLine, CaretColumnInLine);
@@ -2288,17 +2304,18 @@ namespace Forma
             }
             if (IsCodeCompletionActive && _codeCompletionBounds.Contains(position))
             {
-                var row = MathHelper.Clamp((position.Y - _codeCompletionBounds.Y) / Math.Max(1, Font?.LineSpacing ?? 16), 0, _codeCompletionOptions.Count - 1);
+                var rowHeight = EffectiveUIFont == null ? 16 : Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont));
+                var row = MathHelper.Clamp((position.Y - _codeCompletionBounds.Y) / rowHeight, 0, _codeCompletionOptions.Count - 1);
                 SetCodeCompletionSelectedIndex(row);
                 ConfirmCodeCompletion();
                 return;
             }
-            if (DrawFoldGutter && Font != null)
+            if (DrawFoldGutter && EffectiveUIFont != null)
             {
                 var foldLeft = Bounds.X + (int)MathF.Ceiling(base.TextContentLeftInset + GetLineNumberGutterWidth());
                 if (new Rectangle(foldLeft, Bounds.Y, 14, Bounds.Height).Contains(position))
                 {
-                    var row = (int)((position.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, Font.LineSpacing));
+                    var row = (int)((position.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont)));
                     if (GetLineWrapIndexAtVisibleRow(row) == 0)
                     {
                         ToggleFoldableLine(GetLineAtVisibleRow(row));
@@ -2370,46 +2387,65 @@ namespace Forma
             var gutterWidth = (int)MathF.Ceiling(GetGutterWidth());
             var gutterLeft = Bounds.X + (int)MathF.Ceiling(base.TextContentLeftInset);
             if (gutterWidth > 0) context.Fill(new Rectangle(gutterLeft, Bounds.Y, gutterWidth, Bounds.Height), context.Theme.PanelColor);
-            if (Font != null && gutterWidth > 0)
+            if (EffectiveUIFont != null && gutterWidth > 0)
             {
                 var numberWidth = GetLineNumberGutterWidth();
                 var y = Bounds.Y + Padding.Top;
-                for (var line = FirstVisibleLine; line >= 0 && line < LineCount && y + Font.LineSpacing <= Bounds.Bottom; line++)
+                for (var line = FirstVisibleLine; line >= 0 && line < LineCount && y + TextMetrics.LineHeight(EffectiveUIFont) <= Bounds.Bottom; line++)
                 {
                     if (IsLineHiddenForDisplay(line)) continue;
                     var firstWrap = line == FirstVisibleLine ? FirstVisibleLineWrapIndex : 0;
                     if (firstWrap == 0 && DrawLineNumbers)
                     {
                         var number = (line + 1).ToString(LineNumbersZeroPadded ? new string('0', Math.Max(1, LineNumbersMinDigits)) : null, System.Globalization.CultureInfo.InvariantCulture);
-                        var measured = Font.MeasureString(number).X;
-                        context.Text(Font, number, new Vector2(gutterLeft + numberWidth - measured - 4, y), context.Theme.DisabledTextColor);
+                        var measured = TextMetrics.Measure(EffectiveUIFont, number).X;
+                        context.Text(EffectiveUIFont, number, new Vector2(gutterLeft + numberWidth - measured - 4, y), context.Theme.DisabledTextColor);
                     }
                     var markerX = (int)(gutterLeft + numberWidth + 2);
-                    if (firstWrap == 0 && DrawBreakpointsGutter && _breakpointedLines.Contains(line)) context.Fill(new Rectangle(markerX, (int)y + Math.Max(1, (Font.LineSpacing - 8) / 2), 8, 8), BreakpointColor);
-                    else if (firstWrap == 0 && DrawBookmarksGutter && _bookmarkedLines.Contains(line)) context.Fill(new Rectangle(markerX, (int)y + Math.Max(1, (Font.LineSpacing - 8) / 2), 8, 8), BookmarkColor);
-                    else if (firstWrap == 0 && DrawExecutingLinesGutter && _executingLines.Contains(line)) context.Fill(new Rectangle(markerX, (int)y + Math.Max(1, (Font.LineSpacing - 8) / 2), 8, 8), ExecutingLineColor);
+                    var markerName = DrawBreakpointsGutter && _breakpointedLines.Contains(line) ? "breakpoint" : DrawBookmarksGutter && _bookmarkedLines.Contains(line) ? "bookmark" : DrawExecutingLinesGutter && _executingLines.Contains(line) ? "executing_line" : null;
+                    if (firstWrap == 0 && markerName != null)
+                    {
+                        var marker = GetThemeIcon(markerName); var markerBounds = new Rectangle(markerX, (int)y + Math.Max(1, (TextMetrics.LineHeight(EffectiveUIFont) - 8) / 2), 8, 8);
+                        if (marker.HasValue) context.Icon(marker.Value, new Vector2(markerX, y + (TextMetrics.LineHeight(EffectiveUIFont) - marker.Value.LogicalSize.Y) / 2), Color.White);
+                        else context.Fill(markerBounds, markerName == "breakpoint" ? BreakpointColor : markerName == "bookmark" ? BookmarkColor : ExecutingLineColor);
+                    }
                     if (firstWrap == 0 && DrawFoldGutter && (CanFoldLine(line) || IsLineFolded(line)))
                     {
                         var foldX = markerX + (DrawBreakpointsGutter || DrawBookmarksGutter || DrawExecutingLinesGutter ? 12 : 0);
-                        if (IsLineFolded(line)) context.Fill(new Rectangle(foldX + 3, (int)y + 4, 7, 7), context.Theme.DisabledTextColor);
+                        var codeRegion = IsLineCodeRegionStart(line);
+                        var foldName = IsLineFolded(line) ? codeRegion ? "folded_code_region" : "folded" : codeRegion ? "can_fold_code_region" : "can_fold";
+                        var fold = GetThemeIcon(foldName);
+                        if (fold.HasValue) context.Icon(fold.Value, new Vector2(foldX, y + (TextMetrics.LineHeight(EffectiveUIFont) - fold.Value.LogicalSize.Y) / 2), Color.White);
+                        else if (IsLineFolded(line)) context.Fill(new Rectangle(foldX + 3, (int)y + 4, 7, 7), context.Theme.DisabledTextColor);
                         else context.Border(new Rectangle(foldX + 3, (int)y + 4, 7, 7), context.Theme.DisabledTextColor);
                     }
-                    y += Font.LineSpacing * (GetLineWrapCount(line) + 1 - firstWrap);
+                    if (firstWrap == 0 && IsLineFolded(line))
+                    {
+                        var foldedEol = GetThemeIcon("folded_eol_icon");
+                        if (foldedEol.HasValue)
+                        {
+                            var textX = GlobalPosition.X + Padding.Left + TextContentLeftInset + TextMetrics.Measure(EffectiveUIFont, GetLine(line)).X + 2;
+                            context.Icon(foldedEol.Value, new Vector2(textX, y + (TextMetrics.LineHeight(EffectiveUIFont) - foldedEol.Value.LogicalSize.Y) / 2), context.Theme.DisabledTextColor);
+                        }
+                    }
+                    y += TextMetrics.LineHeight(EffectiveUIFont) * (GetLineWrapCount(line) + 1 - firstWrap);
                 }
             }
             if (DrawMinimap)
             {
                 var minimap = GetMinimapBounds();
-                context.Fill(minimap, new Color(context.Theme.PanelColor, (byte)210));
+                context.Fill(minimap, context.Theme.PanelColor.WithAlpha(210));
                 var rowCount = Math.Max(1, GetTotalVisibleLineCount()); var row = 0;
                 context.Border(GetMinimapViewportBounds(), context.Theme.FocusColor);
                 for (var line = 0; line < LineCount; line++)
                 {
                     if (IsLineHiddenForDisplay(line)) continue;
-                    foreach (var wrapped in GetLineWrappedText(line))
+                    var wrappedRows = GetLineWrappedText(line);
+                    for (var wrapIndex = 0; wrapIndex < wrappedRows.Count; wrapIndex++)
                     {
                         var y = minimap.Y + (int)MathF.Floor(row * minimap.Height / (float)rowCount);
-                        context.Fill(new Rectangle(minimap.X + 3, y, Math.Max(1, Math.Min(minimap.Width - 6, wrapped.Length)), 1), context.Theme.DisabledTextColor);
+                        var width = GetLineWidth(line, wrapIndex);
+                        context.Fill(new Rectangle(minimap.X + 3, y, Math.Max(1, Math.Min(minimap.Width - 6, (int)MathF.Ceiling(width / 4))), 1), context.Theme.DisabledTextColor);
                         row++;
                     }
                 }
@@ -2461,7 +2497,7 @@ namespace Forma
         {
             if (!DrawLineNumbers) return 0;
             var digits = Math.Max(Math.Max(1, LineNumbersMinDigits), LineCount.ToString(System.Globalization.CultureInfo.InvariantCulture).Length);
-            return (Font == null ? 8 : Font.MeasureString(new string('0', digits)).X) + 10;
+            return (EffectiveUIFont == null ? 8 : TextMetrics.Measure(EffectiveUIFont, new string('0', digits)).X) + 10;
         }
         private int ValidateLineNumber(int line)
         {
@@ -2615,11 +2651,12 @@ namespace Forma
         private void DrawCodeCompletion(UIRenderContext context)
         {
             _codeCompletionBounds = Rectangle.Empty;
-            if (!IsCodeCompletionActive || Font == null) return;
-            var rowHeight = Math.Max(1, Font.LineSpacing); var rows = Math.Min(_codeCompletionOptions.Count, Math.Max(1, CodeCompletionMaxLines));
+            if (!IsCodeCompletionActive || EffectiveUIFont == null) return;
+            var rowHeight = Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont)); var rows = Math.Min(_codeCompletionOptions.Count, Math.Max(1, CodeCompletionMaxLines));
             var width = 80;
-            foreach (var option in _codeCompletionOptions) width = Math.Max(width, (int)MathF.Ceiling(Font.MeasureString(option.DisplayText).X) + 12);
-            var x = (int)(GlobalPosition.X + Padding.Left + TextContentLeftInset + Font.MeasureString(GetLine(CaretLine).Substring(0, CaretColumnInLine)).X - Font.MeasureString(_codeCompletionBase).X);
+            foreach (var option in _codeCompletionOptions) width = Math.Max(width, (int)MathF.Ceiling(TextMetrics.Measure(EffectiveUIFont, option.DisplayText).X) + 12);
+            var wrapIndex = GetLineWrapIndexAtColumn(CaretLine, CaretColumnInLine); var wrapStart = GetLineWrapStartColumn(CaretLine, wrapIndex); var lineLayout = TextMetrics.Layout(EffectiveUIFont, GetLine(CaretLine).Substring(wrapStart, GetLineWrapLength(CaretLine, wrapIndex)));
+            var x = (int)(GlobalPosition.X + Padding.Left + TextContentLeftInset + lineLayout.GetCaretPosition(CaretColumnInLine - wrapStart).X - TextMetrics.Measure(EffectiveUIFont, _codeCompletionBase).X);
             var y = (int)(GlobalPosition.Y + Padding.Top + (Math.Max(0, GetVisibleRow(CaretLine, GetLineWrapIndexAtColumn(CaretLine, CaretColumnInLine))) + 1) * rowHeight);
             x = MathHelper.Clamp(x, Bounds.Left, Math.Max(Bounds.Left, Bounds.Right - width));
             if (y + rows * rowHeight > Bounds.Bottom) y = Math.Max(Bounds.Top, y - (rows + 1) * rowHeight);
@@ -2628,7 +2665,7 @@ namespace Forma
             for (var row = 0; row < rows; row++)
             {
                 if (row == _codeCompletionSelectedIndex) context.Fill(new Rectangle(_codeCompletionBounds.X + 1, _codeCompletionBounds.Y + row * rowHeight, Math.Max(0, _codeCompletionBounds.Width - 2), rowHeight), context.Theme.HoverColor);
-                var option = _codeCompletionOptions[row]; context.Text(Font, option.DisplayText, new Vector2(_codeCompletionBounds.X + 5, _codeCompletionBounds.Y + row * rowHeight), option.TextColor);
+                var option = _codeCompletionOptions[row]; context.Text(EffectiveUIFont, option.DisplayText, new Vector2(_codeCompletionBounds.X + 5, _codeCompletionBounds.Y + row * rowHeight), option.TextColor);
             }
         }
         private void DrawLineLengthGuidelines(UIRenderContext context)
@@ -2637,7 +2674,7 @@ namespace Forma
             {
                 var x = GetLineLengthGuidelineX(_lineLengthGuidelines[index]);
                 if (x <= Bounds.Left || x >= Bounds.Right) continue;
-                var color = index == 0 ? LineLengthGuidelineColor : new Color(LineLengthGuidelineColor, (byte)Math.Min((int)LineLengthGuidelineColor.A, 90));
+                var color = index == 0 ? LineLengthGuidelineColor : LineLengthGuidelineColor.WithAlpha((byte)Math.Min((int)LineLengthGuidelineColor.A, 90));
                 context.Fill(new Rectangle(x, Bounds.Top, 1, Bounds.Height), color);
             }
         }
@@ -2646,9 +2683,9 @@ namespace Forma
             var bounds = GetCodeHintBounds();
             if (bounds.IsEmpty) return;
             context.Fill(bounds, context.Theme.PanelColor); context.Border(bounds, context.Theme.FocusColor);
-            if (Font == null) return;
+            if (EffectiveUIFont == null) return;
             var y = bounds.Y + 4;
-            foreach (var line in CodeHint.Split('\n')) { context.Text(Font, line, new Vector2(bounds.X + 6, y), context.Theme.TextColor); y += Font.LineSpacing; }
+            foreach (var line in CodeHint.Split('\n')) { context.Text(EffectiveUIFont, line, new Vector2(bounds.X + 6, y), context.Theme.TextColor); y += TextMetrics.LineHeight(EffectiveUIFont); }
         }
         private static bool IsCompletionSymbol(char character) => char.IsLetterOrDigit(character) || character == '_';
         private bool HasCommandModifier()

@@ -27,6 +27,40 @@ namespace Forma
         }
     }
 
+    /// <summary>Read-only downsampled visualization of one dynamic glyph-atlas page.</summary>
+    public sealed class DynamicGlyphAtlasView : Control
+    {
+        public DynamicGlyphAtlasPageSnapshot Snapshot { get; set; }
+        public int SampleColumns { get; set; } = 32;
+        public DynamicGlyphAtlasView() => CustomMinimumSize = new Vector2(128, 128);
+        internal override void Draw(UIRenderContext context)
+        {
+            context.Fill(Bounds, new Color(16, 20, 27));
+            var snapshot = Snapshot;
+            if (snapshot != null && SampleColumns > 0 && Size.X > 0 && Size.Y > 0)
+            {
+                var columns = Math.Min(SampleColumns, snapshot.Width);
+                var rows = Math.Max(1, (int)MathF.Round(columns * snapshot.Height / (float)snapshot.Width));
+                var pixels = snapshot.Pixels.Span;
+                for (var row = 0; row < rows; row++)
+                for (var column = 0; column < columns; column++)
+                {
+                    var sourceX = Math.Min(snapshot.Width - 1, column * snapshot.Width / columns);
+                    var sourceY = Math.Min(snapshot.Height - 1, row * snapshot.Height / rows);
+                    var coverage = pixels[sourceY * snapshot.Width + sourceX];
+                    if (coverage == 0) continue;
+                    var left = Bounds.Left + column * Bounds.Width / columns;
+                    var top = Bounds.Top + row * Bounds.Height / rows;
+                    var right = Bounds.Left + (column + 1) * Bounds.Width / columns;
+                    var bottom = Bounds.Top + (row + 1) * Bounds.Height / rows;
+                    context.Fill(new Rectangle(left, top, Math.Max(1, right - left), Math.Max(1, bottom - top)), new Color(coverage, coverage, coverage));
+                }
+            }
+            context.Border(Bounds, new Color(56, 66, 82));
+            base.Draw(context);
+        }
+    }
+
     public enum LabelAutowrapMode { Off, Arbitrary, Word, WordSmart }
     public enum LabelTextOverrunBehavior { NoTrimming, TrimCharacters, TrimWords, Ellipsis, WordEllipsis, EllipsisForce, WordEllipsisForce }
     public enum LabelVisibleCharactersBehavior { CharactersBeforeShaping, CharactersAfterShaping, GlyphsLayoutDirection, GlyphsLeftToRight, GlyphsRightToLeft }
@@ -44,9 +78,14 @@ namespace Forma
 
     public class Label : Control
     {
+        private static readonly TextLayoutEngine DynamicLayoutEngine = new TextLayoutEngine();
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private string _text = string.Empty;
         private LabelAutowrapMode _autowrapMode;
+        private TextDirection _textDirection = TextDirection.Auto;
+        private string _language = string.Empty;
         private float[] _tabStops = Array.Empty<float>();
+        private IReadOnlyList<UIFontOpenTypeFeature> _openTypeFeatures = Array.Empty<UIFontOpenTypeFeature>();
         private IReadOnlyList<object> _structuredTextBidiOverrideOptions = Array.Empty<object>();
         public string Text
         {
@@ -62,7 +101,9 @@ namespace Forma
                 QueueLayout();
             }
         }
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public Color? FontColor { get; set; }
         public HorizontalAlignment HorizontalAlignment { get; set; }
         public VerticalAlignment VerticalAlignment { get; set; }
@@ -80,8 +121,8 @@ namespace Forma
         public int MaxLinesVisible { get; set; } = -1;
         public string ParagraphSeparator { get; set; } = "\n";
         public float ParagraphSpacing { get; set; }
-        public TextDirection TextDirection { get; set; } = TextDirection.Auto;
-        public string Language { get; set; } = string.Empty;
+        public TextDirection TextDirection { get => _textDirection; set { if (_textDirection == value) return; _textDirection = value; QueueLayout(); } }
+        public string Language { get => _language; set { value ??= string.Empty; if (_language == value) return; _language = value; QueueLayout(); } }
         public StructuredTextParser StructuredTextBidiOverride { get; set; } = StructuredTextParser.Default;
         public LabelJustificationFlags JustificationFlags { get; set; } = LabelJustificationFlags.Kashida | LabelJustificationFlags.WordBound | LabelJustificationFlags.SkipLastLine | LabelJustificationFlags.DoNotSkipSingleLine;
         public Thickness Padding { get; set; } = new Thickness(3);
@@ -125,8 +166,23 @@ namespace Forma
         public int GetLinesSkipped() => LinesSkipped;
         public void SetMaxLinesVisible(int lines) => MaxLinesVisible = lines;
         public int GetMaxLinesVisible() => MaxLinesVisible;
-        public int GetLineCount() => GetAllLineLayouts().Count;
-        public int GetVisibleLineCount() => GetDisplayLines().Count;
+        public int GetLineCount() => GetDynamicLayout()?.Lines.Count ?? GetAllLineLayouts().Count;
+        public int GetVisibleLineCount()
+        {
+            var layout = GetDynamicLayout();
+            if (layout == null) return GetDisplayLines().Count;
+            var start = Math.Min(LinesSkipped, layout.Lines.Count);
+            var count = MaxLinesVisible < 0 ? layout.Lines.Count - start : Math.Min(MaxLinesVisible, layout.Lines.Count - start);
+            var availableHeight = Math.Max(0, Size.Y - Padding.Vertical);
+            var usedHeight = 0f;
+            var visible = 0;
+            while (visible < count && usedHeight + layout.Lines[start + visible].Size.Y <= availableHeight)
+            {
+                usedHeight += layout.Lines[start + visible].Size.Y;
+                visible++;
+            }
+            return visible;
+        }
         public int GetTotalCharacterCount() => GetTextForLayout().Length;
         public void SetTextDirection(TextDirection direction) { if (!Enum.IsDefined(typeof(TextDirection), direction)) throw new ArgumentOutOfRangeException(nameof(direction)); TextDirection = direction; }
         public TextDirection GetTextDirection() => TextDirection;
@@ -145,9 +201,22 @@ namespace Forma
         public IReadOnlyList<object> GetStructuredTextBidiOverrideOptions() => _structuredTextBidiOverrideOptions;
         public void SetTabStops(IEnumerable<float> tabStops) => _tabStops = tabStops == null ? Array.Empty<float>() : new List<float>(tabStops).ToArray();
         public IReadOnlyList<float> GetTabStops() => _tabStops;
-        public int GetLineHeight(int line = -1) => Font?.LineSpacing ?? 16;
+        public void SetOpenTypeFeatures(IEnumerable<UIFontOpenTypeFeature> features) { _openTypeFeatures = features == null ? Array.Empty<UIFontOpenTypeFeature>() : new List<UIFontOpenTypeFeature>(features).ToArray(); QueueLayout(); }
+        public IReadOnlyList<UIFontOpenTypeFeature> GetOpenTypeFeatures() => _openTypeFeatures;
+        public int GetLineHeight(int line = -1)
+        {
+            var dynamicLayout = GetDynamicLayout();
+            if (dynamicLayout != null && dynamicLayout.Lines.Count > 0)
+            {
+                var index = line < 0 ? 0 : Math.Min(line, dynamicLayout.Lines.Count - 1);
+                return Math.Max(1, (int)MathF.Ceiling(dynamicLayout.Lines[index].Size.Y));
+            }
+            return Font?.LineSpacing ?? 16;
+        }
         public Rectangle GetCharacterBounds(int position)
         {
+            var dynamicLayout = GetDynamicLayout();
+            if (dynamicLayout != null) return GetDynamicCharacterBounds(dynamicLayout, position);
             var text = GetVisibleText();
             if (position < 0 || position >= text.Length) return Rectangle.Empty;
             var layouts = GetDisplayLineLayouts();
@@ -205,6 +274,13 @@ namespace Forma
         /// <summary>Draws this label's text. Rich-text derived controls can replace this while retaining child rendering.</summary>
         protected virtual void DrawLabelText(UIRenderContext context)
         {
+            var dynamicLayout = GetDynamicLayout();
+            if (dynamicLayout != null)
+            {
+                var color = Enabled ? FontColor ?? context.Theme.TextColor : context.Theme.DisabledTextColor;
+                context.Text(dynamicLayout, GlobalPosition + new Vector2(Padding.Left, Padding.Top + GetDynamicVerticalOffset(dynamicLayout)), color);
+                return;
+            }
             if (Font != null && !string.IsNullOrEmpty(Text))
             {
                 var layouts = GetDisplayLineLayouts();
@@ -370,6 +446,8 @@ namespace Forma
         private int MeasureTextWidth(string text) => (int)MathF.Ceiling(MeasureLineAdvance(text ?? string.Empty, text?.Length ?? 0, 0, int.MaxValue));
         private Vector2 MeasureTextBlock()
         {
+            var dynamicLayout = GetDynamicLayout(useAvailableWidth: false);
+            if (dynamicLayout != null) return dynamicLayout.Size;
             if (Font == null || string.IsNullOrEmpty(Text)) return Vector2.Zero;
             var size = Vector2.Zero;
             var lineCount = 0;
@@ -380,6 +458,109 @@ namespace Forma
             }
             size.Y = lineCount * Font.LineSpacing;
             return size;
+        }
+        private TextLayout GetDynamicLayout(bool useAvailableWidth = true)
+        {
+            var font = EffectiveUIFont;
+            if (font == null) return null;
+            var text = GetTextForLayout();
+            var boundaries = UnicodeGraphemeSegmenter.GetUtf16Boundaries(text);
+            var graphemeCount = Math.Max(0, boundaries.Length - 1);
+            var visibleCount = VisibleCharacters >= 0
+                ? Math.Min(VisibleCharacters, graphemeCount)
+                : (int)MathF.Floor(graphemeCount * MathHelper.Clamp(VisibleRatio, 0, 1));
+            if (VisibleCharacters < 0 && VisibleRatio >= 1) visibleCount = graphemeCount;
+            var maxVisibleCharacters = visibleCount;
+            if (VisibleCharactersBehavior == LabelVisibleCharactersBehavior.CharactersBeforeShaping)
+            {
+                text = text.Substring(0, boundaries[visibleCount]);
+                maxVisibleCharacters = int.MaxValue;
+            }
+            var contentWidth = useAvailableWidth && Size.X > Padding.Horizontal ? Size.X - Padding.Horizontal : float.PositiveInfinity;
+            var wrapping = AutowrapMode switch
+            {
+                LabelAutowrapMode.Arbitrary => TextWrapping.Character,
+                LabelAutowrapMode.Word => TextWrapping.Word,
+                LabelAutowrapMode.WordSmart => TextWrapping.Word,
+                _ => TextWrapping.NoWrap
+            };
+            var trimming = TextOverrunBehavior switch
+            {
+                LabelTextOverrunBehavior.TrimCharacters => TextTrimming.CharacterEllipsis,
+                LabelTextOverrunBehavior.Ellipsis => TextTrimming.CharacterEllipsis,
+                LabelTextOverrunBehavior.EllipsisForce => TextTrimming.CharacterEllipsis,
+                LabelTextOverrunBehavior.TrimWords => TextTrimming.WordEllipsis,
+                LabelTextOverrunBehavior.WordEllipsis => TextTrimming.WordEllipsis,
+                LabelTextOverrunBehavior.WordEllipsisForce => TextTrimming.WordEllipsis,
+                _ => TextTrimming.None
+            };
+            var direction = TextDirection == TextDirection.Inherited ? TextDirection.Auto : TextDirection;
+            var options = new TextLayoutOptions(
+                contentWidth,
+                wrapping,
+                HorizontalAlignment,
+                direction,
+                1,
+                4,
+                trimming,
+                maxVisibleCharacters,
+                Language,
+                GetNormalizedParagraphSeparator(),
+                GetValidTabStops(),
+                _openTypeFeatures,
+                ellipsis: EllipsisCharacter,
+                paragraphSpacing: ParagraphSpacing,
+                justificationFlags: MapJustificationFlags());
+            return (Context?.TextLayoutEngine ?? DynamicLayoutEngine).Layout(font, text, options);
+        }
+        private TextJustificationFlags MapJustificationFlags()
+        {
+            var flags = TextJustificationFlags.None;
+            if ((JustificationFlags & LabelJustificationFlags.WordBound) != 0) flags |= TextJustificationFlags.WordBound;
+            if ((JustificationFlags & LabelJustificationFlags.AfterLastTab) != 0) flags |= TextJustificationFlags.AfterLastTab;
+            if ((JustificationFlags & LabelJustificationFlags.SkipLastLine) != 0) flags |= TextJustificationFlags.SkipLastLine;
+            if ((JustificationFlags & LabelJustificationFlags.SkipLastLineWithVisibleCharacters) != 0) flags |= TextJustificationFlags.SkipLastLineWithVisibleCharacters;
+            if ((JustificationFlags & LabelJustificationFlags.DoNotSkipSingleLine) != 0) flags |= TextJustificationFlags.DoNotSkipSingleLine;
+            return flags;
+        }
+        private IReadOnlyList<float> GetValidTabStops()
+        {
+            foreach (var stop in _tabStops)
+                if (!float.IsFinite(stop) || stop <= 0) return Array.Empty<float>();
+            return _tabStops;
+        }
+        private Rectangle GetDynamicCharacterBounds(TextLayout layout, int position)
+        {
+            if (position < 0 || position >= layout.Text.Length) return Rectangle.Empty;
+            if (!layout.IsUtf16IndexVisible(position)) return Rectangle.Empty;
+            TextLayoutLine line = null;
+            foreach (var candidate in layout.Lines)
+            {
+                if (position < candidate.Start || position >= candidate.Start + candidate.Length) continue;
+                line = candidate;
+                break;
+            }
+            if (line == null) return Rectangle.Empty;
+            var current = layout.GetCaretPosition(position);
+            var next = layout.GetCaretPosition(position + 1);
+            var left = Math.Min(current.X, next.X) + Padding.Left;
+            var top = line.Origin.Y + Padding.Top + GetDynamicVerticalOffset(layout);
+            return new Rectangle(
+                (int)MathF.Floor(left),
+                (int)MathF.Floor(top),
+                Math.Max(1, (int)MathF.Ceiling(MathF.Abs(next.X - current.X))),
+                Math.Max(1, (int)MathF.Ceiling(line.Size.Y)));
+        }
+        private float GetDynamicVerticalOffset(TextLayout layout)
+        {
+            var contentHeight = Math.Max(0, Size.Y - Padding.Vertical);
+            var spare = Math.Max(0, contentHeight - layout.Size.Y);
+            return VerticalAlignment switch
+            {
+                VerticalAlignment.Center => MathF.Floor(spare / 2),
+                VerticalAlignment.Bottom => MathF.Floor(spare),
+                _ => 0
+            };
         }
         private float MeasureLineAdvance(string line, int characterCount, float extraSpace, int justificationStart)
         {
@@ -416,7 +597,7 @@ namespace Forma
                 var character = line[index];
                 if (character != '\t' && (character != ' ' || index < justificationStart)) continue;
                 var runLength = index - runStart + (character == ' ' ? 1 : 0);
-                var runAdvance = runLength > 0 ? Font.MeasureString(line.Substring(runStart, runLength)).X : 0;
+                var runAdvance = runLength > 0 ? TextMetrics.Measure(Font, line.Substring(runStart, runLength)).X : 0;
                 advance += runAdvance;
                 segmentAdvance += runAdvance;
                 if (character == '\t')
@@ -434,7 +615,7 @@ namespace Forma
             }
             if (runStart < characterCount)
             {
-                advance += Font.MeasureString(line.Substring(runStart, characterCount - runStart)).X;
+                advance += TextMetrics.Measure(Font, line.Substring(runStart, characterCount - runStart)).X;
             }
             return advance;
         }
@@ -444,7 +625,7 @@ namespace Forma
             for (var index = 0; index < _tabStops.Length; index++) validStops &= _tabStops[index] > 0;
             if (!validStops)
             {
-                var defaultWidth = Font == null ? 32 : Math.Max(1, Font.MeasureString("    ").X);
+                var defaultWidth = Font == null ? 32 : Math.Max(1, TextMetrics.Measure(Font, "    ").X);
                 return defaultWidth - segmentAdvance % defaultWidth;
             }
             var tabOffset = 0f;
@@ -514,7 +695,7 @@ namespace Forma
                 {
                     var run = line.Substring(runStart, runLength);
                     context.Text(Font, run, position + new Vector2(advance, 0), color);
-                    var runAdvance = Font.MeasureString(run).X;
+                    var runAdvance = TextMetrics.Measure(Font, run).X;
                     advance += runAdvance;
                     segmentAdvance += runAdvance;
                 }
@@ -526,7 +707,7 @@ namespace Forma
                 }
                 else
                 {
-                    var spaceAdvance = Font.MeasureString(" ").X + extraSpace;
+                    var spaceAdvance = TextMetrics.Measure(Font, " ").X + extraSpace;
                     advance += spaceAdvance;
                     segmentAdvance += spaceAdvance;
                 }
@@ -595,6 +776,7 @@ namespace Forma
 
     public class BaseButton : Control
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private bool _pressed;
         private bool _activationHandled;
         private bool _buttonPressed;
@@ -608,7 +790,9 @@ namespace Forma
             Padding = new Thickness(8, 4, 8, 4);
         }
         public string Text { get; set; } = string.Empty;
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public Thickness Padding { get; set; }
         /// <summary>Horizontal text placement for text-bearing buttons.</summary>
         public HorizontalAlignment TextAlignment { get; set; } = HorizontalAlignment.Center;
@@ -619,6 +803,8 @@ namespace Forma
         public VerticalAlignment VerticalIconAlignment { get; set; } = VerticalAlignment.Center;
         public float IconSeparation { get; set; } = 4;
         public Color IconModulate { get; set; } = Color.White;
+        internal Func<ThemeIcon?> DecorativeIconProvider { get; set; }
+        internal bool HideTextWhenDecorativeIconAvailable { get; set; }
         /// <summary>Suppresses the default button panel while retaining focus feedback.</summary>
         public bool Flat { get; set; }
         public bool ToggleMode { get; set; }
@@ -683,8 +869,10 @@ namespace Forma
         public bool IsHovered() => IsHovering;
         public override Vector2 GetMinimumSize()
         {
-            var text = Font == null ? Vector2.Zero : Font.MeasureString(Text ?? string.Empty);
-            var icon = Icon == null || ExpandIcon ? Vector2.Zero : new Vector2(Icon.Width, Icon.Height);
+            var text = EffectiveUIFont == null ? Vector2.Zero : TextMetrics.Measure(EffectiveUIFont, Text ?? string.Empty);
+            var decorativeIcon = Icon == null ? DecorativeIconProvider?.Invoke() : null;
+            if (decorativeIcon.HasValue && HideTextWhenDecorativeIconAvailable) text = Vector2.Zero;
+            var icon = ExpandIcon ? Vector2.Zero : Icon != null ? new Vector2(Icon.Width, Icon.Height) : decorativeIcon.HasValue ? decorativeIcon.Value.LogicalSize.ToVector2() : Vector2.Zero;
             if (icon != Vector2.Zero)
             {
                 text.Y = VerticalIconAlignment == VerticalAlignment.Center ? Math.Max(text.Y, icon.Y) : text.Y + icon.Y;
@@ -872,16 +1060,22 @@ namespace Forma
                 context.Fill(Bounds, color);
                 context.Border(Bounds, Context?.FocusedControl == this ? context.Theme.FocusColor : context.Theme.PanelBorderColor);
             }
+            var decorativeIcon = Icon == null ? DecorativeIconProvider?.Invoke() : null;
             if (Icon != null)
             {
                 var icon = GetIconRectangle(new Vector2(Icon.Width, Icon.Height));
                 if (icon.Width > 0 && icon.Height > 0) context.SpriteBatch.Draw(Icon, new Rectangle(Bounds.X + icon.X, Bounds.Y + icon.Y, icon.Width, icon.Height), Enabled ? IconModulate : context.Theme.DisabledTextColor);
             }
-            if (Font != null && !string.IsNullOrEmpty(Text))
+            else if (decorativeIcon.HasValue)
             {
-                var textSize = Font.MeasureString(Text);
+                var icon = GetIconRectangle(decorativeIcon.Value.LogicalSize.ToVector2());
+                if (icon.Width > 0 && icon.Height > 0) context.Icon(decorativeIcon.Value, new Rectangle(Bounds.X + icon.X, Bounds.Y + icon.Y, icon.Width, icon.Height), Enabled ? IconModulate : context.Theme.DisabledTextColor);
+            }
+            if (EffectiveUIFont != null && !string.IsNullOrEmpty(Text) && (!decorativeIcon.HasValue || !HideTextWhenDecorativeIconAvailable))
+            {
+                var textSize = TextMetrics.Measure(EffectiveUIFont, Text);
                 var pos = GlobalPosition + GetTextPosition(textSize);
-                context.Text(Font, Text, pos, Enabled ? context.Theme.TextColor : context.Theme.DisabledTextColor);
+                context.Text(EffectiveUIFont, Text, pos, Enabled ? context.Theme.TextColor : context.Theme.DisabledTextColor);
             }
             base.Draw(context);
         }
@@ -932,14 +1126,42 @@ namespace Forma
     public class CheckBox : BaseButton
     {
         public bool Checked { get => ButtonPressed; set => ButtonPressed = value; }
-        public CheckBox() { ToggleMode = true; Padding = new Thickness(24, 4, 8, 4); }
+        public CheckBox() { ToggleMode = true; Padding = new Thickness(8, 4, 8, 4); }
+        public override Vector2 GetMinimumSize()
+        {
+            var icon = GetThemeIcon(GetStateIconName());
+            var result = base.GetMinimumSize();
+            if (icon.HasValue)
+            {
+                result.X += icon.Value.LogicalSize.X + IconSeparation;
+                result.Y = Math.Max(result.Y, icon.Value.LogicalSize.Y + Padding.Vertical);
+            }
+            return Vector2.Max(CustomMinimumSize, result);
+        }
         internal override void Draw(UIRenderContext context)
         {
+            var icon = GetThemeIcon(GetStateIconName());
+            var originalPadding = Padding;
+            if (icon.HasValue)
+            {
+                var reserve = icon.Value.LogicalSize.X + IconSeparation;
+                Padding = IsLayoutRtl()
+                    ? new Thickness(originalPadding.Left, originalPadding.Top, originalPadding.Right + reserve, originalPadding.Bottom)
+                    : new Thickness(originalPadding.Left + reserve, originalPadding.Top, originalPadding.Right, originalPadding.Bottom);
+            }
             base.Draw(context);
-            var box = new Rectangle(Bounds.X + 5, Bounds.Y + Math.Max(2, Bounds.Height / 2 - 7), 14, 14);
-            context.Fill(box, Checked ? context.Theme.AccentColor : context.Theme.BackgroundColor);
-            context.Border(box, context.Theme.PanelBorderColor);
-            if (Checked) context.Fill(new Rectangle(box.X + 4, box.Y + 4, 6, 6), Color.White);
+            Padding = originalPadding;
+            if (!icon.HasValue) return;
+            var x = IsLayoutRtl() ? Bounds.Right - (int)originalPadding.Right - icon.Value.LogicalSize.X : Bounds.X + (int)originalPadding.Left;
+            var y = Bounds.Center.Y - icon.Value.LogicalSize.Y / 2;
+            context.Icon(icon.Value, new Vector2(x, y), Color.White);
+        }
+        private string GetStateIconName()
+        {
+            var name = ButtonGroup != null ? (Checked ? "radio_checked" : "radio_unchecked") : Checked ? "checked" : "unchecked";
+            if (!Enabled) name += "_disabled";
+            if (this is CheckButton && IsLayoutRtl()) name += "_mirrored";
+            return name;
         }
     }
 
@@ -1026,6 +1248,7 @@ namespace Forma
     public class Slider : Range
     {
         private bool _dragging;
+        private bool _hovering;
         private float _dragStartMain;
         private float _dragStartRatio;
         private float _ratioBeforeDragging;
@@ -1046,6 +1269,8 @@ namespace Forma
         public float CustomStep { get; set; } = -1;
         public void SetCustomStep(float customStep) => CustomStep = customStep;
         public float GetCustomStep() => CustomStep;
+        internal override void PointerEntered() { _hovering = true; base.PointerEntered(); }
+        internal override void PointerExited() { _hovering = false; base.PointerExited(); }
         public override Vector2 GetMinimumSize() => Vector2.Max(CustomMinimumSize, Orientation == Orientation.Horizontal ? new Vector2(48, 20) : new Vector2(20, 48));
         /// <summary>Returns local tick rectangles for deterministic theme-independent validation.</summary>
         public IReadOnlyList<Rectangle> GetTickRectangles()
@@ -1128,9 +1353,19 @@ namespace Forma
             var rect = Bounds;
             var track = Orientation == Orientation.Horizontal ? new Rectangle(rect.X, rect.Center.Y - 2, rect.Width, 4) : new Rectangle(rect.Center.X - 2, rect.Y, 4, rect.Height);
             context.Fill(track, context.Theme.PanelBorderColor);
-            var thumb = Orientation == Orientation.Horizontal ? new Rectangle(rect.X + (int)(Ratio * Math.Max(0, rect.Width - 12)), rect.Center.Y - 7, 12, 14) : new Rectangle(rect.Center.X - 7, rect.Y + (int)(Ratio * Math.Max(0, rect.Height - 12)), 14, 12);
-            context.Fill(thumb, context.Theme.AccentColor); context.Border(thumb, context.Theme.FocusColor);
-            foreach (var tick in GetTickRectangles()) context.Fill(new Rectangle(rect.X + tick.X, rect.Y + tick.Y, tick.Width, tick.Height), context.Theme.PanelBorderColor);
+            var grabber = GetThemeIcon(!Enabled || !Editable ? "grabber_disabled" : _hovering || _dragging ? "grabber_highlight" : "grabber");
+            if (grabber.HasValue)
+            {
+                var mainLength = Orientation == Orientation.Horizontal ? rect.Width - grabber.Value.LogicalSize.X : rect.Height - grabber.Value.LogicalSize.Y;
+                var ratio = Orientation == Orientation.Horizontal && IsLayoutRtl() ? 1 - Ratio : Orientation == Orientation.Vertical ? 1 - Ratio : Ratio;
+                var x = Orientation == Orientation.Horizontal ? rect.X + (int)MathF.Round(ratio * Math.Max(0, mainLength)) : rect.Center.X - grabber.Value.LogicalSize.X / 2;
+                var y = Orientation == Orientation.Vertical ? rect.Y + (int)MathF.Round(ratio * Math.Max(0, mainLength)) : rect.Center.Y - grabber.Value.LogicalSize.Y / 2;
+                context.Icon(grabber.Value, new Vector2(x, y), Color.White);
+            }
+            var tickIcon = GetThemeIcon("tick");
+            if (tickIcon.HasValue)
+                foreach (var tick in GetTickRectangles())
+                    context.Icon(tickIcon.Value, new Vector2(rect.X + tick.Center.X - tickIcon.Value.LogicalSize.X / 2, rect.Y + tick.Center.Y - tickIcon.Value.LogicalSize.Y / 2), Color.White);
             base.Draw(context);
         }
 
@@ -1157,6 +1392,7 @@ namespace Forma
 
     public sealed class ProgressBar : Range
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private ProgressBarFillMode _fillMode;
         private bool _indeterminate;
         // Godot's ProgressBar constructor calls set_step(0.01) - near-continuous, not Range's own
@@ -1169,7 +1405,9 @@ namespace Forma
         /// <summary>Pixels per second used by the indeterminate segment.</summary>
         public float IndeterminateSpeed { get; set; } = 200;
         public float IndeterminateOffset { get; private set; }
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public void SetFillMode(ProgressBarFillMode mode)
         {
             if (!Enum.IsDefined(typeof(ProgressBarFillMode), mode)) throw new ArgumentOutOfRangeException(nameof(mode));
@@ -1243,10 +1481,10 @@ namespace Forma
                 var fill = GetFillRectangle(Ratio);
                 context.Fill(new Rectangle(Bounds.X + fill.X, Bounds.Y + fill.Y, fill.Width, fill.Height), context.Theme.AccentColor);
             }
-            if (!Indeterminate && ShowPercentage && Font != null)
+            if (!Indeterminate && ShowPercentage && EffectiveUIFont != null)
             {
-                var text = $"{(int)(Ratio * 100)}%"; var measure = Font.MeasureString(text);
-                context.Text(Font, text, GlobalPosition + (Size - measure) / 2, context.Theme.TextColor);
+                var text = $"{(int)(Ratio * 100)}%"; var measure = TextMetrics.Measure(EffectiveUIFont, text);
+                context.Text(EffectiveUIFont, text, GlobalPosition + (Size - measure) / 2, context.Theme.TextColor);
             }
             base.Draw(context);
         }

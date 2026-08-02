@@ -210,7 +210,7 @@ namespace Forma
         internal override void Draw(UIRenderContext context)
         {
             var rect = Bounds;
-            context.Fill(rect, new Color(BackgroundColor ?? context.Theme.PanelColor, 150)); context.Border(rect, BorderColor ?? context.Theme.PanelBorderColor);
+            context.Fill(rect, (BackgroundColor ?? context.Theme.PanelColor).WithAlpha(150)); context.Border(rect, BorderColor ?? context.Theme.PanelBorderColor);
             var radius = Math.Max(4, Math.Min(rect.Width, rect.Height) / 5);
             var center = new Vector2(rect.Center.X, rect.Center.Y) + Value * (Math.Min(rect.Width, rect.Height) / 2 - radius);
             context.Fill(new Rectangle((int)center.X - radius, (int)center.Y - radius, radius * 2, radius * 2), KnobColor ?? context.Theme.AccentColor);

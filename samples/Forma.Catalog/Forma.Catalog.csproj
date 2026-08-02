@@ -1,42 +1,44 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <AssemblyName>Forma.Catalog</AssemblyName>
     <RootNamespace>Forma.Catalog</RootNamespace>
-    <UseAppHost>false</UseAppHost>
+    <IsPackable>false</IsPackable>
     <Nullable>disable</Nullable>
-    <CatalogBackend Condition="'$(CatalogBackend)' == ''">$(MonoGamePlatform)</CatalogBackend>
+    <CatalogBackend Condition="'$(CatalogBackend)' == ''">$(FormaRuntime)</CatalogBackend>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MonoGame.Content.Builder.Task" Version="$(MonoGameVersion)" />
-    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(MonoGameProjectPath)' == ''" />
-    <PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="$(MonoGameVersion)" Condition="'$(MonoGamePlatform)' == 'Native' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('Linux'))" />
-    <PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="$(MonoGameVersion)" Condition="'$(MonoGamePlatform)' == 'Native' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('OSX'))" />
-    <ProjectReference Include="../../src/Forma/Forma.csproj" />
-    <ProjectReference Include="../../src/Forma.Media/Forma.Media.csproj" />
-    <MonoGameContentReference Include="Content/Content.mgcb" />
-    <Content Include="$(NativeRuntimePath)" Link="$([System.IO.Path]::GetFileName('$(NativeRuntimePath)'))" CopyToOutputDirectory="PreserveNewest" Condition="'$(MonoGamePlatform)' == 'Native' And '$(NativeRuntimePath)' != ''" />
-    <None Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../NOTICE.md" Link="NOTICE.md" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../tests/Assets/Fonts/LICENSE.Inter.txt" Link="Content/Fonts/LICENSE.Inter.txt" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../tests/Assets/Fonts/LICENSE.JetBrainsMono.txt" Link="Content/Fonts/LICENSE.JetBrainsMono.txt" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' == ''" />
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" />
+    <ProjectReference Include="../../src/Forma.DynamicText/Forma.DynamicText.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" />
+    <ProjectReference Include="../../src/Forma.Media/Forma.Media.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" />
     <AssemblyMetadata Include="FormaCatalogBackend" Value="$(CatalogBackend)" />
   </ItemGroup>
 
-  <Target Name="UseVulkanContentForNativeCatalog" BeforeTargets="CollectContentReferences" Condition="'$(MonoGamePlatform)' == 'Native'">
-    <PropertyGroup>
-      <_FormaCatalogRuntimePlatform>$(MonoGamePlatform)</_FormaCatalogRuntimePlatform>
-      <MonoGamePlatform>DesktopVK</MonoGamePlatform>
-    </PropertyGroup>
-  </Target>
+  <ItemGroup>
+    <Compile Remove="Program.cs" />
+  </ItemGroup>
 
-  <Target Name="RestoreNativeCatalogPlatform" AfterTargets="IncludeContent" Condition="'$(_FormaCatalogRuntimePlatform)' != ''">
-    <PropertyGroup>
-      <MonoGamePlatform>$(_FormaCatalogRuntimePlatform)</MonoGamePlatform>
-    </PropertyGroup>
-  </Target>
+  <ItemGroup>
+    <None Include="../../tests/Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/NotoSansCJK_Subset.ttf" Link="Fonts/NotoSansCJK_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/NotoSansArabic_Variable.ttf" Link="Fonts/NotoSansArabic_Variable.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/NotoSansDevanagari_Subset.ttf" Link="Fonts/NotoSansDevanagari_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/NotoSansHebrew_Subset.ttf" Link="Fonts/NotoSansHebrew_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/NotoEmoji_Subset.ttf" Link="Fonts/NotoEmoji_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/LICENSE.Inter.txt" Link="Fonts/LICENSE.Inter.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/LICENSE.NotoSubsets.txt" Link="Fonts/LICENSE.NotoSubsets.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/LICENSE.NotoSansArabic.txt" Link="Fonts/LICENSE.NotoSansArabic.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame'">
+    <Compile Remove="RuntimeAdapters/FNA/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA'">
+    <Compile Remove="RuntimeAdapters/MonoGame/**/*.cs" />
+  </ItemGroup>
 
 </Project>

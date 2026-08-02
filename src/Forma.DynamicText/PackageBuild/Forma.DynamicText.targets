@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <FormaDynamicTextDefaultEnabled Condition="'$(FormaDynamicTextDefaultEnabled)' == ''">true</FormaDynamicTextDefaultEnabled>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(FormaDynamicTextDefaultEnabled)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)Forma.DynamicText.PackageInitializer.cs.txt" Link="obj/Forma.DynamicText.PackageInitializer.cs" Visible="false" />
+    <Content Include="$(MSBuildThisFileDirectory)assets/Inter_Regular.ttf" Link="Fonts/Forma.Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+</Project>

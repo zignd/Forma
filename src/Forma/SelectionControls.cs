@@ -30,9 +30,9 @@ namespace Forma
         {
             base.Draw(context);
             var underline = UnderlineMode == LinkButtonUnderlineMode.Always || (UnderlineMode == LinkButtonUnderlineMode.OnHover && (IsHovering || IsPressing));
-            if (underline && Font != null && !string.IsNullOrEmpty(Text))
+            if (underline && EffectiveUIFont != null && !string.IsNullOrEmpty(Text))
             {
-                var width = (int)Font.MeasureString(Text).X;
+                var width = (int)TextMetrics.Measure(EffectiveUIFont, Text).X;
                 var x = Bounds.X + Math.Max((int)Padding.Left, (Bounds.Width - width) / 2);
                 context.Fill(new Rectangle(x, Bounds.Bottom - Math.Max(2, (int)Padding.Bottom), Math.Max(0, width), 1), context.Theme.AccentColor);
             }
@@ -1092,6 +1092,7 @@ namespace Forma
     /// <summary>Godot-style tab strip with per-tab state, tooltips, metadata and optional close buttons.</summary>
     public sealed class TabBar : Control
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private const int OffsetButtonWidth = 16;
         private readonly List<TabBarItem> _tabs = new List<TabBarItem>();
         private int _currentTab = -1;
@@ -1102,7 +1103,9 @@ namespace Forma
         private bool _deselectEnabled;
         public IReadOnlyList<TabBarItem> TabItems => _tabs;
         public IReadOnlyList<string> Tabs { get { var result = new List<string>(_tabs.Count); foreach (var tab in _tabs) result.Add(tab.Title); return result; } }
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public TabCloseDisplayPolicy CloseDisplayPolicy { get; set; }
         public TabBarAlignment TabAlignment { get; set; }
         public TabBarSizingMode TabSizing { get; set; } = TabBarSizingMode.FitContent;
@@ -1425,9 +1428,14 @@ namespace Forma
                 context.Fill(rect, index == CurrentTab ? context.Theme.PanelColor : context.Theme.BackgroundColor); context.Border(rect, context.Theme.PanelBorderColor);
                 var textX = rect.X + 6;
                 if (tab.Icon != null) { var icon = new Rectangle(textX, rect.Y + Math.Max(2, (rect.Height - 16) / 2), 16, 16); context.SpriteBatch.Draw(tab.Icon, icon, Color.White); textX = icon.Right + 4; }
-                if (Font != null) context.Text(Font, tab.Title, new Vector2(textX, rect.Y + Math.Max(2, (rect.Height - Font.LineSpacing) / 2)), tab.Disabled ? context.Theme.DisabledTextColor : context.Theme.TextColor);
+                if (EffectiveUIFont != null) context.Text(EffectiveUIFont, tab.Title, new Vector2(textX, rect.Y + Math.Max(2, (rect.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), tab.Disabled ? context.Theme.DisabledTextColor : context.Theme.TextColor);
                 if (tab.ButtonIcon != null) context.SpriteBatch.Draw(tab.ButtonIcon, GetTabButtonRect(index, rect), Color.White);
-                if (ShowsClose(index)) { var close = GetTabCloseRect(index, rect); context.Fill(new Rectangle(close.X, close.Y + 4, close.Width, 2), context.Theme.TextColor); context.Fill(new Rectangle(close.X + 4, close.Y, 2, close.Height), context.Theme.TextColor); }
+                if (ShowsClose(index))
+                {
+                    var close = GetTabCloseRect(index, rect); var closeIcon = GetThemeIcon("close");
+                    if (closeIcon.HasValue) context.Icon(closeIcon.Value, close, tab.Disabled ? context.Theme.DisabledTextColor : Color.White);
+                    else { context.Fill(new Rectangle(close.X, close.Y + 4, close.Width, 2), context.Theme.TextColor); context.Fill(new Rectangle(close.X + 4, close.Y, 2, close.Height), context.Theme.TextColor); }
+                }
             } }
             finally { if (ClipTabs) context.PopClip(); }
             if (OffsetButtonsVisible)
@@ -1508,6 +1516,15 @@ namespace Forma
             context.Fill(rectangle, enabled ? context.Theme.PanelColor : context.Theme.BackgroundColor);
             context.Border(rectangle, context.Theme.PanelBorderColor);
             var color = enabled ? context.Theme.TextColor : context.Theme.DisabledTextColor;
+            var hovered = enabled && rectangle.Contains(Context?.PointerPosition ?? Point.Zero);
+            var iconName = increment ? "increment" : "decrement";
+            if (IsLayoutRtl()) iconName = increment ? "decrement" : "increment";
+            var icon = GetThemeIcon(iconName + (hovered ? "_highlight" : string.Empty));
+            if (icon.HasValue)
+            {
+                context.Icon(icon.Value, new Vector2(rectangle.Center.X - icon.Value.LogicalSize.X / 2, rectangle.Center.Y - icon.Value.LogicalSize.Y / 2), color);
+                return;
+            }
             var centerX = rectangle.X + rectangle.Width / 2; var centerY = rectangle.Y + rectangle.Height / 2;
             if (increment)
             {
@@ -1524,7 +1541,7 @@ namespace Forma
         }
         private int GetDesiredTabWidth(int tab)
         {
-            var item = _tabs[tab]; var text = Font == null ? item.Title.Length * 8 : (int)MathF.Ceiling(Font.MeasureString(item.Title).X);
+            var item = _tabs[tab]; var text = EffectiveUIFont == null ? item.Title.Length * 8 : (int)MathF.Ceiling(TextMetrics.Measure(EffectiveUIFont, item.Title).X);
             var width = Math.Max(32, text + 12 + (item.Icon == null ? 0 : 20) + (item.ButtonIcon == null ? 0 : 18) + (ShowsClose(tab) ? 18 : 0));
             return MaxTabWidth > 0 ? Math.Min(width, MaxTabWidth) : width;
         }
@@ -1600,6 +1617,7 @@ namespace Forma
     /// <summary>Godot-style selectable list supporting item state, columns, keyboard navigation and tile layouts.</summary>
     public sealed class ItemList : Control
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private readonly List<ItemListEntry> _entries = new List<ItemListEntry>();
         private ItemListSelectionMode _selectionMode;
         private int _current = -1;
@@ -1639,7 +1657,9 @@ namespace Forma
         public Vector2 FixedIconSize { get; set; }
         public float IconScale { get; set; } = 1f;
         public float ItemHeight { get; set; } = 24;
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public int Current { get => _current; set => SetCurrent(value); }
         public float ScrollOffsetY { get => _scrollOffsetY; set => _scrollOffsetY = MathHelper.Clamp(value, 0, GetMaxScrollOffsetY()); }
         public event Action<ItemList, int> ItemSelected;
@@ -2008,7 +2028,7 @@ namespace Forma
                     var tagSize = Math.Max(8, Math.Min(14, Math.Min(rect.Width, rect.Height) / 2));
                     context.SpriteBatch.Draw(entry.TagIcon, new Rectangle(rect.Right - tagSize - 3, rect.Y + 3, tagSize, tagSize), Color.White);
                 }
-                if (Font != null && !string.IsNullOrEmpty(entry.Text)) context.Text(Font, entry.Text, new Vector2(textX, rect.Y + Math.Max(2, (rect.Height - Font.LineSpacing) / 2)), entry.Disabled ? context.Theme.DisabledTextColor : entry.CustomForegroundColor ?? context.Theme.TextColor);
+                if (EffectiveUIFont != null && !string.IsNullOrEmpty(entry.Text)) context.Text(EffectiveUIFont, entry.Text, new Vector2(textX, rect.Y + Math.Max(2, (rect.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), entry.Disabled ? context.Theme.DisabledTextColor : entry.CustomForegroundColor ?? context.Theme.TextColor);
             }
             base.Draw(context);
         }
@@ -2357,11 +2377,11 @@ namespace Forma
             var measuredText = Text.IndexOf('\t') >= 0 ? Text.Replace('\t', ' ') : Text;
             if (!FitContent)
             {
-                var textSize = Font == null || string.IsNullOrEmpty(measuredText) ? Vector2.Zero : Font.MeasureString(measuredText);
-                if (AutowrapMode != LabelAutowrapMode.Off && Font != null && !string.IsNullOrEmpty(measuredText)) textSize.X = 0;
+                var textSize = EffectiveUIFont == null || string.IsNullOrEmpty(measuredText) ? Vector2.Zero : TextMetrics.Measure(EffectiveUIFont, measuredText);
+                if (AutowrapMode != LabelAutowrapMode.Off && EffectiveUIFont != null && !string.IsNullOrEmpty(measuredText)) textSize.X = 0;
                 return Vector2.Max(CustomMinimumSize, textSize + new Vector2(Padding.Horizontal, Padding.Vertical));
             }
-            var text = Font == null ? Vector2.Zero : Font.MeasureString(measuredText);
+            var text = EffectiveUIFont == null ? Vector2.Zero : TextMetrics.Measure(EffectiveUIFont, measuredText);
             return Vector2.Max(CustomMinimumSize, new Vector2(text.X + Padding.Horizontal, GetContentHeight() + Padding.Vertical));
         }
         /// <summary>Returns the document's retained visual line count. Explicit and automatic wrapped lines are included.</summary>
@@ -2484,7 +2504,7 @@ namespace Forma
                     var origin = GlobalPosition + new Vector2(Padding.Left, Padding.Top - ScrollOffset);
                     var cursor = origin;
                     var right = GetContentBounds().Right;
-                    var lineHeight = Font?.LineSpacing ?? 16;
+                    var lineHeight = EffectiveUIFont == null ? 16 : Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont));
                     var textIndex = 0;
                     foreach (var span in _spans)
                     {
@@ -2493,7 +2513,7 @@ namespace Forma
                             DrawHorizontalRule(context, span, origin, right, lineHeight, ref cursor);
                             continue;
                         }
-                        if (Font == null) continue;
+                        if (EffectiveUIFont == null) continue;
                         var color = Enabled ? span.Color ?? (span.Meta != null ? MetaColor : FontColor ?? context.Theme.TextColor) : context.Theme.DisabledTextColor;
                         if (span.Image != null)
                         {
@@ -2505,30 +2525,65 @@ namespace Forma
                             textIndex += span.Text.Length;
                             continue;
                         }
-                        foreach (var character in span.Text)
+                        for (var offset = 0; offset < span.Text.Length;)
                         {
-                            if (character == '\r') { textIndex++; continue; }
-                            if (character == '\n') { cursor.X = origin.X; cursor.Y += lineHeight; textIndex++; continue; }
-                            if (character == '\t') { cursor.X = origin.X + Math.Max(1, (int)MathF.Floor((cursor.X - origin.X) / Math.Max(1, TableCellWidth)) + 1) * Math.Max(1, TableCellWidth); textIndex++; continue; }
-                            var glyph = character.ToString();
-                            var glyphWidth = Font.MeasureString(glyph).X;
-                            if (Autowrap && cursor.X > origin.X && cursor.X + glyphWidth > right) { cursor.X = origin.X; cursor.Y += lineHeight; }
-                            if (span.BackgroundColor.HasValue) context.Fill(new Rectangle((int)cursor.X, (int)cursor.Y, Math.Max(1, (int)MathF.Ceiling(glyphWidth)), lineHeight), span.BackgroundColor.Value);
-                            if (HasSelection && textIndex >= _selectionFrom && textIndex < _selectionTo) context.Fill(new Rectangle((int)cursor.X, (int)cursor.Y, Math.Max(1, (int)MathF.Ceiling(glyphWidth)), lineHeight), SelectionColor);
-                            context.Text(Font, glyph, cursor, color);
-                            // MonoGame SpriteFont has no synthetic bold/italic API; a second offset pass provides
-                            // a deterministic bold weight while italic remains semantic metadata for custom renderers.
-                            if (span.Bold) context.Text(Font, glyph, cursor + Vector2.UnitX, color);
-                            if (span.Underline || span.Meta != null && MetaUnderline) context.Fill(new Rectangle((int)cursor.X, (int)cursor.Y + lineHeight - 2, Math.Max(1, (int)MathF.Ceiling(glyphWidth)), 1), color);
-                            if (span.Strikethrough) context.Fill(new Rectangle((int)cursor.X, (int)cursor.Y + lineHeight / 2, Math.Max(1, (int)MathF.Ceiling(glyphWidth)), 1), color);
-                            cursor.X += glyphWidth;
-                            textIndex++;
+                            var character = span.Text[offset];
+                            if (character == '\r') { offset++; textIndex++; continue; }
+                            if (character == '\n') { cursor.X = origin.X; cursor.Y += lineHeight; offset++; textIndex++; continue; }
+                            if (character == '\t') { cursor.X = origin.X + Math.Max(1, (int)MathF.Floor((cursor.X - origin.X) / Math.Max(1, TableCellWidth)) + 1) * Math.Max(1, TableCellWidth); offset++; textIndex++; continue; }
+                            var end = offset + 1;
+                            while (end < span.Text.Length && span.Text[end] != '\r' && span.Text[end] != '\n' && span.Text[end] != '\t') end++;
+                            var chunk = span.Text.Substring(offset, end - offset);
+                            var direction = TextDirection == TextDirection.Inherited ? TextDirection.Auto : TextDirection;
+                            var layout = TextMetrics.Layout(EffectiveUIFont, chunk, new TextLayoutOptions(direction: direction, locale: Language));
+                            if (Autowrap && cursor.X > origin.X && cursor.X + layout.Size.X > right)
+                            {
+                                cursor.X = origin.X;
+                                cursor.Y += lineHeight;
+                            }
+                            if (Autowrap && layout.Size.X > right - origin.X)
+                            {
+                                var wrapping = AutowrapMode == LabelAutowrapMode.Arbitrary ? TextWrapping.Character : TextWrapping.Word;
+                                layout = TextMetrics.Layout(EffectiveUIFont, chunk, new TextLayoutOptions(Math.Max(1, right - origin.X), wrapping, direction: direction, locale: Language));
+                            }
+                            DrawRichTextLayout(context, layout, cursor, span, color, textIndex);
+                            var lastLine = layout.Lines[layout.Lines.Count - 1];
+                            cursor.X += lastLine.Origin.X + lastLine.Size.X;
+                            cursor.Y += lastLine.Origin.Y;
+                            offset = end;
+                            textIndex += chunk.Length;
                         }
                     }
                 }
                 finally { if (ScrollActive) context.PopClip(); }
             }
             DrawLabelChildren(context);
+        }
+        private void DrawRichTextLayout(UIRenderContext context, TextLayout layout, Vector2 position, RichTextSpan span, Color color, int textIndex)
+        {
+            var fullRange = layout.GetSelectionRectangles(0, layout.Text.Length);
+            if (span.BackgroundColor.HasValue)
+                foreach (var rectangle in fullRange) FillLayoutRectangle(context, position, rectangle, span.BackgroundColor.Value);
+            if (HasSelection)
+            {
+                var start = Math.Max(0, _selectionFrom - textIndex);
+                var end = Math.Min(layout.Text.Length, _selectionTo - textIndex);
+                if (end > start)
+                    foreach (var rectangle in layout.GetSelectionRectangles(start, end - start)) FillLayoutRectangle(context, position, rectangle, SelectionColor);
+            }
+            context.Text(layout, position, color);
+            if (span.Bold) context.Text(layout, position + Vector2.UnitX, color);
+            foreach (var rectangle in fullRange)
+            {
+                if (span.Underline || span.Meta != null && MetaUnderline)
+                    context.Fill(new Rectangle((int)MathF.Floor(position.X + rectangle.X), (int)MathF.Ceiling(position.Y + rectangle.Bottom) - 2, Math.Max(1, (int)MathF.Ceiling(rectangle.Width)), 1), color);
+                if (span.Strikethrough)
+                    context.Fill(new Rectangle((int)MathF.Floor(position.X + rectangle.X), (int)MathF.Round(position.Y + rectangle.Y + rectangle.Height / 2), Math.Max(1, (int)MathF.Ceiling(rectangle.Width)), 1), color);
+            }
+        }
+        private static void FillLayoutRectangle(UIRenderContext context, Vector2 position, RectangleF rectangle, Color color)
+        {
+            context.Fill(new Rectangle((int)MathF.Floor(position.X + rectangle.X), (int)MathF.Floor(position.Y + rectangle.Y), Math.Max(1, (int)MathF.Ceiling(rectangle.Width)), Math.Max(1, (int)MathF.Ceiling(rectangle.Height))), color);
         }
         internal override void PointerPressed(Point position)
         {
@@ -2751,7 +2806,7 @@ namespace Forma
         {
             EnsurePlainTextSpan();
             targetIndex = MathHelper.Clamp(targetIndex, 0, Text.Length);
-            var lineHeight = Math.Max(1, Font?.LineSpacing ?? 16);
+            var lineHeight = EffectiveUIFont == null ? 16 : Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont));
             var availableWidth = Math.Max(1, GetContentBounds().Width);
             var x = 0f;
             var y = 0f;
@@ -2773,17 +2828,18 @@ namespace Forma
                     textIndex += span.Text.Length;
                     continue;
                 }
-                foreach (var character in span.Text)
+                foreach (var unit in GetTextUnits(span.Text))
                 {
                     if (targetIndex <= textIndex) return (int)y;
+                    var character = span.Text[unit.Start];
                     if (character == '\r') { textIndex++; continue; }
                     if (character == '\n') { x = 0; y += lineHeight; textIndex++; continue; }
                     var width = character == '\t'
                         ? Math.Max(1, (int)(Math.Max(1, (int)MathF.Floor(x / Math.Max(1, TableCellWidth)) + 1) * Math.Max(1, TableCellWidth) - x))
-                        : Math.Max(1, (int)MathF.Ceiling(Font?.MeasureString(character.ToString()).X ?? 8));
+                        : unit.Width;
                     if (Autowrap && x > 0 && x + width > availableWidth) { x = 0; y += lineHeight; }
                     x += width;
-                    textIndex++;
+                    textIndex += unit.Length;
                 }
             }
             return (int)y;
@@ -2795,7 +2851,7 @@ namespace Forma
             var origin = GlobalPosition + new Vector2(Padding.Left, Padding.Top - ScrollOffset);
             var cursor = origin;
             var right = GetContentBounds().Right;
-            var lineHeight = Font?.LineSpacing ?? 16;
+            var lineHeight = EffectiveUIFont == null ? 16 : Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont));
             var textIndex = 0;
             foreach (var span in _spans)
             {
@@ -2816,8 +2872,9 @@ namespace Forma
                     textIndex += span.Text.Length;
                     continue;
                 }
-                foreach (var character in span.Text)
+                foreach (var unit in GetTextUnits(span.Text))
                 {
+                    var character = span.Text[unit.Start];
                     if (character == '\r') { textIndex++; continue; }
                     if (character == '\n')
                     {
@@ -2826,11 +2883,11 @@ namespace Forma
                     }
                     var width = character == '\t'
                         ? Math.Max(1, (int)(origin.X + Math.Max(1, (int)MathF.Floor((cursor.X - origin.X) / Math.Max(1, TableCellWidth)) + 1) * Math.Max(1, TableCellWidth) - cursor.X))
-                        : Math.Max(1, (int)MathF.Ceiling(Font?.MeasureString(character.ToString()).X ?? 8));
+                        : unit.Width;
                     if (Autowrap && cursor.X > origin.X && cursor.X + width > right) { cursor.X = origin.X; cursor.Y += lineHeight; }
-                    if (position.Y >= cursor.Y && position.Y < cursor.Y + lineHeight && position.X >= cursor.X && position.X < cursor.X + width) return position.X < cursor.X + width / 2f ? textIndex : textIndex + 1;
+                    if (position.Y >= cursor.Y && position.Y < cursor.Y + lineHeight && position.X >= cursor.X && position.X < cursor.X + width) return position.X < cursor.X + width / 2f ? textIndex : textIndex + unit.Length;
                     cursor.X += width;
-                    textIndex++;
+                    textIndex += unit.Length;
                 }
             }
             return position.Y >= cursor.Y && position.Y < cursor.Y + lineHeight ? textIndex : -1;
@@ -2857,7 +2914,7 @@ namespace Forma
         {
             EnsurePlainTextSpan();
             var lines = new List<VisualLine>();
-            var lineHeight = Math.Max(1, Font?.LineSpacing ?? 16);
+            var lineHeight = EffectiveUIFont == null ? 16 : Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont));
             var availableWidth = Math.Max(1, GetContentBounds().Width);
             var x = 0f; var y = 0; var start = 0; var textIndex = 0; var paragraph = 0; var active = false;
             void BeginLine() { if (!active) { start = textIndex; active = true; } }
@@ -2886,15 +2943,16 @@ namespace Forma
                     BeginLine(); x += width; textIndex += span.Text.Length;
                     continue;
                 }
-                foreach (var character in span.Text)
+                foreach (var unit in GetTextUnits(span.Text))
                 {
+                    var character = span.Text[unit.Start];
                     if (character == '\r') { textIndex++; continue; }
                     if (character == '\n') { BeginLine(); FinishLine(textIndex); textIndex++; paragraph++; continue; }
                     var width = character == '\t'
                         ? Math.Max(1, (int)(Math.Max(1, (int)MathF.Floor(x / Math.Max(1, TableCellWidth)) + 1) * Math.Max(1, TableCellWidth) - x))
-                        : Math.Max(1, (int)MathF.Ceiling(Font?.MeasureString(character.ToString()).X ?? 8));
+                        : unit.Width;
                     if (Autowrap && x > 0 && x + width > availableWidth) FinishLine(textIndex);
-                    BeginLine(); x += width; textIndex++;
+                    BeginLine(); x += width; textIndex += unit.Length;
                 }
             }
             FinishLine(textIndex);
@@ -2903,7 +2961,7 @@ namespace Forma
         private DocumentMetrics GetDocumentMetrics()
         {
             EnsurePlainTextSpan();
-            var lineHeight = Math.Max(1, Font?.LineSpacing ?? 16);
+            var lineHeight = EffectiveUIFont == null ? 16 : Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont));
             var availableWidth = Math.Max(1, GetContentBounds().Width);
             var x = 0f; var y = 0f; var lines = 0; var lineActive = false;
             void BeginLine()
@@ -2937,13 +2995,14 @@ namespace Forma
                     x += width;
                     continue;
                 }
-                foreach (var character in span.Text)
+                foreach (var unit in GetTextUnits(span.Text))
                 {
+                    var character = span.Text[unit.Start];
                     if (character == '\r') continue;
                     if (character == '\n') { AdvanceLine(); continue; }
                     var width = character == '\t'
                         ? Math.Max(1, (int)(Math.Max(1, (int)MathF.Floor(x / Math.Max(1, TableCellWidth)) + 1) * Math.Max(1, TableCellWidth) - x))
-                        : Math.Max(1, (int)MathF.Ceiling(Font?.MeasureString(character.ToString()).X ?? 8));
+                        : unit.Width;
                     if (Autowrap && x > 0 && x + width > availableWidth) AdvanceLine();
                     BeginLine();
                     x += width;
@@ -3172,10 +3231,10 @@ namespace Forma
         private void BuildMetaRegions()
         {
             _metaRegions.Clear();
-            if (Font == null) return;
+            if (EffectiveUIFont == null) return;
             EnsurePlainTextSpan();
             var origin = GlobalPosition + new Vector2(Padding.Left, Padding.Top - ScrollOffset);
-            var cursor = origin; var right = Bounds.Right - Padding.Right; var lineHeight = Font.LineSpacing;
+            var cursor = origin; var right = Bounds.Right - Padding.Right; var lineHeight = TextMetrics.LineHeight(EffectiveUIFont);
             foreach (var span in _spans)
             {
                 if (span.IsHorizontalRule)
@@ -3192,17 +3251,52 @@ namespace Forma
                     cursor.X += size.X;
                     continue;
                 }
-                foreach (var character in span.Text)
+                foreach (var unit in GetTextUnits(span.Text))
                 {
+                    var character = span.Text[unit.Start];
                     if (character == '\r') continue;
                     if (character == '\n') { cursor.X = origin.X; cursor.Y += lineHeight; continue; }
                     if (character == '\t') { cursor.X = origin.X + Math.Max(1, (int)MathF.Floor((cursor.X - origin.X) / Math.Max(1, TableCellWidth)) + 1) * Math.Max(1, TableCellWidth); continue; }
-                    var glyphWidth = Font.MeasureString(character.ToString()).X;
+                    var glyphWidth = unit.Width;
                     if (Autowrap && cursor.X > origin.X && cursor.X + glyphWidth > right) { cursor.X = origin.X; cursor.Y += lineHeight; }
                     if (span.Meta != null) _metaRegions.Add(new RichTextMetaRegion(new Rectangle((int)cursor.X, (int)cursor.Y, Math.Max(1, (int)MathF.Ceiling(glyphWidth)), lineHeight), span.Meta));
                     cursor.X += glyphWidth;
                 }
             }
+        }
+        private IReadOnlyList<TextUnit> GetTextUnits(string text)
+        {
+            var units = new List<TextUnit>();
+            for (var offset = 0; offset < text.Length;)
+            {
+                var character = text[offset];
+                if (character == '\r' || character == '\n' || character == '\t' || EffectiveUIFont == null)
+                {
+                    units.Add(new TextUnit(offset, 1, character == '\r' || character == '\n' || character == '\t' ? 0 : 8));
+                    offset++;
+                    continue;
+                }
+                var end = offset + 1;
+                while (end < text.Length && text[end] != '\r' && text[end] != '\n' && text[end] != '\t') end++;
+                var chunk = text.Substring(offset, end - offset);
+                var layout = TextMetrics.Layout(EffectiveUIFont, chunk);
+                for (var chunkOffset = 0; chunkOffset < chunk.Length;)
+                {
+                    var next = layout.GetNextGraphemeBoundary(chunkOffset);
+                    var width = Math.Max(1, (int)MathF.Ceiling(MathF.Abs(layout.GetCaretPosition(next).X - layout.GetCaretPosition(chunkOffset).X)));
+                    units.Add(new TextUnit(offset + chunkOffset, next - chunkOffset, width));
+                    chunkOffset = next;
+                }
+                offset = end;
+            }
+            return units;
+        }
+        private readonly struct TextUnit
+        {
+            public TextUnit(int start, int length, int width) { Start = start; Length = length; Width = width; }
+            public int Start { get; }
+            public int Length { get; }
+            public int Width { get; }
         }
         private TextStyle CurrentStyle => _styleStack[_styleStack.Count - 1];
         private void PushStyle(TextStyle style) => _styleStack.Add(style);

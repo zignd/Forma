@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Forma
 {
@@ -61,25 +62,53 @@ namespace Forma
         public static bool operator !=(Thickness left, Thickness right) => !left.Equals(right);
     }
 
+    /// <summary>
+    /// Describes a non-owning atlas region rendered at a stable logical size. The resource cache that
+    /// created <see cref="Texture"/> owns and disposes it; copying or discarding this value never does.
+    /// </summary>
+    public readonly struct ThemeIcon : IEquatable<ThemeIcon>
+    {
+        public ThemeIcon(Texture2D texture, Rectangle sourceRectangle, Point logicalSize, int density = 1)
+        {
+            Texture = texture ?? throw new ArgumentNullException(nameof(texture));
+            if (sourceRectangle.Width <= 0 || sourceRectangle.Height <= 0) throw new ArgumentOutOfRangeException(nameof(sourceRectangle));
+            if (logicalSize.X <= 0 || logicalSize.Y <= 0) throw new ArgumentOutOfRangeException(nameof(logicalSize));
+            if (density <= 0) throw new ArgumentOutOfRangeException(nameof(density));
+            SourceRectangle = sourceRectangle;
+            LogicalSize = logicalSize;
+            Density = density;
+        }
+
+        public Texture2D Texture { get; }
+        public Rectangle SourceRectangle { get; }
+        public Point LogicalSize { get; }
+        public int Density { get; }
+        public bool Equals(ThemeIcon other) => ReferenceEquals(Texture, other.Texture) && SourceRectangle == other.SourceRectangle && LogicalSize == other.LogicalSize && Density == other.Density;
+        public override bool Equals(object obj) => obj is ThemeIcon other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(Texture, SourceRectangle, LogicalSize, Density);
+        public static bool operator ==(ThemeIcon left, ThemeIcon right) => left.Equals(right);
+        public static bool operator !=(ThemeIcon left, ThemeIcon right) => !left.Equals(right);
+    }
+
     /// <summary>A small, deterministic theme used when an application does not provide custom drawing.</summary>
     public sealed class Theme
     {
         private readonly Dictionary<string, StyleBox> _styleBoxes = new Dictionary<string, StyleBox>(StringComparer.Ordinal);
+        private readonly Dictionary<string, ThemeIcon?> _icons = new Dictionary<string, ThemeIcon?>(StringComparer.Ordinal);
         private Color? _panelColor, _panelBorderColor, _textColor, _disabledTextColor, _accentColor, _hoverColor, _pressedColor, _focusColor, _backgroundColor, _connectionActivityColor;
         private float? _separation, _borderWidth;
+        private UIFontFamily _fontFamily;
+        private float? _fontSize;
+        private IReadOnlyList<UIFontOpenTypeFeature> _fontOpenTypeFeatures;
+        private UIFontHinting? _fontHinting;
         private Theme _parent;
+        public event EventHandler Changed;
 
         /// <summary>Optional parent. Unspecified colors, constants and style items resolve through it.</summary>
         public Theme Parent
         {
             get => _parent;
-            set
-            {
-                if (ReferenceEquals(value, this)) throw new ArgumentException("A theme cannot inherit from itself.", nameof(value));
-                for (var ancestor = value; ancestor != null; ancestor = ancestor.Parent)
-                    if (ReferenceEquals(ancestor, this)) throw new ArgumentException("Theme inheritance cannot contain a cycle.", nameof(value));
-                _parent = value;
-            }
+            set => SetParent(value, true);
         }
         public Color PanelColor { get => _panelColor ?? Parent?.PanelColor ?? new Color(52, 58, 70); set => _panelColor = value; }
         public Color PanelBorderColor { get => _panelBorderColor ?? Parent?.PanelBorderColor ?? new Color(92, 101, 119); set => _panelBorderColor = value; }
@@ -94,6 +123,28 @@ namespace Forma
         public Color ConnectionActivityColor { get => _connectionActivityColor ?? Parent?.ConnectionActivityColor ?? new Color(255, 190, 86); set => _connectionActivityColor = value; }
         public float Separation { get => _separation ?? Parent?.Separation ?? 4; set => _separation = value; }
         public float BorderWidth { get => _borderWidth ?? Parent?.BorderWidth ?? 1; set => _borderWidth = value; }
+        /// <summary>Inherited default font family used by text controls without a local font override.</summary>
+        public UIFontFamily FontFamily { get => _fontFamily ?? Parent?.FontFamily; set { if (ReferenceEquals(_fontFamily, value)) return; _fontFamily = value; OnChanged(); } }
+        /// <summary>Inherited logical font size. Zero keeps the selected family's primary font size.</summary>
+        public float FontSize { get => _fontSize ?? Parent?.FontSize ?? 0; set { if (value < 0 || !float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value)); if (_fontSize == value) return; _fontSize = value; OnChanged(); } }
+        /// <summary>Inherited OpenType feature defaults used unless a control supplies explicit features.</summary>
+        public IReadOnlyList<UIFontOpenTypeFeature> FontOpenTypeFeatures { get => _fontOpenTypeFeatures ?? Parent?.FontOpenTypeFeatures ?? Array.Empty<UIFontOpenTypeFeature>(); set { _fontOpenTypeFeatures = value == null ? null : new List<UIFontOpenTypeFeature>(value).AsReadOnly(); OnChanged(); } }
+        /// <summary>Inherited dynamic glyph hinting policy.</summary>
+        public UIFontHinting FontHinting { get => _fontHinting ?? Parent?.FontHinting ?? UIFontHinting.Default; set { if (!Enum.IsDefined(typeof(UIFontHinting), value)) throw new ArgumentOutOfRangeException(nameof(value)); if (_fontHinting == value) return; _fontHinting = value; OnChanged(); } }
+        internal void SetInheritedParent(Theme parent) => SetParent(parent, false);
+        private void SetParent(Theme value, bool notify)
+        {
+            if (ReferenceEquals(value, this)) throw new ArgumentException("A theme cannot inherit from itself.", nameof(value));
+            for (var ancestor = value; ancestor != null; ancestor = ancestor.Parent)
+                if (ReferenceEquals(ancestor, this)) throw new ArgumentException("Theme inheritance cannot contain a cycle.", nameof(value));
+            if (ReferenceEquals(_parent, value)) return;
+            if (_parent != null) _parent.Changed -= ParentChanged;
+            _parent = value;
+            if (_parent != null) _parent.Changed += ParentChanged;
+            if (notify) OnChanged();
+        }
+        private void ParentChanged(object sender, EventArgs args) => OnChanged();
+        private void OnChanged() => Changed?.Invoke(this, EventArgs.Empty);
         /// <summary>Assigns a style item, optionally scoped to a control type name.</summary>
         public void SetStyleBox(string itemName, StyleBox styleBox, string typeName = null)
         {
@@ -117,6 +168,45 @@ namespace Forma
                     if (!string.IsNullOrEmpty(typeName) && _styleBoxes.TryGetValue(MakeStyleKey(typeName, itemName), out var typed)) return typed;
             if (_styleBoxes.TryGetValue(MakeStyleKey(null, itemName), out var shared)) return shared;
             return Parent?.GetStyleBox(itemName, typeNames);
+        }
+        /// <summary>Assigns a non-owning icon value, optionally scoped to a control type name.</summary>
+        public void SetIcon(string itemName, ThemeIcon icon, string typeName = null)
+        {
+            ValidateItemName(itemName);
+            _icons[MakeStyleKey(typeName, itemName)] = icon;
+        }
+        /// <summary>Removes a local icon entry so parent and default themes become visible again.</summary>
+        public void RemoveIcon(string itemName, string typeName = null)
+        {
+            if (itemName != null) _icons.Remove(MakeStyleKey(typeName, itemName));
+        }
+        /// <summary>Suppresses an inherited icon without supplying a replacement.</summary>
+        public void SuppressIcon(string itemName, string typeName = null)
+        {
+            ValidateItemName(itemName);
+            _icons[MakeStyleKey(typeName, itemName)] = null;
+        }
+        /// <summary>Gets a typed or shared icon, including parent-theme inheritance.</summary>
+        public ThemeIcon? GetIcon(string itemName, string typeName = null)
+        {
+            if (string.IsNullOrWhiteSpace(itemName)) return null;
+            TryGetIcon(itemName, string.IsNullOrEmpty(typeName) ? null : new[] { typeName }, out var icon);
+            return icon;
+        }
+        internal bool TryGetIcon(string itemName, IEnumerable<string> typeNames, out ThemeIcon? icon)
+        {
+            if (string.IsNullOrWhiteSpace(itemName)) { icon = null; return false; }
+            if (typeNames != null)
+                foreach (var typeName in typeNames)
+                    if (!string.IsNullOrEmpty(typeName) && _icons.TryGetValue(MakeStyleKey(typeName, itemName), out icon)) return true;
+            if (_icons.TryGetValue(MakeStyleKey(null, itemName), out icon)) return true;
+            if (Parent != null) return Parent.TryGetIcon(itemName, typeNames, out icon);
+            icon = null;
+            return false;
+        }
+        private static void ValidateItemName(string itemName)
+        {
+            if (string.IsNullOrWhiteSpace(itemName)) throw new ArgumentException("A theme item name is required.", nameof(itemName));
         }
         private static string MakeStyleKey(string typeName, string itemName) => (typeName ?? string.Empty) + ":" + itemName;
     }

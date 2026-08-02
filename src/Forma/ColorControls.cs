@@ -420,7 +420,11 @@ namespace Forma
                 var hue = PickerShape == ColorPickerShape.OkHslCircle ? hsl.X : hsv.X; var saturation = PickerShape == ColorPickerShape.OkHslCircle ? hsl.Y : hsv.Y;
                 var radius = Math.Min(main.Width, main.Height) * .5f * saturation; position = new Vector2(main.Center.X + MathF.Cos(hue * MathHelper.TwoPi) * radius, main.Center.Y + MathF.Sin(hue * MathHelper.TwoPi) * radius);
             }
-            context.Border(new Rectangle((int)position.X - 3, (int)position.Y - 3, 7, 7), Color.White, 1);
+            var background = GetThemeIcon("picker_cursor_bg");
+            var cursor = GetThemeIcon("picker_cursor");
+            if (background.HasValue) context.Icon(background.Value, new Vector2(position.X - background.Value.LogicalSize.X / 2, position.Y - background.Value.LogicalSize.Y / 2), Color.White);
+            if (cursor.HasValue) context.Icon(cursor.Value, new Vector2(position.X - cursor.Value.LogicalSize.X / 2, position.Y - cursor.Value.LogicalSize.Y / 2), Color.White);
+            if (!background.HasValue && !cursor.HasValue) context.Border(new Rectangle((int)position.X - 3, (int)position.Y - 3, 7, 7), Color.White, 1);
         }
         internal static Color FromHsv(float hue, float saturation, float value, float alpha)
         {
@@ -471,7 +475,7 @@ namespace Forma
             var colors = new Dictionary<string, Color>(StringComparer.OrdinalIgnoreCase);
             foreach (var property in typeof(Color).GetProperties(BindingFlags.Public | BindingFlags.Static))
             {
-                if (property.PropertyType != typeof(Color) || property.Name == nameof(Color.MonoGameOrange)) continue;
+                if (property.PropertyType != typeof(Color) || property.Name == "MonoGameOrange") continue;
                 colors[NormalizeColorName(property.Name)] = (Color)property.GetValue(null);
             }
             return colors;

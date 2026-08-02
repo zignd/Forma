@@ -16,10 +16,36 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GenerateDocumentationFile Condition="'$(IsPackable)' == 'true'">true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <FormaRuntimeWasDefaulted Condition="'$(FormaRuntime)' == ''">true</FormaRuntimeWasDefaulted>
+    <FormaRuntime Condition="'$(FormaRuntime)' == ''">MonoGame</FormaRuntime>
+    <FormaVersion>0.1.0-alpha.1</FormaVersion>
+    <BaseIntermediateOutputPath>obj/$(FormaRuntime)/</BaseIntermediateOutputPath>
+    <BaseOutputPath>bin/$(FormaRuntime)/</BaseOutputPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj/**;bin/**</DefaultItemExcludes>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)Artifacts/packages/$(FormaRuntime)</PackageOutputPath>
     <MonoGameVersion>3.8.5</MonoGameVersion>
     <MonoGamePlatform Condition="'$(MonoGamePlatform)' == ''">DesktopGL</MonoGamePlatform>
     <MonoGamePackageId>MonoGame.Framework.$(MonoGamePlatform)</MonoGamePackageId>
-    <TargetFramework Condition="'$(MonoGamePlatform)' == 'WindowsDX'">net10.0-windows</TargetFramework>
-    <EnableWindowsTargeting Condition="'$(MonoGamePlatform)' == 'WindowsDX'">true</EnableWindowsTargeting>
+    <FnaVersion>2.2.11.2602</FnaVersion>
+    <FnaPackageId>FNA.NET</FnaPackageId>
+    <FnaNativeAssetsVersion>2.1.2.2602</FnaNativeAssetsVersion>
+    <FreeTypeSharpVersion>3.1.0</FreeTypeSharpVersion>
+    <HarfBuzzSharpVersion>14.2.1.1</HarfBuzzSharpVersion>
+    <TargetFramework Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGamePlatform)' == 'WindowsDX'">net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGamePlatform)' == 'WindowsDX'">true</EnableWindowsTargeting>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="FormaRuntime" Value="$(FormaRuntime)" />
+  </ItemGroup>
+
+  <Target Name="ValidateFormaRuntime" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(FormaRuntime)' != 'MonoGame' and '$(FormaRuntime)' != 'FNA'"
+           Text="FormaRuntime must be either 'MonoGame' or 'FNA'." />
+  </Target>
+
+  <Target Name="RequireExplicitFormaRuntimeForPack" BeforeTargets="Pack" Condition="'$(IsPackable)' == 'true'">
+    <Error Condition="'$(FormaRuntimeWasDefaulted)' == 'true'"
+           Text="Pack requires an explicit FormaRuntime=MonoGame or FormaRuntime=FNA selection." />
+  </Target>
 </Project>

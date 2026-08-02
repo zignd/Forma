@@ -1,0 +1,23 @@
+{
+  "unicodeVersion": "17.0.0",
+  "files": [
+    { "name": "DerivedBidiClass.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/extracted/DerivedBidiClass.txt", "sha256": "4867b4b7f0731ed1bfcd34cc6251211ff1542541fce0734b6fbda139ee80b3a4" },
+    { "name": "BidiBrackets.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/BidiBrackets.txt", "sha256": "dadbaf38a0d0246e5b805bf8725cb81b7c621f93d030595635f5ba2c2f179428" },
+    { "name": "BidiMirroring.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/BidiMirroring.txt", "sha256": "a2f16fb873ab4fcdf3221cb1a8a85a134ddd6ed03603181823ff5206af3741ce" },
+    { "name": "BidiTest.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/BidiTest.txt", "sha256": "888bdfc8090652272d1f859cdb00ae659e2dc6c26740be61ef1d03998a687620" },
+    { "name": "BidiCharacterTest.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/BidiCharacterTest.txt", "sha256": "a3e6e905ab5afbe318a96df5401d0372a04cd73ef139ab5e3cf0ae241c255488" },
+    { "name": "GraphemeBreakProperty.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/auxiliary/GraphemeBreakProperty.txt", "sha256": "d6b51d1d2ae5c33b451b7ed994b48f1f4dc62b2272a5831e7fd418514a6bae89" },
+    { "name": "GraphemeBreakTest.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/auxiliary/GraphemeBreakTest.txt", "sha256": "e2d134d2c52919bace503ebb6a551c1855fe1a1faec18478c78fff254a1793ec" },
+    { "name": "WordBreakProperty.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/auxiliary/WordBreakProperty.txt", "sha256": "72274cac1e6b919507db35655c3e175aa27274668a1ece95c28d2069f2ad9852" },
+    { "name": "WordBreakTest.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/auxiliary/WordBreakTest.txt", "sha256": "1de23a75f37904abc7d206239ee8d34f8fdf0fb4ab32a7174dfbabbde25419b2" },
+    { "name": "emoji-data.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/emoji/emoji-data.txt", "sha256": "2cb2bb9455cda83e8481541ecf5b6dfda66a3bb89efa3fa7c5297eccf607b72b" },
+    { "name": "DerivedCoreProperties.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt", "sha256": "24c7fed1195c482faaefd5c1e7eb821c5ee1fb6de07ecdbaa64b56a99da22c08" },
+    { "name": "DerivedGeneralCategory.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/extracted/DerivedGeneralCategory.txt", "sha256": "d62e5bab70ca74f099343f71224fa051cb1fdd61a1ab45c0488c44cfc0b6102e" },
+    { "name": "Scripts.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/Scripts.txt", "sha256": "9f5e50d3abaee7d6ce09480f325c706f485ae3240912527e651954d2d6b035bf" },
+    { "name": "ScriptExtensions.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/ScriptExtensions.txt", "sha256": "ec2107e58825a1586acee8e0911ce18260394ac8b87e535ca325f1ccbeb06bc6" },
+    { "name": "PropertyValueAliases.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/PropertyValueAliases.txt", "sha256": "64e9a5f76f7a1e8b5a47d6a1f9a26522a251208f5276bdfa1559dac7cf2e827a" },
+    { "name": "LineBreak.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/LineBreak.txt", "sha256": "e6a18fa91f8f6a6f8e534b1d3f128c21ada45bfe152eb6b1bcc5e15fd8ac92e6" },
+    { "name": "EastAsianWidth.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/EastAsianWidth.txt", "sha256": "ea7ce50f3444a050333448dffef1cadd9325af55cbb764b4a2280faf52170a33" },
+    { "name": "LineBreakTest.txt", "url": "https://www.unicode.org/Public/17.0.0/ucd/auxiliary/LineBreakTest.txt", "sha256": "e69884e0dde6a8724873f885d68c52dc14518abf9ae4ca9e2283b8773db3b752" }
+  ]
+}

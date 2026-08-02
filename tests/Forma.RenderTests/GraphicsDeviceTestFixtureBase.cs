@@ -12,7 +12,6 @@ namespace Forma.RenderTests;
 internal abstract class GraphicsDeviceTestFixtureBase
 {
     protected Game game;
-    protected GraphicsDeviceManager graphicsDeviceManager;
     protected GraphicsDevice gd;
     protected ContentManager content;
 
@@ -20,7 +19,7 @@ internal abstract class GraphicsDeviceTestFixtureBase
     public void SetUp()
     {
         game = new Game();
-        graphicsDeviceManager = new GraphicsDeviceManager(game)
+        _ = new GraphicsDeviceManager(game)
         {
             GraphicsProfile = GraphicsProfile.HiDef,
         };
@@ -33,10 +32,8 @@ internal abstract class GraphicsDeviceTestFixtureBase
     [TearDown]
     public void TearDown()
     {
-        graphicsDeviceManager?.Dispose();
         game?.Dispose();
         game = null;
-        graphicsDeviceManager = null;
         gd = null;
         content = null;
     }

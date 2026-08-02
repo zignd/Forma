@@ -1,0 +1,13 @@
+#nullable enable
+using System;
+using System.IO;
+using System.Runtime.CompilerServices;
+
+internal static class FormaDynamicTextPackageInitializer
+{
+    [ModuleInitializer]
+    internal static void Initialize()
+    {
+        Forma.DynamicTextDefaults.Install(Path.Combine(AppContext.BaseDirectory, "Fonts", "Forma.Inter_Regular.ttf"));
+    }
+}

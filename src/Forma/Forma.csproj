@@ -3,33 +3,81 @@
   <PropertyGroup>
     <AssemblyName>Forma</AssemblyName>
     <RootNamespace>Forma</RootNamespace>
-    <PackageId>Forma</PackageId>
-    <VersionPrefix>0.1.0-alpha.1</VersionPrefix>
-    <Description>Retained-mode UI toolkit for MonoGame.</Description>
-    <PackageTags>monogame;ui;game-development</PackageTags>
+    <PackageId Condition="'$(FormaRuntime)' == 'MonoGame'">Forma.MonoGame</PackageId>
+    <PackageId Condition="'$(FormaRuntime)' == 'FNA'">Forma.FNA</PackageId>
+    <VersionPrefix>$(FormaVersion)</VersionPrefix>
+    <Description>Retained-mode UI toolkit for XNA-compatible game runtimes.</Description>
+    <PackageTags>forma;$(FormaRuntime);ui;game-development</PackageTags>
     <IsPackable>true</IsPackable>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(MonoGameProjectPath)' == ''">
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="DynamicFont.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''">
     <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(MonoGameProjectPath)' != ''">
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' != ''">
     <ProjectReference Include="$(MonoGameProjectPath)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' == ''">
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''">
+    <ProjectReference Include="$(FnaProjectPath)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame'">
+    <Compile Remove="RuntimeAdapters/FNA/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA'">
+    <Compile Remove="RuntimeAdapters/MonoGame/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="../../LICENSE" Pack="true" PackagePath="" />
     <None Include="../../NOTICE.md" Pack="true" PackagePath="" />
     <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../RELEASE_NOTES.md" Pack="true" PackagePath="" />
     <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" />
+    <None Include="../../docs/dynamic-text.md" Pack="true" PackagePath="docs/" />
+    <None Include="../../assets/theme-icons/LICENSE.Godot.txt" Pack="true" PackagePath="licenses/theme-icons/" />
+    <None Include="PackageGuards/Forma.$(FormaRuntime).targets"
+          Pack="true"
+          PackagePath="buildTransitive/Forma.$(FormaRuntime).targets" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame'">
+    <EmbeddedResource Include="Resources/Alpha8Coverage.mgfxo.b64" LogicalName="Forma.Alpha8Coverage.mgfxo.b64" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA'">
+    <EmbeddedResource Include="Resources/Alpha8Coverage.fxb.b64" LogicalName="Forma.Alpha8Coverage.fxb.b64" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources/ThemeIcons/theme-icons-1x.png" LogicalName="Forma.ThemeIcons.theme-icons-1x.png" />
+    <EmbeddedResource Include="Resources/ThemeIcons/theme-icons-2x.png" LogicalName="Forma.ThemeIcons.theme-icons-2x.png" />
+    <EmbeddedResource Include="Resources/ThemeIcons/theme-icons.json" LogicalName="Forma.ThemeIcons.theme-icons.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Forma.DynamicText" />
     <InternalsVisibleTo Include="Forma.Media" />
+    <InternalsVisibleTo Include="Forma.RenderSmoke" />
     <InternalsVisibleTo Include="Forma.RenderTests" />
     <InternalsVisibleTo Include="Forma.Tests" />
   </ItemGroup>

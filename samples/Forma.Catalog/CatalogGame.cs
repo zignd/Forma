@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text.Json;
 using Forma;
 using Microsoft.Xna.Framework;
@@ -15,11 +17,17 @@ public sealed class CatalogGame : Game
 {
     private readonly GraphicsDeviceManager _graphics;
     private readonly UIContext _ui;
+    private readonly RuntimeCatalogTextInputAdapter _textInput;
+    private readonly Stopwatch _startupTimer = Stopwatch.StartNew();
     private CatalogShell _catalog;
     private SpriteFont _font;
-    private SpriteFont _displayFont;
     private SpriteFont _codeFont;
-    private SpriteFont _displayCodeFont;
+    private UIFontFace _interFace;
+    private UIFontFace _cjkFace;
+    private UIFontFace _arabicFace;
+    private UIFontFace _devanagariFace;
+    private UIFontFace _hebrewFace;
+    private UIFontFace _emojiFace;
     private Texture2D _catalogTexture;
     private readonly CatalogMetricsOptions _metricsOptions;
     private readonly VertexPositionColorTexture[] _hotReloadVertices =
@@ -30,43 +38,59 @@ public sealed class CatalogGame : Game
     };
     private CatalogEffectHotReloadService _hotReload;
     private float _displayScale = 1;
+    private float? _interactiveDisplayScale;
+    private Vector2? _interactiveLogicalViewport;
     private int _storyCount;
+    private bool _dynamicTextEnabled = true;
     private int _renderedFrames;
+    private double _startupMilliseconds;
+    private long _steadyStateAllocationStart;
+    private long _steadyStateAllocatedBytes;
+    private int _steadyStateMeasuredFrames;
 
     public CatalogGame(CatalogMetricsOptions metricsOptions = null)
     {
         _metricsOptions = metricsOptions;
         _graphics = new GraphicsDeviceManager(this)
         {
-            PreferredBackBufferWidth = 1440,
-            PreferredBackBufferHeight = 900,
+            PreferredBackBufferWidth = _metricsOptions?.ViewportWidth ?? 1440,
+            PreferredBackBufferHeight = _metricsOptions?.ViewportHeight ?? 900,
         };
+        EnableHighDpiIfSupported(_graphics);
         _ui = new UIContext { Theme = CreateTheme() };
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         Window.AllowUserResizing = true;
         Window.Title = "Forma Catalog";
-        Window.TextInput += OnTextInput;
+        _textInput = new RuntimeCatalogTextInputAdapter(this, _ui.TextInput);
+    }
+
+    private static void EnableHighDpiIfSupported(GraphicsDeviceManager graphics)
+    {
+        graphics.GetType().GetProperty("AllowHighDpi")?.SetValue(graphics, true);
     }
 
     protected override void LoadContent()
     {
         _font = Content.Load<SpriteFont>("Fonts/Catalog");
-        _displayFont = Content.Load<SpriteFont>("Fonts/Catalog@2x");
         _codeFont = Content.Load<SpriteFont>("Fonts/CatalogCode");
-        _displayCodeFont = Content.Load<SpriteFont>("Fonts/CatalogCode@2x");
+        _interFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/Inter_Regular.ttf");
+        _cjkFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoSansCJK_Subset.ttf");
+        _arabicFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoSansArabic_Variable.ttf");
+        _devanagariFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoSansDevanagari_Subset.ttf");
+        _hebrewFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoSansHebrew_Subset.ttf");
+        _emojiFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoEmoji_Subset.ttf");
         _catalogTexture = CreateCatalogTexture();
-        Window.Title = $"Forma Catalog - {CatalogBackend.Name}";
-        _ui.TooltipFont = _font;
-        _ui.DisplayFontResolver = (font, scale) => scale > 1f
-            ? ReferenceEquals(font, _font) ? _displayFont
-            : ReferenceEquals(font, _codeFont) ? _displayCodeFont
-            : null
-            : null;
-        var stories = StoryCatalog.Create(_catalogTexture);
+        Window.Title = "Forma Catalog";
+        var defaultFont = CreateDynamicFont("Inter", 16, null);
+        _ui.Theme.FontFamily = new UIFontFamily(new[] { defaultFont });
+        _ui.TooltipUIFont = defaultFont;
+        var stories = StoryCatalog.Create(_catalogTexture, SetInteractiveDisplayScale, CreateDynamicFont);
         _storyCount = stories.Count;
-        _catalog = new CatalogShell(stories, _font, _codeFont);
+        _catalog = new CatalogShell(stories, defaultFont, CreateDynamicFont("Inter", 15, null), _font, enabled => _dynamicTextEnabled = enabled);
         _ui.Add(_catalog);
+        if (_metricsOptions?.StoryName != null && !_catalog.SelectStory(_metricsOptions.StoryName))
+            throw new InvalidOperationException($"Catalog story not found: {_metricsOptions.StoryName}");
         if (_metricsOptions?.WatchedEffectPath != null)
         {
             _hotReload = new CatalogEffectHotReloadService(
@@ -80,9 +104,9 @@ public sealed class CatalogGame : Game
     {
         if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
         var viewport = GraphicsDevice.Viewport;
-        _displayScale = GetDisplayScale(viewport);
+        _displayScale = _interactiveDisplayScale ?? GetDisplayScale(viewport);
         _ui.DisplayScale = _displayScale;
-        _ui.ViewportSize = new Vector2(viewport.Width / _displayScale, viewport.Height / _displayScale);
+        _ui.ViewportSize = _interactiveLogicalViewport ?? new Vector2(viewport.Width / _displayScale, viewport.Height / _displayScale);
         if (_catalog != null) _catalog.Size = _ui.ViewportSize;
         _ui.Update(gameTime);
         base.Update(gameTime);
@@ -110,10 +134,25 @@ public sealed class CatalogGame : Game
         }
         base.Draw(gameTime);
 
-        if (_metricsOptions?.OutputPath != null && ++_renderedFrames >= _metricsOptions.FrameCount)
+        if (_metricsOptions != null)
         {
-            WriteMetrics();
-            Exit();
+            _renderedFrames++;
+            if (_renderedFrames == 1)
+            {
+                _startupMilliseconds = _startupTimer.Elapsed.TotalMilliseconds;
+                _steadyStateAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+            }
+            if (_renderedFrames >= _metricsOptions.FrameCount)
+            {
+                _steadyStateMeasuredFrames = Math.Max(0, _renderedFrames - 1);
+                _steadyStateAllocatedBytes = _steadyStateMeasuredFrames == 0
+                    ? 0
+                    : Math.Max(0, GC.GetAllocatedBytesForCurrentThread() - _steadyStateAllocationStart);
+                if (_metricsOptions.OutputPath != null) WriteMetrics();
+                if (_metricsOptions.RenderOutputPath != null) WriteRenderOutput();
+                if (_metricsOptions.ScreenshotPath != null) WriteScreenshot();
+                Exit();
+            }
         }
     }
 
@@ -121,16 +160,28 @@ public sealed class CatalogGame : Game
     {
         if (disposing)
         {
-            var window = Window;
-            if (window != null) window.TextInput -= OnTextInput;
+            _textInput.Dispose();
             _hotReload?.Dispose();
             _ui.Dispose();
+            _emojiFace?.Dispose();
+            _devanagariFace?.Dispose();
+            _hebrewFace?.Dispose();
+            _arabicFace?.Dispose();
+            _cjkFace?.Dispose();
+            _interFace?.Dispose();
             _catalogTexture?.Dispose();
         }
         base.Dispose(disposing);
     }
 
-    private void OnTextInput(object sender, TextInputEventArgs args) => _ui.TextInput(args.Character);
+    private UIFont CreateDynamicFont(string familyName, float size, IReadOnlyList<UIFontVariationCoordinate> variations)
+    {
+        if (!_dynamicTextEnabled) return new SpriteFontAdapter(_font, size);
+        variations ??= Array.Empty<UIFontVariationCoordinate>();
+        if (familyName == "Noto Sans Arabic") return new DynamicUIFont(_arabicFace, size, UIFontHinting.Default, variations, _interFace, _hebrewFace, _devanagariFace, _cjkFace, _emojiFace);
+        if (familyName == "Noto Sans SC") return new DynamicUIFont(_cjkFace, size, UIFontHinting.Default, variations, _interFace, _arabicFace, _hebrewFace, _devanagariFace, _emojiFace);
+        return new DynamicUIFont(_interFace, size, UIFontHinting.Default, variations, _arabicFace, _hebrewFace, _devanagariFace, _cjkFace, _emojiFace);
+    }
 
     private float GetDisplayScale(Viewport viewport)
     {
@@ -141,18 +192,53 @@ public sealed class CatalogGame : Game
         return float.IsFinite(scale) && scale > 0 ? scale : 1f;
     }
 
+    private void SetInteractiveDisplayScale(float displayScale)
+    {
+        _interactiveLogicalViewport ??= _ui.ViewportSize;
+        _interactiveDisplayScale = displayScale;
+        _ui.DisplayScale = displayScale;
+        _ui.ViewportSize = _interactiveLogicalViewport.Value;
+    }
+
     private void WriteMetrics()
     {
+        var iconDiagnostics = _ui.ThemeIconDiagnostics;
+        var glyphDiagnostics = _ui.DynamicGlyphDiagnostics;
+        var spriteFontTextureBytes = GetSpriteFontTextureBytes(_font) + GetSpriteFontTextureBytes(_codeFont);
+        var catalogTextureBytes = checked((long)_catalogTexture.Width * _catalogTexture.Height * 4);
         var report = new
         {
             schemaVersion = 2,
             backend = CatalogBackend.Name,
             renderedFrames = _renderedFrames,
             storyCount = _storyCount,
+            selectedStory = _metricsOptions.StoryName,
             displayScale = _displayScale,
+            physicalViewportWidth = GraphicsDevice.PresentationParameters.BackBufferWidth,
+            physicalViewportHeight = GraphicsDevice.PresentationParameters.BackBufferHeight,
             logicalViewportWidth = _ui.ViewportSize.X,
             logicalViewportHeight = _ui.ViewportSize.Y,
-            densityFontSelected = _displayFont != null && _displayScale > 1,
+            densityFontSelected = _displayScale > 1,
+            startupMilliseconds = _startupMilliseconds,
+            steadyStateMeasuredFrames = _steadyStateMeasuredFrames,
+            steadyStateAllocatedBytes = _steadyStateAllocatedBytes,
+            steadyStateAllocatedBytesPerFrame = _steadyStateMeasuredFrames == 0
+                ? 0
+                : _steadyStateAllocatedBytes / (double)_steadyStateMeasuredFrames,
+            fontXnbBytes = GetFontXnbBytes(),
+            spriteFontTextureBytes,
+            steadyStateTextureBytes = iconDiagnostics.TextureBytes + spriteFontTextureBytes + catalogTextureBytes,
+            themeIconDensity = iconDiagnostics.ActiveDensity,
+            themeIconAtlasCount = iconDiagnostics.AtlasCount,
+            themeIconTextureBytes = iconDiagnostics.TextureBytes,
+            themeIconGeneration = iconDiagnostics.Generation,
+            themeIconMissingCount = iconDiagnostics.MissingIconCount,
+            dynamicGlyphPageCount = glyphDiagnostics.PageCount,
+            dynamicGlyphCount = glyphDiagnostics.GlyphCount,
+            dynamicGlyphBytes = glyphDiagnostics.Bytes,
+            dynamicGlyphPendingUploads = glyphDiagnostics.PendingUploads,
+            dynamicGlyphFailures = glyphDiagnostics.Failures,
+            dynamicGlyphLastFailure = glyphDiagnostics.LastFailure,
             hotReloadEnabled = _hotReload != null,
             hotReloadSucceeded = _hotReload?.LastReloadSucceeded,
             hotReloadMilliseconds = _hotReload?.LastReloadMilliseconds,
@@ -164,6 +250,83 @@ public sealed class CatalogGame : Game
         {
             WriteIndented = true,
         }));
+    }
+
+    private static long GetSpriteFontTextureBytes(SpriteFont font)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        var texture = typeof(SpriteFont).GetProperty("Texture", flags)?.GetValue(font) as Texture2D ??
+            typeof(SpriteFont).GetField("textureValue", flags)?.GetValue(font) as Texture2D;
+        if (texture == null) throw new InvalidOperationException("The selected runtime does not expose its SpriteFont atlas to catalog metrics.");
+        return checked((long)texture.Width * texture.Height * 4);
+    }
+
+    private static long GetFontXnbBytes()
+    {
+        var fontDirectory = Path.Combine(AppContext.BaseDirectory, "Content", "Fonts");
+        long bytes = 0;
+        foreach (var asset in new[] { "Catalog", "CatalogCode" })
+        {
+            var path = Path.Combine(fontDirectory, asset + ".xnb");
+            bytes = checked(bytes + new FileInfo(path).Length);
+        }
+        return bytes;
+    }
+
+    private void WriteRenderOutput()
+    {
+        var width = GraphicsDevice.PresentationParameters.BackBufferWidth;
+        var height = GraphicsDevice.PresentationParameters.BackBufferHeight;
+        var pixels = new Color[width * height];
+        GraphicsDevice.GetBackBufferData(pixels);
+        var hash = 14695981039346656037UL;
+        var background = _ui.Theme.BackgroundColor.PackedValue;
+        long nonBackgroundPixels = 0;
+        ulong redTotal = 0;
+        ulong greenTotal = 0;
+        ulong blueTotal = 0;
+        ulong alphaTotal = 0;
+        foreach (var pixel in pixels)
+        {
+            hash = (hash ^ pixel.PackedValue) * 1099511628211UL;
+            if (pixel.PackedValue != background) nonBackgroundPixels++;
+            redTotal += pixel.R;
+            greenTotal += pixel.G;
+            blueTotal += pixel.B;
+            alphaTotal += pixel.A;
+        }
+        var report = new
+        {
+            schemaVersion = 1,
+            width,
+            height,
+            pixelHash = hash.ToString("x16"),
+            nonBackgroundPixels,
+            redTotal,
+            greenTotal,
+            blueTotal,
+            alphaTotal,
+        };
+        var outputPath = Path.GetFullPath(_metricsOptions.RenderOutputPath);
+        Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+        File.WriteAllText(outputPath, JsonSerializer.Serialize(report, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+        }));
+    }
+
+    private void WriteScreenshot()
+    {
+        var width = GraphicsDevice.PresentationParameters.BackBufferWidth;
+        var height = GraphicsDevice.PresentationParameters.BackBufferHeight;
+        var pixels = new Color[width * height];
+        GraphicsDevice.GetBackBufferData(pixels);
+        using var texture = new Texture2D(GraphicsDevice, width, height);
+        texture.SetData(pixels);
+        var outputPath = Path.GetFullPath(_metricsOptions.ScreenshotPath);
+        Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+        using var stream = File.Create(outputPath);
+        texture.SaveAsPng(stream, width, height);
     }
 
     private Texture2D CreateCatalogTexture()
@@ -198,27 +361,47 @@ public sealed class CatalogGame : Game
 public sealed class CatalogMetricsOptions
 {
     public string OutputPath { get; }
+    public string RenderOutputPath { get; }
+    public string ScreenshotPath { get; }
     public int FrameCount { get; }
     public string WatchedEffectPath { get; }
     public float? DisplayScale { get; }
+    public string StoryName { get; }
+    public int? ViewportWidth { get; }
+    public int? ViewportHeight { get; }
 
     private CatalogMetricsOptions(
         string outputPath,
+        string renderOutputPath,
+        string screenshotPath,
         int frameCount,
         string watchedEffectPath,
-        float? displayScale)
+        float? displayScale,
+        string storyName,
+        int? viewportWidth,
+        int? viewportHeight)
     {
         OutputPath = outputPath;
+        RenderOutputPath = renderOutputPath;
+        ScreenshotPath = screenshotPath;
         FrameCount = frameCount;
         WatchedEffectPath = watchedEffectPath;
         DisplayScale = displayScale;
+        StoryName = storyName;
+        ViewportWidth = viewportWidth;
+        ViewportHeight = viewportHeight;
     }
 
     public static CatalogMetricsOptions Parse(string[] args)
     {
         string outputPath = null;
+        string renderOutputPath = null;
+        string screenshotPath = null;
         string watchedEffectPath = null;
         float? displayScale = null;
+        string storyName = null;
+        int? viewportWidth = null;
+        int? viewportHeight = null;
         var frameCount = 120;
         for (var index = 0; index < args.Length; index++)
         {
@@ -226,6 +409,12 @@ public sealed class CatalogMetricsOptions
             {
                 case "--metrics" when index + 1 < args.Length:
                     outputPath = args[++index];
+                    break;
+                case "--render-output" when index + 1 < args.Length:
+                    renderOutputPath = args[++index];
+                    break;
+                case "--screenshot" when index + 1 < args.Length:
+                    screenshotPath = args[++index];
                     break;
                 case "--frames" when index + 1 < args.Length && int.TryParse(args[++index], out frameCount) && frameCount > 0:
                     break;
@@ -238,6 +427,15 @@ public sealed class CatalogMetricsOptions
                     float.IsFinite(parsedScale) && parsedScale > 0:
                     displayScale = parsedScale;
                     break;
+                case "--story" when index + 1 < args.Length:
+                    storyName = args[++index];
+                    break;
+                case "--viewport-width" when index + 1 < args.Length && int.TryParse(args[++index], out var parsedWidth) && parsedWidth >= 320:
+                    viewportWidth = parsedWidth;
+                    break;
+                case "--viewport-height" when index + 1 < args.Length && int.TryParse(args[++index], out var parsedHeight) && parsedHeight >= 240:
+                    viewportHeight = parsedHeight;
+                    break;
                 default:
                     throw new ArgumentException($"Unknown or invalid catalog argument: {args[index]}");
             }
@@ -245,8 +443,8 @@ public sealed class CatalogMetricsOptions
 
         if (watchedEffectPath != null && !File.Exists(watchedEffectPath))
             throw new ArgumentException($"The watched effect does not exist: {watchedEffectPath}");
-        return outputPath == null && watchedEffectPath == null && displayScale == null
+        return outputPath == null && renderOutputPath == null && screenshotPath == null && watchedEffectPath == null && displayScale == null && storyName == null && viewportWidth == null && viewportHeight == null
             ? null
-            : new CatalogMetricsOptions(outputPath, frameCount, watchedEffectPath, displayScale);
+            : new CatalogMetricsOptions(outputPath, renderOutputPath, screenshotPath, frameCount, watchedEffectPath, displayScale, storyName, viewportWidth, viewportHeight);
     }
 }

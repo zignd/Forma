@@ -8,7 +8,10 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
-    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(MonoGameProjectPath)' == ''" />
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' == ''" />
+    <ProjectReference Include="$(MonoGameProjectPath)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' != ''" />
+    <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''" />
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit.Analyzers" Version="4.7.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
@@ -19,11 +22,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Forma/Forma.csproj" />
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.DynamicText/Forma.DynamicText.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
     <Content Include="../Assets/Fonts/Catalog.xnb" Link="Content/Fonts/Catalog.xnb" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Assets/Fonts/Catalog@2x.xnb" Link="Content/Fonts/Catalog@2x.xnb" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Assets/Fonts/CatalogCode.xnb" Link="Content/Fonts/CatalogCode.xnb" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Assets/Fonts/CatalogCode@2x.xnb" Link="Content/Fonts/CatalogCode@2x.xnb" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoSansArabic_Variable.ttf" Link="Fonts/NotoSansArabic_Variable.ttf" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

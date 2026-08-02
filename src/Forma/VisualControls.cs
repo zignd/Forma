@@ -166,6 +166,37 @@ namespace Forma
         protected void DrawChildControls(UIRenderContext context) => base.Draw(context);
     }
 
+    /// <summary>Displays a non-owning theme icon at its stable logical size.</summary>
+    public sealed class ThemeIconRect : Control
+    {
+        private ThemeIcon? _icon;
+        public ThemeIcon? Icon
+        {
+            get => _icon;
+            set { _icon = value; QueueLayout(); }
+        }
+        public string ThemeItemName { get; set; } = string.Empty;
+        public string ThemeTypeName { get; set; } = string.Empty;
+        public Color Modulate { get; set; } = Color.White;
+        public override Vector2 GetMinimumSize() => Vector2.Max(CustomMinimumSize, ResolveIcon() is ThemeIcon icon ? icon.LogicalSize.ToVector2() : Vector2.Zero);
+        internal override void Draw(UIRenderContext context)
+        {
+            if (ResolveIcon() is ThemeIcon icon)
+            {
+                var x = Bounds.X + (Bounds.Width - icon.LogicalSize.X) / 2;
+                var y = Bounds.Y + (Bounds.Height - icon.LogicalSize.Y) / 2;
+                context.Icon(icon, new Vector2(x, y), Modulate);
+            }
+            base.Draw(context);
+        }
+        private ThemeIcon? ResolveIcon()
+        {
+            if (Icon is ThemeIcon icon) return icon;
+            return !string.IsNullOrWhiteSpace(ThemeItemName) && !string.IsNullOrWhiteSpace(ThemeTypeName) &&
+                Context?.TryGetDefaultThemeIcon(ThemeItemName, new[] { ThemeTypeName }, out var themed) == true ? themed : null;
+        }
+    }
+
     /// <summary>Controls whether a NinePatchRect axis scales, repeats, or repeats with fitted tiles.</summary>
     public enum NinePatchAxisStretchMode { Stretch, Tile, TileFit }
 
@@ -545,8 +576,15 @@ namespace Forma
             if (DraggerVisibility == SplitContainerDraggerVisibility.Visible || (!Collapsed && DraggerVisibility != SplitContainerDraggerVisibility.Hidden))
                 for (var index = 0; index < _resolvedDraggerPositions.Count; index++)
                 {
-                    context.Fill(GetDividerBounds(index), context.Theme.PanelBorderColor);
-                    if (TouchDraggerEnabled) context.Fill(GetTouchDraggerBounds(index), context.Theme.AccentColor);
+                    var bounds = TouchDraggerEnabled ? GetTouchDraggerBounds(index) : GetDividerBounds(index);
+                    var name = Orientation == Orientation.Horizontal ? TouchDraggerEnabled ? "h_touch_dragger" : "h_grabber" : TouchDraggerEnabled ? "v_touch_dragger" : "v_grabber";
+                    var grabber = GetThemeIcon(name);
+                    if (grabber.HasValue) context.Icon(grabber.Value, new Vector2(bounds.Center.X - grabber.Value.LogicalSize.X / 2, bounds.Center.Y - grabber.Value.LogicalSize.Y / 2), Color.White);
+                    else
+                    {
+                        context.Fill(GetDividerBounds(index), context.Theme.PanelBorderColor);
+                        if (TouchDraggerEnabled) context.Fill(GetTouchDraggerBounds(index), context.Theme.AccentColor);
+                    }
                 }
             base.Draw(context);
         }

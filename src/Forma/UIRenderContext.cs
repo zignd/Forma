@@ -14,9 +14,12 @@ namespace Forma
         private readonly SpriteBatch _spriteBatch;
         private readonly Texture2D _pixel;
         private readonly BasicEffect _basicEffect;
+        private readonly Effect _alpha8CoverageEffect;
         private readonly RasterizerState _scissorRasterizer;
+        private readonly DynamicGlyphCache _dynamicGlyphCache;
         private readonly Stack<Rectangle?> _clipStack = new Stack<Rectangle?>();
         private readonly Stack<ThemeScope> _themeStack = new Stack<ThemeScope>();
+        private TextLayoutEngine _textLayoutEngine = new TextLayoutEngine();
         private bool _begun;
         private Rectangle? _currentClip;
         internal UIRenderContext(GraphicsDevice graphicsDevice, Theme theme)
@@ -27,18 +30,23 @@ namespace Forma
             _pixel = new Texture2D(graphicsDevice, 1, 1);
             _pixel.SetData(new[] { Color.White });
             _basicEffect = new BasicEffect(graphicsDevice) { TextureEnabled = true, VertexColorEnabled = true };
+            _alpha8CoverageEffect = Alpha8CoverageEffect.Create(graphicsDevice);
             _scissorRasterizer = new RasterizerState { ScissorTestEnable = true };
+            _dynamicGlyphCache = new DynamicGlyphCache(graphicsDevice);
         }
         public GraphicsDevice GraphicsDevice { get; }
         public Theme Theme { get; internal set; }
         internal float DisplayScale { get; set; } = 1f;
         internal Func<SpriteFont, float, SpriteFont> DisplayFontResolver { get; set; }
+        internal TextLayoutEngine TextLayoutEngine { get => _textLayoutEngine; set => _textLayoutEngine = value ?? throw new ArgumentNullException(nameof(value)); }
         public SpriteBatch SpriteBatch => _spriteBatch;
         internal Texture2D Pixel => _pixel;
         public void Begin()
         {
             if (_begun) return;
             _currentClip = null;
+            _dynamicGlyphCache.FlushUploads();
+            _dynamicGlyphCache.BeginFrame();
             BeginBatch();
         }
         public void End()
@@ -49,6 +57,7 @@ namespace Forma
             _clipStack.Clear();
             _themeStack.Clear();
             _currentClip = null;
+            _dynamicGlyphCache.EndFrame();
         }
         /// <summary>Clips subsequent drawing to the intersection of this rectangle and all active parent clips.</summary>
         public void PushClip(Rectangle rectangle)
@@ -74,7 +83,7 @@ namespace Forma
             var inheritedParent = false;
             if (themeOverride != null && !ReferenceEquals(themeOverride, Theme) && themeOverride.Parent == null)
             {
-                themeOverride.Parent = Theme;
+                themeOverride.SetInheritedParent(Theme);
                 inheritedParent = true;
             }
             _themeStack.Push(new ThemeScope(Theme, themeOverride, inheritedParent));
@@ -84,10 +93,26 @@ namespace Forma
         {
             if (_themeStack.Count == 0) throw new InvalidOperationException("No theme scope is active.");
             var scope = _themeStack.Pop();
-            if (scope.InheritedParent) scope.Override.Parent = null;
+            if (scope.InheritedParent) scope.Override.SetInheritedParent(null);
             Theme = scope.Previous;
         }
         public void Fill(Rectangle rectangle, Color color) { if (rectangle.Width > 0 && rectangle.Height > 0) _spriteBatch.Draw(_pixel, rectangle, color); }
+        /// <summary>Draws a theme-owned atlas region into a pixel-rounded logical rectangle.</summary>
+        public void Icon(ThemeIcon icon, Rectangle destination, Color color)
+        {
+            if (icon.Texture == null || destination.Width <= 0 || destination.Height <= 0) return;
+            _spriteBatch.Draw(icon.Texture, destination, icon.SourceRectangle, color);
+        }
+        /// <summary>Draws a theme-owned atlas region at its stable logical size.</summary>
+        public void Icon(ThemeIcon icon, Vector2 position, Color color)
+        {
+            var destination = new Rectangle(
+                (int)MathF.Round(position.X),
+                (int)MathF.Round(position.Y),
+                icon.LogicalSize.X,
+                icon.LogicalSize.Y);
+            Icon(icon, destination, color);
+        }
         /// <summary>Fills a deterministic pixel-rounded rectangle without requiring an external texture asset.</summary>
         public void FillRounded(Rectangle rectangle, Color color, int radius)
         {
@@ -111,14 +136,27 @@ namespace Forma
         }
         public void Text(SpriteFont font, string text, Vector2 position, Color color)
         {
-            DrawText(font, text, position, color, 1f);
+            Text(font, text, position, color, 1f);
+        }
+        public void Text(UIFont font, string text, Vector2 position, Color color)
+        {
+            if (font == null || string.IsNullOrEmpty(text)) return;
+            Text(TextLayoutEngine.Layout(font, text), position, color);
         }
         /// <summary>Draws SpriteFont text at a deterministic uniform scale for controls with a font-size override.</summary>
         public void Text(SpriteFont font, string text, Vector2 position, Color color, float scale)
         {
-            DrawText(font, text, position, color, scale);
+            if (font == null || string.IsNullOrEmpty(text) || scale <= 0) return;
+            var adapter = new SpriteFontAdapter(font, font.LineSpacing * scale);
+            Text(TextLayoutEngine.Layout(adapter, text), position, color);
         }
-        private void DrawText(SpriteFont font, string text, Vector2 position, Color color, float scale)
+        /// <summary>Draws an immutable layout without repeating measurement or line breaking.</summary>
+        public void Text(TextLayout layout, Vector2 position, Color color)
+        {
+            if (layout == null) throw new ArgumentNullException(nameof(layout));
+            layout.Font.Draw(this, layout, position, color);
+        }
+        internal void DrawSpriteFont(SpriteFont font, string text, Vector2 position, Color color, float scale)
         {
             if (font == null || string.IsNullOrEmpty(text) || scale <= 0) return;
             var displayFont = DisplayFontResolver?.Invoke(font, DisplayScale);
@@ -130,6 +168,33 @@ namespace Forma
             if (Math.Abs(scale - 1f) < .0001f) { _spriteBatch.DrawString(font, text, position, color); return; }
             _spriteBatch.DrawString(font, text, position, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
+        internal void DrawDynamicGlyph(UIFont font, uint glyphId, Vector2 baselinePosition, Color color)
+        {
+            var glyph = _dynamicGlyphCache.GetOrAdd(font, glyphId, DisplayScale);
+            if (glyph.PageIndex < 0 || !glyph.Uploaded) return;
+            var texture = _dynamicGlyphCache.GetTexture(glyph);
+            var topLeft = baselinePosition + new Vector2(glyph.BearingX / DisplayScale, -glyph.BearingY / DisplayScale);
+            _spriteBatch.Draw(texture, topLeft, glyph.Bounds, color, 0, Vector2.Zero, 1f / DisplayScale, SpriteEffects.None, 0);
+        }
+        internal void BeginDynamicGlyphs()
+        {
+            if (!_begun) throw new InvalidOperationException("Begin must be called before drawing dynamic glyphs.");
+            _spriteBatch.End();
+            var transform = Math.Abs(DisplayScale - 1f) < .0001f ? Matrix.Identity : Matrix.CreateScale(DisplayScale, DisplayScale, 1f);
+            var viewport = GraphicsDevice.Viewport;
+            var projection = Matrix.CreateOrthographicOffCenter(0, viewport.Width, viewport.Height, 0, 0, -1);
+            _alpha8CoverageEffect.Parameters["MatrixTransform"].SetValue(transform * projection);
+            _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, _currentClip.HasValue ? _scissorRasterizer : RasterizerState.CullNone, null, transform);
+            _alpha8CoverageEffect.CurrentTechnique.Passes[0].Apply();
+        }
+        internal void EndDynamicGlyphs()
+        {
+            _spriteBatch.End();
+            BeginBatch();
+        }
+        internal DynamicGlyphCacheDiagnostics DynamicGlyphDiagnostics => _dynamicGlyphCache.Diagnostics;
+        internal IReadOnlyList<DynamicGlyphAtlasPageSnapshot> DynamicGlyphPages => _dynamicGlyphCache.GetDebugPages();
+        internal void ClearDynamicGlyphCache() => _dynamicGlyphCache.Clear();
         internal void RenderToTarget(RenderTarget2D target, Color clearColor, Action draw)
         {
             if (target == null) throw new ArgumentNullException(nameof(target));
@@ -187,17 +252,23 @@ namespace Forma
             _spriteBatch.End();
             BeginBatch();
         }
-        private void BeginBatch()
+        private void BeginBatch(Effect effect = null)
         {
-            Matrix? transform = Math.Abs(DisplayScale - 1f) < .0001f ? null : Matrix.CreateScale(DisplayScale, DisplayScale, 1f);
+            var transform = Math.Abs(DisplayScale - 1f) < .0001f ? Matrix.Identity : Matrix.CreateScale(DisplayScale, DisplayScale, 1f);
+            if (effect != null)
+            {
+                var viewport = GraphicsDevice.Viewport;
+                var projection = Matrix.CreateOrthographicOffCenter(0, viewport.Width, viewport.Height, 0, 0, -1);
+                effect.Parameters["MatrixTransform"].SetValue(transform * projection);
+            }
             if (_currentClip.HasValue)
             {
                 var clip = ToPhysicalRectangle(_currentClip.Value);
                 if (clip.Width <= 0 || clip.Height <= 0) clip = new Rectangle(0, 0, 1, 1);
                 GraphicsDevice.ScissorRectangle = clip;
-                _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, _scissorRasterizer, null, transform);
+                _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, _scissorRasterizer, effect, transform);
             }
-            else _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null, transform);
+            else _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, effect, transform);
             _begun = true;
         }
         private Rectangle ToPhysicalRectangle(Rectangle rectangle)
@@ -217,6 +288,6 @@ namespace Forma
             public Theme Override { get; }
             public bool InheritedParent { get; }
         }
-        public void Dispose() { _spriteBatch.Dispose(); _pixel.Dispose(); _basicEffect.Dispose(); _scissorRasterizer.Dispose(); }
+        public void Dispose() { _dynamicGlyphCache.Dispose(); _spriteBatch.Dispose(); _pixel.Dispose(); _basicEffect.Dispose(); _alpha8CoverageEffect.Dispose(); _scissorRasterizer.Dispose(); }
     }
 }

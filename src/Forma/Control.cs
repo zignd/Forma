@@ -41,6 +41,8 @@ namespace Forma
         private bool _childOrderDirty = true;
         private readonly List<Control> _childrenInDrawOrder = new List<Control>();
         private readonly Dictionary<string, StyleBox> _styleOverrides = new Dictionary<string, StyleBox>(StringComparer.Ordinal);
+        private readonly Dictionary<string, ThemeIcon?> _iconOverrides = new Dictionary<string, ThemeIcon?>(StringComparer.Ordinal);
+        private Theme _themeOverride;
 
         public Control()
         {
@@ -58,7 +60,19 @@ namespace Forma
         public ReadOnlyCollection<Control> Children => _readOnlyChildren;
         public UIContext Context { get; private set; }
         /// <summary>Optional theme applied to this control and inherited by its descendants while drawing.</summary>
-        public Theme ThemeOverride { get; set; }
+        public Theme ThemeOverride
+        {
+            get => _themeOverride;
+            set
+            {
+                if (ReferenceEquals(_themeOverride, value)) return;
+                if (_themeOverride != null) _themeOverride.Changed -= ThemeOverrideChanged;
+                _themeOverride = value;
+                if (_themeOverride != null) _themeOverride.Changed += ThemeOverrideChanged;
+                MarkThemeDirty();
+                QueueLayout();
+            }
+        }
         /// <summary>Text presented by <see cref="UIContext"/> after the pointer rests over this control.</summary>
         public string TooltipText { get; set; } = string.Empty;
         private bool _visible;
@@ -238,6 +252,35 @@ namespace Forma
             return Context?.Theme.GetStyleBox(itemName, typeNames);
         }
 
+        /// <summary>Adds a local decorative theme-icon override. Existing content-icon properties are unaffected.</summary>
+        public void AddThemeIconOverride(string itemName, ThemeIcon icon)
+        {
+            if (string.IsNullOrWhiteSpace(itemName)) throw new ArgumentException("A theme item name is required.", nameof(itemName));
+            _iconOverrides[itemName] = icon;
+        }
+        /// <summary>Removes a local icon override so theme inheritance becomes visible again.</summary>
+        public void RemoveThemeIconOverride(string itemName)
+        {
+            if (itemName != null) _iconOverrides.Remove(itemName);
+        }
+        /// <summary>Suppresses a decorative theme icon on this control without affecting content icons.</summary>
+        public void SuppressThemeIcon(string itemName)
+        {
+            if (string.IsNullOrWhiteSpace(itemName)) throw new ArgumentException("A theme item name is required.", nameof(itemName));
+            _iconOverrides[itemName] = null;
+        }
+        /// <summary>Resolves a decorative icon from local overrides, ancestor themes, and the context theme.</summary>
+        public ThemeIcon? GetThemeIcon(string itemName)
+        {
+            if (itemName == null) return null;
+            if (_iconOverrides.TryGetValue(itemName, out var local)) return local;
+            var typeNames = GetThemeTypeNames();
+            for (var control = this; control != null; control = control.Parent)
+                if (control.ThemeOverride != null && control.ThemeOverride.TryGetIcon(itemName, typeNames, out var inherited)) return inherited;
+            if (Context?.Theme.TryGetIcon(itemName, typeNames, out var contextual) == true) return contextual;
+            return Context?.TryGetDefaultThemeIcon(itemName, typeNames, out var fallback) == true ? fallback : null;
+        }
+
         private IEnumerable<string> GetThemeTypeNames()
         {
             for (var type = GetType(); type != null && typeof(Control).IsAssignableFrom(type); type = type.BaseType)
@@ -399,6 +442,39 @@ namespace Forma
             foreach (var child in _children) child.MarkInheritedLayoutDirectionDirty();
         }
 
+        internal void MarkThemeDirty()
+        {
+            _layoutDirty = true;
+            foreach (var child in _children) child.MarkThemeDirty();
+        }
+
+        private void ThemeOverrideChanged(object sender, EventArgs args)
+        {
+            Context?.TextLayoutEngine.Clear();
+            MarkThemeDirty();
+            QueueLayout();
+        }
+
+        internal UIFont ResolveFont(UIFontSelection selection)
+        {
+            var themes = new List<Theme>();
+            for (var control = this; control != null; control = control.Parent)
+                if (control.ThemeOverride != null) themes.Add(control.ThemeOverride);
+            var inherited = new List<Theme>();
+            var effective = Context?.Theme;
+            for (var index = themes.Count - 1; index >= 0; index--)
+            {
+                var theme = themes[index];
+                if (theme.Parent == null && effective != null) { theme.SetInheritedParent(effective); inherited.Add(theme); }
+                effective = theme;
+            }
+            try { return selection.Resolve(effective); }
+            finally
+            {
+                for (var index = inherited.Count - 1; index >= 0; index--) inherited[index].SetInheritedParent(null);
+            }
+        }
+
         internal void SetContext(UIContext context)
         {
             var previous = Context;
@@ -501,6 +577,7 @@ namespace Forma
         /// <summary>Notifies the focused control that a previously-pressed key was released. Purely additive over <see cref="KeyPressed"/>; most controls have no need to override it.</summary>
         internal virtual void KeyReleased(Keys key) { }
         internal virtual void TextInput(char character) { }
+        internal virtual void TextComposition(string text, int selectionStart, int selectionLength) { }
         /// <summary>Returns data to drag, or <see langword="null"/> to decline starting a drag.</summary>
         public virtual object GetDragData(Point position) => null;
         /// <summary>Returns whether this control accepts the supplied data at the screen position.</summary>

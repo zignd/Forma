@@ -14,12 +14,13 @@ namespace Forma
 {
     /// <summary>
     /// Owns a UI tree's input state, focus and rendering. Add it to a Game's update/draw loop, or use
-    /// <see cref="UIComponent"/> for the usual MonoGame component integration.
+    /// <see cref="UIComponent"/> for the usual game component integration.
     /// </summary>
     public sealed class UIContext : IDisposable
     {
         private readonly List<Control> _roots = new List<Control>();
         private readonly List<Control> _rootsInDrawOrder = new List<Control>();
+        private readonly UIFontSelection _tooltipFontSelection = new UIFontSelection();
         private MouseState _previousMouse;
         private KeyboardState _previousKeyboard;
         private Control _hovered;
@@ -32,12 +33,14 @@ namespace Forma
         private TimeSpan _tooltipElapsed;
         private Point _tooltipPointerPosition;
         private UIRenderContext _renderer;
+        private DefaultThemeIconResources _iconResources;
         private long _nextRootOrder;
         private bool _rootOrderDirty = true;
         private CultureInfo _applicationCulture = CultureInfo.CurrentUICulture;
         private CultureInfo _systemCulture = CultureInfo.CurrentCulture;
         private LayoutDirection _rootLayoutDirection = LayoutDirection.ApplicationLocale;
         private float _displayScale = 1f;
+        private Theme _theme;
         /// <summary>Most recently dispatched pointer position, available to retained controls that coordinate transient surfaces.</summary>
         public Point PointerPosition { get; private set; }
         /// <summary>Keyboard state for the input frame currently being dispatched, including modifier keys used by controls such as Tree.</summary>
@@ -45,9 +48,25 @@ namespace Forma
         /// <summary>Game time for the input frame currently being dispatched, used by retained multi-click gestures.</summary>
         public TimeSpan CurrentTime { get; private set; }
 
-        public UIContext() { Theme = new Theme(); }
+        public UIContext()
+        {
+            Theme = new Theme { FontFamily = UIFontDefaultRegistry.FontFamily };
+        }
         public IReadOnlyList<Control> Roots => _roots;
-        public Theme Theme { get; set; }
+        public Theme Theme
+        {
+            get => _theme;
+            set
+            {
+                value ??= new Theme();
+                if (ReferenceEquals(_theme, value)) return;
+                if (_theme != null) _theme.Changed -= ThemeChanged;
+                _theme = value;
+                _theme.Changed += ThemeChanged;
+                ThemeChanged(_theme, EventArgs.Empty);
+            }
+        }
+        public TextLayoutEngine TextLayoutEngine { get; } = new TextLayoutEngine();
         public Control FocusedControl { get; private set; }
         /// <summary>Whether retained touch-style interactions should be enabled for pointer input.</summary>
         public bool TouchscreenAvailable { get; set; }
@@ -60,10 +79,22 @@ namespace Forma
         public float DisplayScale
         {
             get => _displayScale;
-            set => _displayScale = float.IsFinite(value) && value > 0 ? value : throw new ArgumentOutOfRangeException(nameof(value));
+            set
+            {
+                if (!float.IsFinite(value) || value <= 0) throw new ArgumentOutOfRangeException(nameof(value));
+                if (_displayScale == value) return;
+                _displayScale = value;
+                ClearDynamicGlyphCache();
+            }
         }
         /// <summary>Optionally resolves a denser font atlas for the supplied logical font and display scale.</summary>
         public Func<SpriteFont, float, SpriteFont> DisplayFontResolver { get; set; }
+        /// <summary>Read-only diagnostics for this context's device-scoped dynamic glyph cache.</summary>
+        public DynamicGlyphCacheDiagnostics DynamicGlyphDiagnostics => _renderer?.DynamicGlyphDiagnostics ?? default;
+        /// <summary>Returns immutable grayscale snapshots of currently allocated glyph-atlas pages.</summary>
+        public IReadOnlyList<DynamicGlyphAtlasPageSnapshot> GetDynamicGlyphAtlasPages() => _renderer?.DynamicGlyphPages ?? Array.Empty<DynamicGlyphAtlasPageSnapshot>();
+        /// <summary>Clears device-scoped dynamic glyph pages between draw calls. Cumulative counters remain available.</summary>
+        public void ClearDynamicGlyphCache() => _renderer?.ClearDynamicGlyphCache();
         /// <summary>Application locale used by controls with <see cref="LayoutDirection.ApplicationLocale"/>.</summary>
         public CultureInfo ApplicationCulture
         {
@@ -85,7 +116,11 @@ namespace Forma
         /// <summary>Delay before hover help becomes visible. Defaults to Godot-like delayed presentation.</summary>
         public TimeSpan TooltipDelay { get; set; } = TimeSpan.FromMilliseconds(700);
         /// <summary>Font used when drawing tooltip text. Assign the same font used by the application UI.</summary>
-        public SpriteFont TooltipFont { get; set; }
+        public SpriteFont TooltipFont { get => _tooltipFontSelection.SpriteFont; set => _tooltipFontSelection.SetSpriteFont(value); }
+        public UIFont TooltipUIFont { get => _tooltipFontSelection.UIFont; set => _tooltipFontSelection.SetUIFont(value); }
+        internal UIFont EffectiveTooltipUIFont => _tooltipFontSelection.Resolve(Theme);
+        /// <summary>Current default icon-atlas resource and lookup counters.</summary>
+        public ThemeIconDiagnostics ThemeIconDiagnostics => _iconResources?.Diagnostics ?? default;
         public Thickness TooltipPadding { get; set; } = new Thickness(7, 4, 7, 4);
         public Vector2 TooltipOffset { get; set; } = new Vector2(14, 18);
         public bool IsTooltipVisible { get; private set; }
@@ -94,6 +129,11 @@ namespace Forma
         internal event Action<Control, Point> RetainedPointerPressed;
         internal event Action<Control, Point, Vector2> RetainedPointerMoved;
         internal event Action<Control, Point> RetainedPointerReleased;
+        private void ThemeChanged(object sender, EventArgs args)
+        {
+            TextLayoutEngine.Clear();
+            foreach (var root in _roots) root.MarkThemeDirty();
+        }
 
         public void Add(Control control)
         {
@@ -135,7 +175,7 @@ namespace Forma
             Layout();
             CurrentKeyboardState = keyboard;
             CurrentTime = gameTime?.TotalGameTime ?? TimeSpan.Zero;
-            var point = mouse.Position;
+            var point = mouse.GetPosition();
             PointerPosition = point;
             var modalPopup = GetActiveModalPopup();
             var target = modalPopup == null ? HitTest(point) : HitTest(modalPopup, point);
@@ -162,7 +202,7 @@ namespace Forma
                 RetainedPointerPressed?.Invoke(target, point);
             }
             DispatchPointerButtonTransitions(target, point, mouse, _previousMouse);
-            if (mouse.Position != _previousMouse.Position)
+            if (mouse.GetPosition() != _previousMouse.GetPosition())
             {
                 var motionTarget = _captured ?? target;
                 if (motionTarget != null)
@@ -223,6 +263,12 @@ namespace Forma
         public void Draw(GraphicsDevice graphicsDevice)
         {
             if (graphicsDevice == null) throw new ArgumentNullException(nameof(graphicsDevice));
+            if (_iconResources == null || !ReferenceEquals(_iconResources.GraphicsDevice, graphicsDevice))
+            {
+                _iconResources?.Dispose();
+                _iconResources = new DefaultThemeIconResources(graphicsDevice);
+            }
+            _iconResources.Ensure(DisplayScale);
             Layout();
             if (_renderer == null || _renderer.GraphicsDevice != graphicsDevice)
             {
@@ -232,6 +278,7 @@ namespace Forma
             _renderer.Theme = Theme;
             _renderer.DisplayScale = DisplayScale;
             _renderer.DisplayFontResolver = DisplayFontResolver;
+            _renderer.TextLayoutEngine = TextLayoutEngine;
             _renderer.Begin();
             try
             {
@@ -386,6 +433,10 @@ namespace Forma
             if (!char.IsControl(character)) FocusedControl?.TextInput(character);
         }
 
+        /// <summary>Forwards platform IME preedit text and its selected range to the focused control.</summary>
+        public void TextComposition(string text, int selectionStart = 0, int selectionLength = 0) =>
+            FocusedControl?.TextComposition(text ?? string.Empty, selectionStart, selectionLength);
+
         private void UpdateDrag(Point point)
         {
             if (_dragSource == null)
@@ -465,10 +516,11 @@ namespace Forma
 
         private void DrawTooltip(UIRenderContext context)
         {
-            if (!IsTooltipVisible || string.IsNullOrEmpty(_tooltipText) || TooltipFont == null) return;
-            var textSize = TooltipFont.MeasureString(_tooltipText);
+            var font = EffectiveTooltipUIFont;
+            if (!IsTooltipVisible || string.IsNullOrEmpty(_tooltipText) || font == null) return;
+            var textSize = TextMetrics.Measure(font, _tooltipText);
             var width = (int)MathF.Ceiling(textSize.X + TooltipPadding.Horizontal);
-            var height = (int)MathF.Ceiling(Math.Max(TooltipFont.LineSpacing, textSize.Y) + TooltipPadding.Vertical);
+            var height = (int)MathF.Ceiling(Math.Max(TextMetrics.LineHeight(font), textSize.Y) + TooltipPadding.Vertical);
             var position = _tooltipPointerPosition.ToVector2() + TooltipOffset;
             var viewport = context.GraphicsDevice.Viewport.Bounds;
             position.X = MathHelper.Clamp(position.X, viewport.Left, Math.Max(viewport.Left, viewport.Right - width));
@@ -477,7 +529,7 @@ namespace Forma
             var style = Theme.GetStyleBox("panel", "TooltipPanel");
             if (style != null) style.Draw(context, bounds);
             else { context.FillRounded(bounds, Theme.PanelColor, 3); context.Border(bounds, Theme.PanelBorderColor); }
-            context.Text(TooltipFont, _tooltipText, position + new Vector2(TooltipPadding.Left, TooltipPadding.Top), Theme.TextColor);
+            context.Text(font, _tooltipText, position + new Vector2(TooltipPadding.Left, TooltipPadding.Top), Theme.TextColor);
         }
 
         private static void CollectFocusable(Control control, List<Control> result)
@@ -487,6 +539,13 @@ namespace Forma
         }
 
         internal void MarkRootOrderDirty() => _rootOrderDirty = true;
+        internal bool TryGetDefaultThemeIcon(string itemName, IEnumerable<string> typeNames, out ThemeIcon? icon)
+        {
+            if (_iconResources != null && _iconResources.Theme.TryGetIcon(itemName, typeNames, out icon)) return true;
+            _iconResources?.RecordMissing(itemName);
+            icon = null;
+            return false;
+        }
         internal bool ResolveLayoutDirection(LayoutDirection direction)
         {
             if (direction == LayoutDirection.RightToLeft) return true;
@@ -516,16 +575,25 @@ namespace Forma
             return _rootsInDrawOrder;
         }
 
-        public void Dispose() { _renderer?.Dispose(); _renderer = null; }
+        public void Dispose()
+        {
+            _renderer?.Dispose();
+            _renderer = null;
+            _iconResources?.Dispose();
+            _iconResources = null;
+            TextLayoutEngine.Clear();
+        }
     }
 
-    /// <summary>Connects a <see cref="UIContext"/> to a MonoGame <see cref="Game"/>.</summary>
+    /// <summary>Connects a <see cref="UIContext"/> to an XNA-compatible <see cref="Game"/>.</summary>
     public sealed class UIComponent : DrawableGameComponent
     {
+        private readonly RuntimeTextInputAdapter _textInput;
+
         public UIComponent(Game game, UIContext context = null) : base(game)
         {
             Context = context ?? new UIContext();
-            game.Window.TextInput += OnTextInput;
+            _textInput = new RuntimeTextInputAdapter(game, Context.TextInput);
         }
         public UIContext Context { get; }
         public override void Update(GameTime gameTime)
@@ -534,13 +602,9 @@ namespace Forma
             Context.Update(gameTime);
         }
         public override void Draw(GameTime gameTime) => Context.Draw(GraphicsDevice);
-        private void OnTextInput(object sender, TextInputEventArgs e)
-        {
-            Context.TextInput(e.Character);
-        }
         protected override void Dispose(bool disposing)
         {
-            if (disposing) { Game.Window.TextInput -= OnTextInput; Context.Dispose(); }
+            if (disposing) { _textInput.Dispose(); Context.Dispose(); }
             base.Dispose(disposing);
         }
     }

@@ -19,23 +19,9 @@
 /processorParam:TextureFormat=Color
 /build:../../../tests/Assets/Fonts/Catalog.spritefont;Fonts/Catalog
 
-#begin ../../../tests/Assets/Fonts/Catalog@2x.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:../../../tests/Assets/Fonts/Catalog@2x.spritefont;Fonts/Catalog@2x
-
 #begin ../../../tests/Assets/Fonts/CatalogCode.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Color
 /build:../../../tests/Assets/Fonts/CatalogCode.spritefont;Fonts/CatalogCode
-
-#begin ../../../tests/Assets/Fonts/CatalogCode@2x.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:../../../tests/Assets/Fonts/CatalogCode@2x.spritefont;Fonts/CatalogCode@2x

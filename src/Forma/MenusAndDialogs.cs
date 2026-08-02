@@ -126,6 +126,7 @@ namespace Forma
     /// <summary>A keyboard-focusable command popup with normal, check, radio and separator entries.</summary>
     public sealed class PopupMenu : Popup
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private readonly List<PopupMenuItem> _items = new List<PopupMenuItem>();
         private int _highlighted = -1;
         private int _activeSubmenuIndex = -1;
@@ -152,7 +153,9 @@ namespace Forma
         }
         public IReadOnlyList<PopupMenuItem> Items => _items;
         public PopupMenuItems ItemsControl { get; }
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public float ItemHeight { get; set; } = 24;
         public TimeSpan SubmenuPopupDelay { get; set; } = TimeSpan.FromMilliseconds(200);
         public bool HideOnItemSelection { get; set; } = true;
@@ -997,24 +1000,26 @@ namespace Forma
                 var searchRect = GetSearchBarBounds();
                 context.Fill(searchRect, context.Theme.BackgroundColor);
                 context.Border(searchRect, _searchBarFocused ? context.Theme.FocusColor : context.Theme.PanelBorderColor);
-                if (Font != null)
+                if (EffectiveUIFont != null)
                 {
                     var text = string.IsNullOrEmpty(_searchBarText) ? "Search" : _searchBarText;
                     var color = string.IsNullOrEmpty(_searchBarText) ? context.Theme.DisabledTextColor : context.Theme.TextColor;
-                    var textPosition = new Vector2(searchRect.X + 8, searchRect.Y + Math.Max(2, (searchRect.Height - Font.LineSpacing) / 2));
-                    context.Text(Font, text, textPosition, color);
+                    var textPosition = new Vector2(searchRect.X + 8, searchRect.Y + Math.Max(2, (searchRect.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2));
+                    context.Text(EffectiveUIFont, text, textPosition, color);
                     if (_searchBarFocused)
                     {
-                        var prefix = _searchBarText.Substring(0, Math.Min(_searchBarCaretColumn, _searchBarText.Length));
-                        var caretX = textPosition.X + (string.IsNullOrEmpty(prefix) ? 0 : Font.MeasureString(prefix).X);
+                        var layout = TextMetrics.Layout(EffectiveUIFont, _searchBarText);
+                        var caretX = textPosition.X + layout.GetCaretPosition(Math.Min(_searchBarCaretColumn, _searchBarText.Length)).X;
                         context.Fill(new Rectangle((int)MathF.Round(caretX), searchRect.Y + 4, 1, Math.Max(4, searchRect.Height - 8)), context.Theme.FocusColor);
                     }
                     if (!string.IsNullOrEmpty(_searchBarText))
                     {
-                        var clear = "×";
-                        var clearSize = Font.MeasureString(clear);
                         var clearBounds = GetSearchBarClearButtonBounds();
-                        context.Text(Font, clear, new Vector2(clearBounds.X + Math.Max(0, (clearBounds.Width - clearSize.X) / 2), searchRect.Y + Math.Max(2, (searchRect.Height - Font.LineSpacing) / 2)), context.Theme.DisabledTextColor);
+                        var clearIcon = GetThemeIcon("clear");
+                        if (clearIcon.HasValue)
+                            context.Icon(clearIcon.Value, new Vector2(
+                                clearBounds.Center.X - clearIcon.Value.LogicalSize.X / 2,
+                                clearBounds.Center.Y - clearIcon.Value.LogicalSize.Y / 2), context.Theme.DisabledTextColor);
                     }
                 }
                 y += (int)SearchBarContentHeight;
@@ -1038,8 +1043,10 @@ namespace Forma
                     if (index == _highlighted) context.Fill(rect, context.Theme.HoverColor);
                     if (item.CheckableType != PopupMenuCheckableType.None)
                     {
-                        if (item.Indeterminate) context.Fill(new Rectangle(rect.X + 5, rect.Y + 11, 10, 2), context.Theme.AccentColor);
-                        else if (item.Checked) context.Fill(new Rectangle(rect.X + 5, rect.Y + 7, 10, 10), context.Theme.AccentColor);
+                        var state = item.Indeterminate ? "indeterminate" : item.CheckableType == PopupMenuCheckableType.Radio ? (item.Checked ? "radio_checked" : "radio_unchecked") : item.Checked ? "checked" : "unchecked";
+                        if (item.Disabled) state += "_disabled";
+                        var stateIcon = GetThemeIcon(state);
+                        if (stateIcon.HasValue) context.Icon(stateIcon.Value, new Vector2(rect.X + 4, rect.Center.Y - stateIcon.Value.LogicalSize.Y / 2), Color.White);
                     }
                     var contentX = rect.X + 22 + item.Indent * 16;
                     if (item.Icon != null)
@@ -1054,15 +1061,18 @@ namespace Forma
                         context.SpriteBatch.Draw(item.Icon, iconRect, item.Disabled ? context.Theme.DisabledTextColor : item.IconModulate);
                         contentX = iconRect.Right + 4;
                     }
-                    if (Font != null) context.Text(Font, item.Text, new Vector2(contentX, rect.Y + Math.Max(2, (ItemHeight - Font.LineSpacing) / 2)), item.Disabled ? context.Theme.DisabledTextColor : context.Theme.TextColor);
+                    if (EffectiveUIFont != null) context.Text(EffectiveUIFont, item.Text, new Vector2(contentX, rect.Y + Math.Max(2, (ItemHeight - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), item.Disabled ? context.Theme.DisabledTextColor : context.Theme.TextColor);
                     var shortcutText = item.Accelerator?.DisplayText ?? item.Shortcut?.DisplayText ?? (item.MaxStates > 0 ? $"{item.State}/{item.MaxStates - 1}" : string.Empty);
-                    if (Font != null && !string.IsNullOrEmpty(shortcutText))
+                    if (EffectiveUIFont != null && !string.IsNullOrEmpty(shortcutText))
                     {
-                        var textSize = Font.MeasureString(shortcutText);
-                        context.Text(Font, shortcutText, new Vector2(rect.Right - 18 - textSize.X, rect.Y + Math.Max(2, (ItemHeight - Font.LineSpacing) / 2)), item.Disabled ? context.Theme.DisabledTextColor : context.Theme.TextColor);
+                        var textSize = TextMetrics.Measure(EffectiveUIFont, shortcutText);
+                        context.Text(EffectiveUIFont, shortcutText, new Vector2(rect.Right - 18 - textSize.X, rect.Y + Math.Max(2, (ItemHeight - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), item.Disabled ? context.Theme.DisabledTextColor : context.Theme.TextColor);
                     }
-                    if (Font != null && item.Kind == PopupMenuItemKind.Submenu)
-                        context.Text(Font, IsLayoutRtl() ? "<" : ">", new Vector2(rect.Right - 14, rect.Y + Math.Max(2, (ItemHeight - Font.LineSpacing) / 2)), item.Disabled ? context.Theme.DisabledTextColor : context.Theme.TextColor);
+                    if (item.Kind == PopupMenuItemKind.Submenu)
+                    {
+                        var submenu = GetThemeIcon(IsLayoutRtl() ? "submenu_mirrored" : "submenu");
+                        if (submenu.HasValue) context.Icon(submenu.Value, new Vector2(rect.Right - 4 - submenu.Value.LogicalSize.X, rect.Center.Y - submenu.Value.LogicalSize.Y / 2), item.Disabled ? context.Theme.DisabledTextColor : Color.White);
+                    }
                     y += (int)ItemHeight;
                 }
             }
@@ -1182,6 +1192,7 @@ namespace Forma
     /// <summary>Popup dialog with explicit accepted/cancelled lifecycle events.</summary>
     public class AcceptDialog : PopupPanel
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private sealed class DialogButtonEntry
         {
             public Button Button;
@@ -1205,7 +1216,9 @@ namespace Forma
         }
         /// <summary>The fallback OK button text shown while no custom <see cref="OkText"/> override is set.</summary>
         protected string DefaultOkText { get => _defaultOkText; set => _defaultOkText = value ?? string.Empty; }
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public float ButtonHeight { get; set; } = 24;
         /// <summary>Matches Godot's dialog_hide_on_ok option. Confirmation still emits when disabled.</summary>
         public bool HideOnOk { get; set; } = true;
@@ -1317,10 +1330,10 @@ namespace Forma
             base.Draw(context);
             var titleHeight = Math.Min(28, Bounds.Height);
             context.Fill(new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, titleHeight), context.Theme.AccentColor);
-            if (Font != null)
+            if (EffectiveUIFont != null)
             {
-                context.Text(Font, Title, new Vector2(Bounds.X + 8, Bounds.Y + Math.Max(2, (titleHeight - Font.LineSpacing) / 2)), context.Theme.TextColor);
-                if (!string.IsNullOrEmpty(DialogText)) context.Text(Font, DialogText, new Vector2(Bounds.X + 10, Bounds.Y + titleHeight + 10), context.Theme.TextColor);
+                context.Text(EffectiveUIFont, Title, new Vector2(Bounds.X + 8, Bounds.Y + Math.Max(2, (titleHeight - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.TextColor);
+                if (!string.IsNullOrEmpty(DialogText)) context.Text(EffectiveUIFont, DialogText, new Vector2(Bounds.X + 10, Bounds.Y + titleHeight + 10), context.Theme.TextColor);
             }
             DrawAction(context, OkButtonBounds, OkText);
             if (HasCancelButton) DrawAction(context, CancelButtonBounds, CancelLabelText);
@@ -1331,13 +1344,13 @@ namespace Forma
         protected virtual Rectangle CancelButtonBounds => Rectangle.Empty;
         private int GetDialogButtonWidth(Button button)
         {
-            var textWidth = Font == null ? (button.Text?.Length ?? 0) * 8 : (int)MathF.Ceiling(Font.MeasureString(button.Text ?? string.Empty).X);
+            var textWidth = EffectiveUIFont == null ? (button.Text?.Length ?? 0) * 8 : (int)MathF.Ceiling(TextMetrics.Measure(EffectiveUIFont, button.Text ?? string.Empty).X);
             return Math.Max(60, textWidth + 16);
         }
         private void DrawAction(UIRenderContext context, Rectangle bounds, string text)
         {
             context.Fill(bounds, context.Theme.HoverColor); context.Border(bounds, context.Theme.PanelBorderColor);
-            if (Font != null) context.Text(Font, text, new Vector2(bounds.X + 8, bounds.Y + Math.Max(2, (bounds.Height - Font.LineSpacing) / 2)), context.Theme.TextColor);
+            if (EffectiveUIFont != null) context.Text(EffectiveUIFont, text, new Vector2(bounds.X + 8, bounds.Y + Math.Max(2, (bounds.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.TextColor);
         }
     }
 
@@ -1677,7 +1690,7 @@ namespace Forma
             var pathBounds = new Rectangle(Bounds.X + 8, Bounds.Y + 32, Math.Max(0, Bounds.Width - 16), 20);
             context.Fill(pathBounds, context.Theme.BackgroundColor);
             context.Border(pathBounds, context.Theme.PanelBorderColor);
-            if (Font != null) context.Text(Font, CurrentPath, new Vector2(pathBounds.X + 4, pathBounds.Y + Math.Max(1, (pathBounds.Height - Font.LineSpacing) / 2)), context.Theme.DisabledTextColor);
+            if (EffectiveUIFont != null) context.Text(EffectiveUIFont, CurrentPath, new Vector2(pathBounds.X + 4, pathBounds.Y + Math.Max(1, (pathBounds.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.DisabledTextColor);
             var entriesBounds = EntriesBounds;
             context.Fill(entriesBounds, context.Theme.BackgroundColor);
             context.Border(entriesBounds, context.Theme.PanelBorderColor);
@@ -1687,11 +1700,18 @@ namespace Forma
                 var row = new Rectangle(entriesBounds.X + 1, entriesBounds.Y + 1 + (int)(index * EntryHeight), Math.Max(0, entriesBounds.Width - 2), (int)EntryHeight);
                 if (row.Bottom > entriesBounds.Bottom) break;
                 if (_selectedFiles.Contains(entry)) context.Fill(row, context.Theme.AccentColor);
-                if (Font != null)
+                var isDirectory = Directory.Exists(entry);
+                var icon = GetThemeIcon(isDirectory ? "folder" : "file");
+                var textX = row.X + 4;
+                if (icon.HasValue)
                 {
-                    var isDirectory = Directory.Exists(entry);
-                    var label = (isDirectory ? "> " : "  ") + Path.GetFileName(entry);
-                    context.Text(Font, label, new Vector2(row.X + 4, row.Y + Math.Max(1, (row.Height - Font.LineSpacing) / 2)), context.Theme.TextColor);
+                    context.Icon(icon.Value, new Vector2(textX, row.Center.Y - icon.Value.LogicalSize.Y / 2), Color.White);
+                    textX += icon.Value.LogicalSize.X + 4;
+                }
+                if (EffectiveUIFont != null)
+                {
+                    var label = icon.HasValue ? Path.GetFileName(entry) : (isDirectory ? "> " : "  ") + Path.GetFileName(entry);
+                    context.Text(EffectiveUIFont, label, new Vector2(textX, row.Y + Math.Max(1, (row.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.TextColor);
                 }
             }
         }

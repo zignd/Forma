@@ -119,9 +119,17 @@ namespace Forma
             OnUpdateCache();
             Changed?.Invoke(this, EventArgs.Empty);
         }
+        internal void InvalidateFromLine(int line)
+        {
+            foreach (var cachedLine in new List<int>(_highlightingCache.Keys))
+                if (cachedLine >= line) _highlightingCache.Remove(cachedLine);
+            OnInvalidateFromLine(line);
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
         protected abstract IReadOnlyList<SyntaxHighlightSpan> GetLineSyntaxHighlightingCore(int line);
         protected virtual void OnClearHighlightingCache() { }
         protected virtual void OnUpdateCache() { }
+        protected virtual void OnInvalidateFromLine(int line) { }
         internal void SetTextEdit(TextEdit textEdit)
         {
             if (_textEdit == textEdit) return;
@@ -202,6 +210,11 @@ namespace Forma
         public void SetUIntSuffixEnabled(bool enabled) => UIntSuffixEnabled = enabled;
         public bool IsUIntSuffixEnabled() => UIntSuffixEnabled;
         protected override void OnClearHighlightingCache() => _colorRegionCache.Clear();
+        protected override void OnInvalidateFromLine(int line)
+        {
+            foreach (var cachedLine in new List<int>(_colorRegionCache.Keys))
+                if (cachedLine >= line) _colorRegionCache.Remove(cachedLine);
+        }
         protected override IReadOnlyList<SyntaxHighlightSpan> GetLineSyntaxHighlightingCore(int line)
         {
             var text = TextEdit.GetLine(line);
@@ -313,6 +326,7 @@ namespace Forma
     /// <summary>Single-line editable text. Call <see cref="InsertText"/> from the host window's text-input callback for IME-safe text entry.</summary>
     public class LineEdit : Control
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private string _text = string.Empty;
         private int _selectionAnchor = -1;
         private readonly List<string> _undoStack = new List<string>();
@@ -328,6 +342,12 @@ namespace Forma
         private int _textClickCount;
         private TimeSpan _lastTextClickTime = TimeSpan.MinValue;
         private Point _lastTextClickPosition;
+        private float _scrollOffset;
+        private string _imeComposition = string.Empty;
+        private int _imeSelectionStart;
+        private int _imeSelectionLength;
+        private int _imeReplaceStart;
+        private int _imeReplaceLength;
         private static readonly TimeSpan MultiClickTimeout = TimeSpan.FromMilliseconds(600);
         private const int MultiClickTolerance = 5;
         public LineEdit()
@@ -401,13 +421,23 @@ namespace Forma
         public StructuredTextParser StructuredTextBidiOverride { get; private set; } = StructuredTextParser.Default;
         /// <summary>Zero-based caret index in the underlying string.</summary>
         public int CaretColumn { get; protected set; }
+        public bool HasImeComposition => _imeComposition.Length > 0;
+        public string ImeCompositionText => _imeComposition;
+        public Point ImeCompositionSelection => new Point(_imeSelectionStart, _imeSelectionLength);
+        public float GetScrollOffset()
+        {
+            if (EffectiveUIFont != null) EnsureCaretVisible(GetEditingLayout(GetComposedDisplayText()), GetDisplayCaretColumn());
+            return _scrollOffset;
+        }
         public bool HasSelection => _selectionAnchor >= 0 && _selectionAnchor != CaretColumn;
         public int SelectionFrom => HasSelection ? Math.Min(_selectionAnchor, CaretColumn) : CaretColumn;
         public int SelectionTo => HasSelection ? Math.Max(_selectionAnchor, CaretColumn) : CaretColumn;
         public string SelectedText => HasSelection ? Text.Substring(SelectionFrom, SelectionTo - SelectionFrom) : string.Empty;
         public bool HasUndo => _undoStack.Count > 0;
         public bool HasRedo => _redoStack.Count > 0;
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public Thickness Padding { get; set; }
         /// <summary>Optional host callback used by <see cref="Paste()"/> to obtain platform clipboard text.</summary>
         public Func<LineEdit, string> ClipboardTextProvider { get; set; }
@@ -432,10 +462,18 @@ namespace Forma
         public void SetTextDirection(TextDirection direction)
         {
             if (!Enum.IsDefined(typeof(TextDirection), direction)) throw new ArgumentOutOfRangeException(nameof(direction));
+            if (TextDirection == direction) return;
             TextDirection = direction;
+            QueueLayout();
         }
         public TextDirection GetTextDirection() => TextDirection;
-        public void SetLanguage(string language) => Language = language ?? string.Empty;
+        public void SetLanguage(string language)
+        {
+            language ??= string.Empty;
+            if (Language == language) return;
+            Language = language;
+            QueueLayout();
+        }
         public string GetLanguage() => Language;
         public void SetDrawControlChars(bool enabled) => DrawControlCharacters = enabled;
         public bool GetDrawControlChars() => DrawControlCharacters;
@@ -470,6 +508,41 @@ namespace Forma
             }
             if (string.IsNullOrEmpty(text)) return;
             Text = Text.Insert(CaretColumn, text); CaretColumn += text.Length; Deselect();
+        }
+        public void SetImeComposition(string text, int selectionStart = 0, int selectionLength = 0)
+        {
+            text ??= string.Empty;
+            if (!HasImeComposition)
+            {
+                _imeReplaceStart = SelectionFrom;
+                _imeReplaceLength = SelectionTo - SelectionFrom;
+            }
+            _imeComposition = text;
+            _imeSelectionStart = MathHelper.Clamp(selectionStart, 0, text.Length);
+            _imeSelectionLength = MathHelper.Clamp(selectionLength, 0, text.Length - _imeSelectionStart);
+            if (text.Length == 0) CancelImeComposition();
+            QueueLayout();
+        }
+        public void CommitImeComposition(string text = null)
+        {
+            if (!HasImeComposition && string.IsNullOrEmpty(text)) return;
+            var committed = text ?? _imeComposition;
+            var start = HasImeComposition ? _imeReplaceStart : CaretColumn;
+            var length = HasImeComposition ? _imeReplaceLength : 0;
+            CancelImeComposition();
+            if (!Editable || string.IsNullOrEmpty(committed)) return;
+            Text = Text.Remove(start, length).Insert(start, committed);
+            CaretColumn = start + committed.Length;
+            Deselect();
+        }
+        public void CancelImeComposition()
+        {
+            _imeComposition = string.Empty;
+            _imeSelectionStart = 0;
+            _imeSelectionLength = 0;
+            _imeReplaceStart = CaretColumn;
+            _imeReplaceLength = 0;
+            QueueLayout();
         }
         public void Select(int from, int to)
         {
@@ -580,9 +653,10 @@ namespace Forma
                 case LineEditMenuOption.InsertSoftHyphen: InsertControlCharacter('\u00AD'); break;
             }
         }
-        public override Vector2 GetMinimumSize() => Vector2.Max(CustomMinimumSize, new Vector2(80, Font == null ? 24 : Font.LineSpacing + Padding.Vertical));
+        public override Vector2 GetMinimumSize() => Vector2.Max(CustomMinimumSize, new Vector2(80, EffectiveUIFont == null ? 24 : TextMetrics.LineHeight(EffectiveUIFont) + Padding.Vertical));
         internal override void PointerPressed(Point position)
         {
+            CancelImeComposition();
             var hadSelectionBeforeFocus = HasSelection;
             base.PointerPressed(position);
             var clear = GetClearButtonRectangle();
@@ -642,6 +716,12 @@ namespace Forma
         internal override void PointerRightPressed(Point position) => OpenContextMenu(position);
         internal override void KeyPressed(Keys key)
         {
+            if (HasImeComposition)
+            {
+                if (key == Keys.Escape) { CancelImeComposition(); return; }
+                if (key == Keys.Enter) { CommitImeComposition(); return; }
+                CancelImeComposition();
+            }
             if (key == Keys.Apps || key == Keys.F10 && HasShiftModifier()) { OpenContextMenu(new Point((int)GlobalPosition.X, (int)GlobalPosition.Y)); return; }
             if (ShortcutKeysEnabled && HasCommandModifier())
             {
@@ -658,12 +738,12 @@ namespace Forma
             if (key == Keys.Left)
             {
                 if (HasSelection && !shift) { CaretColumn = SelectionFrom; Deselect(); }
-                else { ShiftSelectionCheckPre(shift); CaretColumn = ctrl ? FindWordBoundaryLeft(CaretColumn) : Math.Max(0, CaretColumn - 1); }
+                else { ShiftSelectionCheckPre(shift); CaretColumn = ctrl ? FindWordBoundaryLeft(CaretColumn) : FindGraphemeBoundaryLeft(CaretColumn); }
             }
             else if (key == Keys.Right)
             {
                 if (HasSelection && !shift) { CaretColumn = SelectionTo; Deselect(); }
-                else { ShiftSelectionCheckPre(shift); CaretColumn = ctrl ? FindWordBoundaryRight(CaretColumn) : Math.Min(Text.Length, CaretColumn + 1); }
+                else { ShiftSelectionCheckPre(shift); CaretColumn = ctrl ? FindWordBoundaryRight(CaretColumn) : FindGraphemeBoundaryRight(CaretColumn); }
             }
             else if (key == Keys.Home) { ShiftSelectionCheckPre(shift); CaretColumn = 0; }
             else if (key == Keys.End) { ShiftSelectionCheckPre(shift); CaretColumn = Text.Length; }
@@ -671,49 +751,41 @@ namespace Forma
             {
                 if (HasSelection) DeleteSelection();
                 else if (ctrl) { var start = FindWordBoundaryLeft(CaretColumn); if (start < CaretColumn) DeleteText(start, CaretColumn); }
-                else if (CaretColumn > 0) DeleteText(CaretColumn - 1, CaretColumn);
+                else if (CaretColumn > 0) DeleteText(FindGraphemeBoundaryLeft(CaretColumn), CaretColumn);
             }
             else if (key == Keys.Delete)
             {
                 if (HasSelection) DeleteSelection();
                 else if (ctrl) { var end = FindWordBoundaryRight(CaretColumn); if (end > CaretColumn) DeleteText(CaretColumn, end); }
-                else if (CaretColumn < Text.Length) DeleteText(CaretColumn, CaretColumn + 1);
+                else if (CaretColumn < Text.Length) DeleteText(CaretColumn, FindGraphemeBoundaryRight(CaretColumn));
             }
             else if (key == Keys.Enter) TextSubmitted?.Invoke(this, EventArgs.Empty);
         }
-        /// <summary>Approximates Godot's word-break TextServer lookup (used by _move_caret_left/right's
-        /// p_word path) via char-class transitions, since this port has no text-shaping service.</summary>
+        private int FindGraphemeBoundaryLeft(int from) => EffectiveUIFont == null ? Math.Max(0, from - 1) : GetEditingLayout().GetPreviousGraphemeBoundary(from);
+        private int FindGraphemeBoundaryRight(int from) => EffectiveUIFont == null ? Math.Min(Text.Length, from + 1) : GetEditingLayout().GetNextGraphemeBoundary(from);
         private int FindWordBoundaryLeft(int from)
         {
-            var i = from;
-            while (i > 0 && char.IsWhiteSpace(Text[i - 1])) i--;
-            if (i > 0)
-            {
-                var isWord = IsWordChar(Text[i - 1]);
-                while (i > 0 && !char.IsWhiteSpace(Text[i - 1]) && IsWordChar(Text[i - 1]) == isWord) i--;
-            }
-            return i;
+            if (EffectiveUIFont != null) return GetEditingLayout().GetPreviousWordBoundary(from);
+            if (from > 0) from--;
+            while (from > 0 && !IsWordChar(Text[from])) from--;
+            while (from > 0 && IsWordChar(Text[from - 1])) from--;
+            return from;
         }
         private int FindWordBoundaryRight(int from)
         {
-            var i = from;
-            while (i < Text.Length && char.IsWhiteSpace(Text[i])) i++;
-            if (i < Text.Length)
-            {
-                var isWord = IsWordChar(Text[i]);
-                while (i < Text.Length && !char.IsWhiteSpace(Text[i]) && IsWordChar(Text[i]) == isWord) i++;
-            }
-            return i;
+            if (EffectiveUIFont != null) return GetEditingLayout().GetNextWordBoundary(from);
+            while (from < Text.Length && !IsWordChar(Text[from])) from++;
+            while (from < Text.Length && IsWordChar(Text[from])) from++;
+            return from;
         }
         private static bool IsWordChar(char c) => char.IsLetterOrDigit(c) || c == '_';
         private int GetCaretColumnAtPosition(Point position)
         {
-            if (Font == null) return Text.Length;
-            var localX = position.X - GlobalPosition.X - Padding.Left;
-            var best = 0;
-            for (var i = 1; i <= Text.Length; i++)
-                if (Font.MeasureString(Text.Substring(0, i)).X <= localX) best = i;
-            return best;
+            if (EffectiveUIFont == null) return Text.Length;
+            var layout = GetEditingLayout();
+            EnsureCaretVisible(layout);
+            var localX = position.X - GlobalPosition.X - Padding.Left + _scrollOffset;
+            return layout.HitTest(new Vector2(localX, 0));
         }
         private void SelectPointerRange(int column)
         {
@@ -731,14 +803,8 @@ namespace Forma
         private Point GetWordRange(int column)
         {
             if (string.IsNullOrEmpty(Text)) return Point.Zero;
-            var index = Math.Min(Math.Max(0, column), Text.Length - 1);
-            if (char.IsWhiteSpace(Text[index])) return new Point(column, column);
-            var wordCharacter = IsWordChar(Text[index]);
-            var start = index;
-            var end = index + 1;
-            while (start > 0 && !char.IsWhiteSpace(Text[start - 1]) && IsWordChar(Text[start - 1]) == wordCharacter) start--;
-            while (end < Text.Length && !char.IsWhiteSpace(Text[end]) && IsWordChar(Text[end]) == wordCharacter) end++;
-            return new Point(start, end);
+            var range = GetEditingLayout().GetWordBoundary(Math.Min(Math.Max(0, column), Text.Length));
+            return new Point(range.Start, range.End);
         }
         /// <summary>Marks the selection anchor at the current caret before a caret-movement key, matching
         /// Godot's LineEdit::shift_selection_check_pre - the resulting selection range is then implicit
@@ -748,7 +814,12 @@ namespace Forma
             if (!HasSelection && shiftHeld) _selectionAnchor = CaretColumn;
             if (!shiftHeld) Deselect();
         }
-        internal override void TextInput(char character) => InsertText(character.ToString());
+        internal override void TextInput(char character)
+        {
+            if (HasImeComposition) CommitImeComposition(character.ToString());
+            else InsertText(character.ToString());
+        }
+        internal override void TextComposition(string text, int selectionStart, int selectionLength) => SetImeComposition(text, selectionStart, selectionLength);
         internal override void FocusGained()
         {
             base.FocusGained();
@@ -756,6 +827,7 @@ namespace Forma
         }
         internal override void FocusLost()
         {
+            CancelImeComposition();
             if (DeselectOnFocusLoss) Deselect();
             if (SubmitOnFocusExit) TextSubmitted?.Invoke(this, EventArgs.Empty);
             base.FocusLost();
@@ -786,13 +858,13 @@ namespace Forma
         private void OpenContextMenu(Point position)
         {
             if (!ContextMenuEnabled || Context == null) return;
-            _contextMenu.Clear(); _contextMenu.Font = Font;
-            _directionMenu.Clear(); _directionMenu.Font = Font;
+            _contextMenu.Clear(); _contextMenu.Font = Font; _contextMenu.UIFont = UIFont;
+            _directionMenu.Clear(); _directionMenu.Font = Font; _directionMenu.UIFont = UIFont;
             _directionMenu.AddRadioCheckItem("Same as Layout Direction", (int)LineEditMenuOption.DirectionInherited).Checked = TextDirection == TextDirection.Inherited;
             _directionMenu.AddRadioCheckItem("Auto-Detect Direction", (int)LineEditMenuOption.DirectionAuto).Checked = TextDirection == TextDirection.Auto;
             _directionMenu.AddRadioCheckItem("Left-to-Right", (int)LineEditMenuOption.DirectionLeftToRight).Checked = TextDirection == TextDirection.LeftToRight;
             _directionMenu.AddRadioCheckItem("Right-to-Left", (int)LineEditMenuOption.DirectionRightToLeft).Checked = TextDirection == TextDirection.RightToLeft;
-            _controlCharacterMenu.Clear(); _controlCharacterMenu.Font = Font;
+            _controlCharacterMenu.Clear(); _controlCharacterMenu.Font = Font; _controlCharacterMenu.UIFont = UIFont;
             _controlCharacterMenu.AddItem("Left-to-Right Mark (LRM)", (int)LineEditMenuOption.InsertLeftToRightMark);
             _controlCharacterMenu.AddItem("Right-to-Left Mark (RLM)", (int)LineEditMenuOption.InsertRightToLeftMark);
             _controlCharacterMenu.AddItem("Start of Left-to-Right Embedding (LRE)", (int)LineEditMenuOption.InsertLeftToRightEmbedding);
@@ -831,34 +903,78 @@ namespace Forma
         internal override void Draw(UIRenderContext context)
         {
             context.Fill(Bounds, context.Theme.BackgroundColor); context.Border(Bounds, Context?.FocusedControl == this ? context.Theme.FocusColor : context.Theme.PanelBorderColor);
-            if (Font != null)
+            if (EffectiveUIFont != null)
             {
-                var shown = string.IsNullOrEmpty(Text) ? PlaceholderText : string.IsNullOrEmpty(SecretCharacter) ? Text : new string(SecretCharacter[0], Text.Length);
-                context.Text(Font, shown, GlobalPosition + new Vector2(Padding.Left, Padding.Top), string.IsNullOrEmpty(Text) ? context.Theme.DisabledTextColor : context.Theme.TextColor);
-                if (Context?.FocusedControl == this)
+                var shown = string.IsNullOrEmpty(Text) && !HasImeComposition ? PlaceholderText : string.IsNullOrEmpty(SecretCharacter) ? GetComposedDisplayText() : new string(SecretCharacter[0], Text.Length);
+                var layout = GetEditingLayout(shown);
+                if (string.IsNullOrEmpty(Text) && !HasImeComposition) _scrollOffset = 0;
+                else EnsureCaretVisible(layout, GetDisplayCaretColumn());
+                var viewport = GetTextViewport();
+                var origin = GlobalPosition + new Vector2(Padding.Left - _scrollOffset, Padding.Top);
+                context.PushClip(viewport);
+                try
                 {
-                    var before = string.IsNullOrEmpty(SecretCharacter) ? Text.Substring(0, CaretColumn) : new string(SecretCharacter[0], CaretColumn);
-                    var caretX = GlobalPosition.X + Padding.Left + Font.MeasureString(before).X;
-                    context.Fill(new Rectangle((int)caretX, (int)(GlobalPosition.Y + Padding.Top), 1, Math.Max(1, Font.LineSpacing)), context.Theme.FocusColor);
+                    if (HasSelection && !HasImeComposition && string.IsNullOrEmpty(SecretCharacter) && !string.IsNullOrEmpty(Text))
+                        foreach (var rectangle in layout.GetSelectionRectangles(SelectionFrom, SelectionTo - SelectionFrom))
+                            context.Fill(new Rectangle(
+                                (int)MathF.Floor(origin.X + rectangle.X),
+                                (int)MathF.Floor(origin.Y + rectangle.Y),
+                                Math.Max(1, (int)MathF.Ceiling(rectangle.Width)),
+                                Math.Max(1, (int)MathF.Ceiling(rectangle.Height))), context.Theme.AccentColor.WithAlpha(96));
+                    if (HasImeComposition && string.IsNullOrEmpty(SecretCharacter))
+                        foreach (var rectangle in layout.GetSelectionRectangles(_imeReplaceStart, _imeComposition.Length))
+                            context.Fill(new Rectangle(
+                                (int)MathF.Floor(origin.X + rectangle.X),
+                                (int)MathF.Floor(origin.Y + rectangle.Bottom - 1),
+                                Math.Max(1, (int)MathF.Ceiling(rectangle.Width)),
+                                1), context.Theme.FocusColor);
+                    context.Text(layout, origin, string.IsNullOrEmpty(Text) ? context.Theme.DisabledTextColor : context.Theme.TextColor);
+                    if (Context?.FocusedControl == this)
+                    {
+                        var caret = layout.GetCaretPosition(Math.Min(GetDisplayCaretColumn(), layout.Text.Length));
+                        context.Fill(new Rectangle((int)MathF.Round(origin.X + caret.X), (int)MathF.Round(origin.Y + caret.Y), 1, Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont))), context.Theme.FocusColor);
+                    }
                 }
-                if (HasSelection && string.IsNullOrEmpty(SecretCharacter))
-                {
-                    var before = Font.MeasureString(Text.Substring(0, SelectionFrom)).X;
-                    var selected = Font.MeasureString(SelectedText).X;
-                    context.Fill(new Rectangle((int)(GlobalPosition.X + Padding.Left + before), (int)(GlobalPosition.Y + Padding.Top), Math.Max(1, (int)selected), Math.Max(1, Font.LineSpacing)), new Color(context.Theme.AccentColor, (byte)96));
-                    context.Text(Font, SelectedText, GlobalPosition + new Vector2(Padding.Left + before, Padding.Top), context.Theme.TextColor);
-                }
+                finally { context.PopClip(); }
             }
             var clear = GetClearButtonRectangle();
-            if (!clear.IsEmpty)
+            var clearIcon = GetThemeIcon("clear");
+            if (!clear.IsEmpty && clearIcon.HasValue)
             {
-                for (var i = 3; i < clear.Width - 3; i++)
-                {
-                    context.Fill(new Rectangle(Bounds.X + clear.X + i, Bounds.Y + clear.Y + i, 1, 1), context.Theme.DisabledTextColor);
-                    context.Fill(new Rectangle(Bounds.X + clear.X + clear.Width - 1 - i, Bounds.Y + clear.Y + i, 1, 1), context.Theme.DisabledTextColor);
-                }
+                var x = Bounds.X + clear.Center.X - clearIcon.Value.LogicalSize.X / 2;
+                var y = Bounds.Y + clear.Center.Y - clearIcon.Value.LogicalSize.Y / 2;
+                context.Icon(clearIcon.Value, new Vector2(x, y), Enabled ? Color.White : context.Theme.DisabledTextColor);
             }
             DrawChildControls(context);
+        }
+        internal TextLayout GetEditingLayout(string text = null)
+        {
+            text ??= Text;
+            if (EffectiveUIFont == null) throw new InvalidOperationException("A font is required for text layout.");
+            var direction = TextDirection == TextDirection.Inherited ? TextDirection.Auto : TextDirection;
+            return TextMetrics.Layout(EffectiveUIFont, text, new TextLayoutOptions(direction: direction, locale: Language));
+        }
+        private Rectangle GetTextViewport()
+        {
+            var clear = GetClearButtonRectangle();
+            var right = clear.IsEmpty ? Size.X - Padding.Right : clear.X - 2;
+            return new Rectangle((int)MathF.Round(GlobalPosition.X + Padding.Left), (int)MathF.Round(GlobalPosition.Y + Padding.Top), Math.Max(0, (int)MathF.Floor(right - Padding.Left)), Math.Max(0, (int)MathF.Floor(Size.Y - Padding.Vertical)));
+        }
+        private string GetComposedDisplayText() => HasImeComposition
+            ? Text.Remove(_imeReplaceStart, _imeReplaceLength).Insert(_imeReplaceStart, _imeComposition)
+            : Text;
+        private int GetDisplayCaretColumn() => HasImeComposition
+            ? _imeReplaceStart + _imeSelectionStart + _imeSelectionLength
+            : CaretColumn;
+        private void EnsureCaretVisible(TextLayout layout, int? displayCaretColumn = null)
+        {
+            if (string.IsNullOrEmpty(Text) && !HasImeComposition) { _scrollOffset = 0; return; }
+            var viewportWidth = GetTextViewport().Width;
+            if (viewportWidth <= 0) { _scrollOffset = 0; return; }
+            var caretX = layout.GetCaretPosition(Math.Min(displayCaretColumn ?? CaretColumn, layout.Text.Length)).X;
+            if (caretX < _scrollOffset) _scrollOffset = caretX;
+            else if (caretX > _scrollOffset + viewportWidth - 1) _scrollOffset = caretX - viewportWidth + 1;
+            _scrollOffset = MathHelper.Clamp(_scrollOffset, 0, Math.Max(0, layout.Size.X - viewportWidth + 1));
         }
         protected void DrawChildControls(UIRenderContext context) => base.Draw(context);
     }
@@ -878,8 +994,13 @@ namespace Forma
         private TextEditLineWrappingMode _lineWrappingMode;
         private int _wrapAtColumn;
         private string _wrapLayoutText = null;
-        private int _wrapLayoutColumn = -1;
+        private float _wrapLayoutWidth = -1;
+        private UIFontIdentity _wrapLayoutFontIdentity;
+        private float _wrapLayoutFontSize;
+        private string _wrapLayoutLanguage = string.Empty;
+        private TextDirection _wrapLayoutDirection;
         private readonly Dictionary<int, List<TextEditWrapSegment>> _wrapLayoutCache = new Dictionary<int, List<TextEditWrapSegment>>();
+        internal int WrapLayoutBuildCount { get; private set; }
         private readonly List<SecondaryCaret> _secondaryCarets = new List<SecondaryCaret>();
         private readonly PopupMenu _contextMenu;
         private bool _multipleCaretsEnabled = true;
@@ -1102,18 +1223,26 @@ namespace Forma
         {
             if (caret < 0 || caret >= CaretCount) throw new ArgumentOutOfRangeException(nameof(caret));
             var rectangles = new List<Rectangle>(); if (!HasCaretSelection(caret)) return rectangles;
-            var from = GetSelectionFromIndex(caret); var to = GetSelectionToIndex(caret); var fromLine = GetLineForIndex(from); var toLine = GetLineForIndex(to); var lineHeight = Math.Max(1, Font?.LineSpacing ?? 16);
+            var from = GetSelectionFromIndex(caret); var to = GetSelectionToIndex(caret); var fromLine = GetLineForIndex(from); var toLine = GetLineForIndex(to); var lineHeight = EffectiveUIFont == null ? 16 : Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont));
             for (var line = fromLine; line <= toLine; line++)
             {
                 if (IsLineHiddenForDisplay(line)) continue;
                 var sourceStart = GetLineStart(line); var source = GetLine(line);
                 for (var wrap = 0; wrap <= GetLineWrapCount(line); wrap++)
                 {
-                    var segmentStart = sourceStart + GetLineWrapStartColumn(line, wrap); var segmentEnd = segmentStart + GetLineWrapLength(line, wrap);
+                    var localSegmentStart = GetLineWrapStartColumn(line, wrap); var segmentStart = sourceStart + localSegmentStart; var segmentLength = GetLineWrapLength(line, wrap); var segmentEnd = segmentStart + segmentLength;
                     var start = Math.Max(from, segmentStart); var end = Math.Min(to, segmentEnd); if (end <= start) continue;
-                    var prefix = source.Substring(GetLineWrapStartColumn(line, wrap), start - segmentStart); var selected = source.Substring(start - sourceStart, end - start);
-                    var x = GlobalPosition.X + Padding.Left + TextContentLeftInset + MeasureTextWidth(prefix); var y = GlobalPosition.Y + Padding.Top + GetVisibleRow(line, wrap) * lineHeight;
-                    rectangles.Add(new Rectangle((int)x, (int)y, Math.Max(1, (int)MathF.Ceiling(MeasureTextWidth(selected))), lineHeight));
+                    var x = GlobalPosition.X + Padding.Left + TextContentLeftInset; var y = GlobalPosition.Y + Padding.Top + GetVisibleRow(line, wrap) * lineHeight;
+                    if (EffectiveUIFont == null)
+                    {
+                        var prefix = source.Substring(localSegmentStart, start - segmentStart);
+                        var selected = source.Substring(start - sourceStart, end - start);
+                        rectangles.Add(new Rectangle((int)(x + MeasureTextWidth(prefix)), (int)y, Math.Max(1, (int)MathF.Ceiling(MeasureTextWidth(selected))), lineHeight));
+                        continue;
+                    }
+                    var layout = GetSegmentLayout(source, localSegmentStart, segmentLength);
+                    foreach (var rectangle in layout.GetSelectionRectangles(start - segmentStart, end - start))
+                        rectangles.Add(new Rectangle((int)MathF.Floor(x + rectangle.X), (int)MathF.Floor(y + rectangle.Y), Math.Max(1, (int)MathF.Ceiling(rectangle.Width)), Math.Max(1, (int)MathF.Ceiling(rectangle.Height))));
                 }
             }
             return rectangles;
@@ -1371,10 +1500,10 @@ namespace Forma
         public float GetLineWidth(int line, int wrapIndex = -1)
         {
             ValidateLine(line); var source = GetLine(line);
-            if (wrapIndex < 0) return Font?.MeasureString(source).X ?? source.Length * 8;
+            if (wrapIndex < 0) return EffectiveUIFont == null ? source.Length * 8 : TextMetrics.Measure(EffectiveUIFont, source).X;
             var segments = GetWrapSegments(line); if (wrapIndex >= segments.Count) throw new ArgumentOutOfRangeException(nameof(wrapIndex));
             var segment = segments[wrapIndex]; var text = source.Substring(segment.Start, segment.Length);
-            return Font?.MeasureString(text).X ?? text.Length * 8;
+            return EffectiveUIFont == null ? text.Length * 8 : TextMetrics.Measure(EffectiveUIFont, text).X;
         }
         public void AddGutter(int at = -1)
         {
@@ -1482,7 +1611,7 @@ namespace Forma
         public int GetLastFullVisibleLine() { GetLineAndWrapAtVisibleRow(Math.Max(0, GetVisibleLineCount() - 1), out var line, out _); return line; }
         public int GetLastFullVisibleLineWrapIndex() { GetLineAndWrapAtVisibleRow(Math.Max(0, GetVisibleLineCount() - 1), out _, out var wrapIndex); return wrapIndex; }
         /// <summary>Returns the visible line capacity of the current text viewport.</summary>
-        public int GetVisibleLineCount() => Font == null ? Math.Max(1, (int)(Size.Y / 16)) : Math.Max(1, (int)((Size.Y - Padding.Vertical) / Font.LineSpacing));
+        public int GetVisibleLineCount() => EffectiveUIFont == null ? Math.Max(1, (int)(Size.Y / 16)) : Math.Max(1, (int)((Size.Y - Padding.Vertical) / TextMetrics.LineHeight(EffectiveUIFont)));
         public int GetVisibleLineCountInRange(int fromLine, int toLine)
         {
             ValidateLine(fromLine); ValidateLine(toLine);
@@ -1520,18 +1649,17 @@ namespace Forma
         internal override void PointerPressed(Point position)
         {
             base.PointerPressed(position);
-            if (Font == null) return;
+            if (EffectiveUIFont == null) return;
             if (TryGetGutterAt(position, out var gutter))
             {
-                var gutterLine = GetLineAtVisibleRow((int)((position.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, Font.LineSpacing)));
+                var gutterLine = GetLineAtVisibleRow((int)((position.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont))));
                 if (_gutters[gutter].Clickable && IsLineGutterClickable(gutterLine, gutter)) GutterClicked?.Invoke(this, gutterLine, gutter);
                 return;
             }
-            GetLineAndWrapAtVisibleRow((int)((position.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, Font.LineSpacing)), out var line, out var wrapIndex);
+            GetLineAndWrapAtVisibleRow((int)((position.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont))), out var line, out var wrapIndex);
             var localX = position.X - GlobalPosition.X - Padding.Left - TextContentLeftInset;
             var source = GetLine(line); var segment = GetWrapSegments(line)[wrapIndex]; var text = source.Substring(segment.Start, segment.Length);
-            var column = segment.Start;
-            for (var i = 1; i <= text.Length; i++) if (Font.MeasureString(text.Substring(0, i)).X <= localX) column = segment.Start + i;
+            var column = segment.Start + GetSegmentLayout(source, segment.Start, segment.Length).HitTest(new Vector2(localX, 0));
             SetCaret(line, column);
         }
         internal override void PointerRightPressed(Point position) => OpenContextMenu(position);
@@ -1568,11 +1696,11 @@ namespace Forma
         {
             context.Fill(Bounds, context.Theme.BackgroundColor);
             context.Border(Bounds, Context?.FocusedControl == this ? context.Theme.FocusColor : context.Theme.PanelBorderColor);
-            if (Font != null)
+            if (EffectiveUIFont != null)
             {
                 var position = GlobalPosition + new Vector2(Padding.Left + TextContentLeftInset, Padding.Top);
                 DrawGutters(context);
-                for (var line = FirstVisibleLine; line >= 0 && line < LineCount && position.Y + Font.LineSpacing <= Bounds.Bottom; line++)
+                for (var line = FirstVisibleLine; line >= 0 && line < LineCount && position.Y + TextMetrics.LineHeight(EffectiveUIFont) <= Bounds.Bottom; line++)
                 {
                     if (IsLineHiddenForDisplay(line)) continue;
                     var source = GetLine(line);
@@ -1580,32 +1708,50 @@ namespace Forma
                     var firstWrap = line == FirstVisibleLine ? FirstVisibleLineWrapIndex : 0;
                     for (var wrapIndex = firstWrap; wrapIndex < segments.Count; wrapIndex++)
                     {
-                        if (position.Y + Font.LineSpacing > Bounds.Bottom) break;
+                        if (position.Y + TextMetrics.LineHeight(EffectiveUIFont) > Bounds.Bottom) break;
                         var segment = segments[wrapIndex];
-                        if (_lineBackgroundColors.TryGetValue(line, out var background)) context.Fill(new Rectangle(Bounds.X, (int)position.Y, Bounds.Width, Font.LineSpacing), background);
+                        if (_lineBackgroundColors.TryGetValue(line, out var background)) context.Fill(new Rectangle(Bounds.X, (int)position.Y, Bounds.Width, TextMetrics.LineHeight(EffectiveUIFont)), background);
                         var text = source.Substring(segment.Start, segment.Length);
                         DrawSelectionHighlights(context, line, segment.Start, segment.Length, position);
-                        context.Text(Font, text, position, context.Theme.TextColor);
+                        context.Text(EffectiveUIFont, text, position, context.Theme.TextColor);
                         DrawSyntaxHighlighting(context, line, source, segment.Start, segment.Length, position);
-                        position.Y += Font.LineSpacing;
+                        DrawControlCharacterIcons(context, source, segment.Start, segment.Length, position);
+                        position.Y += TextMetrics.LineHeight(EffectiveUIFont);
                     }
                 }
                 if (Context?.FocusedControl == this)
                 {
                     var wrapIndex = GetLineWrapIndexAtColumn(CaretLine, CaretColumnInLine); var segment = GetWrapSegments(CaretLine)[wrapIndex];
-                    var x = GlobalPosition.X + Padding.Left + TextContentLeftInset + Font.MeasureString(GetLine(CaretLine).Substring(segment.Start, CaretColumnInLine - segment.Start)).X;
-                    var y = GlobalPosition.Y + Padding.Top + GetVisibleRow(CaretLine, wrapIndex) * Font.LineSpacing;
-                    if (y >= Bounds.Top && y < Bounds.Bottom) context.Fill(new Rectangle((int)x, (int)y, 1, Math.Max(1, Font.LineSpacing)), context.Theme.FocusColor);
+                    var segmentLayout = GetSegmentLayout(GetLine(CaretLine), segment.Start, segment.Length);
+                    var x = GlobalPosition.X + Padding.Left + TextContentLeftInset + segmentLayout.GetCaretPosition(CaretColumnInLine - segment.Start).X;
+                    var y = GlobalPosition.Y + Padding.Top + GetVisibleRow(CaretLine, wrapIndex) * TextMetrics.LineHeight(EffectiveUIFont);
+                    if (y >= Bounds.Top && y < Bounds.Bottom) context.Fill(new Rectangle((int)x, (int)y, 1, Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont))), context.Theme.FocusColor);
                     for (var caret = 1; caret < CaretCount; caret++)
                     {
                         var line = GetCaretLine(caret); var column = GetCaretColumn(caret); var secondaryWrap = GetLineWrapIndexAtColumn(line, column); var secondarySegment = GetWrapSegments(line)[secondaryWrap];
-                        var secondaryX = GlobalPosition.X + Padding.Left + TextContentLeftInset + Font.MeasureString(GetLine(line).Substring(secondarySegment.Start, column - secondarySegment.Start)).X;
-                        var secondaryY = GlobalPosition.Y + Padding.Top + GetVisibleRow(line, secondaryWrap) * Font.LineSpacing;
-                        if (secondaryY >= Bounds.Top && secondaryY < Bounds.Bottom) context.Fill(new Rectangle((int)secondaryX, (int)secondaryY, 1, Math.Max(1, Font.LineSpacing)), context.Theme.FocusColor);
+                        var secondaryLayout = GetSegmentLayout(GetLine(line), secondarySegment.Start, secondarySegment.Length);
+                        var secondaryX = GlobalPosition.X + Padding.Left + TextContentLeftInset + secondaryLayout.GetCaretPosition(column - secondarySegment.Start).X;
+                        var secondaryY = GlobalPosition.Y + Padding.Top + GetVisibleRow(line, secondaryWrap) * TextMetrics.LineHeight(EffectiveUIFont);
+                        if (secondaryY >= Bounds.Top && secondaryY < Bounds.Bottom) context.Fill(new Rectangle((int)secondaryX, (int)secondaryY, 1, Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont))), context.Theme.FocusColor);
                     }
                 }
             }
             DrawChildControls(context);
+        }
+        private void DrawControlCharacterIcons(UIRenderContext context, string source, int start, int length, Vector2 position)
+        {
+            if (!DrawControlCharacters) return;
+            var layout = GetSegmentLayout(source, start, length);
+            for (var offset = 0; offset < length; offset++)
+            {
+                var name = source[start + offset] == '\t' ? "tab" : source[start + offset] == ' ' ? "space" : null;
+                if (name == null) continue;
+                var icon = GetThemeIcon(name);
+                if (!icon.HasValue) continue;
+                var x = position.X + layout.GetCaretPosition(offset).X;
+                var advance = layout.GetCaretPosition(offset + 1).X - layout.GetCaretPosition(offset).X;
+                context.Icon(icon.Value, new Vector2(x + (advance - icon.Value.LogicalSize.X) / 2, position.Y + (TextMetrics.LineHeight(EffectiveUIFont) - icon.Value.LogicalSize.Y) / 2), context.Theme.DisabledTextColor);
+            }
         }
         private int GetLineForIndex(int index)
         {
@@ -1636,7 +1782,7 @@ namespace Forma
         }
         private void DrawGutters(UIRenderContext context)
         {
-            if (_gutters.Count == 0 || Font == null) return;
+            if (_gutters.Count == 0 || EffectiveUIFont == null) return;
             var x = Bounds.X;
             for (var index = 0; index < _gutters.Count; index++)
             {
@@ -1644,7 +1790,7 @@ namespace Forma
                 var rect = new Rectangle(x, Bounds.Y, gutter.Width, Bounds.Height); context.Fill(rect, context.Theme.PanelColor); x += gutter.Width;
             }
             var y = Bounds.Y + Padding.Top;
-            for (var line = FirstVisibleLine; line >= 0 && line < LineCount && y + Font.LineSpacing <= Bounds.Bottom; line++)
+            for (var line = FirstVisibleLine; line >= 0 && line < LineCount && y + TextMetrics.LineHeight(EffectiveUIFont) <= Bounds.Bottom; line++)
             {
                 if (IsLineHiddenForDisplay(line)) continue;
                 var firstWrap = line == FirstVisibleLine ? FirstVisibleLineWrapIndex : 0;
@@ -1654,14 +1800,14 @@ namespace Forma
                 for (var index = 0; index < _gutters.Count; index++)
                 {
                     var gutter = _gutters[index]; if (!gutter.Draw) continue;
-                    var rect = new Rectangle(x, (int)y, gutter.Width, Font.LineSpacing); var item = GetLineGutterItem(line, index, false);
+                    var rect = new Rectangle(x, (int)y, gutter.Width, TextMetrics.LineHeight(EffectiveUIFont)); var item = GetLineGutterItem(line, index, false);
                     if (gutter.Type == TextEditGutterType.Custom) gutter.CustomDraw?.Invoke(context, this, line, rect);
-                    else if (gutter.Type == TextEditGutterType.Icon && item?.Icon != null) context.SpriteBatch.Draw(item.Icon, new Rectangle(rect.X + 2, rect.Y + 2, Math.Max(1, Math.Min(rect.Width - 4, Font.LineSpacing - 4)), Math.Max(1, Math.Min(rect.Height - 4, Font.LineSpacing - 4))), item.Color);
-                    else if (gutter.Type == TextEditGutterType.String && item != null) context.Text(Font, item.Text, new Vector2(rect.X + 2, rect.Y), item.Color);
+                    else if (gutter.Type == TextEditGutterType.Icon && item?.Icon != null) context.SpriteBatch.Draw(item.Icon, new Rectangle(rect.X + 2, rect.Y + 2, Math.Max(1, Math.Min(rect.Width - 4, TextMetrics.LineHeight(EffectiveUIFont) - 4)), Math.Max(1, Math.Min(rect.Height - 4, TextMetrics.LineHeight(EffectiveUIFont) - 4))), item.Color);
+                    else if (gutter.Type == TextEditGutterType.String && item != null) context.Text(EffectiveUIFont, item.Text, new Vector2(rect.X + 2, rect.Y), item.Color);
                     x += gutter.Width;
                 }
                 }
-                y += Font.LineSpacing * (GetWrapSegments(line).Count - firstWrap);
+                y += TextMetrics.LineHeight(EffectiveUIFont) * (GetWrapSegments(line).Count - firstWrap);
             }
         }
         private bool TryGetGutterAt(Point point, out int gutter)
@@ -1677,6 +1823,7 @@ namespace Forma
         }
         private void TrackTextChange(LineEdit _, string text)
         {
+            var previousText = _historyText;
             if (!_restoringHistory && _historyText != text)
             {
                 if (_currentAction != TextEditEditAction.None) _actionChanged = true;
@@ -1687,8 +1834,9 @@ namespace Forma
                 }
             }
             _historyText = text;
-            _syntaxHighlighter?.UpdateCache();
-            InvalidateWrapLayout();
+            var firstChangedLine = GetFirstChangedLine(previousText, text);
+            _syntaxHighlighter?.InvalidateFromLine(firstChangedLine);
+            InvalidateWrapLayoutAfterEdit(previousText, text, firstChangedLine);
             if (FirstVisibleLine >= LineCount || IsLineHiddenForDisplay(FirstVisibleLine)) SetFirstVisibleRow(Math.Min(FirstVisibleLine, LineCount - 1), 0);
             else FirstVisibleLineWrapIndex = Math.Min(FirstVisibleLineWrapIndex, Math.Max(0, GetWrapSegments(FirstVisibleLine).Count - 1));
         }
@@ -1696,13 +1844,18 @@ namespace Forma
         private void DrawSyntaxHighlighting(UIRenderContext context, int line, string source, int segmentStart, int segmentLength, Vector2 position)
         {
             if (_syntaxHighlighter == null || string.IsNullOrEmpty(source)) return;
+            var layout = GetSegmentLayout(source, segmentStart, segmentLength);
             foreach (var span in _syntaxHighlighter.GetLineSyntaxHighlighting(line))
             {
                 var start = Math.Max(segmentStart, span.StartColumn); var end = Math.Min(segmentStart + segmentLength, span.StartColumn + span.Length);
                 var length = end - start;
                 if (length <= 0) continue;
-                var x = Font.MeasureString(source.Substring(segmentStart, start - segmentStart)).X;
-                context.Text(Font, source.Substring(start, length), position + new Vector2(x, 0), span.Color);
+                foreach (var rectangle in layout.GetSelectionRectangles(start - segmentStart, length))
+                {
+                    context.PushClip(new Rectangle((int)MathF.Floor(position.X + rectangle.X), (int)MathF.Floor(position.Y + rectangle.Y), Math.Max(1, (int)MathF.Ceiling(rectangle.Width)), Math.Max(1, (int)MathF.Ceiling(rectangle.Height))));
+                    try { context.Text(layout, position, span.Color); }
+                    finally { context.PopClip(); }
+                }
             }
         }
         private void DrawSelectionHighlights(UIRenderContext context, int line, int segmentStart, int segmentLength, Vector2 position)
@@ -1713,11 +1866,13 @@ namespace Forma
                 if (!HasCaretSelection(caret)) continue;
                 var start = Math.Max(GetSelectionFromIndex(caret), absoluteStart); var end = Math.Min(GetSelectionToIndex(caret), absoluteEnd);
                 if (end <= start) continue;
-                var prefix = source.Substring(segmentStart, start - absoluteStart); var selected = source.Substring(start - sourceStart, end - start);
-                context.Fill(new Rectangle((int)(position.X + MeasureTextWidth(prefix)), (int)position.Y, Math.Max(1, (int)MathF.Ceiling(MeasureTextWidth(selected))), Math.Max(1, Font.LineSpacing)), context.Theme.HoverColor);
+                var layout = GetSegmentLayout(source, segmentStart, segmentLength);
+                foreach (var rectangle in layout.GetSelectionRectangles(start - absoluteStart, end - start))
+                    context.Fill(new Rectangle((int)(position.X + rectangle.X), (int)(position.Y + rectangle.Y), Math.Max(1, (int)MathF.Ceiling(rectangle.Width)), Math.Max(1, (int)MathF.Ceiling(rectangle.Height))), context.Theme.HoverColor);
             }
         }
-        private float MeasureTextWidth(string text) => Font?.MeasureString(text).X ?? text.Length * 8;
+        private TextLayout GetSegmentLayout(string source, int start, int length) => GetEditingLayout(source.Substring(start, length));
+        private float MeasureTextWidth(string text) => EffectiveUIFont == null ? text.Length * 8 : TextMetrics.Measure(EffectiveUIFont, text).X;
         private void MoveAllCaretsHorizontal(int direction)
         {
             _caretMergeSuspension++;
@@ -1726,7 +1881,7 @@ namespace Forma
                 for (var caret = 0; caret < CaretCount; caret++)
                 {
                     var index = direction < 0 ? GetSelectionFromIndex(caret) : GetSelectionToIndex(caret);
-                    if (!HasCaretSelection(caret)) index = MathHelper.Clamp(index + direction, 0, Text.Length);
+                    if (!HasCaretSelection(caret)) index = GetAdjacentGraphemeIndex(index, direction);
                     SetCaretAtTextIndex(index, caret);
                 }
             }
@@ -1755,8 +1910,8 @@ namespace Forma
                 var start = GetSelectionFromIndex(caret); var end = GetSelectionToIndex(caret);
                 if (start == end)
                 {
-                    if (backward) start = Math.Max(0, start - 1);
-                    else end = Math.Min(Text.Length, end + 1);
+                    if (backward) start = GetAdjacentGraphemeIndex(start, -1);
+                    else end = GetAdjacentGraphemeIndex(end, 1);
                 }
                 edits.Add(new CaretEdit { Caret = caret, Start = start, End = end });
             }
@@ -1976,36 +2131,106 @@ namespace Forma
                 if (targetLine >= LineCount) return;
                 targetWrap = 0;
             }
-            var current = segments[wrapIndex]; var target = GetWrapSegments(targetLine)[targetWrap];
-            var targetColumn = target.Start + Math.Min(Math.Max(0, sourceColumn - current.Start), target.Length);
+            var current = segments[wrapIndex]; var targetSource = GetLine(targetLine); var target = GetWrapSegments(targetLine)[targetWrap];
+            if (EffectiveUIFont == null)
+            {
+                SetCaret(targetLine, target.Start + Math.Min(Math.Max(0, sourceColumn - current.Start), target.Length), caret);
+                return;
+            }
+            var currentLayout = GetSegmentLayout(GetLine(line), current.Start, current.Length);
+            var targetLayout = GetSegmentLayout(targetSource, target.Start, target.Length);
+            var preferredX = currentLayout.GetCaretPosition(MathHelper.Clamp(sourceColumn - current.Start, 0, current.Length)).X;
+            var targetColumn = target.Start + targetLayout.HitTest(new Vector2(preferredX, 0));
             SetCaret(targetLine, targetColumn, caret);
+        }
+        private int GetAdjacentGraphemeIndex(int index, int direction)
+        {
+            index = MathHelper.Clamp(index, 0, Text.Length);
+            if (EffectiveUIFont == null) return MathHelper.Clamp(index + Math.Sign(direction), 0, Text.Length);
+            var line = GetLineForIndex(index);
+            var lineStart = GetLineStart(line);
+            var column = index - lineStart;
+            var source = GetLine(line);
+            if (direction < 0)
+            {
+                if (column == 0) return Math.Max(0, index - 1);
+                return lineStart + GetEditingLayout(source).GetPreviousGraphemeBoundary(column);
+            }
+            if (column == source.Length) return Math.Min(Text.Length, index + 1);
+            return lineStart + GetEditingLayout(source).GetNextGraphemeBoundary(column);
         }
         private List<TextEditWrapSegment> GetWrapSegments(int line)
         {
             EnsureWrapLayout();
             if (!_wrapLayoutCache.TryGetValue(line, out var segments))
             {
-                segments = BuildWrapSegments(GetLine(line), GetEffectiveWrapColumn());
+                segments = BuildWrapSegments(GetLine(line), GetEffectiveWrapWidth());
                 _wrapLayoutCache[line] = segments;
+                WrapLayoutBuildCount++;
             }
             return segments;
         }
         private void EnsureWrapLayout()
         {
-            var column = GetEffectiveWrapColumn();
-            if (_wrapLayoutText == Text && _wrapLayoutColumn == column) return;
-            _wrapLayoutText = Text; _wrapLayoutColumn = column; _wrapLayoutCache.Clear();
+            var width = GetEffectiveWrapWidth();
+            var font = EffectiveUIFont;
+            var identity = font?.Identity ?? default;
+            var size = font?.Size ?? 0;
+            if (_wrapLayoutText == Text && _wrapLayoutWidth == width && _wrapLayoutFontIdentity == identity && _wrapLayoutFontSize == size && _wrapLayoutLanguage == Language && _wrapLayoutDirection == TextDirection) return;
+            _wrapLayoutText = Text; _wrapLayoutWidth = width; _wrapLayoutFontIdentity = identity; _wrapLayoutFontSize = size; _wrapLayoutLanguage = Language; _wrapLayoutDirection = TextDirection; _wrapLayoutCache.Clear();
         }
-        private void InvalidateWrapLayout() { _wrapLayoutText = null; _wrapLayoutColumn = -1; _wrapLayoutCache.Clear(); }
-        private int GetEffectiveWrapColumn()
+        private void InvalidateWrapLayout() { _wrapLayoutText = null; _wrapLayoutWidth = -1; _wrapLayoutCache.Clear(); }
+        private void InvalidateWrapLayoutAfterEdit(string previousText, string text, int firstChangedLine)
         {
-            if (LineWrappingMode == TextEditLineWrappingMode.None) return 0;
-            if (WrapAtColumn > 0) return WrapAtColumn;
-            var glyphWidth = Font?.MeasureString("0").X ?? 8;
-            var available = Size.X - Padding.Horizontal - TextContentLeftInset;
-            return available > glyphWidth ? Math.Max(1, (int)(available / glyphWidth)) : 0;
+            var previousLineCount = CountLines(previousText);
+            var currentLineCount = CountLines(text);
+            if (previousLineCount != currentLineCount)
+            {
+                foreach (var line in new List<int>(_wrapLayoutCache.Keys)) if (line >= firstChangedLine) _wrapLayoutCache.Remove(line);
+            }
+            else
+            {
+                var lastChangedLine = GetLastChangedLine(previousText, text);
+                foreach (var line in new List<int>(_wrapLayoutCache.Keys)) if (line >= firstChangedLine && line <= lastChangedLine) _wrapLayoutCache.Remove(line);
+            }
+            _wrapLayoutText = text;
         }
-        private static List<TextEditWrapSegment> BuildWrapSegments(string text, int wrapColumn)
+        private float GetEffectiveWrapWidth()
+        {
+            if (LineWrappingMode == TextEditLineWrappingMode.None) return float.PositiveInfinity;
+            var glyphWidth = EffectiveUIFont == null ? 8 : TextMetrics.Measure(EffectiveUIFont, "0").X;
+            if (WrapAtColumn > 0) return Math.Max(1, glyphWidth * WrapAtColumn);
+            return Math.Max(1, Size.X - Padding.Horizontal - TextContentLeftInset);
+        }
+        private List<TextEditWrapSegment> BuildWrapSegments(string text, float wrapWidth)
+        {
+            var segments = new List<TextEditWrapSegment>();
+            if (LineWrappingMode != TextEditLineWrappingMode.None && EffectiveUIFont == null && WrapAtColumn > 0) return BuildColumnWrapSegments(text, WrapAtColumn);
+            if (!float.IsFinite(wrapWidth) || EffectiveUIFont == null || string.IsNullOrEmpty(text)) { segments.Add(new TextEditWrapSegment(0, text.Length)); return segments; }
+            var layout = GetEditingLayout(text);
+            var start = 0;
+            while (start < text.Length)
+            {
+                var end = start;
+                var lastBreak = -1;
+                var width = 0f;
+                foreach (var cluster in layout.Clusters)
+                {
+                    if (cluster.Start < start) continue;
+                    var clusterWidth = Math.Max(cluster.Bounds.Width, MathF.Abs(layout.GetCaretPosition(cluster.Start + cluster.Length).X - layout.GetCaretPosition(cluster.Start).X));
+                    if (end > start && width + clusterWidth > wrapWidth) break;
+                    width += clusterWidth;
+                    end = cluster.Start + cluster.Length;
+                    if (char.IsWhiteSpace(text[cluster.Start])) lastBreak = end;
+                }
+                if (end <= start) end = layout.GetNextGraphemeBoundary(start);
+                if (end < text.Length && lastBreak > start) end = lastBreak;
+                segments.Add(new TextEditWrapSegment(start, end - start));
+                start = end;
+            }
+            return segments;
+        }
+        private static List<TextEditWrapSegment> BuildColumnWrapSegments(string text, int wrapColumn)
         {
             var segments = new List<TextEditWrapSegment>();
             if (wrapColumn <= 0 || text.Length <= wrapColumn) { segments.Add(new TextEditWrapSegment(0, text.Length)); return segments; }
@@ -2014,13 +2239,36 @@ namespace Forma
             {
                 var end = Math.Min(text.Length, start + wrapColumn);
                 if (end < text.Length)
-                {
-                    for (var candidate = end - 1; candidate > start; candidate--) if (char.IsWhiteSpace(text[candidate])) { end = candidate + 1; break; }
-                }
+                    for (var candidate = end - 1; candidate > start; candidate--)
+                        if (char.IsWhiteSpace(text[candidate])) { end = candidate + 1; break; }
                 if (end <= start) end = Math.Min(text.Length, start + wrapColumn);
-                segments.Add(new TextEditWrapSegment(start, end - start)); start = end;
+                segments.Add(new TextEditWrapSegment(start, end - start));
+                start = end;
             }
             return segments;
+        }
+        private static int GetFirstChangedLine(string previousText, string text)
+        {
+            var common = 0;
+            while (common < previousText.Length && common < text.Length && previousText[common] == text[common]) common++;
+            var line = 0;
+            for (var index = 0; index < common; index++) if (text[index] == '\n') line++;
+            return line;
+        }
+        private static int GetLastChangedLine(string previousText, string text)
+        {
+            var suffix = 0;
+            while (suffix < previousText.Length && suffix < text.Length && previousText[previousText.Length - suffix - 1] == text[text.Length - suffix - 1]) suffix++;
+            var changedEnd = text.Length - suffix;
+            var line = 0;
+            for (var index = 0; index < changedEnd; index++) if (text[index] == '\n') line++;
+            return line;
+        }
+        private static int CountLines(string text)
+        {
+            var count = 1;
+            foreach (var character in text) if (character == '\n') count++;
+            return count;
         }
         private readonly struct TextEditWrapSegment
         {
@@ -2213,7 +2461,7 @@ namespace Forma
 
     public sealed class SpinBox : Range
     {
-        private SpriteFont _font;
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private HorizontalAlignment _horizontalAlignment;
         private bool _updateOnTextChanged;
         private bool _syncingText;
@@ -2245,7 +2493,9 @@ namespace Forma
         public float CustomArrowStep { get; set; }
         public bool CustomArrowRound { get; set; }
         public bool IsDraggingValue => _dragging;
-        public SpriteFont Font { get => _font; set { _font = value; LineEdit.Font = value; } }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); LineEdit.Font = value; QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); LineEdit.UIFont = value; QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public SpinBoxLineEdit LineEdit { get; }
         public void SetHorizontalAlignment(HorizontalAlignment alignment) { if (!Enum.IsDefined(typeof(HorizontalAlignment), alignment)) throw new ArgumentOutOfRangeException(nameof(alignment)); _horizontalAlignment = alignment; }
         public HorizontalAlignment GetHorizontalAlignment() => _horizontalAlignment;
@@ -2328,7 +2578,17 @@ namespace Forma
             context.Fill(Bounds, context.Theme.BackgroundColor); context.Border(Bounds, context.Theme.PanelBorderColor);
             context.Fill(new Rectangle(Bounds.Right - 16, Bounds.Top, 16, Math.Max(1, Bounds.Height / 2)), context.Theme.HoverColor);
             context.Fill(new Rectangle(Bounds.Right - 16, Bounds.Center.Y, 16, Math.Max(1, Bounds.Height - Bounds.Height / 2)), context.Theme.HoverColor);
+            DrawArrow(context, true);
+            DrawArrow(context, false);
             base.Draw(context);
+        }
+        private void DrawArrow(UIRenderContext context, bool up)
+        {
+            var suffix = !Enabled || !IsEditable() ? "_disabled" : _heldArrowActive && TryGetArrowButton(_heldArrowPoint, out var heldUp) && heldUp == up ? "_pressed" : string.Empty;
+            var icon = GetThemeIcon((up ? "up" : "down") + suffix);
+            if (!icon.HasValue) return;
+            var half = up ? new Rectangle(Bounds.Right - 16, Bounds.Top, 16, Math.Max(1, Bounds.Height / 2)) : new Rectangle(Bounds.Right - 16, Bounds.Center.Y, 16, Math.Max(1, Bounds.Height - Bounds.Height / 2));
+            context.Icon(icon.Value, new Vector2(half.Center.X - icon.Value.LogicalSize.X / 2, half.Center.Y - icon.Value.LogicalSize.Y / 2), Color.White);
         }
         internal void StepArrow(bool up)
         {
@@ -2564,16 +2824,40 @@ namespace Forma
         public override Vector2 GetMinimumSize()
         {
             var result = base.GetMinimumSize();
-            if (!FitToLongestItem || Font == null) return result;
+            var arrow = GetThemeIcon("arrow");
+            if (arrow.HasValue)
+            {
+                result.X += arrow.Value.LogicalSize.X + IconSeparation;
+                result.Y = Math.Max(result.Y, arrow.Value.LogicalSize.Y + Padding.Vertical);
+            }
+            if (!FitToLongestItem || EffectiveUIFont == null) return result;
             foreach (var item in _items)
             {
                 if (item.Separator) continue;
                 // Matches Godot's _refresh_size_cache measuring get_minimum_size_for_text_and_icon per
                 // item, folding in each item's own icon width, not just the currently-selected item's.
                 var iconWidth = item.Icon != null ? item.Icon.Width + IconSeparation : 0;
-                result.X = Math.Max(result.X, Font.MeasureString(item.Text).X + iconWidth + Padding.Horizontal);
+                result.X = Math.Max(result.X, TextMetrics.Measure(EffectiveUIFont, item.Text).X + iconWidth + Padding.Horizontal);
             }
             return result;
+        }
+        internal override void Draw(UIRenderContext context)
+        {
+            var arrow = GetThemeIcon("arrow");
+            var originalPadding = Padding;
+            if (arrow.HasValue)
+            {
+                var reserve = arrow.Value.LogicalSize.X + IconSeparation;
+                Padding = IsLayoutRtl()
+                    ? new Thickness(originalPadding.Left + reserve, originalPadding.Top, originalPadding.Right, originalPadding.Bottom)
+                    : new Thickness(originalPadding.Left, originalPadding.Top, originalPadding.Right + reserve, originalPadding.Bottom);
+            }
+            base.Draw(context);
+            Padding = originalPadding;
+            if (!arrow.HasValue) return;
+            var x = IsLayoutRtl() ? Bounds.X + (int)originalPadding.Left : Bounds.Right - (int)originalPadding.Right - arrow.Value.LogicalSize.X;
+            var y = Bounds.Center.Y - arrow.Value.LogicalSize.Y / 2;
+            context.Icon(arrow.Value, new Vector2(x, y), Enabled ? Color.White : context.Theme.DisabledTextColor);
         }
         private int AddItemCore(string text, Texture2D icon, int id, bool separator)
         {
@@ -2610,6 +2894,7 @@ namespace Forma
 
     public sealed class TabContainer : Container
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private sealed class TabPageState
         {
             public string Title;
@@ -2662,7 +2947,9 @@ namespace Forma
         public void SetDeselectEnabled(bool enabled) => DeselectEnabled = enabled;
         public bool GetDeselectEnabled() => DeselectEnabled;
         public float TabHeight { get; set; } = 28;
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         /// <summary>Enables pointer drag reordering of tab pages, like Godot's TabContainer.</summary>
         public bool DragToRearrangeEnabled { get; set; }
         /// <summary>Optional group identifier reserved for compatibility with Godot tab-container rearrangement groups.</summary>
@@ -2825,12 +3112,19 @@ namespace Forma
                     var icon = new Rectangle(textX, rect.Y + (rect.Height - iconHeight) / 2, iconWidth, iconHeight);
                     context.SpriteBatch.Draw(state.Icon, icon, Color.White); textX = icon.Right + 4;
                 }
-                if (Font != null)
+                if (EffectiveUIFont != null)
                 {
                     var title = GetTabTitle(i);
-                    context.Text(Font, title, new Vector2(textX, rect.Y + Math.Max(2, (rect.Height - Font.LineSpacing) / 2)), state.Disabled ? context.Theme.DisabledTextColor : context.Theme.TextColor);
+                    context.Text(EffectiveUIFont, title, new Vector2(textX, rect.Y + Math.Max(2, (rect.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), state.Disabled ? context.Theme.DisabledTextColor : context.Theme.TextColor);
                 }
                 if (state.ButtonIcon != null) context.SpriteBatch.Draw(state.ButtonIcon, GetTabButtonRectangle(i), Color.White);
+            }
+            if (_popup != null)
+            {
+                var button = GetPopupButtonRectangle();
+                var hovered = button.Contains(Context?.PointerPosition ?? Point.Zero);
+                var menu = GetThemeIcon(hovered ? "menu_highlight" : "menu");
+                if (menu.HasValue) context.Icon(menu.Value, new Vector2(button.Center.X - menu.Value.LogicalSize.X / 2, button.Center.Y - menu.Value.LogicalSize.Y / 2), Color.White);
             }
             base.Draw(context);
         }
@@ -3225,7 +3519,12 @@ namespace Forma
             base.Draw(context);
             var hintColor = context.Theme.FocusColor;
             hintColor.A = 96;
-            foreach (var rectangle in GetVisibleScrollHintRectangles()) context.Fill(rectangle, hintColor);
+            foreach (var rectangle in GetVisibleScrollHintRectangles())
+            {
+                var icon = GetThemeIcon(rectangle.Width >= rectangle.Height ? "scroll_hint_horizontal" : "scroll_hint_vertical");
+                if (icon.HasValue) context.Icon(icon.Value, rectangle, hintColor);
+                else context.Fill(rectangle, hintColor);
+            }
             if (IsFocusBorderVisible)
             {
                 var focus = context.Theme.GetStyleBox("focus", "ScrollContainer");
@@ -3236,7 +3535,7 @@ namespace Forma
         /// amount is always the relevant scrollbar's page / ScrollBar::PAGE_DIVISOR (8), Shift held swaps
         /// to the horizontal axis (scroll_horizontal_by_default flips which axis is the "default" one),
         /// and an auto-hidden vertical scrollbar falls back to scrolling horizontally either way. This
-        /// port has no separate horizontal-wheel input channel (MonoGame's MouseState only reports a
+        /// port has no separate horizontal-wheel input channel (the XNA-compatible MouseState only reports a
         /// single vertical wheel value), so Godot's WHEEL_LEFT/WHEEL_RIGHT hardware path is out of scope.</summary>
         internal override bool PointerWheel(int delta)
         {

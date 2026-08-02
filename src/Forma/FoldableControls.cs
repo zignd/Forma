@@ -144,9 +144,12 @@ namespace Forma
         {
             context.Fill(new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, (int)HeaderHeight), context.Theme.PanelColor);
             context.Border(new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, (int)HeaderHeight), context.Theme.PanelBorderColor);
-            context.Fill(new Rectangle(Bounds.X + 6, Bounds.Y + (int)HeaderHeight / 2 - 3, Folded ? 6 : 3, Folded ? 3 : 6), context.Theme.AccentColor);
+            var arrow = GetThemeIcon(GetArrowIconName());
+            if (arrow.HasValue) context.Icon(arrow.Value, new Vector2(Bounds.X + 6, Bounds.Y + (HeaderHeight - arrow.Value.LogicalSize.Y) / 2), Color.White);
+            else context.Fill(new Rectangle(Bounds.X + 6, Bounds.Y + (int)HeaderHeight / 2 - 3, Folded ? 6 : 3, Folded ? 3 : 6), context.Theme.AccentColor);
             base.Draw(context);
         }
+        internal string GetArrowIconName() => Folded ? IsLayoutRtl() ? "folded_arrow_mirrored" : "folded_arrow" : IsLayoutRtl() ? "expanded_arrow_mirrored" : "expanded_arrow";
     }
 
     /// <summary>Button carrying a color preset for color-palette workflows.</summary>

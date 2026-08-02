@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Forma.DynamicText</AssemblyName>
+    <RootNamespace>Forma</RootNamespace>
+    <PackageId>Forma.DynamicText.$(FormaRuntime)</PackageId>
+    <VersionPrefix>$(FormaVersion)</VersionPrefix>
+    <Description>Optional runtime font loading, shaping, and rasterization dependencies for Forma.$(FormaRuntime).</Description>
+    <PackageTags>forma;$(FormaRuntime);ui;fonts;text-shaping</PackageTags>
+    <IsPackable>true</IsPackable>
+    <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <Compile Include="../Forma/DynamicFont.cs" Link="DynamicFont.cs" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="FreeTypeSharp" Version="$(FreeTypeSharpVersion)" />
+    <PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="$(HarfBuzzSharpVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Forma.Tests" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''">
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' != ''">
+    <ProjectReference Include="$(MonoGameProjectPath)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' == ''">
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''">
+    <ProjectReference Include="$(FnaProjectPath)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../NOTICE.md" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../RELEASE_NOTES.md" Pack="true" PackagePath="" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" />
+    <None Include="../../docs/dynamic-text.md" Pack="true" PackagePath="docs/" />
+    <None Include="../../docs/examples/DynamicTextQuickStart.cs" Pack="true" PackagePath="examples/" />
+    <None Include="PackageBuild/Forma.DynamicText.targets" Pack="true" PackagePath="buildTransitive/$(PackageId).targets" />
+    <None Include="PackageBuild/Forma.DynamicText.PackageInitializer.cs.txt" Pack="true" PackagePath="buildTransitive/" />
+    <None Include="../../tests/Assets/Fonts/Inter_Regular.ttf" Pack="true" PackagePath="buildTransitive/assets/Inter_Regular.ttf" />
+    <None Include="../../tests/Assets/Fonts/LICENSE.Inter.txt" Pack="true" PackagePath="licenses/fonts/LICENSE.Inter.txt" />
+  </ItemGroup>
+
+</Project>

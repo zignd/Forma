@@ -22,8 +22,9 @@ public sealed class CatalogShell : BoxContainer
     };
 
     private readonly IReadOnlyList<ComponentStory> _stories;
-    private readonly SpriteFont _font;
-    private readonly SpriteFont _codeFont;
+    private readonly UIFont _font;
+    private readonly UIFont _codeFont;
+    private readonly SpriteFont _compatibilityFont;
     private readonly LineEdit _search;
     private readonly ItemList _navigation;
     private readonly Label _storyTitle;
@@ -32,16 +33,25 @@ public sealed class CatalogShell : BoxContainer
     private readonly CenterContainer _preview;
     private readonly VBoxContainer _inspector;
     private readonly Label _count;
+    private readonly Action<bool> _setDynamicTextEnabled;
+    private CheckBox _dynamicTextToggle;
     private List<ComponentStory> _filteredStories;
     private ComponentStory _currentStory;
     private Control _currentControl;
 
-    public CatalogShell(IReadOnlyList<ComponentStory> stories, SpriteFont font, SpriteFont codeFont)
+    public CatalogShell(IReadOnlyList<ComponentStory> stories, SpriteFont font, SpriteFont codeFont, Action<bool> setDynamicTextEnabled = null)
+        : this(stories, new SpriteFontAdapter(font), new SpriteFontAdapter(codeFont), font, setDynamicTextEnabled)
+    {
+    }
+
+    public CatalogShell(IReadOnlyList<ComponentStory> stories, UIFont font, UIFont codeFont, SpriteFont compatibilityFont, Action<bool> setDynamicTextEnabled = null)
         : base(Orientation.Vertical)
     {
         _stories = stories;
         _font = font;
         _codeFont = codeFont;
+        _compatibilityFont = compatibilityFont;
+        _setDynamicTextEnabled = setDynamicTextEnabled;
         Separation = 0;
 
         AddChild(BuildHeader());
@@ -55,7 +65,7 @@ public sealed class CatalogShell : BoxContainer
         var navigationScroll = new ScrollContainer { VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand, HorizontalScrollMode = ScrollBarVisibility.Never };
         _navigation = new ItemList { AllowSearch = true, AutoWidth = true, AutoHeight = true, HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand, VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
         _navigation.ItemSelected += (_, index) => SelectStory(index);
-        _count = new Label { Font = font, FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(0, 22) };
+        _count = new Label { UIFont = font, FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(0, 22) };
         navigationScroll.AddChild(_navigation);
         navigationContent.AddChild(_search);
         navigationContent.AddChild(navigationScroll);
@@ -64,9 +74,9 @@ public sealed class CatalogShell : BoxContainer
 
         var center = new VBoxContainer { Separation = 0, HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
         var storyHeader = new VBoxContainer { Separation = 4, Margins = new Thickness(24, 18, 24, 12), CustomMinimumSize = new Vector2(0, 106) };
-        _storyCategory = new Label { Font = font, Uppercase = true, FontColor = new Color(48, 185, 164), CustomMinimumSize = new Vector2(0, 20) };
-        _storyTitle = new Label { Font = font, CustomMinimumSize = new Vector2(0, 30) };
-        _description = new RichTextLabel { Font = font, FitContent = false, AutowrapMode = LabelAutowrapMode.Word, ScrollActive = false, FontColor = new Color(174, 184, 200), CustomMinimumSize = new Vector2(0, 42) };
+        _storyCategory = new Label { UIFont = font, Uppercase = true, FontColor = new Color(48, 185, 164), CustomMinimumSize = new Vector2(0, 20) };
+        _storyTitle = new Label { UIFont = font, CustomMinimumSize = new Vector2(0, 30) };
+        _description = new RichTextLabel { UIFont = font, FitContent = false, AutowrapMode = LabelAutowrapMode.Word, ScrollActive = false, FontColor = new Color(174, 184, 200), CustomMinimumSize = new Vector2(0, 42) };
         storyHeader.AddChild(_storyCategory);
         storyHeader.AddChild(_storyTitle);
         storyHeader.AddChild(_description);
@@ -83,8 +93,8 @@ public sealed class CatalogShell : BoxContainer
         var inspectorPanel = CreatePanel(new Color(24, 29, 38), new Color(24, 29, 38));
         inspectorPanel.CustomMinimumSize = new Vector2(320, 0);
         var inspectorColumn = new VBoxContainer { Separation = 8, Margins = new Thickness(16) };
-        var inspectorTitle = new Label { Text = "PROPERTIES", Font = font, FontColor = new Color(246, 185, 73), CustomMinimumSize = new Vector2(0, 24) };
-        var reset = new Button { Text = "Reset story", Font = font, CustomMinimumSize = new Vector2(0, 34) };
+        var inspectorTitle = new Label { Text = "PROPERTIES", UIFont = font, FontColor = new Color(246, 185, 73), CustomMinimumSize = new Vector2(0, 24) };
+        var reset = new Button { Text = "Reset story", UIFont = font, CustomMinimumSize = new Vector2(0, 34) };
         reset.Pressed += (_, _) => LoadStory(_currentStory);
         var inspectorScroll = new ScrollContainer { VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand, HorizontalScrollMode = ScrollBarVisibility.Never };
         _inspector = new VBoxContainer { Separation = 10, CustomMinimumSize = new Vector2(278, 0) };
@@ -102,7 +112,7 @@ public sealed class CatalogShell : BoxContainer
         body.AddChild(inspectorPanel);
         AddChild(body);
 
-        FontApplicator.Apply(this, font, codeFont);
+        FontApplicator.Apply(this, font, codeFont, compatibilityFont);
         RefreshNavigation();
     }
 
@@ -110,11 +120,20 @@ public sealed class CatalogShell : BoxContainer
     {
         var header = new HBoxContainer { Separation = 12, CustomMinimumSize = new Vector2(0, 62), Margins = new Thickness(18, 12, 18, 10) };
         header.AddChild(new ColorRect { Color = new Color(48, 185, 164), CustomMinimumSize = new Vector2(6, 36), VerticalSizeFlags = SizeFlags.ShrinkCenter });
-        header.AddChild(new Label { Text = "FORMA", Font = _font, CustomMinimumSize = new Vector2(178, 36), VerticalAlignment = VerticalAlignment.Center });
-        header.AddChild(new Label { Text = "Component Catalog", Font = _font, FontColor = new Color(143, 153, 170), HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand, VerticalAlignment = VerticalAlignment.Center });
-        header.AddChild(new Label { Text = $"LIVE {CatalogBackend.Name.ToUpperInvariant()}", Font = _font, FontColor = new Color(246, 185, 73), CustomMinimumSize = new Vector2(132, 36), VerticalAlignment = VerticalAlignment.Center });
+        header.AddChild(new Label { Text = "FORMA", UIFont = _font, CustomMinimumSize = new Vector2(178, 36), VerticalAlignment = VerticalAlignment.Center });
+        header.AddChild(new Label { Text = "Component Catalog", UIFont = _font, FontColor = new Color(143, 153, 170), HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand, VerticalAlignment = VerticalAlignment.Center });
+        _dynamicTextToggle = new CheckBox { Name = "dynamicTextMode", Text = "Dynamic text", UIFont = _font, ButtonPressed = true, CustomMinimumSize = new Vector2(148, 36) };
+        _dynamicTextToggle.Toggled += (_, enabled) =>
+        {
+            _setDynamicTextEnabled?.Invoke(enabled);
+            if (_currentStory != null) LoadStory(_currentStory);
+        };
+        header.AddChild(_dynamicTextToggle);
+        header.AddChild(new Label { Text = $"LIVE {CatalogBackend.Name.ToUpperInvariant()}", UIFont = _font, FontColor = new Color(246, 185, 73), CustomMinimumSize = new Vector2(132, 36), VerticalAlignment = VerticalAlignment.Center });
         return header;
     }
+
+    public bool DynamicTextEnabled => _dynamicTextToggle.ButtonPressed;
 
     private void RefreshNavigation()
     {
@@ -141,6 +160,14 @@ public sealed class CatalogShell : BoxContainer
         LoadStory(_filteredStories[filteredIndex]);
     }
 
+    public bool SelectStory(string storyName)
+    {
+        var story = _stories.FirstOrDefault(candidate => string.Equals(candidate.Name, storyName, StringComparison.Ordinal));
+        if (story == null) return false;
+        LoadStory(story);
+        return true;
+    }
+
     private void LoadStory(ComponentStory story)
     {
         if (story == null) return;
@@ -148,8 +175,9 @@ public sealed class CatalogShell : BoxContainer
         ClearChildren(_preview);
         ClearChildren(_inspector);
         _currentControl = story.Factory();
-        FontApplicator.Apply(_currentControl, _font, _codeFont);
         _preview.AddChild(_currentControl);
+        FontApplicator.Apply(_currentControl, _font, _codeFont, _compatibilityFont);
+        story.Attached?.Invoke(_currentControl);
         _storyCategory.Text = story.Category;
         _storyTitle.Text = story.Name;
         _description.ParseBbcode(story.Description);
@@ -168,7 +196,7 @@ public sealed class CatalogShell : BoxContainer
 
         if (properties.Count == 0)
         {
-            _inspector.AddChild(new Label { Text = "No safe writable properties exposed.", Font = _font, AutowrapMode = LabelAutowrapMode.Word, CustomMinimumSize = new Vector2(270, 42) });
+            _inspector.AddChild(new Label { Text = "No safe writable properties exposed.", UIFont = _font, AutowrapMode = LabelAutowrapMode.Word, CustomMinimumSize = new Vector2(270, 42) });
             return;
         }
 
@@ -177,7 +205,7 @@ public sealed class CatalogShell : BoxContainer
             var editor = CreatePropertyEditor(target, property);
             if (editor == null) continue;
             var section = new VBoxContainer { Separation = 4 };
-            section.AddChild(new Label { Text = SplitName(property.Name), Font = _font, FontColor = new Color(174, 184, 200), CustomMinimumSize = new Vector2(0, 20) });
+            section.AddChild(new Label { Text = SplitName(property.Name), UIFont = _font, FontColor = new Color(174, 184, 200), CustomMinimumSize = new Vector2(0, 20) });
             section.AddChild(editor);
             _inspector.AddChild(section);
         }
@@ -199,19 +227,19 @@ public sealed class CatalogShell : BoxContainer
 
         if (property.PropertyType == typeof(bool))
         {
-            var toggle = new CheckBox { Text = "Enabled", Font = _font, ButtonPressed = (bool)(ReadValue() ?? false), CustomMinimumSize = new Vector2(0, 30) };
+            var toggle = new CheckBox { Text = "Enabled", UIFont = _font, ButtonPressed = (bool)(ReadValue() ?? false), CustomMinimumSize = new Vector2(0, 30) };
             toggle.Toggled += (_, value) => SetValue(value);
             return toggle;
         }
         if (property.PropertyType == typeof(string))
         {
-            var field = new LineEdit { Font = _font, Text = (string)ReadValue() ?? string.Empty, CustomMinimumSize = new Vector2(0, 32) };
+            var field = new LineEdit { UIFont = _font, Text = (string)ReadValue() ?? string.Empty, CustomMinimumSize = new Vector2(0, 32) };
             field.TextChanged += (_, value) => SetValue(value);
             return field;
         }
         if (property.PropertyType.IsEnum)
         {
-            var option = new OptionButton { Font = _font, CustomMinimumSize = new Vector2(0, 32) };
+            var option = new OptionButton { UIFont = _font, CustomMinimumSize = new Vector2(0, 32) };
             var values = Enum.GetValues(property.PropertyType);
             for (var index = 0; index < values.Length; index++) option.AddItem(values.GetValue(index).ToString(), index);
             var current = ReadValue();
@@ -221,7 +249,7 @@ public sealed class CatalogShell : BoxContainer
         }
         if (property.PropertyType == typeof(Color))
         {
-            var picker = new ColorPickerButton { Font = _font, Color = (Color)(ReadValue() ?? Color.White), CustomMinimumSize = new Vector2(0, 34) };
+            var picker = new ColorPickerButton { UIFont = _font, Color = (Color)(ReadValue() ?? Color.White), CustomMinimumSize = new Vector2(0, 34) };
             picker.ColorChanged += (_, value) => SetValue(value);
             return picker;
         }
@@ -230,7 +258,7 @@ public sealed class CatalogShell : BoxContainer
             var value = Convert.ToSingle(ReadValue() ?? 0, CultureInfo.InvariantCulture);
             var maximum = Math.Max(100, MathF.Ceiling(Math.Abs(value) * 2 + 10));
             var row = new HBoxContainer { Separation = 8, CustomMinimumSize = new Vector2(0, 30) };
-            var valueLabel = new Label { Text = value.ToString("0.##", CultureInfo.InvariantCulture), Font = _font, CustomMinimumSize = new Vector2(54, 28), VerticalAlignment = VerticalAlignment.Center };
+            var valueLabel = new Label { Text = value.ToString("0.##", CultureInfo.InvariantCulture), UIFont = _font, CustomMinimumSize = new Vector2(54, 28), VerticalAlignment = VerticalAlignment.Center };
             var slider = new HSlider { MinValue = 0, MaxValue = maximum, Step = property.PropertyType == typeof(float) || property.PropertyType == typeof(double) ? .1f : 1, Value = value, HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
             slider.ValueChanged += (_, changed) =>
             {

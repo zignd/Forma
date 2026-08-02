@@ -1,13 +1,23 @@
 <Solution>
   <Folder Name="/samples/">
     <Project Path="samples/Forma.Catalog/Forma.Catalog.csproj" />
+    <Project Path="samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj" />
+    <Project Path="samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Forma/Forma.csproj" />
+    <Project Path="src/Forma.DynamicText/Forma.DynamicText.csproj" />
     <Project Path="src/Forma.Media/Forma.Media.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Forma.DynamicTextSpike/Forma.DynamicTextSpike.csproj" />
+    <Project Path="tests/Forma.FnaVideoSmoke/Forma.FnaVideoSmoke.csproj" />
     <Project Path="tests/Forma.RenderTests/Forma.RenderTests.csproj" />
     <Project Path="tests/Forma.Tests/Forma.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Forma.AssemblyInspector/Forma.AssemblyInspector.csproj" />
+    <Project Path="tools/Forma.IconPipeline/Forma.IconPipeline.csproj" />
+    <Project Path="tools/Forma.UnicodePipeline/Forma.UnicodePipeline.csproj" />
   </Folder>
 </Solution>

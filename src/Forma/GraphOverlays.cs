@@ -94,8 +94,8 @@ namespace Forma
         internal override void Draw(UIRenderContext context)
         {
             var alpha = (byte)MathHelper.Clamp(Opacity * 255, 0, 255);
-            context.Fill(Bounds, new Color(context.Theme.BackgroundColor, alpha));
-            context.Border(Bounds, new Color(context.Theme.PanelBorderColor, alpha));
+            context.Fill(Bounds, context.Theme.BackgroundColor.WithAlpha(alpha));
+            context.Border(Bounds, context.Theme.PanelBorderColor.WithAlpha(alpha));
             if (Graph != null)
             {
                 foreach (var connection in Graph.Connections)
@@ -103,14 +103,14 @@ namespace Forma
                     var points = GetConnectionLinePoints(connection);
                     if (points.Count < 2) continue;
                     var colors = GetConnectionLineColors(connection, context.Theme);
-                    DrawConnection(context, points, new Color(colors.From, alpha), new Color(colors.To, alpha));
+                    DrawConnection(context, points, colors.From.WithAlpha(alpha), colors.To.WithAlpha(alpha));
                 }
                 foreach (var child in Graph.Children)
-                    if (child is GraphNode node && node.Visible) context.Fill(GetNodeBounds(node), new Color(NodeColor, alpha));
-                context.Border(GetCameraBounds(), new Color(ViewportColor, alpha));
+                    if (child is GraphNode node && node.Visible) context.Fill(GetNodeBounds(node), NodeColor.WithAlpha(alpha));
+                context.Border(GetCameraBounds(), ViewportColor.WithAlpha(alpha));
             }
             var resizeHandle = GetResizeHandleBounds();
-            var resizeColor = new Color(context.Theme.PanelBorderColor, alpha);
+            var resizeColor = context.Theme.PanelBorderColor.WithAlpha(alpha);
             for (var offset = 3; offset <= 9; offset += 3)
                 context.Fill(new Rectangle(resizeHandle.X + offset - 1, resizeHandle.Y, 1, 12 - offset), resizeColor);
             base.Draw(context);

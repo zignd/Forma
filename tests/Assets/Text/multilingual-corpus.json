@@ -1,0 +1,69 @@
+{
+  "license": "MIT",
+  "unicodeVersion": "17.0.0",
+  "cases": [
+    {
+      "id": "latin-combining",
+      "category": "Latin combining marks",
+      "text": "Á ë ñ café"
+    },
+    {
+      "id": "cyrillic",
+      "category": "Cyrillic",
+      "text": "Привет, мир"
+    },
+    {
+      "id": "greek",
+      "category": "Greek",
+      "text": "Γειά σου κόσμε"
+    },
+    {
+      "id": "arabic",
+      "category": "Arabic",
+      "text": "مرحبا بالعالم"
+    },
+    {
+      "id": "hebrew",
+      "category": "Hebrew",
+      "text": "שלום עולם"
+    },
+    {
+      "id": "devanagari",
+      "category": "Devanagari",
+      "text": "नमस्ते दुनिया"
+    },
+    {
+      "id": "thai",
+      "category": "Thai",
+      "text": "สวัสดีชาวโลก"
+    },
+    {
+      "id": "cjk",
+      "category": "CJK",
+      "text": "你好世界 日本語 한글"
+    },
+    {
+      "id": "emoji-sequences",
+      "category": "Emoji sequences",
+      "text": "👩🏽‍💻 👨‍👩‍👧‍👦 🏳️‍🌈 1️⃣ 🇧🇷"
+    }
+  ],
+  "malformedUtf16": [
+    {
+      "id": "unpaired-high-surrogate",
+      "codeUnits": [55296, 65]
+    },
+    {
+      "id": "unpaired-low-surrogate",
+      "codeUnits": [65, 56320]
+    },
+    {
+      "id": "reversed-surrogate-pair",
+      "codeUnits": [56320, 55296]
+    },
+    {
+      "id": "trailing-high-surrogate",
+      "codeUnits": [65, 55296]
+    }
+  ]
+}

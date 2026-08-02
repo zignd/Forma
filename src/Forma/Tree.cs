@@ -61,6 +61,7 @@ namespace Forma
         private readonly List<float> _rangeValue = new List<float>();
         private readonly List<Color?> _customColors = new List<Color?>();
         private readonly List<SpriteFont> _customFonts = new List<SpriteFont>();
+        private readonly List<UIFontSelection> _customFontSelections = new List<UIFontSelection>();
         private readonly List<int> _customFontSizes = new List<int>();
         private readonly List<StyleBox> _customStyleBoxes = new List<StyleBox>();
         private readonly List<Color?> _customBackgroundColors = new List<Color?>();
@@ -297,8 +298,12 @@ namespace Forma
         public Color? GetCustomColor(int column) { EnsureColumn(column); return _customColors[column]; }
         public void ClearCustomColor(int column) { EnsureColumn(column); _customColors[column] = null; }
         /// <summary>Sets a per-cell SpriteFont override, corresponding to Godot's <c>set_custom_font()</c>. Pass <c>null</c> to inherit <see cref="Tree.Font"/>.</summary>
-        public void SetCustomFont(int column, SpriteFont font) { EnsureColumn(column); if (_customFonts[column] == font) return; _customFonts[column] = font; Owner.NotifyItemFontChanged(this); }
+        public void SetCustomFont(int column, SpriteFont font) { EnsureColumn(column); _customFonts[column] = font; _customFontSelections[column].SetSpriteFont(font); Owner.NotifyItemFontChanged(this); }
         public SpriteFont GetCustomFont(int column) { EnsureColumn(column); return _customFonts[column]; }
+        /// <summary>Sets a per-cell logical font override while retaining the legacy SpriteFont value.</summary>
+        public void SetCustomUIFont(int column, UIFont font) { EnsureColumn(column); _customFontSelections[column].SetUIFont(font); Owner.NotifyItemFontChanged(this); }
+        public UIFont GetCustomUIFont(int column) { EnsureColumn(column); return _customFontSelections[column].UIFont; }
+        internal UIFont GetEffectiveCustomUIFont(int column) { EnsureColumn(column); return _customFontSelections[column].Effective; }
         /// <summary>Sets a per-cell font size override in pixels, corresponding to Godot's <c>set_custom_font_size()</c>. Use <c>-1</c> to inherit the SpriteFont's native size.</summary>
         public void SetCustomFontSize(int column, int fontSize) { EnsureColumn(column); fontSize = Math.Max(-1, fontSize); if (_customFontSizes[column] == fontSize) return; _customFontSizes[column] = fontSize; Owner.NotifyItemFontChanged(this); }
         public int GetCustomFontSize(int column) { EnsureColumn(column); return _customFontSizes[column]; }
@@ -383,6 +388,7 @@ namespace Forma
             while (_rangeValue.Count < count) _rangeValue.Add(0);
             while (_customColors.Count < count) _customColors.Add(null);
             while (_customFonts.Count < count) _customFonts.Add(null);
+            while (_customFontSelections.Count < count) _customFontSelections.Add(new UIFontSelection());
             while (_customFontSizes.Count < count) _customFontSizes.Add(-1);
             while (_customStyleBoxes.Count < count) _customStyleBoxes.Add(null);
             while (_customBackgroundColors.Count < count) _customBackgroundColors.Add(null);
@@ -418,6 +424,7 @@ namespace Forma
             if (_rangeValue.Count > count) _rangeValue.RemoveRange(count, _rangeValue.Count - count);
             if (_customColors.Count > count) _customColors.RemoveRange(count, _customColors.Count - count);
             if (_customFonts.Count > count) _customFonts.RemoveRange(count, _customFonts.Count - count);
+            if (_customFontSelections.Count > count) _customFontSelections.RemoveRange(count, _customFontSelections.Count - count);
             if (_customFontSizes.Count > count) _customFontSizes.RemoveRange(count, _customFontSizes.Count - count);
             if (_customStyleBoxes.Count > count) _customStyleBoxes.RemoveRange(count, _customStyleBoxes.Count - count);
             if (_customBackgroundColors.Count > count) _customBackgroundColors.RemoveRange(count, _customBackgroundColors.Count - count);
@@ -527,6 +534,7 @@ namespace Forma
     /// <summary>Hierarchical, column-oriented selection control modeled after Godot's Tree.</summary>
     public sealed class Tree : Control
     {
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private sealed class TreeRangeEditorLineEdit : LineEdit
         {
             public Action CancelRequested { get; set; }
@@ -701,7 +709,9 @@ namespace Forma
         public string IncrementalSearchText => _incrementalSearch;
         public float ItemHeight { get; set; } = 24;
         public float Indent { get; set; } = 16;
-        public SpriteFont Font { get; set; }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public TreeItem SelectedItem => _selected;
         public int SelectedColumn => _selected == null ? -1 : _selectedColumn;
         /// <summary>Returns the cell currently opened for editing, matching Godot's <c>get_edited()</c>.</summary>
@@ -1603,12 +1613,12 @@ namespace Forma
                 {
                     var header = new Rectangle(columnX, Bounds.Y + 1, widths[column], (int)ItemHeight);
                     context.Fill(header, context.Theme.PanelBorderColor);
-                    if (Font != null)
+                    if (EffectiveUIFont != null)
                     {
-                        var title = _columns[column].Title; var width = (int)MathF.Ceiling(Font.MeasureString(title).X); var titleX = header.X + 4;
+                        var title = _columns[column].Title; var width = (int)MathF.Ceiling(TextMetrics.Measure(EffectiveUIFont, title).X); var titleX = header.X + 4;
                         if (_columns[column].TitleAlignment == HorizontalAlignment.Center) titleX = header.X + (header.Width - width) / 2;
                         else if (_columns[column].TitleAlignment == HorizontalAlignment.Right) titleX = header.Right - 4 - width;
-                        context.Text(Font, title, new Vector2(titleX, header.Y + Math.Max(2, (ItemHeight - Font.LineSpacing) / 2)), context.Theme.TextColor);
+                        context.Text(EffectiveUIFont, title, new Vector2(titleX, header.Y + Math.Max(2, (ItemHeight - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.TextColor);
                     }
                     columnX += widths[column];
                 }
@@ -1624,7 +1634,13 @@ namespace Forma
                     var item = rows[index]; var rect = new Rectangle(ContentLeft, rowY, ContentWidth, GetRowHeight(item));
                     if (SelectMode == TreeSelectMode.Row && item.IsSelected) context.Fill(rect, context.Theme.AccentColor);
                     var indentX = rect.X - GetHorizontalScrollOffset() + (int)(item.Depth * Indent);
-                    if (!FoldingHidden && !item.IsFoldingDisabled() && item.GetVisibleChildCount() > 0) context.Fill(new Rectangle(indentX + 4, rect.Y + rect.Height / 2 - 2, item.Collapsed ? 7 : 3, item.Collapsed ? 3 : 7), context.Theme.PanelBorderColor);
+                    if (!FoldingHidden && !item.IsFoldingDisabled() && item.GetVisibleChildCount() > 0)
+                    {
+                        var arrowName = item.Collapsed ? IsLayoutRtl() ? "arrow_collapsed_mirrored" : "arrow_collapsed" : "arrow";
+                        var arrow = GetThemeIcon(arrowName);
+                        if (arrow.HasValue) context.Icon(arrow.Value, new Vector2(indentX + 4, rect.Center.Y - arrow.Value.LogicalSize.Y / 2), Color.White);
+                        else context.Fill(new Rectangle(indentX + 4, rect.Y + rect.Height / 2 - 2, item.Collapsed ? 7 : 3, item.Collapsed ? 3 : 7), context.Theme.PanelBorderColor);
+                    }
                     var columnX = rect.X - GetHorizontalScrollOffset();
                     for (var column = 0; column < Columns; column++)
                     {
@@ -1666,9 +1682,16 @@ namespace Forma
                             {
                                 var box = GetCheckBoxRectangle(item, column, index, rows);
                                 var checkColor = item.IsEditable(column) ? context.Theme.AccentColor : context.Theme.DisabledTextColor;
-                                context.Fill(box, item.IsChecked(column) ? checkColor : context.Theme.BackgroundColor); context.Border(box, context.Theme.PanelBorderColor);
-                                if (item.IsIndeterminate(column)) context.Fill(new Rectangle(box.X + 3, box.Y + 6, 8, 2), context.Theme.TextColor);
-                                else if (item.IsChecked(column)) context.Fill(new Rectangle(box.X + 4, box.Y + 4, 6, 6), Color.White);
+                                var state = item.IsIndeterminate(column) ? "indeterminate" : item.IsChecked(column) ? "checked" : "unchecked";
+                                if (!item.IsEditable(column)) state += "_disabled";
+                                var check = GetThemeIcon(state);
+                                if (check.HasValue) context.Icon(check.Value, box, Color.White);
+                                else
+                                {
+                                    context.Fill(box, item.IsChecked(column) ? checkColor : context.Theme.BackgroundColor); context.Border(box, context.Theme.PanelBorderColor);
+                                    if (item.IsIndeterminate(column)) context.Fill(new Rectangle(box.X + 3, box.Y + 6, 8, 2), context.Theme.TextColor);
+                                    else if (item.IsChecked(column)) context.Fill(new Rectangle(box.X + 4, box.Y + 4, 6, 6), Color.White);
+                                }
                                 textX += 18;
                             }
                             else if (item.GetCellMode(column) == TreeCellMode.Range)
@@ -1676,7 +1699,9 @@ namespace Forma
                                 var spinner = GetRangeSpinnerRectangle(cell);
                                 context.Fill(spinner, item.IsEditable(column) ? context.Theme.BackgroundColor : context.Theme.DisabledTextColor);
                                 context.Border(spinner, context.Theme.PanelBorderColor);
-                                if (string.IsNullOrEmpty(item.GetText(column)))
+                                var updown = GetThemeIcon("updown");
+                                if (updown.HasValue) context.Icon(updown.Value, new Vector2(spinner.Center.X - updown.Value.LogicalSize.X / 2, spinner.Center.Y - updown.Value.LogicalSize.Y / 2), item.IsEditable(column) ? Color.White : context.Theme.DisabledTextColor);
+                                else if (string.IsNullOrEmpty(item.GetText(column)))
                                 {
                                     var centerX = spinner.X + spinner.Width / 2;
                                     context.Fill(new Rectangle(centerX - 2, spinner.Y + 4, 5, 3), context.Theme.TextColor);
@@ -1685,16 +1710,21 @@ namespace Forma
                                 else
                                     context.Fill(new Rectangle(spinner.X + Math.Max(1, spinner.Width / 2 - 2), spinner.Y + spinner.Height / 2 - 1, 5, 3), context.Theme.TextColor);
                             }
-                            var cellFont = item.GetCustomFont(column) ?? Font;
+                            if (item.GetCellMode(column) == TreeCellMode.Custom && item.IsEditable(column))
+                            {
+                                var selectArrow = GetThemeIcon("select_arrow");
+                                if (selectArrow.HasValue) context.Icon(selectArrow.Value, new Vector2(cell.Right - 4 - selectArrow.Value.LogicalSize.X, cell.Center.Y - selectArrow.Value.LogicalSize.Y / 2), Color.White);
+                            }
+                            var cellFont = item.GetEffectiveCustomUIFont(column) ?? EffectiveUIFont;
                             if (cellFont != null)
                             {
-                                var fontScale = GetCellFontScale(item, column, cellFont);
-                                var lineHeight = Math.Max(1, (int)MathF.Ceiling(cellFont.LineSpacing * fontScale));
-                                var text = item.GetDisplayText(column); var textWidth = cellFont.MeasureString(text).X * fontScale;
+                                cellFont = TextMetrics.Resize(cellFont, item.GetCustomFontSize(column));
+                                var lineHeight = TextMetrics.LineHeight(cellFont);
+                                var text = item.GetDisplayText(column); var textWidth = TextMetrics.Measure(cellFont, text).X;
                                 if (item.GetExpandRight(column) || item.GetTextAlignment(column) == HorizontalAlignment.Right) textX = cell.Right - 4 - (int)MathF.Ceiling(textWidth);
                                 else if (item.GetTextAlignment(column) == HorizontalAlignment.Center) textX = cell.X + (cell.Width - (int)MathF.Ceiling(textWidth)) / 2;
                                 var defaultColor = item.IsSelectable(column) && (item.GetCellMode(column) != TreeCellMode.Check || item.IsEditable(column)) ? context.Theme.TextColor : context.Theme.DisabledTextColor;
-                                context.Text(cellFont, text, new Vector2(textX, rect.Y + Math.Max(2, (rect.Height - lineHeight) / 2)), item.GetCustomColor(column) ?? defaultColor, fontScale);
+                                context.Text(cellFont, text, new Vector2(textX, rect.Y + Math.Max(2, (rect.Height - lineHeight) / 2)), item.GetCustomColor(column) ?? defaultColor);
                             }
                             for (var buttonIndex = 0; buttonIndex < item.GetButtonCount(column); buttonIndex++)
                             {
@@ -1954,15 +1984,10 @@ namespace Forma
             var height = Math.Max(Math.Max(1, (int)ItemHeight), item.GetCustomMinimumHeight());
             for (var column = 0; column < Columns; column++)
             {
-                var font = item.GetCustomFont(column) ?? Font;
-                if (font != null) height = Math.Max(height, (int)MathF.Ceiling(font.LineSpacing * GetCellFontScale(item, column, font)));
+                var font = item.GetEffectiveCustomUIFont(column) ?? EffectiveUIFont;
+                if (font != null) height = Math.Max(height, TextMetrics.LineHeight(TextMetrics.Resize(font, item.GetCustomFontSize(column))));
             }
             return height;
-        }
-        private static float GetCellFontScale(TreeItem item, int column, SpriteFont font)
-        {
-            var size = item.GetCustomFontSize(column);
-            return size > 0 && font.LineSpacing > 0 ? size / (float)font.LineSpacing : 1f;
         }
         private int GetRowTop(List<TreeItem> rows, int rowIndex)
         {

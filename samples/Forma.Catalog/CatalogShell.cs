@@ -30,7 +30,7 @@ public sealed class CatalogShell : BoxContainer
     private readonly Label _storyTitle;
     private readonly Label _storyCategory;
     private readonly RichTextLabel _description;
-    private readonly CenterContainer _preview;
+    private readonly CatalogPreviewContainer _preview;
     private readonly VBoxContainer _inspector;
     private readonly Label _count;
     private readonly Action<bool> _setDynamicTextEnabled;
@@ -85,7 +85,7 @@ public sealed class CatalogShell : BoxContainer
 
         var previewMargin = new MarginContainer { ThemeOverrides = new Thickness(24), VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
         var previewPanel = CreatePanel(new Color(25, 30, 39), new Color(56, 66, 82));
-        _preview = new CenterContainer();
+        _preview = new CatalogPreviewContainer();
         previewPanel.AddChild(_preview);
         previewMargin.AddChild(previewPanel);
         center.AddChild(previewMargin);
@@ -311,5 +311,33 @@ public sealed class CatalogShell : BoxContainer
     private static void ClearChildren(Control control)
     {
         while (control.Children.Count > 0) control.RemoveChild(control.Children[control.Children.Count - 1]);
+    }
+
+    private sealed class CatalogPreviewContainer : Container
+    {
+        public override Vector2 GetMinimumSize()
+        {
+            var minimum = CustomMinimumSize;
+            foreach (var child in Children)
+                if (child.Visible) minimum = Vector2.Max(minimum, child.GetMinimumSize());
+            return minimum;
+        }
+
+        protected override void ArrangeChildren()
+        {
+            foreach (var child in Children)
+            {
+                if (!child.Visible) continue;
+                var childSize = child.GetMinimumSize();
+                var expandHorizontal = (child.HorizontalSizeFlags & SizeFlags.Expand) != 0;
+                var expandVertical = (child.VerticalSizeFlags & SizeFlags.Expand) != 0;
+                if (expandHorizontal) childSize.X = Size.X;
+                if (expandVertical) childSize.Y = Size.Y;
+                child.Size = Vector2.Max(Vector2.Zero, childSize);
+                child.Position = new Vector2(
+                    expandHorizontal ? 0 : MathF.Floor((Size.X - childSize.X) / 2),
+                    expandVertical ? 0 : MathF.Floor((Size.Y - childSize.Y) / 2));
+            }
+        }
     }
 }

@@ -71,6 +71,28 @@ public sealed class CatalogInventoryTest
     }
 
     [Test]
+    public void GraphEditStoryFillsTheAvailablePreviewSurface()
+    {
+        var font = CreateTestFont();
+        var stories = StoryCatalog.Create(null);
+        var shell = new CatalogShell(stories, font, font) { Size = new Vector2(1600, 900) };
+        using var context = new UIContext();
+        context.Add(shell);
+        Assert.That(shell.SelectStory(nameof(GraphEdit)), Is.True);
+
+        context.Layout();
+
+        var graphEdit = Flatten(shell).OfType<GraphEdit>().Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(graphEdit.Position, Is.EqualTo(Vector2.Zero));
+            Assert.That(graphEdit.Size, Is.EqualTo(graphEdit.Parent.Size));
+            Assert.That(graphEdit.Size.X, Is.GreaterThan(graphEdit.CustomMinimumSize.X));
+            Assert.That(graphEdit.Size.Y, Is.GreaterThan(graphEdit.CustomMinimumSize.Y));
+        });
+    }
+
+    [Test]
     public void TypographyStoriesUseRealFallbackRunsAndKeepLogicalBoundsAcrossDensityChanges()
     {
         using var interFace = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");

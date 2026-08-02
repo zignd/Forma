@@ -798,6 +798,8 @@ public static class StoryCatalog
         }
         if (control is GraphEdit graphEdit)
         {
+            graphEdit.HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand;
+            graphEdit.VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand;
             var source = new GraphNode { Name = "Input", Title = "Input", Position = new Vector2(32, 54), Size = new Vector2(150, 84) };
             source.AddOutputPort("value", 1, new Color(48, 185, 164));
             var output = new GraphNode { Name = "Output", Title = "Output", Position = new Vector2(310, 180), Size = new Vector2(150, 84) };

@@ -1,0 +1,935 @@
+{
+  "SourceRevision": "b4fb06cdb3db0c61db40c7b365bfa7adec3cb2ce",
+  "Icons": [
+    {
+      "Name": "arrow_down",
+      "Source": "scene/theme/icons/arrow_down.svg",
+      "Sha256": "2146798d0f0687af4b94890c66882b53602bc4c726662d30798e9d21bce2c5d1",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CodeEdit:can_fold",
+        "Tree:arrow",
+        "FoldableContainer:expanded_arrow"
+      ],
+      "States": [
+        "expanded"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "arrow_left",
+      "Source": "scene/theme/icons/arrow_left.svg",
+      "Sha256": "7a21120e4d13d9b2d1298beb660872ae8f0621a08b862928740cc3cc19224e67",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "Tree:arrow_collapsed_mirrored",
+        "FoldableContainer:folded_arrow_mirrored"
+      ],
+      "States": [
+        "collapsed"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "arrow_right",
+      "Source": "scene/theme/icons/arrow_right.svg",
+      "Sha256": "531f7edac58b6a0f61d7ae88bfcf1b371fbe498eb29b6e5321aaac2130519b55",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CodeEdit:executing_line",
+        "CodeEdit:folded",
+        "Tree:arrow_collapsed",
+        "FoldableContainer:folded_arrow"
+      ],
+      "States": [
+        "collapsed",
+        "executing"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "arrow_up",
+      "Source": "scene/theme/icons/arrow_up.svg",
+      "Sha256": "2de93bbfbc65100e8ae93631af65cd88481d61cdbe9e497f2beb919e1891648d",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FoldableContainer:expanded_arrow_mirrored"
+      ],
+      "States": [
+        "expanded"
+      ],
+      "Directionality": "up"
+    },
+    {
+      "Name": "bookmark",
+      "Source": "scene/theme/icons/bookmark.svg",
+      "Sha256": "c8b6a3404437a3393d6d4d9dd3e36875d83d2da487948b61be1938709b3b2b74",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CodeEdit:bookmark"
+      ],
+      "States": [
+        "marked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "breakpoint",
+      "Source": "scene/theme/icons/breakpoint.svg",
+      "Sha256": "55099979653741bff646071c366ab9f8e8de7e4a13e5a4c00ea287a3446dc5d6",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CodeEdit:breakpoint"
+      ],
+      "States": [
+        "marked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "checked",
+      "Source": "scene/theme/icons/checked.svg",
+      "Sha256": "b3aee05e08b33488ea1a20eaa89565152e28c284eda5cae35b398a3a0baf625c",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckBox:checked",
+        "PopupMenu:checked",
+        "Tree:checked"
+      ],
+      "States": [
+        "checked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "checked_disabled",
+      "Source": "scene/theme/icons/checked_disabled.svg",
+      "Sha256": "9b30ad8bef15bf26544cd51c865816755061ed345bbaac2bcb3653a6e9411ad2",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckBox:checked_disabled",
+        "PopupMenu:checked_disabled",
+        "Tree:checked_disabled"
+      ],
+      "States": [
+        "checked",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "close",
+      "Source": "scene/theme/icons/close.svg",
+      "Sha256": "8fa77b2e08dcc8f767373a4d8b14113ab346571241866f46d32c8ade6e9ec9a7",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "TabBar:close"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "color_picker_cursor",
+      "Source": "scene/theme/icons/color_picker_cursor.svg",
+      "Sha256": "58cf5f15cf774fbbdcfeda096370faacf277db5f7e93f1c58c7c7d0a7f200534",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "ColorPicker:picker_cursor"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "color_picker_cursor_bg",
+      "Source": "scene/theme/icons/color_picker_cursor_bg.svg",
+      "Sha256": "5de94b3dc9c2f386896b4533c6e7f3407f087bff05e9995d947fed98d3661a0d",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "ColorPicker:picker_cursor_bg"
+      ],
+      "States": [
+        "background"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file",
+      "Source": "scene/theme/icons/file.svg",
+      "Sha256": "c9d7fa08f85ccdc4ce0433107c624af705822671ffcd37ec269b9b0961d74607",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:file"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "folder",
+      "Source": "scene/theme/icons/folder.svg",
+      "Sha256": "cf0e70d5c9511782fe349f2acae5940b216eb048a00cccd00d1f2ba5ea017a92",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:folder"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "graph_port",
+      "Source": "scene/theme/icons/graph_port.svg",
+      "Sha256": "5c1b5d161c16e6ddc2b0c7932f9b3210dcb5fce326062acbd4b45d62c6aad331",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "GraphNode:port"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_layout",
+      "Source": "scene/theme/icons/grid_layout.svg",
+      "Sha256": "2babbe3158c4301f9b9152d1f2f6b19793129afbf0403f604ff698e1f849e5d0",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "GraphEdit:layout"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_minimap",
+      "Source": "scene/theme/icons/grid_minimap.svg",
+      "Sha256": "b8164797a6b462179e38cd9a6e7c22c8036a05bb5670aad317d02f48fde2a505",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "GraphEdit:minimap_toggle"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_snap",
+      "Source": "scene/theme/icons/grid_snap.svg",
+      "Sha256": "84f1c76b088218ffdb26b4c86a031d335ae66f215957f77f07b7cf1717c599d7",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "GraphEdit:snapping_toggle"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_toggle",
+      "Source": "scene/theme/icons/grid_toggle.svg",
+      "Sha256": "725f84f93d9614a62d9d9b24fa6f6b331a5750302ce4f26716488a13bea52481",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "GraphEdit:grid_toggle"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "h_dragger",
+      "Source": "scene/theme/icons/h_dragger.svg",
+      "Sha256": "d38d6fd5f68dfa32592a71b3b55055bdfec29e10b82224f937638906ec41bb50",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "SplitContainer:h_touch_dragger"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "hslider_tick",
+      "Source": "scene/theme/icons/hslider_tick.svg",
+      "Sha256": "6d86ef48b8c5b2804fa8e0a937c69b956d7d88d2c34efe239705627d3f347aec",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "HSlider:tick"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "hsplitter",
+      "Source": "scene/theme/icons/hsplitter.svg",
+      "Sha256": "97fe32a931b61229cdef9938c4aec596555c249bf54abaf186039d697aa0c9ca",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "SplitContainer:h_grabber"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "indeterminate",
+      "Source": "scene/theme/icons/indeterminate.svg",
+      "Sha256": "51a68db8145fd23a19745cab5d3c56914dd94c3de8ac4742b911f502f5fcde10",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "PopupMenu:indeterminate",
+        "Tree:indeterminate"
+      ],
+      "States": [
+        "indeterminate"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "indeterminate_disabled",
+      "Source": "scene/theme/icons/indeterminate_disabled.svg",
+      "Sha256": "1e08a54816d630b019eaf06c8c56fc0f0043ba28362b5f1da79d04b36f556033",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "PopupMenu:indeterminate_disabled",
+        "Tree:indeterminate_disabled"
+      ],
+      "States": [
+        "indeterminate",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "line_edit_clear",
+      "Source": "scene/theme/icons/line_edit_clear.svg",
+      "Sha256": "8fa77b2e08dcc8f767373a4d8b14113ab346571241866f46d32c8ade6e9ec9a7",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "LineEdit:clear",
+        "FileDialog:clear"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "mini_checkerboard",
+      "Source": "scene/theme/icons/mini_checkerboard.svg",
+      "Sha256": "20535ce47b05f3b4b21201ca74bfb99ba8b7974653331d88f928bb108f3b092c",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CodeEdit:completion_color_bg"
+      ],
+      "States": [
+        "background"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "option_button_arrow",
+      "Source": "scene/theme/icons/option_button_arrow.svg",
+      "Sha256": "abad611abe9c6a3be062912527f137f705374f39a477d30e4cad8fe6b8f4baaf",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "OptionButton:arrow",
+        "Tree:select_arrow"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "popup_menu_arrow_left",
+      "Source": "scene/theme/icons/popup_menu_arrow_left.svg",
+      "Sha256": "8663500c0bd33a9e0090aaee4a9db890b96a872be0db6bc4e0abf95c81c9a399",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "PopupMenu:submenu_mirrored"
+      ],
+      "States": [
+        "submenu"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "popup_menu_arrow_right",
+      "Source": "scene/theme/icons/popup_menu_arrow_right.svg",
+      "Sha256": "07908b49f4d9b1851ffcb8cc87cb2170af2d66d1ecc86159519ea86ff6b771c3",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "PopupMenu:submenu"
+      ],
+      "States": [
+        "submenu"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "radio_checked",
+      "Source": "scene/theme/icons/radio_checked.svg",
+      "Sha256": "20253511c091ce342c64211220f7484905740d202e1fb041ee14fe2bf98c6d3f",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckBox:radio_checked",
+        "PopupMenu:radio_checked"
+      ],
+      "States": [
+        "checked",
+        "radio"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "radio_checked_disabled",
+      "Source": "scene/theme/icons/radio_checked_disabled.svg",
+      "Sha256": "92db771338685cfeb397c1cea6da70c6888c42b45069709798226cab847884c5",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckBox:radio_checked_disabled",
+        "PopupMenu:radio_checked_disabled"
+      ],
+      "States": [
+        "checked",
+        "radio",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "radio_unchecked",
+      "Source": "scene/theme/icons/radio_unchecked.svg",
+      "Sha256": "c0e496c833b88da2d7befc54d4aa63b1f9978dde9517e0135a79a87efda54db5",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckBox:radio_unchecked",
+        "PopupMenu:radio_unchecked"
+      ],
+      "States": [
+        "unchecked",
+        "radio"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "radio_unchecked_disabled",
+      "Source": "scene/theme/icons/radio_unchecked_disabled.svg",
+      "Sha256": "3a8776fd46b6827c94d27d9210075d00d1f102a0202de53b7afe6cf4240afa88",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckBox:radio_unchecked_disabled",
+        "PopupMenu:radio_unchecked_disabled"
+      ],
+      "States": [
+        "unchecked",
+        "radio",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "region_folded",
+      "Source": "scene/theme/icons/region_folded.svg",
+      "Sha256": "434ef42e14944c633d2f389851aa3242595923d4a6c1ef9e01d6bc761db919d6",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CodeEdit:folded_code_region"
+      ],
+      "States": [
+        "folded",
+        "region"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "region_unfolded",
+      "Source": "scene/theme/icons/region_unfolded.svg",
+      "Sha256": "158098e25cba824fe2f41e9476032bf1899bad94cd3998ab873999b66aeae68b",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CodeEdit:can_fold_code_region"
+      ],
+      "States": [
+        "expanded",
+        "region"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "scroll_button_left",
+      "Source": "scene/theme/icons/scroll_button_left.svg",
+      "Sha256": "95142b830f05eda3dfc5e2e5d8749bc7ea667c4e1ab8502fb148adefe38bf4c0",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "TabBar:decrement",
+        "TabContainer:decrement"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "scroll_button_left_hl",
+      "Source": "scene/theme/icons/scroll_button_left_hl.svg",
+      "Sha256": "400db4724f95f1c8467d9bb597eaf4e41cd79d72c3d297e1aaa3ff95d750ac06",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "TabBar:decrement_highlight",
+        "TabContainer:decrement_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "scroll_button_right",
+      "Source": "scene/theme/icons/scroll_button_right.svg",
+      "Sha256": "be58f60503f6dffe7f278f5132c47e8cf68551c18e3d2d357cffd8aa22388e4a",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "TabBar:increment",
+        "TabContainer:increment"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "scroll_button_right_hl",
+      "Source": "scene/theme/icons/scroll_button_right_hl.svg",
+      "Sha256": "fcd50498357b016c17c196462a84bfef9bda283d327bc2cec9d51cc9c339d0f3",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "TabBar:increment_highlight",
+        "TabContainer:increment_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "scroll_hint_horizontal",
+      "Source": "scene/theme/icons/scroll_hint_horizontal.svg",
+      "Sha256": "fbe34532ea6643e2fe839833c3948f428e57e21ed56ee24fc528e68da68a5928",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "ScrollContainer:scroll_hint_horizontal"
+      ],
+      "States": [
+        "overflow"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "scroll_hint_vertical",
+      "Source": "scene/theme/icons/scroll_hint_vertical.svg",
+      "Sha256": "f88f0908ac86fb611b8fcaff552a1ec0ecf8cb118423d0f76b304658c23ea158",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "ScrollContainer:scroll_hint_vertical"
+      ],
+      "States": [
+        "overflow"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "slider_grabber",
+      "Source": "scene/theme/icons/slider_grabber.svg",
+      "Sha256": "94a836836969d6b1a82985b74305c2286c242f8dbda5d1632d5a13ffec7e7649",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "HSlider:grabber",
+        "VSlider:grabber"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "slider_grabber_disabled",
+      "Source": "scene/theme/icons/slider_grabber_disabled.svg",
+      "Sha256": "3f5a8888cbfdc9b7a23944dadec9441dc65a77ecc3e4903fb15af7cdad82b8e7",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "HSlider:grabber_disabled",
+        "VSlider:grabber_disabled"
+      ],
+      "States": [
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "slider_grabber_hl",
+      "Source": "scene/theme/icons/slider_grabber_hl.svg",
+      "Sha256": "6be90ae6d97e54ded873265ad21ad8eb2274b140dff8ff11a6d189e2addc9657",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "HSlider:grabber_highlight",
+        "VSlider:grabber_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "tabs_menu",
+      "Source": "scene/theme/icons/tabs_menu.svg",
+      "Sha256": "e1f30bca80b203be9858f4dcda2715b051c5b70e82eddf7a4d49a8c52686db47",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "TabContainer:menu"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "tabs_menu_hl",
+      "Source": "scene/theme/icons/tabs_menu_hl.svg",
+      "Sha256": "dde9c7c0183e11ee9d108ec34e430178fbc70087f5d39294d087ad05bbdba56b",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "TabContainer:menu_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "text_edit_ellipsis",
+      "Source": "scene/theme/icons/text_edit_ellipsis.svg",
+      "Sha256": "957465215387c2b4fe3f8368d6a1b0431a1d42ef210d82adb0c73df793ec02ca",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CodeEdit:folded_eol_icon"
+      ],
+      "States": [
+        "folded"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "text_edit_space",
+      "Source": "scene/theme/icons/text_edit_space.svg",
+      "Sha256": "ea44b728de531c3f76eabde2caa970a52d01c1aae324f6bbda691f8ad512e285",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "TextEdit:space",
+        "CodeEdit:space"
+      ],
+      "States": [
+        "control_character"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "text_edit_tab",
+      "Source": "scene/theme/icons/text_edit_tab.svg",
+      "Sha256": "76a3dc5cd840762e4f00d7bdc9d5d5835f4a387b1076bee25bdd619e4ee87d73",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "TextEdit:tab",
+        "CodeEdit:tab"
+      ],
+      "States": [
+        "control_character"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_off",
+      "Source": "scene/theme/icons/toggle_off.svg",
+      "Sha256": "2b469ce6d1647e7db77e1af69391435a2a5a407a5b820c948bf408abc01b0359",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckButton:unchecked"
+      ],
+      "States": [
+        "unchecked"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_off_disabled",
+      "Source": "scene/theme/icons/toggle_off_disabled.svg",
+      "Sha256": "8a4caea81519c9269cf9d581a8b9f8d480704c30fc8733af8fd677b167ae62a8",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckButton:unchecked_disabled"
+      ],
+      "States": [
+        "unchecked",
+        "disabled"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_off_disabled_mirrored",
+      "Source": "scene/theme/icons/toggle_off_disabled_mirrored.svg",
+      "Sha256": "c8a8e494b8fa120509aaed91904c17ab2c8d4262b0ddf3dc585d30eb9502cd12",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckButton:unchecked_disabled_mirrored"
+      ],
+      "States": [
+        "unchecked",
+        "disabled"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "toggle_off_mirrored",
+      "Source": "scene/theme/icons/toggle_off_mirrored.svg",
+      "Sha256": "00cc19651c7bee2849a6cfcedeed6ded515c1e5c864c5612d25bc7c7b7301607",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckButton:unchecked_mirrored"
+      ],
+      "States": [
+        "unchecked"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "toggle_on",
+      "Source": "scene/theme/icons/toggle_on.svg",
+      "Sha256": "df800993b20a99eea47f352db93730158ba9fa883fccbc4d51d102d0592f91ed",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckButton:checked"
+      ],
+      "States": [
+        "checked"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_on_disabled",
+      "Source": "scene/theme/icons/toggle_on_disabled.svg",
+      "Sha256": "e16ad6d3ae84d104f45791ced5a5c1aecb3637598af97a469c4dfd3bb7102088",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckButton:checked_disabled"
+      ],
+      "States": [
+        "checked",
+        "disabled"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_on_disabled_mirrored",
+      "Source": "scene/theme/icons/toggle_on_disabled_mirrored.svg",
+      "Sha256": "5d8b845538f97a138c0a0b98cec2234c9655be04381277897ac54f07b9b462c9",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckButton:checked_disabled_mirrored"
+      ],
+      "States": [
+        "checked",
+        "disabled"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "toggle_on_mirrored",
+      "Source": "scene/theme/icons/toggle_on_mirrored.svg",
+      "Sha256": "5a0b5e0ff306e3f352bb51c4a414015d16ad745b4deebaf43defb316c8cd3cdd",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckButton:checked_mirrored"
+      ],
+      "States": [
+        "checked"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "unchecked",
+      "Source": "scene/theme/icons/unchecked.svg",
+      "Sha256": "d4a3bc42abd4a6dcdbb2e277be9fd5775503cd118583d15c15d5dfcc2d42430f",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckBox:unchecked",
+        "PopupMenu:unchecked",
+        "Tree:unchecked"
+      ],
+      "States": [
+        "unchecked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "unchecked_disabled",
+      "Source": "scene/theme/icons/unchecked_disabled.svg",
+      "Sha256": "8208a5c333dbce80abe82685af8b2ac02c8228829151b89ec3514958a5f8e9fd",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "CheckBox:unchecked_disabled",
+        "PopupMenu:unchecked_disabled",
+        "Tree:unchecked_disabled"
+      ],
+      "States": [
+        "unchecked",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "updown",
+      "Source": "scene/theme/icons/updown.svg",
+      "Sha256": "fba1ea1b11a0436c8a0f5aede5223d95afdb782f40ff3368ed66f50a46fe4ac2",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "Tree:updown"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "v_dragger",
+      "Source": "scene/theme/icons/v_dragger.svg",
+      "Sha256": "3bd50e434d4c4495602eda90baedec4ea137494f8b0d2bf4c8433195636c2b11",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "SplitContainer:v_touch_dragger"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "value_down",
+      "Source": "scene/theme/icons/value_down.svg",
+      "Sha256": "dc8644fe8ad5c4e725cf918478252b93e2081a688d207d748e1c2749d5022466",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "SpinBox:down",
+        "SpinBox:down_hover",
+        "SpinBox:down_pressed",
+        "SpinBox:down_disabled"
+      ],
+      "States": [
+        "default",
+        "hovered",
+        "pressed",
+        "disabled"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "value_up",
+      "Source": "scene/theme/icons/value_up.svg",
+      "Sha256": "750b59b93c33108be1a4fe82f5717d15b7f007dab827618abf9b3dfc170376d6",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "SpinBox:up",
+        "SpinBox:up_hover",
+        "SpinBox:up_pressed",
+        "SpinBox:up_disabled"
+      ],
+      "States": [
+        "default",
+        "hovered",
+        "pressed",
+        "disabled"
+      ],
+      "Directionality": "up"
+    },
+    {
+      "Name": "vslider_tick",
+      "Source": "scene/theme/icons/vslider_tick.svg",
+      "Sha256": "102054edf491d333f4b00d5bfc5bd697d0c7ae5f763cf9dfa6405f05f8bb605c",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "VSlider:tick"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "vsplitter",
+      "Source": "scene/theme/icons/vsplitter.svg",
+      "Sha256": "ca5047c353158adb21fc88c5592c432a7d16e5d68d83110fbfe3943de803c7c0",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "SplitContainer:v_grabber"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "zoom_less",
+      "Source": "scene/theme/icons/zoom_less.svg",
+      "Sha256": "3f2b9e0b6c12578cc22a17c07660f1bf3c46ad60be2c5e3e1c9675416894493f",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "GraphEdit:zoom_out"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "zoom_more",
+      "Source": "scene/theme/icons/zoom_more.svg",
+      "Sha256": "a15a71115118c1dfb36b2cab255e03066b8cccc95e1b57f2f6ab2c8f4263aaed",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "GraphEdit:zoom_in"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "zoom_reset",
+      "Source": "scene/theme/icons/zoom_reset.svg",
+      "Sha256": "344cf02bbed1208089fbb6b8d66a94c976abaa0f2451b8f2419a54fe882434ec",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "GraphEdit:zoom_reset"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    }
+  ]
+}

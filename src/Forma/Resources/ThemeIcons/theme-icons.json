@@ -1,0 +1,2690 @@
+{
+  "SchemaVersion": 1,
+  "SourceRevision": "b4fb06cdb3db0c61db40c7b365bfa7adec3cb2ce",
+  "Renderer": "Svg.Skia",
+  "RendererVersion": "3.2.0",
+  "PixelFormat": "PNG RGBA8888 sRGB premultiplied alpha",
+  "LogicalPadding": 2,
+  "Atlases": [
+    {
+      "Density": 1,
+      "FileName": "theme-icons-1x.png",
+      "Width": 512,
+      "Height": 134,
+      "Sha256": "7c1ea0c04a0a6d4151161508b9583fa2f5c4119cd2a83940e0ec922c66e15351"
+    },
+    {
+      "Density": 2,
+      "FileName": "theme-icons-2x.png",
+      "Width": 1024,
+      "Height": 268,
+      "Sha256": "ca01b9ca819db41849db7cb1ccef7c13a382f94f36a04a04eced8fc100d214a2"
+    }
+  ],
+  "Icons": [
+    {
+      "Name": "arrow_down",
+      "Density": 1,
+      "X": 2,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/arrow_down.svg",
+      "SourceSha256": "2146798d0f0687af4b94890c66882b53602bc4c726662d30798e9d21bce2c5d1",
+      "Bindings": [
+        "CodeEdit:can_fold",
+        "Tree:arrow",
+        "FoldableContainer:expanded_arrow"
+      ],
+      "States": [
+        "expanded"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "arrow_left",
+      "Density": 1,
+      "X": 22,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/arrow_left.svg",
+      "SourceSha256": "7a21120e4d13d9b2d1298beb660872ae8f0621a08b862928740cc3cc19224e67",
+      "Bindings": [
+        "Tree:arrow_collapsed_mirrored",
+        "FoldableContainer:folded_arrow_mirrored"
+      ],
+      "States": [
+        "collapsed"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "arrow_right",
+      "Density": 1,
+      "X": 42,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/arrow_right.svg",
+      "SourceSha256": "531f7edac58b6a0f61d7ae88bfcf1b371fbe498eb29b6e5321aaac2130519b55",
+      "Bindings": [
+        "CodeEdit:executing_line",
+        "CodeEdit:folded",
+        "Tree:arrow_collapsed",
+        "FoldableContainer:folded_arrow"
+      ],
+      "States": [
+        "collapsed",
+        "executing"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "arrow_up",
+      "Density": 1,
+      "X": 62,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/arrow_up.svg",
+      "SourceSha256": "2de93bbfbc65100e8ae93631af65cd88481d61cdbe9e497f2beb919e1891648d",
+      "Bindings": [
+        "FoldableContainer:expanded_arrow_mirrored"
+      ],
+      "States": [
+        "expanded"
+      ],
+      "Directionality": "up"
+    },
+    {
+      "Name": "bookmark",
+      "Density": 1,
+      "X": 82,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/bookmark.svg",
+      "SourceSha256": "c8b6a3404437a3393d6d4d9dd3e36875d83d2da487948b61be1938709b3b2b74",
+      "Bindings": [
+        "CodeEdit:bookmark"
+      ],
+      "States": [
+        "marked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "breakpoint",
+      "Density": 1,
+      "X": 102,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/breakpoint.svg",
+      "SourceSha256": "55099979653741bff646071c366ab9f8e8de7e4a13e5a4c00ea287a3446dc5d6",
+      "Bindings": [
+        "CodeEdit:breakpoint"
+      ],
+      "States": [
+        "marked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "checked",
+      "Density": 1,
+      "X": 122,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/checked.svg",
+      "SourceSha256": "b3aee05e08b33488ea1a20eaa89565152e28c284eda5cae35b398a3a0baf625c",
+      "Bindings": [
+        "CheckBox:checked",
+        "PopupMenu:checked",
+        "Tree:checked"
+      ],
+      "States": [
+        "checked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "checked_disabled",
+      "Density": 1,
+      "X": 142,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/checked_disabled.svg",
+      "SourceSha256": "9b30ad8bef15bf26544cd51c865816755061ed345bbaac2bcb3653a6e9411ad2",
+      "Bindings": [
+        "CheckBox:checked_disabled",
+        "PopupMenu:checked_disabled",
+        "Tree:checked_disabled"
+      ],
+      "States": [
+        "checked",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "close",
+      "Density": 1,
+      "X": 162,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/close.svg",
+      "SourceSha256": "8fa77b2e08dcc8f767373a4d8b14113ab346571241866f46d32c8ade6e9ec9a7",
+      "Bindings": [
+        "TabBar:close"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "color_picker_cursor",
+      "Density": 1,
+      "X": 182,
+      "Y": 2,
+      "Width": 12,
+      "Height": 12,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/color_picker_cursor.svg",
+      "SourceSha256": "58cf5f15cf774fbbdcfeda096370faacf277db5f7e93f1c58c7c7d0a7f200534",
+      "Bindings": [
+        "ColorPicker:picker_cursor"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "color_picker_cursor_bg",
+      "Density": 1,
+      "X": 198,
+      "Y": 2,
+      "Width": 12,
+      "Height": 12,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/color_picker_cursor_bg.svg",
+      "SourceSha256": "5de94b3dc9c2f386896b4533c6e7f3407f087bff05e9995d947fed98d3661a0d",
+      "Bindings": [
+        "ColorPicker:picker_cursor_bg"
+      ],
+      "States": [
+        "background"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file",
+      "Density": 1,
+      "X": 214,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/file.svg",
+      "SourceSha256": "c9d7fa08f85ccdc4ce0433107c624af705822671ffcd37ec269b9b0961d74607",
+      "Bindings": [
+        "FileDialog:file"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "folder",
+      "Density": 1,
+      "X": 234,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/folder.svg",
+      "SourceSha256": "cf0e70d5c9511782fe349f2acae5940b216eb048a00cccd00d1f2ba5ea017a92",
+      "Bindings": [
+        "FileDialog:folder"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "graph_port",
+      "Density": 1,
+      "X": 254,
+      "Y": 2,
+      "Width": 10,
+      "Height": 10,
+      "LogicalWidth": 10,
+      "LogicalHeight": 10,
+      "Source": "scene/theme/icons/graph_port.svg",
+      "SourceSha256": "5c1b5d161c16e6ddc2b0c7932f9b3210dcb5fce326062acbd4b45d62c6aad331",
+      "Bindings": [
+        "GraphNode:port"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_layout",
+      "Density": 1,
+      "X": 268,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/grid_layout.svg",
+      "SourceSha256": "2babbe3158c4301f9b9152d1f2f6b19793129afbf0403f604ff698e1f849e5d0",
+      "Bindings": [
+        "GraphEdit:layout"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_minimap",
+      "Density": 1,
+      "X": 288,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/grid_minimap.svg",
+      "SourceSha256": "b8164797a6b462179e38cd9a6e7c22c8036a05bb5670aad317d02f48fde2a505",
+      "Bindings": [
+        "GraphEdit:minimap_toggle"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_snap",
+      "Density": 1,
+      "X": 308,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/grid_snap.svg",
+      "SourceSha256": "84f1c76b088218ffdb26b4c86a031d335ae66f215957f77f07b7cf1717c599d7",
+      "Bindings": [
+        "GraphEdit:snapping_toggle"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_toggle",
+      "Density": 1,
+      "X": 328,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/grid_toggle.svg",
+      "SourceSha256": "725f84f93d9614a62d9d9b24fa6f6b331a5750302ce4f26716488a13bea52481",
+      "Bindings": [
+        "GraphEdit:grid_toggle"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "h_dragger",
+      "Density": 1,
+      "X": 348,
+      "Y": 2,
+      "Width": 30,
+      "Height": 60,
+      "LogicalWidth": 30,
+      "LogicalHeight": 60,
+      "Source": "scene/theme/icons/h_dragger.svg",
+      "SourceSha256": "d38d6fd5f68dfa32592a71b3b55055bdfec29e10b82224f937638906ec41bb50",
+      "Bindings": [
+        "SplitContainer:h_touch_dragger"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "hslider_tick",
+      "Density": 1,
+      "X": 382,
+      "Y": 2,
+      "Width": 4,
+      "Height": 8,
+      "LogicalWidth": 4,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/hslider_tick.svg",
+      "SourceSha256": "6d86ef48b8c5b2804fa8e0a937c69b956d7d88d2c34efe239705627d3f347aec",
+      "Bindings": [
+        "HSlider:tick"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "hsplitter",
+      "Density": 1,
+      "X": 390,
+      "Y": 2,
+      "Width": 8,
+      "Height": 48,
+      "LogicalWidth": 8,
+      "LogicalHeight": 48,
+      "Source": "scene/theme/icons/hsplitter.svg",
+      "SourceSha256": "97fe32a931b61229cdef9938c4aec596555c249bf54abaf186039d697aa0c9ca",
+      "Bindings": [
+        "SplitContainer:h_grabber"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "indeterminate",
+      "Density": 1,
+      "X": 402,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/indeterminate.svg",
+      "SourceSha256": "51a68db8145fd23a19745cab5d3c56914dd94c3de8ac4742b911f502f5fcde10",
+      "Bindings": [
+        "PopupMenu:indeterminate",
+        "Tree:indeterminate"
+      ],
+      "States": [
+        "indeterminate"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "indeterminate_disabled",
+      "Density": 1,
+      "X": 422,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/indeterminate_disabled.svg",
+      "SourceSha256": "1e08a54816d630b019eaf06c8c56fc0f0043ba28362b5f1da79d04b36f556033",
+      "Bindings": [
+        "PopupMenu:indeterminate_disabled",
+        "Tree:indeterminate_disabled"
+      ],
+      "States": [
+        "indeterminate",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "line_edit_clear",
+      "Density": 1,
+      "X": 442,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/line_edit_clear.svg",
+      "SourceSha256": "8fa77b2e08dcc8f767373a4d8b14113ab346571241866f46d32c8ade6e9ec9a7",
+      "Bindings": [
+        "LineEdit:clear",
+        "FileDialog:clear"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "mini_checkerboard",
+      "Density": 1,
+      "X": 462,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/mini_checkerboard.svg",
+      "SourceSha256": "20535ce47b05f3b4b21201ca74bfb99ba8b7974653331d88f928bb108f3b092c",
+      "Bindings": [
+        "CodeEdit:completion_color_bg"
+      ],
+      "States": [
+        "background"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "option_button_arrow",
+      "Density": 1,
+      "X": 482,
+      "Y": 2,
+      "Width": 12,
+      "Height": 12,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/option_button_arrow.svg",
+      "SourceSha256": "abad611abe9c6a3be062912527f137f705374f39a477d30e4cad8fe6b8f4baaf",
+      "Bindings": [
+        "OptionButton:arrow",
+        "Tree:select_arrow"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "popup_menu_arrow_left",
+      "Density": 1,
+      "X": 498,
+      "Y": 2,
+      "Width": 8,
+      "Height": 16,
+      "LogicalWidth": 8,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/popup_menu_arrow_left.svg",
+      "SourceSha256": "8663500c0bd33a9e0090aaee4a9db890b96a872be0db6bc4e0abf95c81c9a399",
+      "Bindings": [
+        "PopupMenu:submenu_mirrored"
+      ],
+      "States": [
+        "submenu"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "popup_menu_arrow_right",
+      "Density": 1,
+      "X": 2,
+      "Y": 66,
+      "Width": 8,
+      "Height": 16,
+      "LogicalWidth": 8,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/popup_menu_arrow_right.svg",
+      "SourceSha256": "07908b49f4d9b1851ffcb8cc87cb2170af2d66d1ecc86159519ea86ff6b771c3",
+      "Bindings": [
+        "PopupMenu:submenu"
+      ],
+      "States": [
+        "submenu"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "radio_checked",
+      "Density": 1,
+      "X": 14,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/radio_checked.svg",
+      "SourceSha256": "20253511c091ce342c64211220f7484905740d202e1fb041ee14fe2bf98c6d3f",
+      "Bindings": [
+        "CheckBox:radio_checked",
+        "PopupMenu:radio_checked"
+      ],
+      "States": [
+        "checked",
+        "radio"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "radio_checked_disabled",
+      "Density": 1,
+      "X": 34,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/radio_checked_disabled.svg",
+      "SourceSha256": "92db771338685cfeb397c1cea6da70c6888c42b45069709798226cab847884c5",
+      "Bindings": [
+        "CheckBox:radio_checked_disabled",
+        "PopupMenu:radio_checked_disabled"
+      ],
+      "States": [
+        "checked",
+        "radio",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "radio_unchecked",
+      "Density": 1,
+      "X": 54,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/radio_unchecked.svg",
+      "SourceSha256": "c0e496c833b88da2d7befc54d4aa63b1f9978dde9517e0135a79a87efda54db5",
+      "Bindings": [
+        "CheckBox:radio_unchecked",
+        "PopupMenu:radio_unchecked"
+      ],
+      "States": [
+        "unchecked",
+        "radio"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "radio_unchecked_disabled",
+      "Density": 1,
+      "X": 74,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/radio_unchecked_disabled.svg",
+      "SourceSha256": "3a8776fd46b6827c94d27d9210075d00d1f102a0202de53b7afe6cf4240afa88",
+      "Bindings": [
+        "CheckBox:radio_unchecked_disabled",
+        "PopupMenu:radio_unchecked_disabled"
+      ],
+      "States": [
+        "unchecked",
+        "radio",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "region_folded",
+      "Density": 1,
+      "X": 94,
+      "Y": 66,
+      "Width": 12,
+      "Height": 12,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/region_folded.svg",
+      "SourceSha256": "434ef42e14944c633d2f389851aa3242595923d4a6c1ef9e01d6bc761db919d6",
+      "Bindings": [
+        "CodeEdit:folded_code_region"
+      ],
+      "States": [
+        "folded",
+        "region"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "region_unfolded",
+      "Density": 1,
+      "X": 110,
+      "Y": 66,
+      "Width": 12,
+      "Height": 12,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/region_unfolded.svg",
+      "SourceSha256": "158098e25cba824fe2f41e9476032bf1899bad94cd3998ab873999b66aeae68b",
+      "Bindings": [
+        "CodeEdit:can_fold_code_region"
+      ],
+      "States": [
+        "expanded",
+        "region"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "scroll_button_left",
+      "Density": 1,
+      "X": 126,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/scroll_button_left.svg",
+      "SourceSha256": "95142b830f05eda3dfc5e2e5d8749bc7ea667c4e1ab8502fb148adefe38bf4c0",
+      "Bindings": [
+        "TabBar:decrement",
+        "TabContainer:decrement"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "scroll_button_left_hl",
+      "Density": 1,
+      "X": 146,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/scroll_button_left_hl.svg",
+      "SourceSha256": "400db4724f95f1c8467d9bb597eaf4e41cd79d72c3d297e1aaa3ff95d750ac06",
+      "Bindings": [
+        "TabBar:decrement_highlight",
+        "TabContainer:decrement_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "scroll_button_right",
+      "Density": 1,
+      "X": 166,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/scroll_button_right.svg",
+      "SourceSha256": "be58f60503f6dffe7f278f5132c47e8cf68551c18e3d2d357cffd8aa22388e4a",
+      "Bindings": [
+        "TabBar:increment",
+        "TabContainer:increment"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "scroll_button_right_hl",
+      "Density": 1,
+      "X": 186,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/scroll_button_right_hl.svg",
+      "SourceSha256": "fcd50498357b016c17c196462a84bfef9bda283d327bc2cec9d51cc9c339d0f3",
+      "Bindings": [
+        "TabBar:increment_highlight",
+        "TabContainer:increment_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "scroll_hint_horizontal",
+      "Density": 1,
+      "X": 206,
+      "Y": 66,
+      "Width": 24,
+      "Height": 32,
+      "LogicalWidth": 24,
+      "LogicalHeight": 32,
+      "Source": "scene/theme/icons/scroll_hint_horizontal.svg",
+      "SourceSha256": "fbe34532ea6643e2fe839833c3948f428e57e21ed56ee24fc528e68da68a5928",
+      "Bindings": [
+        "ScrollContainer:scroll_hint_horizontal"
+      ],
+      "States": [
+        "overflow"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "scroll_hint_vertical",
+      "Density": 1,
+      "X": 234,
+      "Y": 66,
+      "Width": 32,
+      "Height": 24,
+      "LogicalWidth": 32,
+      "LogicalHeight": 24,
+      "Source": "scene/theme/icons/scroll_hint_vertical.svg",
+      "SourceSha256": "f88f0908ac86fb611b8fcaff552a1ec0ecf8cb118423d0f76b304658c23ea158",
+      "Bindings": [
+        "ScrollContainer:scroll_hint_vertical"
+      ],
+      "States": [
+        "overflow"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "slider_grabber",
+      "Density": 1,
+      "X": 270,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/slider_grabber.svg",
+      "SourceSha256": "94a836836969d6b1a82985b74305c2286c242f8dbda5d1632d5a13ffec7e7649",
+      "Bindings": [
+        "HSlider:grabber",
+        "VSlider:grabber"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "slider_grabber_disabled",
+      "Density": 1,
+      "X": 290,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/slider_grabber_disabled.svg",
+      "SourceSha256": "3f5a8888cbfdc9b7a23944dadec9441dc65a77ecc3e4903fb15af7cdad82b8e7",
+      "Bindings": [
+        "HSlider:grabber_disabled",
+        "VSlider:grabber_disabled"
+      ],
+      "States": [
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "slider_grabber_hl",
+      "Density": 1,
+      "X": 310,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/slider_grabber_hl.svg",
+      "SourceSha256": "6be90ae6d97e54ded873265ad21ad8eb2274b140dff8ff11a6d189e2addc9657",
+      "Bindings": [
+        "HSlider:grabber_highlight",
+        "VSlider:grabber_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "tabs_menu",
+      "Density": 1,
+      "X": 330,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/tabs_menu.svg",
+      "SourceSha256": "e1f30bca80b203be9858f4dcda2715b051c5b70e82eddf7a4d49a8c52686db47",
+      "Bindings": [
+        "TabContainer:menu"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "tabs_menu_hl",
+      "Density": 1,
+      "X": 350,
+      "Y": 66,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/tabs_menu_hl.svg",
+      "SourceSha256": "dde9c7c0183e11ee9d108ec34e430178fbc70087f5d39294d087ad05bbdba56b",
+      "Bindings": [
+        "TabContainer:menu_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "text_edit_ellipsis",
+      "Density": 1,
+      "X": 370,
+      "Y": 66,
+      "Width": 14,
+      "Height": 8,
+      "LogicalWidth": 14,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/text_edit_ellipsis.svg",
+      "SourceSha256": "957465215387c2b4fe3f8368d6a1b0431a1d42ef210d82adb0c73df793ec02ca",
+      "Bindings": [
+        "CodeEdit:folded_eol_icon"
+      ],
+      "States": [
+        "folded"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "text_edit_space",
+      "Density": 1,
+      "X": 388,
+      "Y": 66,
+      "Width": 8,
+      "Height": 8,
+      "LogicalWidth": 8,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/text_edit_space.svg",
+      "SourceSha256": "ea44b728de531c3f76eabde2caa970a52d01c1aae324f6bbda691f8ad512e285",
+      "Bindings": [
+        "TextEdit:space",
+        "CodeEdit:space"
+      ],
+      "States": [
+        "control_character"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "text_edit_tab",
+      "Density": 1,
+      "X": 400,
+      "Y": 66,
+      "Width": 8,
+      "Height": 8,
+      "LogicalWidth": 8,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/text_edit_tab.svg",
+      "SourceSha256": "76a3dc5cd840762e4f00d7bdc9d5d5835f4a387b1076bee25bdd619e4ee87d73",
+      "Bindings": [
+        "TextEdit:tab",
+        "CodeEdit:tab"
+      ],
+      "States": [
+        "control_character"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_off",
+      "Density": 1,
+      "X": 412,
+      "Y": 66,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_off.svg",
+      "SourceSha256": "2b469ce6d1647e7db77e1af69391435a2a5a407a5b820c948bf408abc01b0359",
+      "Bindings": [
+        "CheckButton:unchecked"
+      ],
+      "States": [
+        "unchecked"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_off_disabled",
+      "Density": 1,
+      "X": 448,
+      "Y": 66,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_off_disabled.svg",
+      "SourceSha256": "8a4caea81519c9269cf9d581a8b9f8d480704c30fc8733af8fd677b167ae62a8",
+      "Bindings": [
+        "CheckButton:unchecked_disabled"
+      ],
+      "States": [
+        "unchecked",
+        "disabled"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_off_disabled_mirrored",
+      "Density": 1,
+      "X": 2,
+      "Y": 102,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_off_disabled_mirrored.svg",
+      "SourceSha256": "c8a8e494b8fa120509aaed91904c17ab2c8d4262b0ddf3dc585d30eb9502cd12",
+      "Bindings": [
+        "CheckButton:unchecked_disabled_mirrored"
+      ],
+      "States": [
+        "unchecked",
+        "disabled"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "toggle_off_mirrored",
+      "Density": 1,
+      "X": 38,
+      "Y": 102,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_off_mirrored.svg",
+      "SourceSha256": "00cc19651c7bee2849a6cfcedeed6ded515c1e5c864c5612d25bc7c7b7301607",
+      "Bindings": [
+        "CheckButton:unchecked_mirrored"
+      ],
+      "States": [
+        "unchecked"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "toggle_on",
+      "Density": 1,
+      "X": 74,
+      "Y": 102,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_on.svg",
+      "SourceSha256": "df800993b20a99eea47f352db93730158ba9fa883fccbc4d51d102d0592f91ed",
+      "Bindings": [
+        "CheckButton:checked"
+      ],
+      "States": [
+        "checked"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_on_disabled",
+      "Density": 1,
+      "X": 110,
+      "Y": 102,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_on_disabled.svg",
+      "SourceSha256": "e16ad6d3ae84d104f45791ced5a5c1aecb3637598af97a469c4dfd3bb7102088",
+      "Bindings": [
+        "CheckButton:checked_disabled"
+      ],
+      "States": [
+        "checked",
+        "disabled"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_on_disabled_mirrored",
+      "Density": 1,
+      "X": 146,
+      "Y": 102,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_on_disabled_mirrored.svg",
+      "SourceSha256": "5d8b845538f97a138c0a0b98cec2234c9655be04381277897ac54f07b9b462c9",
+      "Bindings": [
+        "CheckButton:checked_disabled_mirrored"
+      ],
+      "States": [
+        "checked",
+        "disabled"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "toggle_on_mirrored",
+      "Density": 1,
+      "X": 182,
+      "Y": 102,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_on_mirrored.svg",
+      "SourceSha256": "5a0b5e0ff306e3f352bb51c4a414015d16ad745b4deebaf43defb316c8cd3cdd",
+      "Bindings": [
+        "CheckButton:checked_mirrored"
+      ],
+      "States": [
+        "checked"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "unchecked",
+      "Density": 1,
+      "X": 218,
+      "Y": 102,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/unchecked.svg",
+      "SourceSha256": "d4a3bc42abd4a6dcdbb2e277be9fd5775503cd118583d15c15d5dfcc2d42430f",
+      "Bindings": [
+        "CheckBox:unchecked",
+        "PopupMenu:unchecked",
+        "Tree:unchecked"
+      ],
+      "States": [
+        "unchecked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "unchecked_disabled",
+      "Density": 1,
+      "X": 238,
+      "Y": 102,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/unchecked_disabled.svg",
+      "SourceSha256": "8208a5c333dbce80abe82685af8b2ac02c8228829151b89ec3514958a5f8e9fd",
+      "Bindings": [
+        "CheckBox:unchecked_disabled",
+        "PopupMenu:unchecked_disabled",
+        "Tree:unchecked_disabled"
+      ],
+      "States": [
+        "unchecked",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "updown",
+      "Density": 1,
+      "X": 258,
+      "Y": 102,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/updown.svg",
+      "SourceSha256": "fba1ea1b11a0436c8a0f5aede5223d95afdb782f40ff3368ed66f50a46fe4ac2",
+      "Bindings": [
+        "Tree:updown"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "v_dragger",
+      "Density": 1,
+      "X": 278,
+      "Y": 102,
+      "Width": 60,
+      "Height": 30,
+      "LogicalWidth": 60,
+      "LogicalHeight": 30,
+      "Source": "scene/theme/icons/v_dragger.svg",
+      "SourceSha256": "3bd50e434d4c4495602eda90baedec4ea137494f8b0d2bf4c8433195636c2b11",
+      "Bindings": [
+        "SplitContainer:v_touch_dragger"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "value_down",
+      "Density": 1,
+      "X": 342,
+      "Y": 102,
+      "Width": 16,
+      "Height": 8,
+      "LogicalWidth": 16,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/value_down.svg",
+      "SourceSha256": "dc8644fe8ad5c4e725cf918478252b93e2081a688d207d748e1c2749d5022466",
+      "Bindings": [
+        "SpinBox:down",
+        "SpinBox:down_hover",
+        "SpinBox:down_pressed",
+        "SpinBox:down_disabled"
+      ],
+      "States": [
+        "default",
+        "hovered",
+        "pressed",
+        "disabled"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "value_up",
+      "Density": 1,
+      "X": 362,
+      "Y": 102,
+      "Width": 16,
+      "Height": 8,
+      "LogicalWidth": 16,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/value_up.svg",
+      "SourceSha256": "750b59b93c33108be1a4fe82f5717d15b7f007dab827618abf9b3dfc170376d6",
+      "Bindings": [
+        "SpinBox:up",
+        "SpinBox:up_hover",
+        "SpinBox:up_pressed",
+        "SpinBox:up_disabled"
+      ],
+      "States": [
+        "default",
+        "hovered",
+        "pressed",
+        "disabled"
+      ],
+      "Directionality": "up"
+    },
+    {
+      "Name": "vslider_tick",
+      "Density": 1,
+      "X": 382,
+      "Y": 102,
+      "Width": 8,
+      "Height": 4,
+      "LogicalWidth": 8,
+      "LogicalHeight": 4,
+      "Source": "scene/theme/icons/vslider_tick.svg",
+      "SourceSha256": "102054edf491d333f4b00d5bfc5bd697d0c7ae5f763cf9dfa6405f05f8bb605c",
+      "Bindings": [
+        "VSlider:tick"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "vsplitter",
+      "Density": 1,
+      "X": 394,
+      "Y": 102,
+      "Width": 48,
+      "Height": 8,
+      "LogicalWidth": 48,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/vsplitter.svg",
+      "SourceSha256": "ca5047c353158adb21fc88c5592c432a7d16e5d68d83110fbfe3943de803c7c0",
+      "Bindings": [
+        "SplitContainer:v_grabber"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "zoom_less",
+      "Density": 1,
+      "X": 446,
+      "Y": 102,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/zoom_less.svg",
+      "SourceSha256": "3f2b9e0b6c12578cc22a17c07660f1bf3c46ad60be2c5e3e1c9675416894493f",
+      "Bindings": [
+        "GraphEdit:zoom_out"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "zoom_more",
+      "Density": 1,
+      "X": 466,
+      "Y": 102,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/zoom_more.svg",
+      "SourceSha256": "a15a71115118c1dfb36b2cab255e03066b8cccc95e1b57f2f6ab2c8f4263aaed",
+      "Bindings": [
+        "GraphEdit:zoom_in"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "zoom_reset",
+      "Density": 1,
+      "X": 486,
+      "Y": 102,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/zoom_reset.svg",
+      "SourceSha256": "344cf02bbed1208089fbb6b8d66a94c976abaa0f2451b8f2419a54fe882434ec",
+      "Bindings": [
+        "GraphEdit:zoom_reset"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "arrow_down",
+      "Density": 2,
+      "X": 4,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/arrow_down.svg",
+      "SourceSha256": "2146798d0f0687af4b94890c66882b53602bc4c726662d30798e9d21bce2c5d1",
+      "Bindings": [
+        "CodeEdit:can_fold",
+        "Tree:arrow",
+        "FoldableContainer:expanded_arrow"
+      ],
+      "States": [
+        "expanded"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "arrow_left",
+      "Density": 2,
+      "X": 44,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/arrow_left.svg",
+      "SourceSha256": "7a21120e4d13d9b2d1298beb660872ae8f0621a08b862928740cc3cc19224e67",
+      "Bindings": [
+        "Tree:arrow_collapsed_mirrored",
+        "FoldableContainer:folded_arrow_mirrored"
+      ],
+      "States": [
+        "collapsed"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "arrow_right",
+      "Density": 2,
+      "X": 84,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/arrow_right.svg",
+      "SourceSha256": "531f7edac58b6a0f61d7ae88bfcf1b371fbe498eb29b6e5321aaac2130519b55",
+      "Bindings": [
+        "CodeEdit:executing_line",
+        "CodeEdit:folded",
+        "Tree:arrow_collapsed",
+        "FoldableContainer:folded_arrow"
+      ],
+      "States": [
+        "collapsed",
+        "executing"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "arrow_up",
+      "Density": 2,
+      "X": 124,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/arrow_up.svg",
+      "SourceSha256": "2de93bbfbc65100e8ae93631af65cd88481d61cdbe9e497f2beb919e1891648d",
+      "Bindings": [
+        "FoldableContainer:expanded_arrow_mirrored"
+      ],
+      "States": [
+        "expanded"
+      ],
+      "Directionality": "up"
+    },
+    {
+      "Name": "bookmark",
+      "Density": 2,
+      "X": 164,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/bookmark.svg",
+      "SourceSha256": "c8b6a3404437a3393d6d4d9dd3e36875d83d2da487948b61be1938709b3b2b74",
+      "Bindings": [
+        "CodeEdit:bookmark"
+      ],
+      "States": [
+        "marked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "breakpoint",
+      "Density": 2,
+      "X": 204,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/breakpoint.svg",
+      "SourceSha256": "55099979653741bff646071c366ab9f8e8de7e4a13e5a4c00ea287a3446dc5d6",
+      "Bindings": [
+        "CodeEdit:breakpoint"
+      ],
+      "States": [
+        "marked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "checked",
+      "Density": 2,
+      "X": 244,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/checked.svg",
+      "SourceSha256": "b3aee05e08b33488ea1a20eaa89565152e28c284eda5cae35b398a3a0baf625c",
+      "Bindings": [
+        "CheckBox:checked",
+        "PopupMenu:checked",
+        "Tree:checked"
+      ],
+      "States": [
+        "checked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "checked_disabled",
+      "Density": 2,
+      "X": 284,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/checked_disabled.svg",
+      "SourceSha256": "9b30ad8bef15bf26544cd51c865816755061ed345bbaac2bcb3653a6e9411ad2",
+      "Bindings": [
+        "CheckBox:checked_disabled",
+        "PopupMenu:checked_disabled",
+        "Tree:checked_disabled"
+      ],
+      "States": [
+        "checked",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "close",
+      "Density": 2,
+      "X": 324,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/close.svg",
+      "SourceSha256": "8fa77b2e08dcc8f767373a4d8b14113ab346571241866f46d32c8ade6e9ec9a7",
+      "Bindings": [
+        "TabBar:close"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "color_picker_cursor",
+      "Density": 2,
+      "X": 364,
+      "Y": 4,
+      "Width": 24,
+      "Height": 24,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/color_picker_cursor.svg",
+      "SourceSha256": "58cf5f15cf774fbbdcfeda096370faacf277db5f7e93f1c58c7c7d0a7f200534",
+      "Bindings": [
+        "ColorPicker:picker_cursor"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "color_picker_cursor_bg",
+      "Density": 2,
+      "X": 396,
+      "Y": 4,
+      "Width": 24,
+      "Height": 24,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/color_picker_cursor_bg.svg",
+      "SourceSha256": "5de94b3dc9c2f386896b4533c6e7f3407f087bff05e9995d947fed98d3661a0d",
+      "Bindings": [
+        "ColorPicker:picker_cursor_bg"
+      ],
+      "States": [
+        "background"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file",
+      "Density": 2,
+      "X": 428,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/file.svg",
+      "SourceSha256": "c9d7fa08f85ccdc4ce0433107c624af705822671ffcd37ec269b9b0961d74607",
+      "Bindings": [
+        "FileDialog:file"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "folder",
+      "Density": 2,
+      "X": 468,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/folder.svg",
+      "SourceSha256": "cf0e70d5c9511782fe349f2acae5940b216eb048a00cccd00d1f2ba5ea017a92",
+      "Bindings": [
+        "FileDialog:folder"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "graph_port",
+      "Density": 2,
+      "X": 508,
+      "Y": 4,
+      "Width": 20,
+      "Height": 20,
+      "LogicalWidth": 10,
+      "LogicalHeight": 10,
+      "Source": "scene/theme/icons/graph_port.svg",
+      "SourceSha256": "5c1b5d161c16e6ddc2b0c7932f9b3210dcb5fce326062acbd4b45d62c6aad331",
+      "Bindings": [
+        "GraphNode:port"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_layout",
+      "Density": 2,
+      "X": 536,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/grid_layout.svg",
+      "SourceSha256": "2babbe3158c4301f9b9152d1f2f6b19793129afbf0403f604ff698e1f849e5d0",
+      "Bindings": [
+        "GraphEdit:layout"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_minimap",
+      "Density": 2,
+      "X": 576,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/grid_minimap.svg",
+      "SourceSha256": "b8164797a6b462179e38cd9a6e7c22c8036a05bb5670aad317d02f48fde2a505",
+      "Bindings": [
+        "GraphEdit:minimap_toggle"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_snap",
+      "Density": 2,
+      "X": 616,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/grid_snap.svg",
+      "SourceSha256": "84f1c76b088218ffdb26b4c86a031d335ae66f215957f77f07b7cf1717c599d7",
+      "Bindings": [
+        "GraphEdit:snapping_toggle"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "grid_toggle",
+      "Density": 2,
+      "X": 656,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/grid_toggle.svg",
+      "SourceSha256": "725f84f93d9614a62d9d9b24fa6f6b331a5750302ce4f26716488a13bea52481",
+      "Bindings": [
+        "GraphEdit:grid_toggle"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "h_dragger",
+      "Density": 2,
+      "X": 696,
+      "Y": 4,
+      "Width": 60,
+      "Height": 120,
+      "LogicalWidth": 30,
+      "LogicalHeight": 60,
+      "Source": "scene/theme/icons/h_dragger.svg",
+      "SourceSha256": "d38d6fd5f68dfa32592a71b3b55055bdfec29e10b82224f937638906ec41bb50",
+      "Bindings": [
+        "SplitContainer:h_touch_dragger"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "hslider_tick",
+      "Density": 2,
+      "X": 764,
+      "Y": 4,
+      "Width": 8,
+      "Height": 16,
+      "LogicalWidth": 4,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/hslider_tick.svg",
+      "SourceSha256": "6d86ef48b8c5b2804fa8e0a937c69b956d7d88d2c34efe239705627d3f347aec",
+      "Bindings": [
+        "HSlider:tick"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "hsplitter",
+      "Density": 2,
+      "X": 780,
+      "Y": 4,
+      "Width": 16,
+      "Height": 96,
+      "LogicalWidth": 8,
+      "LogicalHeight": 48,
+      "Source": "scene/theme/icons/hsplitter.svg",
+      "SourceSha256": "97fe32a931b61229cdef9938c4aec596555c249bf54abaf186039d697aa0c9ca",
+      "Bindings": [
+        "SplitContainer:h_grabber"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "indeterminate",
+      "Density": 2,
+      "X": 804,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/indeterminate.svg",
+      "SourceSha256": "51a68db8145fd23a19745cab5d3c56914dd94c3de8ac4742b911f502f5fcde10",
+      "Bindings": [
+        "PopupMenu:indeterminate",
+        "Tree:indeterminate"
+      ],
+      "States": [
+        "indeterminate"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "indeterminate_disabled",
+      "Density": 2,
+      "X": 844,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/indeterminate_disabled.svg",
+      "SourceSha256": "1e08a54816d630b019eaf06c8c56fc0f0043ba28362b5f1da79d04b36f556033",
+      "Bindings": [
+        "PopupMenu:indeterminate_disabled",
+        "Tree:indeterminate_disabled"
+      ],
+      "States": [
+        "indeterminate",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "line_edit_clear",
+      "Density": 2,
+      "X": 884,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/line_edit_clear.svg",
+      "SourceSha256": "8fa77b2e08dcc8f767373a4d8b14113ab346571241866f46d32c8ade6e9ec9a7",
+      "Bindings": [
+        "LineEdit:clear",
+        "FileDialog:clear"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "mini_checkerboard",
+      "Density": 2,
+      "X": 924,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/mini_checkerboard.svg",
+      "SourceSha256": "20535ce47b05f3b4b21201ca74bfb99ba8b7974653331d88f928bb108f3b092c",
+      "Bindings": [
+        "CodeEdit:completion_color_bg"
+      ],
+      "States": [
+        "background"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "option_button_arrow",
+      "Density": 2,
+      "X": 964,
+      "Y": 4,
+      "Width": 24,
+      "Height": 24,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/option_button_arrow.svg",
+      "SourceSha256": "abad611abe9c6a3be062912527f137f705374f39a477d30e4cad8fe6b8f4baaf",
+      "Bindings": [
+        "OptionButton:arrow",
+        "Tree:select_arrow"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "popup_menu_arrow_left",
+      "Density": 2,
+      "X": 996,
+      "Y": 4,
+      "Width": 16,
+      "Height": 32,
+      "LogicalWidth": 8,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/popup_menu_arrow_left.svg",
+      "SourceSha256": "8663500c0bd33a9e0090aaee4a9db890b96a872be0db6bc4e0abf95c81c9a399",
+      "Bindings": [
+        "PopupMenu:submenu_mirrored"
+      ],
+      "States": [
+        "submenu"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "popup_menu_arrow_right",
+      "Density": 2,
+      "X": 4,
+      "Y": 132,
+      "Width": 16,
+      "Height": 32,
+      "LogicalWidth": 8,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/popup_menu_arrow_right.svg",
+      "SourceSha256": "07908b49f4d9b1851ffcb8cc87cb2170af2d66d1ecc86159519ea86ff6b771c3",
+      "Bindings": [
+        "PopupMenu:submenu"
+      ],
+      "States": [
+        "submenu"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "radio_checked",
+      "Density": 2,
+      "X": 28,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/radio_checked.svg",
+      "SourceSha256": "20253511c091ce342c64211220f7484905740d202e1fb041ee14fe2bf98c6d3f",
+      "Bindings": [
+        "CheckBox:radio_checked",
+        "PopupMenu:radio_checked"
+      ],
+      "States": [
+        "checked",
+        "radio"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "radio_checked_disabled",
+      "Density": 2,
+      "X": 68,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/radio_checked_disabled.svg",
+      "SourceSha256": "92db771338685cfeb397c1cea6da70c6888c42b45069709798226cab847884c5",
+      "Bindings": [
+        "CheckBox:radio_checked_disabled",
+        "PopupMenu:radio_checked_disabled"
+      ],
+      "States": [
+        "checked",
+        "radio",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "radio_unchecked",
+      "Density": 2,
+      "X": 108,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/radio_unchecked.svg",
+      "SourceSha256": "c0e496c833b88da2d7befc54d4aa63b1f9978dde9517e0135a79a87efda54db5",
+      "Bindings": [
+        "CheckBox:radio_unchecked",
+        "PopupMenu:radio_unchecked"
+      ],
+      "States": [
+        "unchecked",
+        "radio"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "radio_unchecked_disabled",
+      "Density": 2,
+      "X": 148,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/radio_unchecked_disabled.svg",
+      "SourceSha256": "3a8776fd46b6827c94d27d9210075d00d1f102a0202de53b7afe6cf4240afa88",
+      "Bindings": [
+        "CheckBox:radio_unchecked_disabled",
+        "PopupMenu:radio_unchecked_disabled"
+      ],
+      "States": [
+        "unchecked",
+        "radio",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "region_folded",
+      "Density": 2,
+      "X": 188,
+      "Y": 132,
+      "Width": 24,
+      "Height": 24,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/region_folded.svg",
+      "SourceSha256": "434ef42e14944c633d2f389851aa3242595923d4a6c1ef9e01d6bc761db919d6",
+      "Bindings": [
+        "CodeEdit:folded_code_region"
+      ],
+      "States": [
+        "folded",
+        "region"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "region_unfolded",
+      "Density": 2,
+      "X": 220,
+      "Y": 132,
+      "Width": 24,
+      "Height": 24,
+      "LogicalWidth": 12,
+      "LogicalHeight": 12,
+      "Source": "scene/theme/icons/region_unfolded.svg",
+      "SourceSha256": "158098e25cba824fe2f41e9476032bf1899bad94cd3998ab873999b66aeae68b",
+      "Bindings": [
+        "CodeEdit:can_fold_code_region"
+      ],
+      "States": [
+        "expanded",
+        "region"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "scroll_button_left",
+      "Density": 2,
+      "X": 252,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/scroll_button_left.svg",
+      "SourceSha256": "95142b830f05eda3dfc5e2e5d8749bc7ea667c4e1ab8502fb148adefe38bf4c0",
+      "Bindings": [
+        "TabBar:decrement",
+        "TabContainer:decrement"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "scroll_button_left_hl",
+      "Density": 2,
+      "X": 292,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/scroll_button_left_hl.svg",
+      "SourceSha256": "400db4724f95f1c8467d9bb597eaf4e41cd79d72c3d297e1aaa3ff95d750ac06",
+      "Bindings": [
+        "TabBar:decrement_highlight",
+        "TabContainer:decrement_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "scroll_button_right",
+      "Density": 2,
+      "X": 332,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/scroll_button_right.svg",
+      "SourceSha256": "be58f60503f6dffe7f278f5132c47e8cf68551c18e3d2d357cffd8aa22388e4a",
+      "Bindings": [
+        "TabBar:increment",
+        "TabContainer:increment"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "scroll_button_right_hl",
+      "Density": 2,
+      "X": 372,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/scroll_button_right_hl.svg",
+      "SourceSha256": "fcd50498357b016c17c196462a84bfef9bda283d327bc2cec9d51cc9c339d0f3",
+      "Bindings": [
+        "TabBar:increment_highlight",
+        "TabContainer:increment_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "scroll_hint_horizontal",
+      "Density": 2,
+      "X": 412,
+      "Y": 132,
+      "Width": 48,
+      "Height": 64,
+      "LogicalWidth": 24,
+      "LogicalHeight": 32,
+      "Source": "scene/theme/icons/scroll_hint_horizontal.svg",
+      "SourceSha256": "fbe34532ea6643e2fe839833c3948f428e57e21ed56ee24fc528e68da68a5928",
+      "Bindings": [
+        "ScrollContainer:scroll_hint_horizontal"
+      ],
+      "States": [
+        "overflow"
+      ],
+      "Directionality": "horizontal"
+    },
+    {
+      "Name": "scroll_hint_vertical",
+      "Density": 2,
+      "X": 468,
+      "Y": 132,
+      "Width": 64,
+      "Height": 48,
+      "LogicalWidth": 32,
+      "LogicalHeight": 24,
+      "Source": "scene/theme/icons/scroll_hint_vertical.svg",
+      "SourceSha256": "f88f0908ac86fb611b8fcaff552a1ec0ecf8cb118423d0f76b304658c23ea158",
+      "Bindings": [
+        "ScrollContainer:scroll_hint_vertical"
+      ],
+      "States": [
+        "overflow"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "slider_grabber",
+      "Density": 2,
+      "X": 540,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/slider_grabber.svg",
+      "SourceSha256": "94a836836969d6b1a82985b74305c2286c242f8dbda5d1632d5a13ffec7e7649",
+      "Bindings": [
+        "HSlider:grabber",
+        "VSlider:grabber"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "slider_grabber_disabled",
+      "Density": 2,
+      "X": 580,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/slider_grabber_disabled.svg",
+      "SourceSha256": "3f5a8888cbfdc9b7a23944dadec9441dc65a77ecc3e4903fb15af7cdad82b8e7",
+      "Bindings": [
+        "HSlider:grabber_disabled",
+        "VSlider:grabber_disabled"
+      ],
+      "States": [
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "slider_grabber_hl",
+      "Density": 2,
+      "X": 620,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/slider_grabber_hl.svg",
+      "SourceSha256": "6be90ae6d97e54ded873265ad21ad8eb2274b140dff8ff11a6d189e2addc9657",
+      "Bindings": [
+        "HSlider:grabber_highlight",
+        "VSlider:grabber_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "tabs_menu",
+      "Density": 2,
+      "X": 660,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/tabs_menu.svg",
+      "SourceSha256": "e1f30bca80b203be9858f4dcda2715b051c5b70e82eddf7a4d49a8c52686db47",
+      "Bindings": [
+        "TabContainer:menu"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "tabs_menu_hl",
+      "Density": 2,
+      "X": 700,
+      "Y": 132,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/tabs_menu_hl.svg",
+      "SourceSha256": "dde9c7c0183e11ee9d108ec34e430178fbc70087f5d39294d087ad05bbdba56b",
+      "Bindings": [
+        "TabContainer:menu_highlight"
+      ],
+      "States": [
+        "highlighted"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "text_edit_ellipsis",
+      "Density": 2,
+      "X": 740,
+      "Y": 132,
+      "Width": 28,
+      "Height": 16,
+      "LogicalWidth": 14,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/text_edit_ellipsis.svg",
+      "SourceSha256": "957465215387c2b4fe3f8368d6a1b0431a1d42ef210d82adb0c73df793ec02ca",
+      "Bindings": [
+        "CodeEdit:folded_eol_icon"
+      ],
+      "States": [
+        "folded"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "text_edit_space",
+      "Density": 2,
+      "X": 776,
+      "Y": 132,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 8,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/text_edit_space.svg",
+      "SourceSha256": "ea44b728de531c3f76eabde2caa970a52d01c1aae324f6bbda691f8ad512e285",
+      "Bindings": [
+        "TextEdit:space",
+        "CodeEdit:space"
+      ],
+      "States": [
+        "control_character"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "text_edit_tab",
+      "Density": 2,
+      "X": 800,
+      "Y": 132,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 8,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/text_edit_tab.svg",
+      "SourceSha256": "76a3dc5cd840762e4f00d7bdc9d5d5835f4a387b1076bee25bdd619e4ee87d73",
+      "Bindings": [
+        "TextEdit:tab",
+        "CodeEdit:tab"
+      ],
+      "States": [
+        "control_character"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_off",
+      "Density": 2,
+      "X": 824,
+      "Y": 132,
+      "Width": 64,
+      "Height": 32,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_off.svg",
+      "SourceSha256": "2b469ce6d1647e7db77e1af69391435a2a5a407a5b820c948bf408abc01b0359",
+      "Bindings": [
+        "CheckButton:unchecked"
+      ],
+      "States": [
+        "unchecked"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_off_disabled",
+      "Density": 2,
+      "X": 896,
+      "Y": 132,
+      "Width": 64,
+      "Height": 32,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_off_disabled.svg",
+      "SourceSha256": "8a4caea81519c9269cf9d581a8b9f8d480704c30fc8733af8fd677b167ae62a8",
+      "Bindings": [
+        "CheckButton:unchecked_disabled"
+      ],
+      "States": [
+        "unchecked",
+        "disabled"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_off_disabled_mirrored",
+      "Density": 2,
+      "X": 4,
+      "Y": 204,
+      "Width": 64,
+      "Height": 32,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_off_disabled_mirrored.svg",
+      "SourceSha256": "c8a8e494b8fa120509aaed91904c17ab2c8d4262b0ddf3dc585d30eb9502cd12",
+      "Bindings": [
+        "CheckButton:unchecked_disabled_mirrored"
+      ],
+      "States": [
+        "unchecked",
+        "disabled"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "toggle_off_mirrored",
+      "Density": 2,
+      "X": 76,
+      "Y": 204,
+      "Width": 64,
+      "Height": 32,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_off_mirrored.svg",
+      "SourceSha256": "00cc19651c7bee2849a6cfcedeed6ded515c1e5c864c5612d25bc7c7b7301607",
+      "Bindings": [
+        "CheckButton:unchecked_mirrored"
+      ],
+      "States": [
+        "unchecked"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "toggle_on",
+      "Density": 2,
+      "X": 148,
+      "Y": 204,
+      "Width": 64,
+      "Height": 32,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_on.svg",
+      "SourceSha256": "df800993b20a99eea47f352db93730158ba9fa883fccbc4d51d102d0592f91ed",
+      "Bindings": [
+        "CheckButton:checked"
+      ],
+      "States": [
+        "checked"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_on_disabled",
+      "Density": 2,
+      "X": 220,
+      "Y": 204,
+      "Width": 64,
+      "Height": 32,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_on_disabled.svg",
+      "SourceSha256": "e16ad6d3ae84d104f45791ced5a5c1aecb3637598af97a469c4dfd3bb7102088",
+      "Bindings": [
+        "CheckButton:checked_disabled"
+      ],
+      "States": [
+        "checked",
+        "disabled"
+      ],
+      "Directionality": "right"
+    },
+    {
+      "Name": "toggle_on_disabled_mirrored",
+      "Density": 2,
+      "X": 292,
+      "Y": 204,
+      "Width": 64,
+      "Height": 32,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_on_disabled_mirrored.svg",
+      "SourceSha256": "5d8b845538f97a138c0a0b98cec2234c9655be04381277897ac54f07b9b462c9",
+      "Bindings": [
+        "CheckButton:checked_disabled_mirrored"
+      ],
+      "States": [
+        "checked",
+        "disabled"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "toggle_on_mirrored",
+      "Density": 2,
+      "X": 364,
+      "Y": 204,
+      "Width": 64,
+      "Height": 32,
+      "LogicalWidth": 32,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_on_mirrored.svg",
+      "SourceSha256": "5a0b5e0ff306e3f352bb51c4a414015d16ad745b4deebaf43defb316c8cd3cdd",
+      "Bindings": [
+        "CheckButton:checked_mirrored"
+      ],
+      "States": [
+        "checked"
+      ],
+      "Directionality": "left"
+    },
+    {
+      "Name": "unchecked",
+      "Density": 2,
+      "X": 436,
+      "Y": 204,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/unchecked.svg",
+      "SourceSha256": "d4a3bc42abd4a6dcdbb2e277be9fd5775503cd118583d15c15d5dfcc2d42430f",
+      "Bindings": [
+        "CheckBox:unchecked",
+        "PopupMenu:unchecked",
+        "Tree:unchecked"
+      ],
+      "States": [
+        "unchecked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "unchecked_disabled",
+      "Density": 2,
+      "X": 476,
+      "Y": 204,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/unchecked_disabled.svg",
+      "SourceSha256": "8208a5c333dbce80abe82685af8b2ac02c8228829151b89ec3514958a5f8e9fd",
+      "Bindings": [
+        "CheckBox:unchecked_disabled",
+        "PopupMenu:unchecked_disabled",
+        "Tree:unchecked_disabled"
+      ],
+      "States": [
+        "unchecked",
+        "disabled"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "updown",
+      "Density": 2,
+      "X": 516,
+      "Y": 204,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/updown.svg",
+      "SourceSha256": "fba1ea1b11a0436c8a0f5aede5223d95afdb782f40ff3368ed66f50a46fe4ac2",
+      "Bindings": [
+        "Tree:updown"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "v_dragger",
+      "Density": 2,
+      "X": 556,
+      "Y": 204,
+      "Width": 120,
+      "Height": 60,
+      "LogicalWidth": 60,
+      "LogicalHeight": 30,
+      "Source": "scene/theme/icons/v_dragger.svg",
+      "SourceSha256": "3bd50e434d4c4495602eda90baedec4ea137494f8b0d2bf4c8433195636c2b11",
+      "Bindings": [
+        "SplitContainer:v_touch_dragger"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "value_down",
+      "Density": 2,
+      "X": 684,
+      "Y": 204,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/value_down.svg",
+      "SourceSha256": "dc8644fe8ad5c4e725cf918478252b93e2081a688d207d748e1c2749d5022466",
+      "Bindings": [
+        "SpinBox:down",
+        "SpinBox:down_hover",
+        "SpinBox:down_pressed",
+        "SpinBox:down_disabled"
+      ],
+      "States": [
+        "default",
+        "hovered",
+        "pressed",
+        "disabled"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "value_up",
+      "Density": 2,
+      "X": 724,
+      "Y": 204,
+      "Width": 32,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/value_up.svg",
+      "SourceSha256": "750b59b93c33108be1a4fe82f5717d15b7f007dab827618abf9b3dfc170376d6",
+      "Bindings": [
+        "SpinBox:up",
+        "SpinBox:up_hover",
+        "SpinBox:up_pressed",
+        "SpinBox:up_disabled"
+      ],
+      "States": [
+        "default",
+        "hovered",
+        "pressed",
+        "disabled"
+      ],
+      "Directionality": "up"
+    },
+    {
+      "Name": "vslider_tick",
+      "Density": 2,
+      "X": 764,
+      "Y": 204,
+      "Width": 16,
+      "Height": 8,
+      "LogicalWidth": 8,
+      "LogicalHeight": 4,
+      "Source": "scene/theme/icons/vslider_tick.svg",
+      "SourceSha256": "102054edf491d333f4b00d5bfc5bd697d0c7ae5f763cf9dfa6405f05f8bb605c",
+      "Bindings": [
+        "VSlider:tick"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "vsplitter",
+      "Density": 2,
+      "X": 788,
+      "Y": 204,
+      "Width": 96,
+      "Height": 16,
+      "LogicalWidth": 48,
+      "LogicalHeight": 8,
+      "Source": "scene/theme/icons/vsplitter.svg",
+      "SourceSha256": "ca5047c353158adb21fc88c5592c432a7d16e5d68d83110fbfe3943de803c7c0",
+      "Bindings": [
+        "SplitContainer:v_grabber"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "vertical"
+    },
+    {
+      "Name": "zoom_less",
+      "Density": 2,
+      "X": 892,
+      "Y": 204,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/zoom_less.svg",
+      "SourceSha256": "3f2b9e0b6c12578cc22a17c07660f1bf3c46ad60be2c5e3e1c9675416894493f",
+      "Bindings": [
+        "GraphEdit:zoom_out"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "zoom_more",
+      "Density": 2,
+      "X": 932,
+      "Y": 204,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/zoom_more.svg",
+      "SourceSha256": "a15a71115118c1dfb36b2cab255e03066b8cccc95e1b57f2f6ab2c8f4263aaed",
+      "Bindings": [
+        "GraphEdit:zoom_in"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "zoom_reset",
+      "Density": 2,
+      "X": 972,
+      "Y": 204,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/zoom_reset.svg",
+      "SourceSha256": "344cf02bbed1208089fbb6b8d66a94c976abaa0f2451b8f2419a54fe882434ec",
+      "Bindings": [
+        "GraphEdit:zoom_reset"
+      ],
+      "States": [
+        "default"
+      ],
+      "Directionality": "none"
+    }
+  ]
+}

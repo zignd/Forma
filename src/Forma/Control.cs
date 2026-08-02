@@ -270,21 +270,27 @@ namespace Forma
             _iconOverrides[itemName] = null;
         }
         /// <summary>Resolves a decorative icon from local overrides, ancestor themes, and the context theme.</summary>
-        public ThemeIcon? GetThemeIcon(string itemName)
+        public ThemeIcon? GetThemeIcon(string itemName) => GetThemeIcon(itemName, null);
+        protected ThemeIcon? GetThemeIcon(string itemName, string preferredTypeName)
         {
             if (itemName == null) return null;
             if (_iconOverrides.TryGetValue(itemName, out var local)) return local;
-            var typeNames = GetThemeTypeNames();
+            var typeNames = GetThemeTypeNames(preferredTypeName);
             for (var control = this; control != null; control = control.Parent)
                 if (control.ThemeOverride != null && control.ThemeOverride.TryGetIcon(itemName, typeNames, out var inherited)) return inherited;
             if (Context?.Theme.TryGetIcon(itemName, typeNames, out var contextual) == true) return contextual;
             return Context?.TryGetDefaultThemeIcon(itemName, typeNames, out var fallback) == true ? fallback : null;
         }
 
-        private IEnumerable<string> GetThemeTypeNames()
+        private IEnumerable<string> GetThemeTypeNames() => GetThemeTypeNames(null);
+        private IEnumerable<string> GetThemeTypeNames(string preferredTypeName)
         {
+            if (!string.IsNullOrEmpty(preferredTypeName)) yield return preferredTypeName;
             for (var type = GetType(); type != null && typeof(Control).IsAssignableFrom(type); type = type.BaseType)
+            {
+                if (type.Name == preferredTypeName) continue;
                 yield return type.Name;
+            }
         }
 
         private static Side Opposite(Side side) => (Side)(((int)side + 2) % 4);

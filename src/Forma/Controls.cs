@@ -1353,7 +1353,7 @@ namespace Forma
             var rect = Bounds;
             var track = Orientation == Orientation.Horizontal ? new Rectangle(rect.X, rect.Center.Y - 2, rect.Width, 4) : new Rectangle(rect.Center.X - 2, rect.Y, 4, rect.Height);
             context.Fill(track, context.Theme.PanelBorderColor);
-            var grabber = GetThemeIcon(!Enabled || !Editable ? "grabber_disabled" : _hovering || _dragging ? "grabber_highlight" : "grabber");
+            var grabber = GetSliderThemeIcon(!Enabled || !Editable ? "grabber_disabled" : _hovering || _dragging ? "grabber_highlight" : "grabber");
             if (grabber.HasValue)
             {
                 var mainLength = Orientation == Orientation.Horizontal ? rect.Width - grabber.Value.LogicalSize.X : rect.Height - grabber.Value.LogicalSize.Y;
@@ -1362,12 +1362,14 @@ namespace Forma
                 var y = Orientation == Orientation.Vertical ? rect.Y + (int)MathF.Round(ratio * Math.Max(0, mainLength)) : rect.Center.Y - grabber.Value.LogicalSize.Y / 2;
                 context.Icon(grabber.Value, new Vector2(x, y), Color.White);
             }
-            var tickIcon = GetThemeIcon("tick");
+            var tickIcon = GetSliderThemeIcon("tick");
             if (tickIcon.HasValue)
                 foreach (var tick in GetTickRectangles())
                     context.Icon(tickIcon.Value, new Vector2(rect.X + tick.Center.X - tickIcon.Value.LogicalSize.X / 2, rect.Y + tick.Center.Y - tickIcon.Value.LogicalSize.Y / 2), Color.White);
             base.Draw(context);
         }
+
+        internal ThemeIcon? GetSliderThemeIcon(string itemName) => GetThemeIcon(itemName, Orientation == Orientation.Horizontal ? nameof(HSlider) : nameof(VSlider));
 
         private void AddTick(List<Rectangle> ticks, int main, int crossLength, SliderTickPosition position)
         {

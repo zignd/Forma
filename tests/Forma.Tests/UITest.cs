@@ -6681,6 +6681,28 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void Slider_ResolvesOrientationSpecificThemeIconsForBaseInstances()
+        {
+            var texture = (Texture2D)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(Texture2D));
+            var horizontalIcon = new ThemeIcon(texture, new Rectangle(0, 0, 12, 12), new Point(12, 12));
+            var verticalIcon = new ThemeIcon(texture, new Rectangle(12, 0, 12, 12), new Point(12, 12));
+            var theme = new Theme();
+            theme.SetIcon("grabber", horizontalIcon, nameof(HSlider));
+            theme.SetIcon("grabber", verticalIcon, nameof(VSlider));
+            using var context = new UIContext { Theme = theme };
+            var horizontal = new Slider(Orientation.Horizontal);
+            var vertical = new Slider(Orientation.Vertical);
+            context.Add(horizontal);
+            context.Add(vertical);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(horizontal.GetSliderThemeIcon("grabber"), Is.EqualTo(horizontalIcon));
+                Assert.That(vertical.GetSliderThemeIcon("grabber"), Is.EqualTo(verticalIcon));
+            });
+        }
+
+        [Test]
         public void Slider_GatesKeyboardAndWheelAdjustmentOnEditableAndScrollable()
         {
             var slider = new HSlider { Size = new Vector2(100, 20), MinValue = 0, MaxValue = 100, Step = 5, Value = 50 };

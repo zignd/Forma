@@ -1,89 +1,154 @@
 # Forma
 
-Forma is an independent retained-mode UI toolkit for MonoGame, with a separately versioned core
-library, optional media integration, test suite, and component catalog.
+Forma is an independent retained-mode UI toolkit for XNA-compatible runtimes. MonoGame and FNA use
+the same `Forma` namespace, controls, layout behavior, styling model, and catalog stories. Each
+artifact is compiled against exactly one runtime because the framework assemblies are source
+compatible in many places but are not binary substitutes.
 
-The current alpha candidate is validated across DesktopGL, WindowsDX, Native Vulkan, and Native
-Metal. NuGet publication remains approval-gated; manual release workflow runs produce installable
-package artifacts without publishing them.
+NuGet publication is disabled. CI and the manual release workflow produce reviewable package
+artifacts without publishing them.
 
-Future runtime TTF/OTF work is scoped in the
-[dynamic text rendering plan](docs/dynamic-text-rendering-plan.md).
+Run `make help` for the common build, test, catalog, validation, packaging, and plan-tracking
+commands.
+
+## Choose a Runtime
+
+Use one matching package pair and one framework implementation. Never mix runtime variants.
+
+| MonoGame application | FNA application |
+| --- | --- |
+| `Forma.MonoGame` | `Forma.FNA` |
+| `Forma.DynamicText.MonoGame` (optional) | `Forma.DynamicText.FNA` (optional) |
+| `Forma.Media.MonoGame` (optional) | `Forma.Media.FNA` (optional) |
+| `MonoGame.Framework.<backend>` 3.8.5 | `FNA.NET` 2.2.11.2602 |
+| Application selects the MonoGame backend | Application supplies `FNA.NET.NativeAssets` 2.1.2.2602 |
+
+The core and media packages contain assemblies named `Forma` and `Forma.Media` with public types in
+the `Forma` namespace. Add the matching `Forma.DynamicText` companion only when using runtime font
+loading, shaping, or rasterization; `SpriteFontAdapter` consumers remain native-text-free.
+Package-owned build guards reject mixed variants with an actionable error.
+
+See [docs/dynamic-text.md](docs/dynamic-text.md) for runtime loading, fallback, logical DPI,
+OpenType features, variable fonts, atlas budgets, deployment, disposal, migration, rollback, and
+native-free platform guidance. MGCB/XNB SpriteFonts remain an optional compatibility route rather
+than a prerequisite for dynamic text.
 
 ## Build
 
-Build against the supported public MonoGame package:
+Build either runtime explicitly:
 
 ```sh
-dotnet build Forma.slnx
+dotnet build src/Forma/Forma.csproj -p:FormaRuntime=MonoGame
+dotnet build src/Forma/Forma.csproj -p:FormaRuntime=FNA
 ```
 
-DesktopGL is the default. Validate the library packages against every supported reference surface
-with `bash scripts/check-backend-references.sh`, or select one directly with
-`-p:MonoGamePlatform=DesktopGL`, `WindowsDX`, or `Native`. Forma packages do not impose a transitive
-backend; applications must reference one matching `MonoGame.Framework.*` 3.8.5 package.
-
-The catalog build restores the repository-local MGCB 3.8.5 tool and regenerates its Inter UI and
-JetBrains Mono code font atlases from repository inputs.
-
-For coordinated development against a local MonoGame checkout:
+Add the corresponding `src/Forma.Media/Forma.Media.csproj` build when `VideoStreamPlayer` is
+required. Validate both complete graphs, framework references, and public API parity with:
 
 ```sh
-dotnet build Forma.slnx -p:MonoGameProjectPath=../MonoGame/MonoGame.Framework/MonoGame.Framework.DesktopGL.csproj
+bash scripts/check-runtime-parity.sh
+bash scripts/test-dynamic-render-smoke.sh
 ```
 
-Add `Forma.Media` alongside `Forma` when `VideoStreamPlayer` is required. It builds against stock
-MonoGame; seeking is available when the runtime MonoGame fork exposes `VideoPlayer.SetPlayPosition`,
-or through an injected `IVideoPlaybackBackend`.
+Package references are the default. For coordinated source development, replace the selected
+package with an absolute path to a local runtime project:
+
+```sh
+MONOGAME_PROJECT="$(pwd)/../MonoGame/MonoGame.Framework/MonoGame.Framework.DesktopGL.csproj"
+dotnet build src/Forma/Forma.csproj -p:FormaRuntime=MonoGame \
+  -p:MonoGameProjectPath="$MONOGAME_PROJECT"
+
+FNA_PROJECT="$(pwd)/../FNA/src/FNA.csproj"
+dotnet build src/Forma/Forma.csproj -p:FormaRuntime=FNA \
+  -p:FnaProjectPath="$FNA_PROJECT"
+```
 
 ## Catalog
 
-Launch the component catalog against stock MonoGame DesktopGL:
+Launch either thin host over the same 79-story catalog:
 
 ```sh
-dotnet run --project samples/Forma.Catalog/Forma.Catalog.csproj
+dotnet run --project samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj \
+  -p:FormaRuntime=MonoGame
+
+dotnet run --project samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj \
+  -p:FormaRuntime=FNA
 ```
 
-Capture a bounded basic runtime report with `--metrics <path> --frames <count>`. Fork-specific shader
-pipeline/cache metrics remain in the fork; the catalog preserves watched compiled-effect reload and
-records UI scale, density-font, viewport, story-count, and reload status metrics.
-
-## Tests
-
-Run the stock-compatible unit and catalog inventory suite:
+To run the catalog against the opt-in Retina support in the MonoGame fork instead of the NuGet
+package:
 
 ```sh
-dotnet test tests/Forma.Tests/Forma.Tests.csproj
+git clone --recurse-submodules --branch develop https://github.com/zignd/MonoGame.git ../MonoGame
+MONOGAME_PROJECT="$(pwd)/../MonoGame/MonoGame.Framework/MonoGame.Framework.DesktopGL.csproj"
+dotnet run --project samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj \
+  -p:FormaRuntime=MonoGame -p:MonoGameProjectPath="$MONOGAME_PROJECT"
 ```
 
-Compile and run the graphics fixture where supported:
+The catalog enables `GraphicsDeviceManager.AllowHighDpi` when the selected MonoGame build exposes
+it. Stock MonoGame 3.8.5 does not expose that property and keeps its existing behavior.
+
+For the default sibling clone at `../MonoGame`, the equivalent shorthand is:
 
 ```sh
-dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj
+make catalog-monogame-local
 ```
 
-On macOS, NUnit excludes the five graphics tests before fixture setup because SDL graphics-device
-creation must run on the process main thread. The project and tests still compile, and Windows/Linux
-hosts retain the executable graphics-device path.
+Override `MONOGAME_PROJECT` when the fork lives elsewhere.
 
-Validate package contents, deterministic font artifacts, and an external package consumer with:
+![MonoGame catalog](docs/images/catalog-monogame.png)
+
+![FNA catalog](docs/images/catalog-fna.png)
+
+The catalog title and stories are runtime-neutral. Runtime/backend identity appears only in
+diagnostics and metrics. See [samples/Forma.Catalog/README.md](samples/Forma.Catalog/README.md) for
+bounded metrics, screenshot, render-parity, and native-backend commands.
+
+Default control icons are embedded, density-aware, and independent of application content
+pipelines. See [docs/theme-icons.md](docs/theme-icons.md) for icon names, ownership, density
+selection, overrides, suppression, diagnostics, and deterministic regeneration.
+
+## Validation
 
 ```sh
+# Unit and catalog inventory tests
+dotnet test tests/Forma.Tests/Forma.Tests.csproj -p:FormaRuntime=MonoGame
+dotnet test tests/Forma.Tests/Forma.Tests.csproj -p:FormaRuntime=FNA
+
+# Peer catalog presentation
+bash scripts/check-catalog-render-parity.sh
+
+# FNA Theora decoding
+bash scripts/check-fna-video-smoke.sh
+
+# Six packages, native-free empty-cache consumers, determinism, and conflict guards
 bash scripts/test-package-consumer.sh
 ```
 
-## Release
+Graphics render tests execute on supported Windows/Linux CI cells and compile on macOS, where NUnit
+excludes fixture setup because SDL graphics-device creation must run on the process main thread.
 
-Running the `Release` workflow manually builds, validates, and uploads the NuGet packages as a
-workflow artifact without publishing them. A matching version tag, such as `v0.1.0-alpha.1`, also
-enters the protected `nuget.org` environment and publishes through NuGet trusted publishing.
+See [docs/runtime-support.md](docs/runtime-support.md) for the graphics, content, effects, media,
+native dependency, trimming, AOT, CI, and manual-gate matrix. See
+[docs/runtime-acquisition.md](docs/runtime-acquisition.md) for pinned distribution ownership.
 
-Before tagging, configure that GitHub environment for required reviewer approval, add the repository
-variable `NUGET_USER`, and register the `release.yml` workflow and `nuget.org` environment as a
-trusted publishing policy for both package IDs on nuget.org.
+## Release and Migration
+
+The manual `Release` workflow validates both runtime graphs and uploads all six peer packages from
+one commit and version. It has no publication job, NuGet credential, or push command. Enabling
+publication requires separate explicit user approval.
+
+Before the first public peer release, replace unqualified `Forma` and `Forma.Media` package
+references with one matching peer pair. The unqualified IDs are not aliases and must not select a
+canonical runtime. Detailed steps are in [docs/runtime-support.md](docs/runtime-support.md).
+
+Existing `Font` properties remain source-compatible through `SpriteFontAdapter`. Dynamic migration
+uses the parallel `UIFont` property and does not require changing control-tree layout intent. Fixed
+glyph sets, pixel art, deterministic offline atlases, minimal native dependencies, and legacy XNA
+projects may continue to prefer SpriteFont.
 
 ## Licensing
 
 Forma-authored portions are available under the MIT License. Adapted and third-party portions keep
 their original terms and attribution; see [NOTICE.md](NOTICE.md) and
-[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). These records do not constitute legal clearance.

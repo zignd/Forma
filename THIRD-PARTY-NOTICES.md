@@ -23,6 +23,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+Forma's default control icons are copied from Godot's runtime-only
+`scene/theme/icons` collection at revision `b4fb06cdb3db0c61db40c7b365bfa7adec3cb2ce`.
+The complete import paths and source hashes are recorded in `assets/theme-icons/imports.json`; the
+corresponding Godot license is distributed as `assets/theme-icons/LICENSE.Godot.txt`.
+
+## Svg.Skia
+
+The build-only `Forma.IconPipeline` tool uses Svg.Skia 3.2.0 and its pinned SkiaSharp dependency to
+rasterize imported SVG sources into canonical PNG atlases. Svg.Skia is MIT licensed. Neither
+Svg.Skia nor SkiaSharp is a runtime dependency of Forma packages.
+
 ## ok_color
 
 Copyright (c) 2021 Bjorn Ottosson
@@ -115,6 +126,16 @@ change. To the extent permitted under your local laws, the contributors exclude
 the implied warranties of merchantability, fitness for a particular purpose and
 non-infringement.
 
+## FNA.NET
+
+Forma may reference FNA.NET as a separate dependency. FNA.NET is an opinionated fork of FNA and is
+distributed under the Microsoft Public License reproduced in the MonoGame section above. Its
+`FNA.NET.NativeAssets` dependency is distributed separately and includes FNA's platform-native
+dependencies. See the restored packages for their complete license and attribution files.
+
+FNA - Copyright 2009-2024 Ethan Lee and the MonoGame Team
+FNA.NET - Copyright 2026 FNA-NET
+
 ## Inter
 
 Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter)
@@ -133,3 +154,65 @@ The catalog code font input is a TTF expansion of Godot's bundled `JetBrainsMono
 The font and generated XNB artifacts are licensed under the SIL Open Font License, Version 1.1. The
 complete license is distributed at `tests/Assets/Fonts/LICENSE.JetBrainsMono.txt` and beside the
 catalog runtime assets.
+
+## Noto Sans Arabic
+
+Copyright 2016 The Noto Project Authors (https://github.com/notofonts/arabic)
+
+The dynamic-text test fixture is licensed under the SIL Open Font License, Version 1.1. The complete
+license is distributed at `tests/Assets/Fonts/LICENSE.NotoSansArabic.txt`.
+
+## Noto Multilingual Test Subsets
+
+Copyright 2015-2026 The Noto Project Authors (https://github.com/notofonts)
+
+Test-only subsets of Noto Sans Devanagari, Noto Sans Thai, Noto Sans Hebrew, Noto Sans SC, and Noto
+Emoji are generated from `google/fonts` revision
+`2796410152d4f9524b68ed46e69c1b60f8e0f7c3`. Source hashes and the deterministic subsetting command
+are recorded in `scripts/generate-multilingual-font-subsets.sh`. The fonts are licensed under the
+SIL Open Font License, Version 1.1; the complete license is distributed at
+`tests/Assets/Fonts/LICENSE.NotoSubsets.txt`.
+
+## FreeType
+
+Forma dynamic text uses FreeType 2.13.2 through FreeTypeSharp 3.1.0. FreeTypeSharp is MIT
+licensed. FreeType is available under the FreeType License or GPL-2.0; Forma uses the FreeType
+License option. See https://github.com/ryancheung/FreeTypeSharp/blob/a628eb1028605703254c469d41a6d28c25442912/LICENSE
+and https://freetype.org/license.html.
+
+## HarfBuzz
+
+Forma dynamic text uses HarfBuzz 14.2.1 through HarfBuzzSharp 14.2.1.1. Both are MIT licensed.
+See https://github.com/harfbuzz/harfbuzz/blob/14.2.1/COPYING and
+https://licenses.nuget.org/MIT.
+
+## Unicode Character Database
+
+Forma's generated text-segmentation tables and conformance fixtures are derived from Unicode
+Character Database 17.0.0 data files distributed under the Unicode License V3.
+
+COPYRIGHT AND PERMISSION NOTICE
+
+Copyright © 1991-2026 Unicode, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of data files and any
+associated documentation (the "Data Files") or software and any associated documentation (the
+"Software") to deal in the Data Files or Software without restriction, including without
+limitation the rights to use, copy, modify, merge, publish, distribute, and/or sell copies of the
+Data Files or Software, and to permit persons to whom the Data Files or Software are furnished to
+do so, provided that either (a) this copyright and permission notice appear with all copies of the
+Data Files or Software, or (b) this copyright and permission notice appear in associated
+Documentation.
+
+THE DATA FILES AND SOFTWARE ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS.
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE BE LIABLE FOR ANY CLAIM,
+OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
+USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THE DATA FILES OR SOFTWARE.
+
+Except as contained in this notice, the name of a copyright holder shall not be used in advertising
+or otherwise to promote the sale, use or other dealings in these Data Files or Software without
+prior written authorization of the copyright holder.

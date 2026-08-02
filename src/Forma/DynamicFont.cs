@@ -280,6 +280,7 @@ namespace Forma
                 {
                     UIFontHinting.None => FT_LOAD.FT_LOAD_DEFAULT | FT_LOAD.FT_LOAD_NO_HINTING,
                     UIFontHinting.Auto => FT_LOAD.FT_LOAD_DEFAULT | FT_LOAD.FT_LOAD_FORCE_AUTOHINT,
+                    UIFontHinting.Light => FT_LOAD.FT_LOAD_DEFAULT | (FT_LOAD)(1 << 16),
                     _ => FT_LOAD.FT_LOAD_DEFAULT
                 };
                 var actualGlyphId = LoadGlyphOrNotdef(glyphId, flags);

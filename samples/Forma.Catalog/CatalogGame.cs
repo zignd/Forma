@@ -178,9 +178,9 @@ public sealed class CatalogGame : Game
     {
         if (!_dynamicTextEnabled) return new SpriteFontAdapter(_font, size);
         variations ??= Array.Empty<UIFontVariationCoordinate>();
-        if (familyName == "Noto Sans Arabic") return new DynamicUIFont(_arabicFace, size, UIFontHinting.Default, variations, _interFace, _hebrewFace, _devanagariFace, _cjkFace, _emojiFace);
-        if (familyName == "Noto Sans SC") return new DynamicUIFont(_cjkFace, size, UIFontHinting.Default, variations, _interFace, _arabicFace, _hebrewFace, _devanagariFace, _emojiFace);
-        return new DynamicUIFont(_interFace, size, UIFontHinting.Default, variations, _arabicFace, _hebrewFace, _devanagariFace, _cjkFace, _emojiFace);
+        if (familyName == "Noto Sans Arabic") return new DynamicUIFont(_arabicFace, size, UIFontHinting.Light, variations, _interFace, _hebrewFace, _devanagariFace, _cjkFace, _emojiFace);
+        if (familyName == "Noto Sans SC") return new DynamicUIFont(_cjkFace, size, UIFontHinting.Light, variations, _interFace, _arabicFace, _hebrewFace, _devanagariFace, _emojiFace);
+        return new DynamicUIFont(_interFace, size, UIFontHinting.Light, variations, _arabicFace, _hebrewFace, _devanagariFace, _cjkFace, _emojiFace);
     }
 
     private float GetDisplayScale(Viewport viewport)

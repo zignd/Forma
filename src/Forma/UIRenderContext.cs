@@ -173,8 +173,14 @@ namespace Forma
             var glyph = _dynamicGlyphCache.GetOrAdd(font, glyphId, DisplayScale);
             if (glyph.PageIndex < 0 || !glyph.Uploaded) return;
             var texture = _dynamicGlyphCache.GetTexture(glyph);
-            var topLeft = baselinePosition + new Vector2(glyph.BearingX / DisplayScale, -glyph.BearingY / DisplayScale);
+            var topLeft = SnapDynamicGlyphPosition(baselinePosition, glyph.BearingX, glyph.BearingY, DisplayScale);
             _spriteBatch.Draw(texture, topLeft, glyph.Bounds, color, 0, Vector2.Zero, 1f / DisplayScale, SpriteEffects.None, 0);
+        }
+        internal static Vector2 SnapDynamicGlyphPosition(Vector2 baselinePosition, int bearingX, int bearingY, float displayScale)
+        {
+            return new Vector2(
+                baselinePosition.X + bearingX / displayScale,
+                (MathF.Round(baselinePosition.Y * displayScale) - bearingY) / displayScale);
         }
         internal void BeginDynamicGlyphs()
         {

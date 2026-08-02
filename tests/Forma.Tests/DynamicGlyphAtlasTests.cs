@@ -60,6 +60,20 @@ namespace Forma.Tests
             Assert.That(allocator.UsedArea, Is.Zero);
         }
 
+        [TestCase(1f)]
+        [TestCase(1.5f)]
+        [TestCase(2f)]
+        public void DynamicGlyphBitmapOriginPreservesHorizontalSpacingAndSnapsVertically(float displayScale)
+        {
+            var position = UIRenderContext.SnapDynamicGlyphPosition(new Vector2(10.25f, 20.75f), 2, 9, displayScale);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(position.X, Is.EqualTo(10.25f + 2 / displayScale).Within(0.0001f));
+                Assert.That(position.Y * displayScale, Is.EqualTo(MathF.Round(20.75f * displayScale) - 9).Within(0.0001f));
+            });
+        }
+
         [Test]
         public void ClearReleasesPagesBetweenFramesAndAllowsDeterministicReuse()
         {

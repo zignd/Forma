@@ -57,6 +57,24 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void LightHintingRasterizesWithoutChangingShapedHorizontalAdvances()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var shaped = face.Shape("te ti", 16, TextDirection.LeftToRight, "en", "Latn");
+            var advances = shaped.Glyphs.Select(glyph => glyph.AdvanceX).ToArray();
+            var bitmaps = shaped.Glyphs.Select(glyph => face.RasterizeGlyph(glyph.GlyphId, 16, 1, UIFontHinting.Light)).ToArray();
+            var visibleBitmaps = bitmaps.Where(bitmap => bitmap.Pixels.Length > 0).ToArray();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(visibleBitmaps, Has.Length.EqualTo(4));
+                Assert.That(visibleBitmaps, Has.All.Property(nameof(UIFontGlyphBitmap.Width)).GreaterThan(0));
+                Assert.That(visibleBitmaps, Has.All.Property(nameof(UIFontGlyphBitmap.Height)).GreaterThan(0));
+                Assert.That(shaped.Glyphs.Select(glyph => glyph.AdvanceX), Is.EqualTo(advances));
+            });
+        }
+
+        [Test]
         public void ReadsVariableAxesAndRasterizesCombiningMarks()
         {
             using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/NotoSansArabic_Variable.ttf");

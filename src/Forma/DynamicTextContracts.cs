@@ -36,7 +36,8 @@ namespace Forma
     {
         Default,
         None,
-        Auto
+        Auto,
+        Light
     }
 
     public readonly struct UIFontShapedGlyph

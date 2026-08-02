@@ -84,6 +84,9 @@ Fallback order is deterministic and resolved per grapheme cluster. Put the norma
 then script and emoji faces. Unsupported input reaches glyph 0 (`.notdef`) after the chain is
 exhausted; it is not replaced with `?` and does not throw.
 
+Use `UIFontHinting.Light` for small grayscale UI text that needs vertical pixel alignment while
+preserving fractional horizontal advances and inter-glyph spacing.
+
 ## Layout and Display Density
 
 Font sizes and all `TextLayout` geometry use logical UI units. `UIContext.DisplayScale` controls the

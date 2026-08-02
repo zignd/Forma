@@ -19,8 +19,8 @@ jobs:
     env:
       FORMA_RUNTIME: ${{ matrix.runtime }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - run: dotnet tool restore
@@ -140,15 +140,26 @@ jobs:
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
-          cache: true
+          cache: false
       - name: Set up Premake
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
-        uses: abel0b/setup-premake@v2.4
-        with:
-          version: 5.0.0-beta2
+        shell: bash
+        run: |
+          premake_directory="$RUNNER_TEMP/premake-5.0.0-beta2"
+          premake_archive="$RUNNER_TEMP/premake-5.0.0-beta2-macosx.tar.gz"
+          curl --fail --location --silent --show-error \
+            --output "$premake_archive" \
+            https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-macosx.tar.gz
+          printf '%s  %s\n' \
+            620778e24847d4f8e2380cd98922977afec77cc8e805a77edcae1c05e0f6d44a \
+            "$premake_archive" | shasum -a 256 --check
+          mkdir -p "$premake_directory"
+          tar -xzf "$premake_archive" -C "$premake_directory"
+          echo "$premake_directory" >> "$GITHUB_PATH"
+          "$premake_directory/premake5" --version
       - name: Check out MonoGame Metal runtime source
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: zignd/MonoGame
           ref: 99716f1b02ba9db2130c754606d6b0303d039d15
@@ -157,6 +168,8 @@ jobs:
       - name: Build MonoGame Metal runtime
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
         working-directory: .native/MonoGame
+        env:
+          NoWarn: "1591"
         run: ./build.sh --target='Build Native Metal'
       - name: Validate MonoGame Metal catalog
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
@@ -170,8 +183,8 @@ jobs:
   parity:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - run: bash scripts/check-runtime-parity.sh
@@ -179,8 +192,8 @@ jobs:
   package-consumers:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Install Linux graphics dependencies
@@ -197,7 +210,7 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE: 1
           SDL_VIDEODRIVER: x11
         run: env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/test-package-consumer.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: forma-peer-packages
           path: Artifacts/packages/*/*.*nupkg

@@ -3,10 +3,11 @@
   <PropertyGroup>
     <AssemblyName>Forma.Media</AssemblyName>
     <RootNamespace>Forma</RootNamespace>
-    <PackageId>Forma.Media</PackageId>
-    <VersionPrefix>0.1.0-alpha.1</VersionPrefix>
-    <Description>Optional MonoGame video integration for Forma.</Description>
-    <PackageTags>monogame;ui;video;media;game-development</PackageTags>
+    <PackageId Condition="'$(FormaRuntime)' == 'MonoGame'">Forma.Media.MonoGame</PackageId>
+    <PackageId Condition="'$(FormaRuntime)' == 'FNA'">Forma.Media.FNA</PackageId>
+    <VersionPrefix>$(FormaVersion)</VersionPrefix>
+    <Description>Optional video integration for Forma.</Description>
+    <PackageTags>forma;$(FormaRuntime);ui;video;media;game-development</PackageTags>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>disable</Nullable>
@@ -14,18 +15,43 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <ProjectReference Include="../Forma/Forma.csproj" />
+    <ProjectReference Include="../Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(MonoGameProjectPath)' == ''">
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''">
     <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' != ''">
+    <ProjectReference Include="$(MonoGameProjectPath)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' == ''">
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''">
+    <ProjectReference Include="$(FnaProjectPath)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame'">
+    <Compile Remove="RuntimeAdapters/FNA/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA'">
+    <Compile Remove="RuntimeAdapters/MonoGame/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="../../LICENSE" Pack="true" PackagePath="" />
     <None Include="../../NOTICE.md" Pack="true" PackagePath="" />
     <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../RELEASE_NOTES.md" Pack="true" PackagePath="" />
     <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" />
+    <None Include="../../docs/dynamic-text.md" Pack="true" PackagePath="docs/" />
+    <None Include="PackageGuards/Forma.Media.$(FormaRuntime).targets"
+          Pack="true"
+          PackagePath="buildTransitive/Forma.Media.$(FormaRuntime).targets" />
   </ItemGroup>
 
 </Project>

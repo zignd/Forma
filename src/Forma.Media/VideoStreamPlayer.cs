@@ -10,6 +10,17 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Forma
 {
+    [Flags]
+    public enum VideoPlaybackCapabilities
+    {
+        None = 0,
+        BuiltInPlayback = 1,
+        LocalFileLoading = 2,
+        Seeking = 4,
+        Looping = 8,
+        Audio = 16,
+    }
+
     /// <summary>Playback operations consumed by <see cref="VideoStreamPlayer"/>.</summary>
     public interface IVideoPlaybackBackend : IDisposable
     {
@@ -25,12 +36,13 @@ namespace Forma
         bool TrySetPlayPosition(TimeSpan position);
     }
 
-    /// <summary>MonoGame VideoPlayer-backed UI control for video assets loaded through Content.</summary>
+    /// <summary>XNA-compatible VideoPlayer-backed UI control for video streams.</summary>
     public sealed class VideoStreamPlayer : Control, IDisposable
     {
         private readonly Func<IVideoPlaybackBackend> _backendFactory;
         private IVideoPlaybackBackend _backend;
         private bool _backendUnavailable;
+        private string _backendUnavailableReason;
         private Video _stream;
         private bool _autoplay;
         private bool _loop;
@@ -43,7 +55,7 @@ namespace Forma
         private int _audioTrack;
         private string _bus = "Master";
 
-        public VideoStreamPlayer() : this(() => new MonoGameVideoPlaybackBackend()) { }
+        public VideoStreamPlayer() : this(() => new BuiltInVideoPlaybackBackend()) { }
         public VideoStreamPlayer(IVideoPlaybackBackend backend)
         {
             _backend = backend ?? throw new ArgumentNullException(nameof(backend));
@@ -64,7 +76,21 @@ namespace Forma
         public int AudioTrack { get => _audioTrack; set => _audioTrack = value; }
         public string Bus { get => _bus; set => _bus = string.IsNullOrEmpty(value) ? "Master" : value; }
         public MediaState PlaybackState => _backend?.State ?? MediaState.Stopped;
+        public static VideoPlaybackCapabilities RuntimeCapabilities =>
+            RuntimeVideoLoader.Capabilities |
+            (BuiltInVideoPlaybackBackend.SupportsSeeking ? VideoPlaybackCapabilities.Seeking : VideoPlaybackCapabilities.None);
+        public bool IsPlaybackAvailable => !_backendUnavailable;
+        public string PlaybackUnavailableReason => _backendUnavailableReason;
         public event EventHandler Finished;
+
+        public static Video LoadLocalFile(string path, GraphicsDevice graphicsDevice)
+        {
+            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("A video path is required.", nameof(path));
+            if (graphicsDevice == null) throw new ArgumentNullException(nameof(graphicsDevice));
+            var fullPath = Path.GetFullPath(path);
+            if (!File.Exists(fullPath)) throw new FileNotFoundException("The video file was not found.", fullPath);
+            return RuntimeVideoLoader.LoadLocalFile(fullPath, graphicsDevice);
+        }
 
         public override Vector2 GetMinimumSize()
         {
@@ -74,9 +100,14 @@ namespace Forma
         public void Play()
         {
             if (_stream == null || !EnsureBackend()) return;
-            _backend.Play(_stream);
-            if (Paused) _backend.Pause();
-            _playRequested = true;
+            try
+            {
+                _backend.Play(_stream);
+                if (Paused) _backend.Pause();
+                _playRequested = true;
+            }
+            catch (NotImplementedException exception) { MarkBackendUnavailable(exception); }
+            catch (PlatformNotSupportedException exception) { MarkBackendUnavailable(exception); }
         }
         public void Stop() { _backend?.Stop(); _playRequested = false; }
         public bool IsPlaying() => _backend?.State == MediaState.Playing;
@@ -92,7 +123,7 @@ namespace Forma
         public float GetVolumeDb() => Volume == 0 ? -80 : 20 * MathF.Log10(Volume);
         public void SetSpeedScale(float speedScale) => SpeedScale = speedScale;
         public float GetSpeedScale() => SpeedScale;
-        public string GetStreamName() => Stream?.FileName ?? "<No Stream>";
+        public string GetStreamName() => RuntimeVideoMetadata.GetStreamName(Stream);
         public double GetStreamLength() => Stream?.Duration.TotalSeconds ?? 0;
         public double GetStreamPosition() => _backend?.PlayPosition.TotalSeconds ?? 0;
         public void SetStreamPosition(double position) =>
@@ -145,24 +176,26 @@ namespace Forma
                 _backend.Volume = MathHelper.Clamp(Volume, 0, 1);
                 return true;
             }
-            catch (NotImplementedException)
-            {
-                _backendUnavailable = true;
-                return false;
-            }
-            catch (PlatformNotSupportedException)
-            {
-                _backendUnavailable = true;
-                return false;
-            }
+            catch (NotImplementedException exception) { MarkBackendUnavailable(exception); return false; }
+            catch (PlatformNotSupportedException exception) { MarkBackendUnavailable(exception); return false; }
+        }
+        private void MarkBackendUnavailable(Exception exception)
+        {
+            _backendUnavailable = true;
+            _backendUnavailableReason = exception.Message;
+            _playRequested = false;
+            _backend?.Dispose();
+            _backend = null;
         }
     }
 
-    internal sealed class MonoGameVideoPlaybackBackend : IVideoPlaybackBackend
+    internal sealed class BuiltInVideoPlaybackBackend : IVideoPlaybackBackend
     {
         private static readonly MethodInfo SetPlayPositionMethod = typeof(VideoPlayer).GetMethod(
             "SetPlayPosition", BindingFlags.Instance | BindingFlags.Public, [typeof(TimeSpan)]);
         private readonly VideoPlayer _player = new VideoPlayer();
+
+        internal static bool SupportsSeeking => SetPlayPositionMethod != null;
 
         public MediaState State => _player.State;
         public TimeSpan PlayPosition => _player.PlayPosition;

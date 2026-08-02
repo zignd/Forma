@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.FnaVideoSmoke</AssemblyName>
+    <RootNamespace>Forma.FnaVideoSmoke</RootNamespace>
+    <FormaRuntime>FNA</FormaRuntime>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" />
+    <ProjectReference Include="../../src/Forma.Media/Forma.Media.csproj" AdditionalProperties="FormaRuntime=FNA" />
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Purpose: Summarize Markdown checklist progress by section and optionally list checklist items or
+# fail while work remains. Usage: `bash scripts/track-plan.sh [OPTIONS] [PLAN]`; run with `--help`
+# for all modes. Without a plan path, the dynamic text rendering plan is summarized.
+
 script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 default_plan="$(cd "$script_directory/.." && pwd)/docs/dynamic-text-rendering-plan.md"
 plan="$default_plan"

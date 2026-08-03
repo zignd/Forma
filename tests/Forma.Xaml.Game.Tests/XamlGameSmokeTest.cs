@@ -124,7 +124,8 @@ public sealed class XamlGameSmokeTest
     public async Task HotReloadKeepsCurrentGameViewModel()
     {
         var sourceRoot = typeof(GameHudView).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
-            .Single(metadata => metadata.Key == "FormaXamlGameSourceRoot").Value;
+            .SingleOrDefault(metadata => metadata.Key == "FormaXamlGameSourceRoot")?.Value;
+        if (sourceRoot == null) Assert.Ignore("Game XAML source metadata is intentionally Debug-only.");
         var temporaryRoot = Path.Combine(Path.GetTempPath(), $"forma-xaml-game-{Guid.NewGuid():N}");
         Directory.CreateDirectory(temporaryRoot);
         File.Copy(Path.Combine(sourceRoot, "GameHudView.xaml"), Path.Combine(temporaryRoot, "GameHudView.xaml"));

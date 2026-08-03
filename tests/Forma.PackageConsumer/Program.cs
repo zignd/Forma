@@ -2,12 +2,25 @@
 // SPDX-License-Identifier: MIT
 
 using Forma;
+using Forma.PackageConsumer;
+using Forma.Xaml;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 using var context = new UIContext();
+var compiledModel = new ConsumerViewModel { Message = "Compiled package view" };
+var compiledView = new ConsumerView { DataContext = compiledModel };
+var compiledScope = NameScope.GetNameScope(compiledView) ?? throw new InvalidOperationException("Compiled package view has no namescope.");
+var compiledLabel = compiledScope.Find<Label>("Message");
+var compiledEditor = compiledScope.Find<LineEdit>("Editor");
+if (compiledLabel.Text != compiledModel.Message || compiledEditor.Text != compiledModel.Message) return 1;
+compiledModel.Message = "One-way update";
+if (compiledLabel.Text != compiledModel.Message) return 1;
+compiledEditor.Text = "Two-way update";
+if (compiledModel.Message != compiledEditor.Text) return 1;
+context.Add(compiledView);
 var root = new VBoxContainer
 {
     Size = new Vector2(320, 180),
@@ -82,7 +95,7 @@ using var video = new VideoStreamPlayer();
 Action<UIContext, GraphicsDevice> drawingSurface = (drawingContext, graphicsDevice) => drawingContext.Draw(graphicsDevice);
 _ = drawingSurface;
 
-return context.Roots.Count == 1 && spriteFontDrawSucceeded && VideoStreamPlayer.RuntimeCapabilities != VideoPlaybackCapabilities.None ? 0 : 1;
+return context.Roots.Count == 2 && spriteFontDrawSucceeded && VideoStreamPlayer.RuntimeCapabilities != VideoPlaybackCapabilities.None ? 0 : 1;
 #else
-return context.Roots.Count == 1 && spriteFontDrawSucceeded ? 0 : 1;
+return context.Roots.Count == 2 && spriteFontDrawSucceeded ? 0 : 1;
 #endif

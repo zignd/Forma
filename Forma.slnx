@@ -3,21 +3,37 @@
     <Project Path="samples/Forma.Catalog/Forma.Catalog.csproj" />
     <Project Path="samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj" />
     <Project Path="samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj" />
+    <Project Path="samples/Forma.Xaml.Game.FNA/Forma.Xaml.Game.FNA.csproj" />
+    <Project Path="samples/Forma.Xaml.Game.MonoGame/Forma.Xaml.Game.MonoGame.csproj" />
+    <Project Path="samples/Forma.Xaml.Game/Forma.Xaml.Game.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Forma/Forma.csproj" />
     <Project Path="src/Forma.DynamicText/Forma.DynamicText.csproj" />
     <Project Path="src/Forma.Media/Forma.Media.csproj" />
+    <Project Path="src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" />
+    <Project Path="src/Forma.Xaml.Compiler/Forma.Xaml.Compiler.csproj" />
+    <Project Path="src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Forma.DynamicTextSpike/Forma.DynamicTextSpike.csproj" />
     <Project Path="tests/Forma.FnaVideoSmoke/Forma.FnaVideoSmoke.csproj" />
     <Project Path="tests/Forma.RenderTests/Forma.RenderTests.csproj" />
     <Project Path="tests/Forma.Tests/Forma.Tests.csproj" />
+    <Project Path="tests/Forma.Xaml.Build.Integration/Forma.Xaml.Build.Integration.csproj" />
+    <Project Path="tests/Forma.Xaml.Compiler.Tests/Forma.Xaml.Compiler.Tests.csproj" />
+    <Project Path="tests/Forma.Xaml.HotReload.Tests/Forma.Xaml.HotReload.Tests.csproj" />
+    <Project Path="tests/Forma.Xaml.Game.Tests/Forma.Xaml.Game.Tests.csproj" />
+    <Project Path="tests/Forma.Xaml.Tests/Forma.Xaml.Tests.csproj" />
+    <Project Path="tests/Forma.Xaml.Tool.Tests/Forma.Xaml.Tool.Tests.csproj" />
+    <Project Path="tests/Forma.XamlSpike.Aot/Forma.XamlSpike.Aot.csproj" />
+    <Project Path="tests/Forma.XamlSpike.Runtime/Forma.XamlSpike.Runtime.csproj" />
+    <Project Path="tests/Forma.XamlSpike/Forma.XamlSpike.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/Forma.AssemblyInspector/Forma.AssemblyInspector.csproj" />
     <Project Path="tools/Forma.IconPipeline/Forma.IconPipeline.csproj" />
+    <Project Path="tools/Forma.Xaml.Tool/Forma.Xaml.Tool.csproj" />
     <Project Path="tools/Forma.UnicodePipeline/Forma.UnicodePipeline.csproj" />
   </Folder>
 </Solution>

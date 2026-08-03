@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Forma.$(FormaRuntime)" Version="$(FormaPackageVersion)" />
+    <PackageReference Include="Forma.Xaml.Build.$(FormaRuntime)" Version="$(FormaPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Forma.DynamicText.$(FormaRuntime)" Version="$(FormaPackageVersion)" Condition="'$(IncludeDynamicText)' == 'true'" />
     <PackageReference Include="Forma.Media.$(FormaMediaRuntime)" Version="$(FormaPackageVersion)" Condition="'$(IncludeFormaMedia)' == 'true'" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5" Condition="'$(FormaRuntime)' == 'MonoGame'" />

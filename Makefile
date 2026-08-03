@@ -12,6 +12,8 @@ TRACK_ARGS ?= --summary
 
 MONOGAME_CATALOG := samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj
 FNA_CATALOG := samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj
+MONOGAME_XAML_GAME := samples/Forma.Xaml.Game.MonoGame/Forma.Xaml.Game.MonoGame.csproj
+FNA_XAML_GAME := samples/Forma.Xaml.Game.FNA/Forma.Xaml.Game.FNA.csproj
 UNIT_TESTS := tests/Forma.Tests/Forma.Tests.csproj
 RENDER_TESTS := tests/Forma.RenderTests/Forma.RenderTests.csproj
 DOTNET_ARGS := --configuration "$(CONFIGURATION)" --nologo
@@ -19,10 +21,11 @@ DOTNET_ARGS := --configuration "$(CONFIGURATION)" --nologo
 .PHONY: help setup tools restore restore-monogame restore-fna \
 	build build-monogame build-fna \
 	test test-unit test-unit-monogame test-unit-fna \
+	test-xaml test-xaml-monogame test-xaml-fna xaml-build-fixtures \
 	test-render test-render-monogame test-render-fna \
 	catalog-monogame catalog-monogame-local catalog-fna catalog-fna-local \
-	smoke smoke-monogame smoke-fna render-parity video-smoke \
-	text-spike text-spike-local text-baseline \
+	xaml-game-monogame xaml-game-fna smoke smoke-monogame smoke-fna render-parity video-smoke \
+	text-spike text-spike-local text-baseline xaml-spike \
 	compliance backend-references parity packages nativeaot check check-all \
 	icons icons-import icons-verify unicode unicode-verify track clean
 
@@ -46,9 +49,11 @@ build: build-monogame build-fna ## Build both complete runtime graphs.
 
 build-monogame: ## Build the complete MonoGame graph.
 	$(DOTNET) build $(MONOGAME_CATALOG) $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
+	$(DOTNET) build $(MONOGAME_XAML_GAME) $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
 
 build-fna: ## Build the complete FNA graph.
 	$(DOTNET) build $(FNA_CATALOG) $(DOTNET_ARGS) -p:FormaRuntime=FNA
+	$(DOTNET) build $(FNA_XAML_GAME) $(DOTNET_ARGS) -p:FormaRuntime=FNA
 
 test: test-unit test-render ## Run unit and render tests for both runtimes.
 
@@ -59,6 +64,21 @@ test-unit-monogame: ## Run MonoGame unit and catalog inventory tests.
 
 test-unit-fna: ## Run FNA unit and catalog inventory tests.
 	$(DOTNET) test $(UNIT_TESTS) $(DOTNET_ARGS) -p:FormaRuntime=FNA
+
+test-xaml: test-xaml-monogame test-xaml-fna xaml-build-fixtures ## Run Forma XAML runtime, compiler, tooling, sample, and build tests.
+
+test-xaml-monogame: ## Run focused Forma XAML tests against MonoGame.
+	$(DOTNET) test tests/Forma.Xaml.Tests/Forma.Xaml.Tests.csproj $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
+	$(DOTNET) test tests/Forma.Xaml.Tool.Tests/Forma.Xaml.Tool.Tests.csproj $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
+	$(DOTNET) test tests/Forma.Xaml.Game.Tests/Forma.Xaml.Game.Tests.csproj $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
+
+test-xaml-fna: ## Run focused Forma XAML tests against FNA.
+	$(DOTNET) test tests/Forma.Xaml.Tests/Forma.Xaml.Tests.csproj $(DOTNET_ARGS) -p:FormaRuntime=FNA
+	$(DOTNET) test tests/Forma.Xaml.Tool.Tests/Forma.Xaml.Tool.Tests.csproj $(DOTNET_ARGS) -p:FormaRuntime=FNA
+	$(DOTNET) test tests/Forma.Xaml.Game.Tests/Forma.Xaml.Game.Tests.csproj $(DOTNET_ARGS) -p:FormaRuntime=FNA
+
+xaml-build-fixtures: ## Validate compiled, invalid, incremental, PDB, and deterministic XAML builds.
+	bash scripts/test-xaml-build-fixtures.sh
 
 test-render: test-render-monogame test-render-fna ## Run render tests for both runtimes.
 
@@ -73,22 +93,30 @@ catalog-monogame: ## Launch the interactive MonoGame catalog.
 
 catalog-monogame-local: ## Launch the catalog against a local MonoGame fork.
 	@test -f "$(MONOGAME_PROJECT)" || { echo "MONOGAME_PROJECT does not exist: $(MONOGAME_PROJECT)" >&2; exit 2; }
-	$(DOTNET) run --project $(MONOGAME_CATALOG) --configuration "$(CONFIGURATION)" -p:FormaRuntime=MonoGame -p:MonoGameProjectPath="$(MONOGAME_PROJECT)" $(CATALOG_ARGS)
+	DOTNET="$(DOTNET)" bash scripts/run-catalog-local.sh MonoGame "$(MONOGAME_CATALOG)" "$(MONOGAME_PROJECT)" "$(CONFIGURATION)" -- $(CATALOG_ARGS)
 
 catalog-fna: ## Launch the interactive FNA catalog.
 	$(DOTNET) run --project $(FNA_CATALOG) --configuration "$(CONFIGURATION)" -p:FormaRuntime=FNA $(CATALOG_ARGS)
 
 catalog-fna-local: ## Launch the catalog against a local FNA fork.
 	@test -f "$(FNA_PROJECT)" || { echo "FNA_PROJECT does not exist: $(FNA_PROJECT)" >&2; exit 2; }
-	$(DOTNET) run --project $(FNA_CATALOG) --configuration "$(CONFIGURATION)" -p:FormaRuntime=FNA -p:FnaProjectPath="$(FNA_PROJECT)" $(CATALOG_ARGS)
+	DOTNET="$(DOTNET)" bash scripts/run-catalog-local.sh FNA "$(FNA_CATALOG)" "$(FNA_PROJECT)" "$(CONFIGURATION)" -- $(CATALOG_ARGS)
+
+xaml-game-monogame: ## Launch the shared XAML sample with MonoGame.
+	$(DOTNET) run --project $(MONOGAME_XAML_GAME) --configuration "$(CONFIGURATION)" -p:FormaRuntime=MonoGame
+
+xaml-game-fna: ## Launch the shared XAML sample with FNA.
+	$(DOTNET) run --project $(FNA_XAML_GAME) --configuration "$(CONFIGURATION)" -p:FormaRuntime=FNA
 
 smoke: smoke-monogame smoke-fna ## Run both bounded catalog smoke checks.
 
 smoke-monogame: ## Run the bounded MonoGame catalog smoke check.
 	bash scripts/check-catalog-smoke.sh
+	$(DOTNET) test tests/Forma.Xaml.Game.Tests/Forma.Xaml.Game.Tests.csproj $(DOTNET_ARGS) -p:FormaRuntime=MonoGame
 
 smoke-fna: ## Run the bounded FNA catalog smoke check.
 	FormaRuntime=FNA bash scripts/check-catalog-smoke.sh
+	$(DOTNET) test tests/Forma.Xaml.Game.Tests/Forma.Xaml.Game.Tests.csproj $(DOTNET_ARGS) -p:FormaRuntime=FNA
 
 render-parity: ## Compare deterministic catalog rendering across runtimes.
 	bash scripts/check-catalog-render-parity.sh
@@ -121,6 +149,9 @@ packages: ## Build and validate all peer packages and isolated consumers.
 nativeaot: ## Validate trim-only and NativeAOT package consumers on macOS arm64.
 	bash scripts/test-nativeaot-package-consumer.sh
 
+xaml-spike: ## Validate XAML compiler feasibility and a compiler-free NativeAOT view.
+	bash scripts/test-xaml-spike.sh
+
 icons: ## Regenerate canonical 1x/2x default theme icon atlases.
 	$(DOTNET) run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- generate
 
@@ -137,9 +168,9 @@ unicode: ## Regenerate canonical Unicode 17 managed tables and conformance cases
 unicode-verify: ## Download pinned Unicode sources and byte-compare generated outputs.
 	$(DOTNET) run --project tools/Forma.UnicodePipeline/Forma.UnicodePipeline.csproj -- verify
 
-check: compliance icons-verify unicode-verify parity ## Run the portable CI validation gates.
+check: compliance icons-verify unicode-verify parity test-xaml ## Run the portable CI validation gates.
 
-check-all: check backend-references smoke render-parity video-smoke packages ## Run every validation, including graphical and package checks.
+check-all: check backend-references smoke render-parity video-smoke packages nativeaot ## Run every validation, including graphical, package, and NativeAOT checks.
 
 track: ## Show plan progress; override PLAN and TRACK_ARGS as needed.
 	bash scripts/track-plan.sh $(TRACK_ARGS) "$(PLAN)"

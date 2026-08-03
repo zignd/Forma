@@ -18,6 +18,7 @@ Use one matching package pair and one framework implementation. Never mix runtim
 | MonoGame application | FNA application |
 | --- | --- |
 | `Forma.MonoGame` | `Forma.FNA` |
+| `Forma.Xaml.Build.MonoGame` (compiled XAML) | `Forma.Xaml.Build.FNA` (compiled XAML) |
 | `Forma.DynamicText.MonoGame` (optional) | `Forma.DynamicText.FNA` (optional) |
 | `Forma.Media.MonoGame` (optional) | `Forma.Media.FNA` (optional) |
 | `MonoGame.Framework.<backend>` 3.8.5 | `FNA.NET` 2.2.11.2602 |
@@ -27,6 +28,36 @@ The core and media packages contain assemblies named `Forma` and `Forma.Media` w
 the `Forma` namespace. Add the matching `Forma.DynamicText` companion only when using runtime font
 loading, shaping, or rasterization; `SpriteFontAdapter` consumers remain native-text-free.
 Package-owned build guards reject mixed variants with an actionable error.
+
+## Forma XAML
+
+Forma XAML is an optional, Forma-native declarative UI language. Release builds inject generated
+IL and typed bindings into the application assembly; shipped applications do not contain source
+XAML, XamlX, Cecil, a reflection binding engine, or a runtime XAML reader. Pair the private build
+package with the selected runtime:
+
+```xml
+<PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.1" />
+<PackageReference Include="Forma.Xaml.Build.MonoGame" Version="0.1.0-alpha.1" PrivateAssets="All" />
+```
+
+Use the `.FNA` peers for an FNA application. Project `.xaml` files are discovered automatically.
+Views use `xmlns="https://forma.dev/xaml"`, an `x:Class` root that calls
+`FormaXamlLoader.Load(this)`, and `x:DataType` for release-safe typed bindings. Named controls are
+resolved with `NameScope.GetNameScope(view).Find<T>("Name")`; names do not generate fields.
+
+The shared Signal Run sample demonstrates three compiled views, resources, selectors, one/two-way
+bindings, deterministic storyboards, and Debug hot reload on both runtimes:
+
+```sh
+make xaml-game-monogame
+make xaml-game-fna
+make test-xaml
+```
+
+See [docs/xaml-language.md](docs/xaml-language.md) for setup, syntax, MSBuild/CLI/LSP usage,
+diagnostics, hot-reload limits, AOT behavior, and the compatibility matrix. See
+[samples/Forma.Xaml.Game/README.md](samples/Forma.Xaml.Game/README.md) for the playable sample.
 
 See [docs/dynamic-text.md](docs/dynamic-text.md) for runtime loading, fallback, logical DPI,
 OpenType features, variable fonts, atlas budgets, deployment, disposal, migration, rollback, and
@@ -121,8 +152,11 @@ bash scripts/check-catalog-render-parity.sh
 # FNA Theora decoding
 bash scripts/check-fna-video-smoke.sh
 
-# Six packages, native-free empty-cache consumers, determinism, and conflict guards
+# Eight peer packages, compiled-XAML empty-cache consumers, determinism, and conflict guards
 bash scripts/test-package-consumer.sh
+
+# macOS arm64 trim and NativeAOT compiled-XAML consumers
+bash scripts/test-nativeaot-package-consumer.sh
 ```
 
 Graphics render tests execute on supported Windows/Linux CI cells and compile on macOS, where NUnit
@@ -134,7 +168,7 @@ native dependency, trimming, AOT, CI, and manual-gate matrix. See
 
 ## Release and Migration
 
-The manual `Release` workflow validates both runtime graphs and uploads all six peer packages from
+The manual `Release` workflow validates both runtime graphs and uploads all eight peer packages from
 one commit and version. It has no publication job, NuGet credential, or push command. Enabling
 publication requires separate explicit user approval.
 

@@ -15,6 +15,7 @@ commit_sha="$(git -C "$repository_root" rev-parse HEAD)"
 rm -rf "$package_root" "$repro_root" \
   "$repository_root/tests/Forma.PackageConsumer/bin" \
   "$repository_root/tests/Forma.PackageConsumer/obj"
+mkdir -p "$repro_root"
 dotnet tool restore
 dotnet build "$repository_root/tools/Forma.AssemblyInspector/Forma.AssemblyInspector.csproj" --configuration Release --nologo
 assembly_inspector="$repository_root/tools/Forma.AssemblyInspector/bin/MonoGame/Release/net10.0/Forma.AssemblyInspector.dll"
@@ -39,6 +40,8 @@ for runtime in MonoGame FNA; do
   dotnet pack "$repository_root/src/Forma.DynamicText/Forma.DynamicText.csproj" \
     --configuration Release -p:FormaRuntime="$runtime" --nologo
   dotnet pack "$repository_root/src/Forma.Media/Forma.Media.csproj" \
+    --configuration Release -p:FormaRuntime="$runtime" --nologo
+  dotnet pack "$repository_root/src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" \
     --configuration Release -p:FormaRuntime="$runtime" --nologo
 done
 
@@ -122,6 +125,44 @@ inspect_dynamic_package() {
 inspect_dynamic_package MonoGame FNA
 inspect_dynamic_package FNA MonoGame
 
+inspect_xaml_build_package() {
+  local runtime="$1"
+  local opposite_runtime="$2"
+  local package_id="Forma.Xaml.Build.$runtime"
+  local package_path="$package_root/$runtime/$package_id.$version.nupkg"
+  local entries
+  local package_bytes
+
+  entries="$(unzip -Z1 "$package_path")"
+  for required_entry in \
+    "buildTransitive/$package_id.targets" \
+    tools/net10.0/Forma.dll \
+    tools/net10.0/Forma.Xaml.Build.dll \
+    tools/net10.0/Forma.Xaml.Compiler.dll \
+    tools/net10.0/XamlX.dll \
+    tools/net10.0/XamlX.IL.Cecil.dll \
+    tools/net10.0/Mono.Cecil.dll \
+    licenses/XamlX/LICENSE \
+    LICENSE NOTICE.md README.md THIRD-PARTY-NOTICES.md; do
+    grep -Fxq "$required_entry" <<<"$entries"
+  done
+  if grep -Eq '^(lib|ref)/|\.xaml$' <<<"$entries"; then
+    printf 'Forma.Xaml.Build for %s contains runtime or source-XAML assets.\n' "$runtime" >&2
+    exit 1
+  fi
+  package_bytes="$(wc -c < "$package_path" | tr -d ' ')"
+  if (( package_bytes > 8 * 1024 * 1024 )); then
+    printf '%s exceeds the 8 MiB package budget (%s bytes).\n' "$package_id" "$package_bytes" >&2
+    exit 1
+  fi
+  temporary_assembly="$repro_root/$runtime-$package_id-Forma.dll"
+  unzip -p "$package_path" tools/net10.0/Forma.dll > "$temporary_assembly"
+  dotnet "$assembly_inspector" forbid-references "$temporary_assembly" "$opposite_runtime"
+}
+
+inspect_xaml_build_package MonoGame FNA.NET
+inspect_xaml_build_package FNA MonoGame.Framework
+
 for runtime in MonoGame FNA; do
   dotnet "$assembly_inspector" forbid-references \
     "$repository_root/src/Forma/bin/$runtime/Release/net10.0/Forma.dll" \
@@ -157,6 +198,11 @@ for runtime in MonoGame FNA; do
     -p:FormaRuntime="$runtime" \
     -p:PackageOutputPath="$repro_root/$runtime" \
     --nologo
+  dotnet pack "$repository_root/src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" \
+    --configuration Release \
+    -p:FormaRuntime="$runtime" \
+    -p:PackageOutputPath="$repro_root/$runtime" \
+    --nologo
   for package_id in "Forma.$runtime" "Forma.DynamicText.$runtime" "Forma.Media.$runtime"; do
     for extension in nupkg snupkg; do
       printf 'Comparing deterministic contents: %s.%s\n' "$package_id" "$extension"
@@ -165,6 +211,10 @@ for runtime in MonoGame FNA; do
         <(package_fingerprint "$repro_root/$runtime/$package_id.$version.$extension")
     done
   done
+  printf 'Comparing deterministic contents: Forma.Xaml.Build.%s.nupkg\n' "$runtime"
+  diff \
+    <(package_fingerprint "$package_root/$runtime/Forma.Xaml.Build.$runtime.$version.nupkg") \
+    <(package_fingerprint "$repro_root/$runtime/Forma.Xaml.Build.$runtime.$version.nupkg")
 done
 
 if unzip -p "$package_root/MonoGame/Forma.MonoGame.$version.nupkg" Forma.MonoGame.nuspec |
@@ -188,6 +238,20 @@ run_consumer() {
   fi
 }
 
+assert_no_xaml_development_artifacts() {
+  local output_dir="$1"
+  if find "$output_dir" -type f \( \
+    -iname '*.xaml' -o \
+    -iname 'XamlX*' -o \
+    -iname 'Mono.Cecil*' -o \
+    -iname 'Forma.Xaml.Build*' -o \
+    -iname 'Forma.Xaml.Compiler*' -o \
+    -iname 'Forma.Xaml.HotReload*' \) -print -quit | grep -q .; then
+    printf 'Release output contains a Forma XAML development artifact: %s\n' "$output_dir" >&2
+    exit 1
+  fi
+}
+
 for runtime in MonoGame FNA; do
   consumer_cache="$package_root/.consumer-packages/$runtime"
   rm -rf "$consumer_cache" "$repository_root/tests/Forma.PackageConsumer/bin" "$repository_root/tests/Forma.PackageConsumer/obj"
@@ -202,6 +266,7 @@ for runtime in MonoGame FNA; do
     -p:FormaPackageSource="$package_root/$runtime" \
     --no-restore \
     --nologo
+  assert_no_xaml_development_artifacts "$repository_root/tests/Forma.PackageConsumer/bin/$runtime/Release/net10.0"
   for forbidden_package in freetypesharp harfbuzzsharp harfbuzzsharp.nativeassets.linux; do
     if [[ -d "$consumer_cache/$forbidden_package" ]]; then
       printf 'Core-only %s consumer unexpectedly resolved %s.\n' "$runtime" "$forbidden_package" >&2
@@ -416,4 +481,4 @@ mixed_output="$(dotnet build "$consumer_project" \
 }
 grep -Eq 'cannot be referenced by the same project|cannot be combined with' <<<"$mixed_output"
 
-printf 'Validated six peer packages, 11 native-free core publishes, nine native-complete dynamic publishes, isolated consumers, and mixed-variant rejection.\n'
+printf 'Validated eight peer packages, 11 native-free core publishes, nine native-complete dynamic publishes, compiled XAML consumers, and mixed-variant rejection.\n'

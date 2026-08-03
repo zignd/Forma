@@ -27,7 +27,23 @@ for runtime in MonoGame FNA; do
     --configuration Release -p:FormaRuntime="$runtime" --output "$runtime_packages" --nologo
   dotnet pack "$repository_root/src/Forma.DynamicText/Forma.DynamicText.csproj" \
     --configuration Release -p:FormaRuntime="$runtime" --output "$runtime_packages" --nologo
+  dotnet pack "$repository_root/src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" \
+    --configuration Release -p:FormaRuntime="$runtime" --output "$runtime_packages" --nologo
 done
+
+assert_no_xaml_development_artifacts() {
+  local output_dir="$1"
+  if find "$output_dir" -type f \( \
+    -iname '*.xaml' -o \
+    -iname 'XamlX*' -o \
+    -iname 'Mono.Cecil*' -o \
+    -iname 'Forma.Xaml.Build*' -o \
+    -iname 'Forma.Xaml.Compiler*' -o \
+    -iname 'Forma.Xaml.HotReload*' \) -print -quit | grep -q .; then
+    printf 'Trimmed/AOT output contains a Forma XAML development artifact: %s\n' "$output_dir" >&2
+    exit 1
+  fi
+}
 
 stage_fna_native_aliases() {
   local output_dir="$1"
@@ -111,6 +127,7 @@ for runtime in MonoGame FNA; do
         stage_fna_native_aliases "$output_dir"
       fi
       "$output_dir/Forma.PackageConsumer"
+      assert_no_xaml_development_artifacts "$output_dir"
 
       if [[ "$profile" != "dynamic" ]]; then
         if find "$output_dir" -type f \( -iname '*freetype*' -o -iname '*harfbuzz*' \) -print -quit | grep -q .; then

@@ -20,6 +20,8 @@ jobs:
       FORMA_RUNTIME: ${{ matrix.runtime }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
@@ -30,6 +32,13 @@ jobs:
       - name: Unit and catalog inventory tests
         shell: bash
         run: dotnet test tests/Forma.Tests/Forma.Tests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
+      - name: Forma XAML tests and sample host
+        shell: bash
+        run: |
+          dotnet test tests/Forma.Xaml.Tests/Forma.Xaml.Tests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
+          dotnet test tests/Forma.Xaml.Tool.Tests/Forma.Xaml.Tool.Tests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
+          dotnet test tests/Forma.Xaml.Game.Tests/Forma.Xaml.Game.Tests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
+          dotnet build "samples/Forma.Xaml.Game.$FORMA_RUNTIME/Forma.Xaml.Game.$FORMA_RUNTIME.csproj" --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
       - name: Compile render tests
         shell: bash
         run: dotnet build tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
@@ -184,6 +193,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
@@ -193,6 +204,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x

@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
@@ -20,11 +22,13 @@ jobs:
           monogame_core_version="$(dotnet msbuild src/Forma/Forma.csproj -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
           monogame_dynamic_text_version="$(dotnet msbuild src/Forma.DynamicText/Forma.DynamicText.csproj -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
           monogame_media_version="$(dotnet msbuild src/Forma.Media/Forma.Media.csproj -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
+          xaml_build_version="$(dotnet msbuild src/Forma.Xaml.Build/Forma.Xaml.Build.csproj -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
           fna_core_version="$(dotnet msbuild src/Forma/Forma.csproj -p:FormaRuntime=FNA -getProperty:Version -nologo)"
           fna_dynamic_text_version="$(dotnet msbuild src/Forma.DynamicText/Forma.DynamicText.csproj -p:FormaRuntime=FNA -getProperty:Version -nologo)"
           fna_media_version="$(dotnet msbuild src/Forma.Media/Forma.Media.csproj -p:FormaRuntime=FNA -getProperty:Version -nologo)"
           test "$monogame_core_version" = "$monogame_dynamic_text_version"
           test "$monogame_core_version" = "$monogame_media_version"
+          test "$monogame_core_version" = "$xaml_build_version"
           test "$monogame_core_version" = "$fna_core_version"
           test "$monogame_core_version" = "$fna_dynamic_text_version"
           test "$monogame_core_version" = "$fna_media_version"
@@ -32,6 +36,7 @@ jobs:
       - run: bash scripts/check-compliance.sh
       - run: dotnet run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- verify
       - run: bash scripts/check-runtime-parity.sh
+      - run: make CONFIGURATION=Release test-xaml
       - run: bash scripts/test-package-consumer.sh
       - name: Upload validated packages
         uses: actions/upload-artifact@v7

@@ -1,0 +1,9 @@
+<Control xmlns="https://forma.dev/xaml"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         xmlns:local="clr-namespace:Forma.PackageConsumer"
+         x:Class="Forma.PackageConsumer.ConsumerView"
+         x:DataType="local:ConsumerViewModel"
+         x:Name="ConsumerRoot">
+  <Label x:Name="Message" Text="{Binding Message}" />
+  <LineEdit x:Name="Editor" Text="{Binding Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+</Control>

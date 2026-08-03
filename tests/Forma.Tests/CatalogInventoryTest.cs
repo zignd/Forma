@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Forma.Catalog;
+using Forma.Xaml;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -89,6 +90,35 @@ public sealed class CatalogInventoryTest
             Assert.That(graphEdit.Size, Is.EqualTo(graphEdit.Parent.Size));
             Assert.That(graphEdit.Size.X, Is.GreaterThan(graphEdit.CustomMinimumSize.X));
             Assert.That(graphEdit.Size.Y, Is.GreaterThan(graphEdit.CustomMinimumSize.Y));
+        });
+    }
+
+    [Test]
+    public void CatalogHotReloadCallbacksRetainActiveStoryModelAndPreviewSlot()
+    {
+        var font = CreateTestFont();
+        var stories = StoryCatalog.Create(null);
+        var shell = new CatalogShell(stories, font, font);
+        Assert.That(shell.SelectStory("Dynamic Sizes"), Is.True);
+        var retainedModel = shell.ActiveStoryControl.DataContext;
+        var replacementStory = new DynamicSizesStoryView { DataContext = retainedModel };
+
+        shell.ReplaceActiveStory(shell.ActiveStoryControl, replacementStory);
+        var sourceRoot = typeof(CatalogShell).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+            .SingleOrDefault(metadata => metadata.Key == "FormaCatalogXamlRoot")?.Value;
+        if (sourceRoot == null) Assert.Ignore("Catalog XAML source metadata is intentionally Debug-only.");
+        var sourcePath = Path.Combine(sourceRoot, "CatalogShell.xaml");
+        var replacementShellTree = (BoxContainer)Forma.Xaml.Compiler.FormaXamlCompiler.CreateSre(typeof(CatalogShell).Assembly.GetName().Name)
+            .CompileSre(File.ReadAllText(sourcePath), "CatalogShell.xaml").Build(null);
+        replacementShellTree.DataContext = shell.DataContext;
+        shell.ApplyHotReloadedTree(replacementShellTree);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(shell.ActiveStory.Name, Is.EqualTo("Dynamic Sizes"));
+            Assert.That(shell.ActiveStory.XamlPath, Is.EqualTo("DynamicSizesStoryView.xaml"));
+            Assert.That(shell.ActiveStoryControl.DataContext, Is.SameAs(retainedModel));
+            Assert.That(shell.ActiveStoryControl.Parent.Name, Is.EqualTo("Preview"));
         });
     }
 
@@ -303,6 +333,33 @@ public sealed class CatalogInventoryTest
         {
             Assert.That(shell.DynamicTextEnabled, Is.False);
             Assert.That(selected, Is.False);
+        });
+    }
+
+    [Test]
+    public void CatalogShellActivatesAuthoredStyleAndStoryboard()
+    {
+        var font = CreateTestFont();
+        var shell = new CatalogShell(
+            new[] { new ComponentStory("Test", "Visuals", "Visuals", () => new Label { Text = "Visuals" }) },
+            font,
+            font);
+        var scope = NameScope.GetNameScope(shell);
+        var toggle = scope.Find<CheckBox>("dynamicTextMode");
+        var accent = scope.Find<ColorRect>("HeaderAccent");
+        using var context = new UIContext();
+        context.Add(shell);
+
+        context.Update(
+            new GameTime(TimeSpan.FromSeconds(.4), TimeSpan.FromSeconds(.4)),
+            new Microsoft.Xna.Framework.Input.MouseState(),
+            new Microsoft.Xna.Framework.Input.KeyboardState());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(toggle.Margins.Left, Is.EqualTo(2));
+            Assert.That(accent.CustomMinimumSize.X, Is.GreaterThan(6));
+            Assert.That(accent.CustomMinimumSize.X, Is.LessThan(10));
         });
     }
 

@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Forma.Xaml.Game</AssemblyName>
+    <RootNamespace>Forma.Xaml.Game</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+    <FormaXamlBuildAssembly>$(MSBuildThisFileDirectory)../../src/Forma.Xaml.Build/bin/$(FormaRuntime)/$(Configuration)/net10.0/Forma.Xaml.Build.dll</FormaXamlBuildAssembly>
+    <FormaXamlHotReload Condition="'$(FormaXamlHotReload)' == '' And '$(Configuration)' == 'Debug'">true</FormaXamlHotReload>
+    <FormaXamlHotReload Condition="'$(FormaXamlHotReload)' == ''">false</FormaXamlHotReload>
+    <DefineConstants Condition="'$(Configuration)' == 'Debug' And '$(FormaXamlHotReload)' == 'true'">$(DefineConstants);FORMA_XAML_HOT_RELOAD</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' == ''" />
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" Condition="'$(Configuration)' == 'Debug' And '$(FormaXamlHotReload)' == 'true'" />
+    <AssemblyMetadata Include="FormaXamlGameSourceRoot" Value="$(MSBuildProjectDirectory)" Condition="'$(Configuration)' == 'Debug' And '$(FormaXamlHotReload)' == 'true'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame'">
+    <Compile Remove="RuntimeAdapters/FNA/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA'">
+    <Compile Remove="RuntimeAdapters/MonoGame/**/*.cs" />
+  </ItemGroup>
+
+  <Import Project="../../src/Forma.Xaml.Build/buildTransitive/Forma.Xaml.Build.targets" />
+
+</Project>

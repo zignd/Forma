@@ -7,7 +7,6 @@
     <UseAppHost>false</UseAppHost>
     <IsPackable>false</IsPackable>
     <Nullable>disable</Nullable>
-    <DefineConstants>$(DefineConstants);FORMA_CATALOG_FNA</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

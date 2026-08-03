@@ -5,8 +5,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Forma;
+#if FORMA_XAML_HOT_RELOAD
+using Forma.Xaml.HotReload;
+#endif
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -37,6 +41,12 @@ public sealed class CatalogGame : Game
         new(new Vector3(0.98f, -0.92f, 0), Color.White, new Vector2(1, 1)),
     };
     private CatalogEffectHotReloadService _hotReload;
+    private ILiveResizeAdapter _liveResize;
+#if FORMA_XAML_HOT_RELOAD
+    private FormaXamlHotReloadService _xamlHotReload;
+    private IDisposable _xamlHotReloadRegistration;
+    private IDisposable _activeStoryHotReloadRegistration;
+#endif
     private float _displayScale = 1;
     private float? _interactiveDisplayScale;
     private Vector2? _interactiveLogicalViewport;
@@ -89,6 +99,10 @@ public sealed class CatalogGame : Game
         _storyCount = stories.Count;
         _catalog = new CatalogShell(stories, defaultFont, CreateDynamicFont("Inter", 15, null), _font, enabled => _dynamicTextEnabled = enabled);
         _ui.Add(_catalog);
+        _liveResize = LiveResizeAdapter.TryCreate(this);
+    #if FORMA_XAML_HOT_RELOAD
+        StartXamlHotReload();
+    #endif
         if (_metricsOptions?.StoryName != null && !_catalog.SelectStory(_metricsOptions.StoryName))
             throw new InvalidOperationException($"Catalog story not found: {_metricsOptions.StoryName}");
         if (_metricsOptions?.WatchedEffectPath != null)
@@ -104,9 +118,11 @@ public sealed class CatalogGame : Game
     {
         if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
         var viewport = GraphicsDevice.Viewport;
-        _displayScale = _interactiveDisplayScale ?? GetDisplayScale(viewport);
+        var liveViewport = default(Vector2);
+        var hasLiveViewport = _metricsOptions == null && _liveResize?.TryGetLogicalViewport(out liveViewport) == true;
+        _displayScale = _interactiveDisplayScale ?? (hasLiveViewport ? viewport.Width / liveViewport.X : GetDisplayScale(viewport));
         _ui.DisplayScale = _displayScale;
-        _ui.ViewportSize = _interactiveLogicalViewport ?? new Vector2(viewport.Width / _displayScale, viewport.Height / _displayScale);
+        _ui.ViewportSize = _interactiveLogicalViewport ?? (hasLiveViewport ? liveViewport : new Vector2(viewport.Width / _displayScale, viewport.Height / _displayScale));
         if (_catalog != null) _catalog.Size = _ui.ViewportSize;
         _ui.Update(gameTime);
         base.Update(gameTime);
@@ -160,7 +176,13 @@ public sealed class CatalogGame : Game
     {
         if (disposing)
         {
+            _liveResize?.Dispose();
             _textInput.Dispose();
+#if FORMA_XAML_HOT_RELOAD
+            _activeStoryHotReloadRegistration?.Dispose();
+            _xamlHotReloadRegistration?.Dispose();
+            _xamlHotReload?.Dispose();
+#endif
             _hotReload?.Dispose();
             _ui.Dispose();
             _emojiFace?.Dispose();
@@ -173,6 +195,40 @@ public sealed class CatalogGame : Game
         }
         base.Dispose(disposing);
     }
+
+#if FORMA_XAML_HOT_RELOAD
+    private void StartXamlHotReload()
+    {
+        if (!RuntimeFeature.IsDynamicCodeSupported || !RuntimeFeature.IsDynamicCodeCompiled) return;
+        string sourceRoot = null;
+        foreach (var metadata in typeof(CatalogGame).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>())
+            if (metadata.Key == "FormaCatalogXamlRoot") sourceRoot = metadata.Value;
+        if (sourceRoot == null) throw new InvalidOperationException("The Debug catalog build did not provide its XAML source root.");
+        _xamlHotReload = new FormaXamlHotReloadService(_ui, sourceRoot);
+        _xamlHotReload.DiagnosticsChanged += diagnostics =>
+        {
+            foreach (var diagnostic in diagnostics) Console.Error.WriteLine(diagnostic);
+        };
+        _xamlHotReloadRegistration = _xamlHotReload.Register<Control>("CatalogShell.xaml", () => _catalog, (_, replacement) =>
+        {
+            if (replacement is not BoxContainer shell) throw new InvalidOperationException("CatalogShell.xaml must have a BoxContainer root.");
+            _catalog.ApplyHotReloadedTree(shell);
+        });
+        _catalog.ActiveStoryChanged += RegisterActiveStory;
+        RegisterActiveStory(_catalog.ActiveStory, _catalog.ActiveStoryControl);
+    }
+
+    private void RegisterActiveStory(ComponentStory story, Control root)
+    {
+        _activeStoryHotReloadRegistration?.Dispose();
+        _activeStoryHotReloadRegistration = null;
+        if (story?.XamlPath == null || root == null) return;
+        _activeStoryHotReloadRegistration = _xamlHotReload.Register<Control>(story.XamlPath, () => _catalog.ActiveStoryControl, (oldRoot, replacement) =>
+        {
+            _catalog.ReplaceActiveStory(oldRoot, replacement);
+        });
+    }
+#endif
 
     private UIFont CreateDynamicFont(string familyName, float size, IReadOnlyList<UIFontVariationCoordinate> variations)
     {

@@ -1,0 +1,15 @@
+<BoxContainer xmlns="https://forma.dev/xaml"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:local="clr-namespace:Forma.Xaml.Game"
+                x:Class="Forma.Xaml.Game.GameResultView"
+                x:DataType="local:GameResultViewModel"
+                x:Name="ResultRoot"
+                Classes="result"
+                Visible="False"
+                CustomMinimumSize="420,220">
+    <VBoxContainer Separation="14" Margins="30">
+        <Label Text="ROUND COMPLETE" FontColor="#FFF2F5F7" CustomMinimumSize="0,36" />
+        <Label x:Name="ResultText" Text="{Binding ResultText}" Classes="result-text" CustomMinimumSize="340,34" />
+        <Button x:Name="PlayAgainButton" Text="Play again" Classes="action" CustomMinimumSize="180,40" />
+    </VBoxContainer>
+</BoxContainer>

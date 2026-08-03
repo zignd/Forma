@@ -1,0 +1,70 @@
+<BoxContainer xmlns="https://forma.dev/xaml"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:local="clr-namespace:Forma.Catalog"
+              x:Class="Forma.Catalog.CatalogShell"
+              x:DataType="local:CatalogShellViewModel"
+              x:Name="CatalogRoot"
+              Classes="catalog-shell"
+              Separation="0">
+    <HBoxContainer Separation="12" CustomMinimumSize="0,62" Margins="18,12,18,10">
+        <ColorRect x:Name="HeaderAccent" Color="#FF30B9A4" CustomMinimumSize="6,36" VerticalSizeFlags="ShrinkCenter" />
+        <Label Text="FORMA" CustomMinimumSize="178,36" VerticalAlignment="Center" />
+        <Label x:Name="CatalogSubtitle" Text="Component Catalog" FontColor="#FF8F99AA" HorizontalSizeFlags="Fill, Expand" VerticalAlignment="Center" />
+        <CheckBox x:Name="dynamicTextMode" Classes="catalog-action" Text="Dynamic text" ButtonPressed="{Binding DynamicTextEnabled, Mode=TwoWay}" CustomMinimumSize="148,36" />
+        <Label x:Name="BackendStatus" Text="LIVE" FontColor="#FFF6B949" CustomMinimumSize="132,36" VerticalAlignment="Center" />
+    </HBoxContainer>
+    <HBoxContainer Separation="0" VerticalSizeFlags="Fill, Expand">
+        <PanelContainer x:Name="NavigationPanel" CustomMinimumSize="340,0">
+            <VBoxContainer Separation="8" Margins="14">
+                <LineEdit x:Name="Search" PlaceholderText="Search components" ClearButtonEnabled="True" CustomMinimumSize="0,36" Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <ScrollContainer VerticalSizeFlags="Fill, Expand" HorizontalScrollMode="Never">
+                    <ItemList x:Name="Navigation" AllowSearch="True" AutoWidth="True" AutoHeight="True" HorizontalSizeFlags="Fill, Expand" VerticalSizeFlags="Fill, Expand" />
+                </ScrollContainer>
+                <Label x:Name="Count" Text="{Binding CountText}" FontColor="#FF8F99AA" CustomMinimumSize="0,22" />
+            </VBoxContainer>
+        </PanelContainer>
+        <VSeparator />
+        <VBoxContainer Separation="0" HorizontalSizeFlags="Fill, Expand">
+            <VBoxContainer Separation="4" Margins="24,18,24,12" CustomMinimumSize="0,106">
+                <Label x:Name="StoryCategory" Text="{Binding StoryCategory}" Uppercase="True" FontColor="#FF30B9A4" CustomMinimumSize="0,20" />
+                <Label x:Name="StoryTitle" Text="{Binding StoryTitle}" CustomMinimumSize="0,30" />
+                <RichTextLabel x:Name="Description" Text="{Binding Description}" FitContent="False" AutowrapMode="Word" ScrollActive="False" FontColor="#FFAEB8C8" CustomMinimumSize="0,42" />
+            </VBoxContainer>
+            <HSeparator />
+            <MarginContainer ThemeOverrides="24" VerticalSizeFlags="Fill, Expand">
+                <PanelContainer x:Name="PreviewPanel">
+                    <local:CatalogPreviewContainer x:Name="Preview" />
+                </PanelContainer>
+            </MarginContainer>
+        </VBoxContainer>
+        <VSeparator />
+        <PanelContainer x:Name="InspectorPanel" CustomMinimumSize="320,0">
+            <VBoxContainer Separation="8" Margins="16">
+                <Label Text="PROPERTIES" FontColor="#FFF6B949" CustomMinimumSize="0,24" />
+                <Button x:Name="Reset" Classes="catalog-action" Text="Reset story" CustomMinimumSize="0,34" />
+                <HSeparator />
+                <ScrollContainer VerticalSizeFlags="Fill, Expand" HorizontalScrollMode="Never">
+                    <VBoxContainer x:Name="Inspector" Separation="10" CustomMinimumSize="278,0" />
+                </ScrollContainer>
+            </VBoxContainer>
+        </PanelContainer>
+    </HBoxContainer>
+    <local:CatalogVisualResources x:Name="VisualResources"
+                                  Visible="False"
+                                  PanelBackground="#FF181D26"
+                                  PreviewBackground="#FF191E27"
+                                  PreviewBorder="#FF384252"
+                                  AccentColor="#FF30B9A4"
+                                  MutedTextColor="#FF8F99AA"
+                                  WarningColor="#FFF6B949"
+                                  ActionSelector="Button.catalog-action"
+                                  ActionHoverSelector="Button.catalog-action:hover"
+                                  ToggleCheckedSelector="CheckBox.catalog-action:checked"
+                                  ActionMargins="0"
+                                  HoverMargins="1,1,-1,-1"
+                                  CheckedMargins="2,0,-2,0"
+                                  PulseTargetName="HeaderAccent"
+                                  PulseFrom="6,36"
+                                  PulseTo="10,36"
+                                  PulseDuration="0:0:0.8" />
+</BoxContainer>

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.Xaml.Game.FNA</AssemblyName>
+    <RootNamespace>Forma.Xaml.Game</RootNamespace>
+    <UseAppHost>false</UseAppHost>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+    <DefineConstants>$(DefineConstants);FORMA_XAML_GAME_FNA</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="$(MonoGameVersion)" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FnaProjectPath)' == ''" />
+    <PackageReference Include="FNA.NET.NativeAssets" Version="$(FnaNativeAssetsVersion)" Condition="'$(FnaProjectPath)' != ''" />
+    <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FnaProjectPath)' != ''" />
+    <ProjectReference Include="../Forma.Xaml.Game/Forma.Xaml.Game.csproj" AdditionalProperties="FormaRuntime=FNA" />
+    <Compile Include="../Forma.Xaml.Game/Program.cs" Link="Program.cs" />
+    <MonoGameContentReference Include="../Forma.Xaml.Game/Content/Content.mgcb" />
+  </ItemGroup>
+
+</Project>

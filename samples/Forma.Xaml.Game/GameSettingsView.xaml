@@ -1,0 +1,24 @@
+<BoxContainer xmlns="https://forma.dev/xaml"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:local="clr-namespace:Forma.Xaml.Game"
+                x:Class="Forma.Xaml.Game.GameSettingsView"
+                x:DataType="local:GameSettingsViewModel"
+                x:Name="SettingsRoot"
+                Classes="settings"
+                Visible="False"
+                CustomMinimumSize="420,370">
+    <VBoxContainer Separation="10" Margins="28">
+        <Label x:Name="SettingsTitle" Text="PAUSED" FontColor="#FFF2F5F7" CustomMinimumSize="0,34" />
+        <Label Text="Player name" />
+        <LineEdit x:Name="PlayerName" Text="{Binding PlayerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Classes="setting" CustomMinimumSize="340,36" />
+        <Label Text="Difficulty" />
+        <LineEdit x:Name="Difficulty" Text="{Binding Difficulty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Classes="setting" CustomMinimumSize="340,36" />
+        <CheckBox x:Name="SoundEnabled" Text="Sound enabled" ButtonPressed="{Binding SoundEnabled, Mode=TwoWay}" Classes="setting" CustomMinimumSize="220,34" />
+        <Label Text="Volume" />
+        <HSlider x:Name="Volume" MinValue="0" MaxValue="100" Step="1" Value="{Binding Volume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Classes="setting" CustomMinimumSize="340,32" />
+        <HBoxContainer Separation="10">
+            <Button x:Name="ResumeButton" Text="Resume" Classes="action" CustomMinimumSize="148,38" />
+            <Button x:Name="RestartButton" Text="Restart" Classes="action" CustomMinimumSize="148,38" />
+        </HBoxContainer>
+    </VBoxContainer>
+</BoxContainer>

@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Forma;
+using Forma.Xaml;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -25,19 +26,27 @@ public sealed class CatalogShell : BoxContainer
     private readonly UIFont _font;
     private readonly UIFont _codeFont;
     private readonly SpriteFont _compatibilityFont;
-    private readonly LineEdit _search;
-    private readonly ItemList _navigation;
-    private readonly Label _storyTitle;
-    private readonly Label _storyCategory;
-    private readonly RichTextLabel _description;
-    private readonly CatalogPreviewContainer _preview;
-    private readonly VBoxContainer _inspector;
-    private readonly Label _count;
+    private LineEdit _search;
+    private ItemList _navigation;
+    private Label _storyTitle;
+    private Label _storyCategory;
+    private RichTextLabel _description;
+    private CatalogPreviewContainer _preview;
+    private VBoxContainer _inspector;
+    private Label _count;
     private readonly Action<bool> _setDynamicTextEnabled;
+    private readonly CatalogShellViewModel _viewModel;
     private CheckBox _dynamicTextToggle;
     private List<ComponentStory> _filteredStories;
     private ComponentStory _currentStory;
     private Control _currentControl;
+    private IDisposable _authoredStyles;
+    private IDisposable _authoredStoryboard;
+    private bool _detached;
+
+    public event Action<ComponentStory, Control> ActiveStoryChanged;
+    public ComponentStory ActiveStory => _currentStory;
+    public Control ActiveStoryControl => _currentControl;
 
     public CatalogShell(IReadOnlyList<ComponentStory> stories, SpriteFont font, SpriteFont codeFont, Action<bool> setDynamicTextEnabled = null)
         : this(stories, new SpriteFontAdapter(font), new SpriteFontAdapter(codeFont), font, setDynamicTextEnabled)
@@ -52,90 +61,104 @@ public sealed class CatalogShell : BoxContainer
         _codeFont = codeFont;
         _compatibilityFont = compatibilityFont;
         _setDynamicTextEnabled = setDynamicTextEnabled;
-        Separation = 0;
-
-        AddChild(BuildHeader());
-
-        var body = new HBoxContainer { Separation = 0, VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
-        var navigationPanel = CreatePanel(new Color(24, 29, 38), new Color(24, 29, 38));
-        navigationPanel.CustomMinimumSize = new Vector2(340, 0);
-        var navigationContent = new VBoxContainer { Separation = 8, Margins = new Thickness(14) };
-        _search = new LineEdit { PlaceholderText = "Search components", ClearButtonEnabled = true, CustomMinimumSize = new Vector2(0, 36) };
-        _search.TextChanged += (_, _) => RefreshNavigation();
-        var navigationScroll = new ScrollContainer { VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand, HorizontalScrollMode = ScrollBarVisibility.Never };
-        _navigation = new ItemList { AllowSearch = true, AutoWidth = true, AutoHeight = true, HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand, VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
-        _navigation.ItemSelected += (_, index) => SelectStory(index);
-        _count = new Label { UIFont = font, FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(0, 22) };
-        navigationScroll.AddChild(_navigation);
-        navigationContent.AddChild(_search);
-        navigationContent.AddChild(navigationScroll);
-        navigationContent.AddChild(_count);
-        navigationPanel.AddChild(navigationContent);
-
-        var center = new VBoxContainer { Separation = 0, HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
-        var storyHeader = new VBoxContainer { Separation = 4, Margins = new Thickness(24, 18, 24, 12), CustomMinimumSize = new Vector2(0, 106) };
-        _storyCategory = new Label { UIFont = font, Uppercase = true, FontColor = new Color(48, 185, 164), CustomMinimumSize = new Vector2(0, 20) };
-        _storyTitle = new Label { UIFont = font, CustomMinimumSize = new Vector2(0, 30) };
-        _description = new RichTextLabel { UIFont = font, FitContent = false, AutowrapMode = LabelAutowrapMode.Word, ScrollActive = false, FontColor = new Color(174, 184, 200), CustomMinimumSize = new Vector2(0, 42) };
-        storyHeader.AddChild(_storyCategory);
-        storyHeader.AddChild(_storyTitle);
-        storyHeader.AddChild(_description);
-        center.AddChild(storyHeader);
-        center.AddChild(new HSeparator());
-
-        var previewMargin = new MarginContainer { ThemeOverrides = new Thickness(24), VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
-        var previewPanel = CreatePanel(new Color(25, 30, 39), new Color(56, 66, 82));
-        _preview = new CatalogPreviewContainer();
-        previewPanel.AddChild(_preview);
-        previewMargin.AddChild(previewPanel);
-        center.AddChild(previewMargin);
-
-        var inspectorPanel = CreatePanel(new Color(24, 29, 38), new Color(24, 29, 38));
-        inspectorPanel.CustomMinimumSize = new Vector2(320, 0);
-        var inspectorColumn = new VBoxContainer { Separation = 8, Margins = new Thickness(16) };
-        var inspectorTitle = new Label { Text = "PROPERTIES", UIFont = font, FontColor = new Color(246, 185, 73), CustomMinimumSize = new Vector2(0, 24) };
-        var reset = new Button { Text = "Reset story", UIFont = font, CustomMinimumSize = new Vector2(0, 34) };
-        reset.Pressed += (_, _) => LoadStory(_currentStory);
-        var inspectorScroll = new ScrollContainer { VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand, HorizontalScrollMode = ScrollBarVisibility.Never };
-        _inspector = new VBoxContainer { Separation = 10, CustomMinimumSize = new Vector2(278, 0) };
-        inspectorScroll.AddChild(_inspector);
-        inspectorColumn.AddChild(inspectorTitle);
-        inspectorColumn.AddChild(reset);
-        inspectorColumn.AddChild(new HSeparator());
-        inspectorColumn.AddChild(inspectorScroll);
-        inspectorPanel.AddChild(inspectorColumn);
-
-        body.AddChild(navigationPanel);
-        body.AddChild(new VSeparator());
-        body.AddChild(center);
-        body.AddChild(new VSeparator());
-        body.AddChild(inspectorPanel);
-        AddChild(body);
-
-        FontApplicator.Apply(this, font, codeFont, compatibilityFont);
+        _viewModel = new CatalogShellViewModel { DynamicTextEnabled = true };
+        DataContext = _viewModel;
+        Attached += (_, _) => _detached = false;
+        Detached += (_, _) => _detached = true;
+        FormaXamlLoader.Load(this);
+        BindVisualTree();
         RefreshNavigation();
     }
 
-    private Control BuildHeader()
+    public void ApplyHotReloadedTree(BoxContainer replacement)
     {
-        var header = new HBoxContainer { Separation = 12, CustomMinimumSize = new Vector2(0, 62), Margins = new Thickness(18, 12, 18, 10) };
-        header.AddChild(new ColorRect { Color = new Color(48, 185, 164), CustomMinimumSize = new Vector2(6, 36), VerticalSizeFlags = SizeFlags.ShrinkCenter });
-        header.AddChild(new Label { Text = "FORMA", UIFont = _font, CustomMinimumSize = new Vector2(178, 36), VerticalAlignment = VerticalAlignment.Center });
-        header.AddChild(new Label { Text = "Component Catalog", UIFont = _font, FontColor = new Color(143, 153, 170), HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand, VerticalAlignment = VerticalAlignment.Center });
-        _dynamicTextToggle = new CheckBox { Name = "dynamicTextMode", Text = "Dynamic text", UIFont = _font, ButtonPressed = true, CustomMinimumSize = new Vector2(148, 36) };
+        if (replacement == null) throw new ArgumentNullException(nameof(replacement));
+        var selectedStory = _currentStory?.Name;
+        var storyDataContext = _currentControl?.DataContext;
+        var dynamicTextEnabled = DynamicTextEnabled;
+        _authoredStyles?.Dispose();
+        _authoredStoryboard?.Dispose();
+        ClearChildren(this);
+        while (replacement.Children.Count > 0) AddChild(replacement.Children[0]);
+        Classes.Clear();
+        foreach (var className in replacement.Classes) Classes.Add(className);
+        Separation = replacement.Separation;
+        Alignment = replacement.Alignment;
+        ReverseSort = replacement.ReverseSort;
+        NameScope.CreateForTree(this);
+        _viewModel.DynamicTextEnabled = dynamicTextEnabled;
+        BindVisualTree();
+        RefreshNavigation(selectFirst: selectedStory == null);
+        if (selectedStory != null)
+        {
+            var story = _stories.First(candidate => candidate.Name == selectedStory);
+            _navigation.Select(_filteredStories.IndexOf(story));
+            LoadStory(story, storyDataContext);
+        }
+    }
+
+    public void ReplaceActiveStory(Control expected, Control replacement)
+    {
+        if (!ReferenceEquals(_currentControl, expected)) return;
+        if (replacement == null) throw new ArgumentNullException(nameof(replacement));
+        var index = 0;
+        while (index < _preview.Children.Count && !ReferenceEquals(_preview.Children[index], expected)) index++;
+        if (index == _preview.Children.Count) throw new InvalidOperationException("The active story is no longer in the preview slot.");
+        _preview.RemoveChild(expected);
+        _preview.AddChild(replacement);
+        if (index < _preview.Children.Count - 1) _preview.MoveChild(replacement, index);
+        ClearChildren(_inspector);
+        _currentControl = replacement;
+        FontApplicator.Apply(replacement, _font, _codeFont, _compatibilityFont);
+        _currentStory.Attached?.Invoke(replacement);
+        BuildInspector(replacement);
+    }
+
+    private void BindVisualTree()
+    {
+        var scope = NameScope.GetNameScope(this) ?? throw new InvalidOperationException("CatalogShell XAML did not create a namescope.");
+        _search = scope.Find<LineEdit>("Search") ?? throw MissingName("Search");
+        _navigation = scope.Find<ItemList>("Navigation") ?? throw MissingName("Navigation");
+        _storyTitle = scope.Find<Label>("StoryTitle") ?? throw MissingName("StoryTitle");
+        _storyCategory = scope.Find<Label>("StoryCategory") ?? throw MissingName("StoryCategory");
+        _description = scope.Find<RichTextLabel>("Description") ?? throw MissingName("Description");
+        _preview = scope.Find<CatalogPreviewContainer>("Preview") ?? throw MissingName("Preview");
+        _inspector = scope.Find<VBoxContainer>("Inspector") ?? throw MissingName("Inspector");
+        _count = scope.Find<Label>("Count") ?? throw MissingName("Count");
+        _dynamicTextToggle = scope.Find<CheckBox>("dynamicTextMode") ?? throw MissingName("dynamicTextMode");
+        _dynamicTextToggle.ButtonPressed = _viewModel.DynamicTextEnabled;
+        _count.Text = _viewModel.CountText;
+        _storyCategory.Text = _viewModel.StoryCategory;
+        _storyTitle.Text = _viewModel.StoryTitle;
+        _description.Text = _viewModel.Description;
+        _search.TextChanged += (_, _) => RefreshNavigation();
+        _navigation.ItemSelected += (_, index) => SelectStory(index);
+        var reset = scope.Find<Button>("Reset") ?? throw MissingName("Reset");
+        reset.Pressed += (_, _) => LoadStory(_currentStory);
         _dynamicTextToggle.Toggled += (_, enabled) =>
         {
+            if (_detached) return;
             _setDynamicTextEnabled?.Invoke(enabled);
             if (_currentStory != null) LoadStory(_currentStory);
         };
-        header.AddChild(_dynamicTextToggle);
-        header.AddChild(new Label { Text = $"LIVE {CatalogBackend.Name.ToUpperInvariant()}", UIFont = _font, FontColor = new Color(246, 185, 73), CustomMinimumSize = new Vector2(132, 36), VerticalAlignment = VerticalAlignment.Center });
-        return header;
+
+        var visuals = scope.Find<CatalogVisualResources>("VisualResources") ?? throw MissingName("VisualResources");
+        ApplyPanel(scope.Find<PanelContainer>("NavigationPanel"), visuals.PanelBackground, visuals.PanelBackground);
+        ApplyPanel(scope.Find<PanelContainer>("PreviewPanel"), visuals.PreviewBackground, visuals.PreviewBorder);
+        ApplyPanel(scope.Find<PanelContainer>("InspectorPanel"), visuals.PanelBackground, visuals.PanelBackground);
+        scope.Find<ColorRect>("HeaderAccent").Color = visuals.AccentColor;
+        scope.Find<Label>("CatalogSubtitle").FontColor = visuals.MutedTextColor;
+        scope.Find<Label>("BackendStatus").FontColor = visuals.WarningColor;
+        AttachAuthoredStyles(visuals);
+        BeginAuthoredStoryboard(visuals);
+        RemoveChild(visuals);
+
+        FontApplicator.Apply(this, _font, _codeFont, _compatibilityFont);
     }
 
     public bool DynamicTextEnabled => _dynamicTextToggle.ButtonPressed;
 
-    private void RefreshNavigation()
+    private void RefreshNavigation(bool selectFirst = true)
     {
         var query = _search?.Text?.Trim() ?? string.Empty;
         _filteredStories = _stories.Where(story =>
@@ -146,8 +169,9 @@ public sealed class CatalogShell : BoxContainer
 
         _navigation.Clear();
         foreach (var story in _filteredStories) _navigation.AddItem($"{story.Category}  /  {story.Name}");
-        _count.Text = $"{_filteredStories.Count} of {_stories.Count} controls";
-        if (_filteredStories.Count > 0)
+        _viewModel.CountText = $"{_filteredStories.Count} of {_stories.Count} controls";
+        _count.Text = _viewModel.CountText;
+        if (selectFirst && _filteredStories.Count > 0)
         {
             _navigation.Select(0);
             SelectStory(0);
@@ -168,20 +192,26 @@ public sealed class CatalogShell : BoxContainer
         return true;
     }
 
-    private void LoadStory(ComponentStory story)
+    private void LoadStory(ComponentStory story, object retainedDataContext = null)
     {
         if (story == null) return;
         _currentStory = story;
         ClearChildren(_preview);
         ClearChildren(_inspector);
         _currentControl = story.Factory();
+        if (retainedDataContext != null) _currentControl.DataContext = retainedDataContext;
         _preview.AddChild(_currentControl);
         FontApplicator.Apply(_currentControl, _font, _codeFont, _compatibilityFont);
         story.Attached?.Invoke(_currentControl);
-        _storyCategory.Text = story.Category;
-        _storyTitle.Text = story.Name;
+        _viewModel.StoryCategory = story.Category;
+        _viewModel.StoryTitle = story.Name;
+        _viewModel.Description = story.Description;
+        _storyCategory.Text = _viewModel.StoryCategory;
+        _storyTitle.Text = _viewModel.StoryTitle;
+        _description.Text = _viewModel.Description;
         _description.ParseBbcode(story.Description);
         BuildInspector(_currentControl);
+        ActiveStoryChanged?.Invoke(story, _currentControl);
     }
 
     private void BuildInspector(Control target)
@@ -295,9 +325,9 @@ public sealed class CatalogShell : BoxContainer
         return result;
     }
 
-    private static PanelContainer CreatePanel(Color background, Color border)
+    private static void ApplyPanel(PanelContainer panel, Color background, Color border)
     {
-        var panel = new PanelContainer();
+        if (panel == null) return;
         panel.AddThemeStyleOverride("panel", new StyleBoxFlat
         {
             BackgroundColor = background,
@@ -305,7 +335,31 @@ public sealed class CatalogShell : BoxContainer
             BorderWidth = 1,
             ContentMargin = new Thickness(0),
         });
-        return panel;
+    }
+
+    private static InvalidOperationException MissingName(string name) => new InvalidOperationException($"CatalogShell XAML name '{name}' was not found.");
+
+    private void AttachAuthoredStyles(CatalogVisualResources resources)
+    {
+        var margins = new XamlProperty<Thickness>(nameof(Control.Margins), target => ((Control)target).Margins, (target, value) => ((Control)target).Margins = value);
+        var normal = new Style(resources.ActionSelector);
+        normal.Setters.Add(new StyleSetter<Thickness>(margins, resources.ActionMargins));
+        var hover = new Style(resources.ActionHoverSelector);
+        hover.Setters.Add(new StyleSetter<Thickness>(margins, resources.HoverMargins));
+        var checkedStyle = new Style(resources.ToggleCheckedSelector);
+        checkedStyle.Setters.Add(new StyleSetter<Thickness>(margins, resources.CheckedMargins));
+        _authoredStyles = StyleEngine.Attach(this, new[] { normal, hover, checkedStyle });
+    }
+
+    private void BeginAuthoredStoryboard(CatalogVisualResources resources)
+    {
+        var property = new XamlProperty<Vector2>(nameof(Control.CustomMinimumSize), target => ((Control)target).CustomMinimumSize, (target, value) => ((Control)target).CustomMinimumSize = value);
+        var timeline = new Vector2Timeline(resources.PulseTargetName, property);
+        timeline.KeyFrames.Add(new KeyFrame<Vector2>(TimeSpan.Zero, resources.PulseFrom));
+        timeline.KeyFrames.Add(new KeyFrame<Vector2>(resources.PulseDuration, resources.PulseTo, Easing.CubicInOut));
+        var storyboard = new Storyboard { AutoReverse = true, RepeatBehavior = RepeatBehavior.ForeverValue };
+        storyboard.Timelines.Add(timeline);
+        _authoredStoryboard = storyboard.Begin(this);
     }
 
     private static void ClearChildren(Control control)
@@ -313,31 +367,4 @@ public sealed class CatalogShell : BoxContainer
         while (control.Children.Count > 0) control.RemoveChild(control.Children[control.Children.Count - 1]);
     }
 
-    private sealed class CatalogPreviewContainer : Container
-    {
-        public override Vector2 GetMinimumSize()
-        {
-            var minimum = CustomMinimumSize;
-            foreach (var child in Children)
-                if (child.Visible) minimum = Vector2.Max(minimum, child.GetMinimumSize());
-            return minimum;
-        }
-
-        protected override void ArrangeChildren()
-        {
-            foreach (var child in Children)
-            {
-                if (!child.Visible) continue;
-                var childSize = child.GetMinimumSize();
-                var expandHorizontal = (child.HorizontalSizeFlags & SizeFlags.Expand) != 0;
-                var expandVertical = (child.VerticalSizeFlags & SizeFlags.Expand) != 0;
-                if (expandHorizontal) childSize.X = Size.X;
-                if (expandVertical) childSize.Y = Size.Y;
-                child.Size = Vector2.Max(Vector2.Zero, childSize);
-                child.Position = new Vector2(
-                    expandHorizontal ? 0 : MathF.Floor((Size.X - childSize.X) / 2),
-                    expandVertical ? 0 : MathF.Floor((Size.Y - childSize.Y) / 2));
-            }
-        }
-    }
 }

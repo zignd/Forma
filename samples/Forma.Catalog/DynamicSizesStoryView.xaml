@@ -1,0 +1,16 @@
+<BoxContainer xmlns="https://forma.dev/xaml"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:local="clr-namespace:Forma.Catalog"
+              x:Class="Forma.Catalog.DynamicSizesStoryView"
+              x:DataType="local:CatalogStoryViewModel"
+              Separation="12"
+              CustomMinimumSize="640,300">
+    <HBoxContainer Separation="10">
+        <LineEdit x:Name="liveText" Text="{Binding LiveText, Mode=TwoWay}" ClearButtonEnabled="True" CustomMinimumSize="280,36" />
+        <OptionButton x:Name="fontFamily" CustomMinimumSize="150,36" />
+        <HSlider x:Name="fontSize" MinValue="8" MaxValue="96" Step="1" Value="28" CustomMinimumSize="180,36" />
+    </HBoxContainer>
+    <Label x:Name="sizeStatus" Text="{Binding Status}" FontColor="#FF8F99AA" CustomMinimumSize="0,22" />
+    <Label x:Name="preview" Text="{Binding LiveText}" CustomMinimumSize="620,110" AutowrapMode="Word" />
+    <Label x:Name="smallPreview" Text="{Binding LiveText}" CustomMinimumSize="620,48" />
+</BoxContainer>

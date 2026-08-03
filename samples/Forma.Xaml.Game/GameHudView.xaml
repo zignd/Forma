@@ -1,0 +1,18 @@
+<VBoxContainer xmlns="https://forma.dev/xaml"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:local="clr-namespace:Forma.Xaml.Game"
+               x:Class="Forma.Xaml.Game.GameHudView"
+               x:DataType="local:GameHudViewModel"
+               x:Name="HudRoot"
+               Classes="hud"
+               Separation="8"
+               Margins="24,20"
+               CustomMinimumSize="260,174">
+    <Label Text="SIGNAL RUN" FontColor="#FFF2F5F7" CustomMinimumSize="0,32" />
+    <HBoxContainer Separation="18">
+        <Label x:Name="ScoreText" Text="{Binding ScoreText}" Classes="metric" CustomMinimumSize="112,28" />
+        <Label x:Name="RemainingText" Text="{Binding RemainingText}" Classes="timer" CustomMinimumSize="96,28" />
+    </HBoxContainer>
+    <Label x:Name="StatusText" Text="{Binding StatusText}" Classes="status" CustomMinimumSize="220,26" />
+    <Button x:Name="PauseButton" Text="Pause / settings" Classes="action" CustomMinimumSize="190,38" />
+</VBoxContainer>

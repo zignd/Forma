@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Forma;
+using Forma.Xaml;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,13 +16,14 @@ namespace Forma.Catalog;
 
 public sealed class ComponentStory
 {
-    public ComponentStory(string category, string name, string description, Func<Control> factory, Action<Control> attached = null)
+    public ComponentStory(string category, string name, string description, Func<Control> factory, Action<Control> attached = null, string xamlPath = null)
     {
         Category = category;
         Name = name;
         Description = description;
         Factory = factory;
         Attached = attached;
+        XamlPath = xamlPath;
     }
 
     public string Category { get; }
@@ -29,6 +31,7 @@ public sealed class ComponentStory
     public string Description { get; }
     public Func<Control> Factory { get; }
     public Action<Control> Attached { get; }
+    public string XamlPath { get; }
 }
 
 public static class StoryCatalog
@@ -79,24 +82,7 @@ public static class StoryCatalog
         "Typography",
         "Dynamic Sizes",
         "Edit live text, switch runtime font families, and inspect arbitrary logical sizes without separate SpriteFont assets.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 12, CustomMinimumSize = new Vector2(640, 300) };
-            var controls = new HBoxContainer { Separation = 10 };
-            var input = new LineEdit { Name = "liveText", Text = "Forma office 你好", ClearButtonEnabled = true, CustomMinimumSize = new Vector2(280, 36) };
-            var family = new OptionButton { Name = "fontFamily", CustomMinimumSize = new Vector2(150, 36) };
-            family.AddItem("Inter");
-            family.AddItem("Noto Sans SC");
-            var size = new Slider(Orientation.Horizontal) { Name = "fontSize", MinValue = 8, MaxValue = 96, Step = 1, Value = 28, CustomMinimumSize = new Vector2(180, 36) };
-            controls.AddChild(input);
-            controls.AddChild(family);
-            controls.AddChild(size);
-            column.AddChild(controls);
-            column.AddChild(new Label { Name = "sizeStatus", Text = "28 px", FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(0, 22) });
-            column.AddChild(new Label { Name = "preview", Text = input.Text, CustomMinimumSize = new Vector2(620, 110), AutowrapMode = LabelAutowrapMode.Word });
-            column.AddChild(new Label { Name = "smallPreview", Text = input.Text, CustomMinimumSize = new Vector2(620, 48) });
-            return column;
-        },
+        () => new DynamicSizesStoryView(),
         root =>
         {
             var controls = root.Children[0];
@@ -110,7 +96,7 @@ public static class StoryCatalog
             {
                 preview.Text = input.Text;
                 smallPreview.Text = input.Text;
-                status.Text = $"{size.Value:0} px logical size";
+                ((CatalogStoryViewModel)root.DataContext).Status = $"{size.Value:0} px logical size";
                 if (createDynamicFont == null) return;
                 var familyName = family.Selected == 1 ? "Noto Sans SC" : "Inter";
                 preview.UIFont = createDynamicFont(familyName, size.Value, null);
@@ -120,7 +106,8 @@ public static class StoryCatalog
             family.ItemSelected += (_, _) => Refresh();
             size.ValueChanged += (_, _) => Refresh();
             Refresh();
-        });
+        },
+        "DynamicSizesStoryView.xaml");
 
     private static ComponentStory CreateDisplayDensityStory(Action<float> setDisplayScale, Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
@@ -544,18 +531,13 @@ public static class StoryCatalog
         "Theme icons",
         "Complete icon inventory",
         "Every imported logical icon, resolved through a real control binding from the embedded manifest.",
-        () =>
-        {
-            var flow = new FlowContainer(Orientation.Horizontal) { Separation = 10, CustomMinimumSize = new Vector2(540, 0) };
-            var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(580, 420), HorizontalScrollMode = ScrollBarVisibility.Never };
-            scroll.AddChild(flow);
-            return scroll;
-        },
-        PopulateIconInventory);
+        () => new IconInventoryStoryView(),
+        PopulateIconInventory,
+        "IconInventoryStoryView.xaml");
 
     private static void PopulateIconInventory(Control root)
     {
-        var flow = root.Children.OfType<FlowContainer>().Single();
+        var flow = NameScope.GetNameScope(root).Find<FlowContainer>("iconFlow");
         using var stream = typeof(Control).Assembly.GetManifestResourceStream("Forma.ThemeIcons.theme-icons.json")
             ?? throw new InvalidDataException("Embedded theme icon manifest is missing.");
         var manifest = JsonSerializer.Deserialize<IconInventoryManifest>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
@@ -577,22 +559,7 @@ public static class StoryCatalog
         "Theme icons",
         "Override and suppression",
         "Compare default lookup with a per-control override and intentional suppression. Existing content icons still take precedence.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 12, CustomMinimumSize = new Vector2(620, 150) };
-            var direction = new HBoxContainer { Separation = 8 };
-            direction.AddChild(new Button { Name = "ltr", Text = "LTR", CustomMinimumSize = new Vector2(90, 32) });
-            direction.AddChild(new Button { Name = "rtl", Text = "RTL", CustomMinimumSize = new Vector2(90, 32) });
-            var row = new HBoxContainer { Separation = 18, CustomMinimumSize = new Vector2(620, 100) };
-            row.AddChild(LabeledOption("Default", "default"));
-            row.AddChild(LabeledOption("Overridden", "override"));
-            row.AddChild(LabeledOption("Suppressed", "suppressed"));
-            var explicitIcon = new Button { Text = "Content", Icon = texture, CustomMinimumSize = new Vector2(120, 64) };
-            row.AddChild(explicitIcon);
-            column.AddChild(direction);
-            column.AddChild(row);
-            return column;
-        },
+        () => new IconCustomizationStoryView(),
         root =>
         {
             var width = Math.Min(16, texture.Width);
@@ -600,11 +567,13 @@ public static class StoryCatalog
             var custom = new ThemeIcon(texture, new Rectangle(0, 0, width, height), new Point(width, height));
             var direction = root.Children[0];
             var row = root.Children[1];
+            ((Button)row.Children[3]).Icon = texture;
             ((OptionButton)row.Children[1].Children[1]).AddThemeIconOverride("arrow", custom);
             ((OptionButton)row.Children[2].Children[1]).SuppressThemeIcon("arrow");
             ((Button)direction.Children[0]).Pressed += (_, _) => root.LayoutDirection = LayoutDirection.LeftToRight;
             ((Button)direction.Children[1]).Pressed += (_, _) => root.LayoutDirection = LayoutDirection.RightToLeft;
-        });
+        },
+        "IconCustomizationStoryView.xaml");
 
     private static Control LabeledOption(string label, string name)
     {
@@ -620,17 +589,7 @@ public static class StoryCatalog
         "Theme icons",
         "Atlas diagnostics",
         "Inspect active density, loaded atlas count, decoded texture memory, cache generation, and missing optional lookups.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 10, CustomMinimumSize = new Vector2(480, 180) };
-            column.AddChild(new Label { Name = "status", CustomMinimumSize = new Vector2(480, 48) });
-            var row = new HBoxContainer { Separation = 8 };
-            row.AddChild(new Button { Name = "one", Text = "Use 1x", CustomMinimumSize = new Vector2(110, 34) });
-            row.AddChild(new Button { Name = "two", Text = "Use 2x", CustomMinimumSize = new Vector2(110, 34) });
-            row.AddChild(new Button { Name = "refresh", Text = "Refresh", CustomMinimumSize = new Vector2(110, 34) });
-            column.AddChild(row);
-            return column;
-        },
+        () => new IconDiagnosticsStoryView(),
         root =>
         {
             var status = (Label)root.Children[0];
@@ -638,13 +597,14 @@ public static class StoryCatalog
             void Refresh()
             {
                 var diagnostics = root.Context.ThemeIconDiagnostics;
-                status.Text = $"Density: {diagnostics.ActiveDensity}x   Atlases: {diagnostics.AtlasCount}   Texture: {diagnostics.TextureBytes / 1024f:0.0} KB\nGeneration: {diagnostics.Generation}   Missing optional lookups: {diagnostics.MissingIconCount}";
+                ((CatalogStoryViewModel)root.DataContext).Status = $"Density: {diagnostics.ActiveDensity}x   Atlases: {diagnostics.AtlasCount}   Texture: {diagnostics.TextureBytes / 1024f:0.0} KB\nGeneration: {diagnostics.Generation}   Missing optional lookups: {diagnostics.MissingIconCount}";
             }
             ((Button)row.Children[0]).Pressed += (_, _) => { (setDisplayScale ?? (scale => root.Context.DisplayScale = scale))(1f); Refresh(); };
             ((Button)row.Children[1]).Pressed += (_, _) => { (setDisplayScale ?? (scale => root.Context.DisplayScale = scale))(2f); Refresh(); };
             ((Button)row.Children[2]).Pressed += (_, _) => Refresh();
             Refresh();
-        });
+        },
+        "IconDiagnosticsStoryView.xaml");
 
     private sealed class IconInventoryManifest
     {

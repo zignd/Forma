@@ -1,0 +1,7 @@
+<BoxContainer xmlns="https://forma.dev/xaml"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              x:Class="Forma.Catalog.IconInventoryStoryView">
+    <ScrollContainer CustomMinimumSize="580,420" HorizontalScrollMode="Never">
+        <HFlowContainer x:Name="iconFlow" Separation="10" CustomMinimumSize="540,0" />
+    </ScrollContainer>
+</BoxContainer>

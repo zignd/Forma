@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Igor Hipólito Vieira
+// SPDX-License-Identifier: MIT
+
 using Microsoft.Xna.Framework;
 
 namespace Forma.Xaml.Game;

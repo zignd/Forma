@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Igor Hipólito Vieira
+// SPDX-License-Identifier: MIT
+
 using Forma.Xaml;
 using Forma.Xaml.Game;
 using Forma.Xaml.HotReload;

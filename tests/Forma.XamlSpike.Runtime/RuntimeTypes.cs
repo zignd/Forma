@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Igor Hipólito Vieira
+// SPDX-License-Identifier: MIT
+
 [assembly: Forma.XamlSpike.XmlnsDefinition("https://forma.dev/xaml", "Forma.XamlSpike")]
 
 namespace Forma.XamlSpike;

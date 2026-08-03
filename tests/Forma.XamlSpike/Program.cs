@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Igor Hipólito Vieira
+// SPDX-License-Identifier: MIT
+
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;

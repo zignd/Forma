@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.XamlSpike.Aot</AssemblyName>
+    <RootNamespace>Forma.XamlSpike.Aot</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <GeneratedAssemblyPath Condition="'$(GeneratedAssemblyPath)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../Artifacts/xaml-spike/generated/Forma.XamlSpike.Generated.dll'))</GeneratedAssemblyPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Forma.XamlSpike.Runtime/Forma.XamlSpike.Runtime.csproj" />
+    <Reference Include="Forma.XamlSpike.Generated" HintPath="$(GeneratedAssemblyPath)" Private="true" />
+  </ItemGroup>
+
+  <Target Name="RequireGeneratedXamlSpike" BeforeTargets="ResolveReferences" Condition="!Exists('$(GeneratedAssemblyPath)')">
+    <Error Text="Generated XAML spike assembly not found at $(GeneratedAssemblyPath). Run Forma.XamlSpike with --emit first." />
+  </Target>
+
+</Project>

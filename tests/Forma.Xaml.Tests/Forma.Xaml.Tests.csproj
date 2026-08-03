@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageReference Include="NUnit" Version="4.3.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(FormaRuntime)' == 'MonoGame'" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FormaRuntime)' == 'FNA'" />
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.Xaml.Compiler/Forma.Xaml.Compiler.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../Forma.Tests/XamlRuntimeTest.cs" Link="Runtime/XamlRuntimeTest.cs" />
+    <Compile Include="../Forma.Tests/XamlBindingTest.cs" Link="Runtime/XamlBindingTest.cs" />
+    <Compile Include="../Forma.Tests/XamlStyleTest.cs" Link="Runtime/XamlStyleTest.cs" />
+    <Compile Include="../Forma.Tests/XamlAnimationTest.cs" Link="Runtime/XamlAnimationTest.cs" />
+    <Compile Include="../Forma.Xaml.Compiler.Tests/FormaXamlCompilerTest.cs" Link="Compiler/FormaXamlCompilerTest.cs" />
+    <Compile Include="../Forma.Xaml.HotReload.Tests/FormaXamlHotReloadTest.cs" Link="HotReload/FormaXamlHotReloadTest.cs" />
+    <None Include="Goldens/*.xaml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,10 @@
+<Control xmlns="https://forma.dev/xaml"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         xmlns:local="clr-namespace:Forma.Xaml.Build.Integration"
+         x:Class="Forma.Xaml.Build.Integration.HudView"
+         x:DataType="local:HudViewModel"
+         x:Name="HudRoot"
+         Position="3,4">
+  <Label x:Name="Child" Text="{Binding Message}" />
+  <LineEdit x:Name="Editor" Text="{Binding Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+</Control>

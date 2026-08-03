@@ -1,0 +1,58 @@
+<Project>
+  <PropertyGroup>
+    <FormaXamlBuildAssembly Condition="'$(FormaXamlBuildAssembly)' == ''">$(MSBuildThisFileDirectory)..\tools\net10.0\Forma.Xaml.Build.dll</FormaXamlBuildAssembly>
+    <FormaXamlValidateOnly Condition="'$(FormaXamlValidateOnly)' == ''">false</FormaXamlValidateOnly>
+    <FormaXamlHotReload Condition="'$(FormaXamlHotReload)' == ''">false</FormaXamlHotReload>
+    <FormaXamlRequireCompiledBindings Condition="'$(FormaXamlRequireCompiledBindings)' == '' and '$(Configuration)' == 'Release'">true</FormaXamlRequireCompiledBindings>
+    <FormaXamlRequireCompiledBindings Condition="'$(FormaXamlRequireCompiledBindings)' == ''">false</FormaXamlRequireCompiledBindings>
+    <FormaXamlIntermediateDirectory Condition="'$(FormaXamlIntermediateDirectory)' == ''">$(BaseIntermediateOutputPath)$(Configuration)/$(TargetFramework)/FormaXaml</FormaXamlIntermediateDirectory>
+    <FormaXamlDevelopmentOutputDirectory Condition="'$(FormaXamlDevelopmentOutputDirectory)' == ''">$(BaseOutputPath)$(Configuration)/$(TargetFramework)/xaml</FormaXamlDevelopmentOutputDirectory>
+  </PropertyGroup>
+
+  <UsingTask TaskName="Forma.Xaml.Build.DiscoverFormaXaml" AssemblyFile="$(FormaXamlBuildAssembly)" />
+  <UsingTask TaskName="Forma.Xaml.Build.CompileFormaXaml" AssemblyFile="$(FormaXamlBuildAssembly)" />
+
+  <ItemGroup Condition="'$(EnableDefaultItems)' == 'true' and '$(EnableDefaultNoneItems)' == 'true'">
+    <FormaXaml Include="**/*.xaml" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <None Remove="@(FormaXaml)" />
+  </ItemGroup>
+
+  <Target Name="FormaXamlDiscover"
+          BeforeTargets="CoreCompile"
+          Condition="'@(FormaXaml)' != ''"
+          Inputs="@(FormaXaml);$(FormaXamlBuildAssembly)"
+          Outputs="$(FormaXamlIntermediateDirectory)/discovery.stamp">
+    <MakeDir Directories="$(FormaXamlIntermediateDirectory)" />
+    <DiscoverFormaXaml XamlFiles="@(FormaXaml)" RequireCompiledBindings="$(FormaXamlRequireCompiledBindings)">
+      <Output TaskParameter="Roots" ItemName="_FormaXamlRoots" />
+    </DiscoverFormaXaml>
+    <Touch Files="$(FormaXamlIntermediateDirectory)/discovery.stamp" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="FormaXamlCompile"
+          AfterTargets="CoreCompile"
+          DependsOnTargets="ResolveReferences"
+          Condition="'@(FormaXaml)' != ''"
+          Inputs="@(FormaXaml);@(IntermediateAssembly);$(FormaXamlBuildAssembly);$(MSBuildThisFileFullPath);@(ReferencePath)"
+          Outputs="$(FormaXamlIntermediateDirectory)/compile.stamp">
+    <CompileFormaXaml XamlFiles="@(FormaXaml)"
+                  TargetAssembly="@(IntermediateAssembly)"
+                  TargetPdb="$(IntermediateOutputPath)$(TargetName).pdb"
+                      References="@(ReferencePath)"
+                      RequireCompiledBindings="$(FormaXamlRequireCompiledBindings)"
+                      ValidateOnly="$(FormaXamlValidateOnly)" />
+              <Touch Files="$(FormaXamlIntermediateDirectory)/compile.stamp" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="FormaXamlCopyDevelopmentSources"
+          AfterTargets="FormaXamlCompile"
+          Condition="'$(FormaXamlHotReload)' == 'true' and '$(Configuration)' == 'Debug' and '@(FormaXaml)' != ''">
+    <Copy SourceFiles="@(FormaXaml)"
+          DestinationFiles="@(FormaXaml->'$(FormaXamlDevelopmentOutputDirectory)/%(Identity)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="FormaXamlClean" AfterTargets="Clean">
+    <RemoveDir Directories="$(FormaXamlIntermediateDirectory);$(FormaXamlDevelopmentOutputDirectory)" />
+  </Target>
+</Project>

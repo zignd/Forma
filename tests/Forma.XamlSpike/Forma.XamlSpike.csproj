@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.XamlSpike</AssemblyName>
+    <RootNamespace>Forma.XamlSpike</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Forma.XamlSpike.Runtime/Forma.XamlSpike.Runtime.csproj" />
+    <ProjectReference Include="../../external/XamlX/src/XamlX/XamlX.csproj" />
+    <ProjectReference Include="../../external/XamlX/src/XamlX.IL.Cecil/XamlX.IL.Cecil.csproj" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+  </ItemGroup>
+
+</Project>

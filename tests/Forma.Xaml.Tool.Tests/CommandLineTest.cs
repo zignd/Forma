@@ -1,0 +1,76 @@
+using System.Text.Json;
+using Forma.Xaml.Tool;
+
+namespace Forma.Xaml.Tool.Tests;
+
+[NonParallelizable]
+public sealed class CommandLineTest
+{
+    private string _directory = null!;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _directory = Path.Combine(Path.GetTempPath(), $"forma-cli-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(_directory);
+    }
+
+    [TearDown]
+    public void TearDown() => Directory.Delete(_directory, true);
+
+    [TestCase("human")]
+    [TestCase("json")]
+    [TestCase("sarif")]
+    public void ValidateWritesStableDiagnosticFormat(string format)
+    {
+        var path = Path.Combine(_directory, "Invalid.xaml");
+        File.WriteAllText(path, "<Control xmlns='https://forma.dev/xaml' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' x:Uid='bad' />");
+        var originalOut = Console.Out;
+        var originalError = Console.Error;
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+        try
+        {
+            Console.SetOut(output);
+            Console.SetError(error);
+            Assert.That(Program.Main(new[] { "validate", "--format", format, path }), Is.EqualTo(1));
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetError(originalError);
+        }
+
+        var text = output.ToString();
+        Assert.That(error.ToString(), Is.Empty);
+        if (format == "human")
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(text, Does.Contain("Invalid.xaml(1,"));
+                Assert.That(text, Does.Contain("FXAML1003"));
+            });
+            return;
+        }
+
+        using var document = JsonDocument.Parse(text);
+        if (format == "json")
+        {
+            var diagnostic = document.RootElement[0];
+            Assert.Multiple(() =>
+            {
+                Assert.That(diagnostic.GetProperty("code").GetString(), Is.EqualTo("FXAML1003"));
+                Assert.That(diagnostic.GetProperty("location").GetProperty("line").GetInt32(), Is.EqualTo(1));
+            });
+            return;
+        }
+
+        var result = document.RootElement.GetProperty("runs")[0].GetProperty("results")[0];
+        Assert.Multiple(() =>
+        {
+            Assert.That(document.RootElement.GetProperty("version").GetString(), Is.EqualTo("2.1.0"));
+            Assert.That(result.GetProperty("ruleId").GetString(), Is.EqualTo("FXAML1003"));
+            Assert.That(result.GetProperty("locations")[0].GetProperty("physicalLocation").GetProperty("region").GetProperty("startLine").GetInt32(), Is.EqualTo(1));
+        });
+    }
+}

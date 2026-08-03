@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Forma.Xaml;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -25,7 +26,7 @@ namespace Forma
     /// Retained-mode UI element modelled after Godot's Control. Coordinates are relative to the parent;
     /// anchors and offsets are resolved during layout.
     /// </summary>
-    public class Control
+    public class Control : IAddChild<Control>
     {
         private readonly List<Control> _children = new List<Control>();
         private readonly ReadOnlyCollection<Control> _readOnlyChildren;
@@ -43,6 +44,10 @@ namespace Forma
         private readonly Dictionary<string, StyleBox> _styleOverrides = new Dictionary<string, StyleBox>(StringComparer.Ordinal);
         private readonly Dictionary<string, ThemeIcon?> _iconOverrides = new Dictionary<string, ThemeIcon?>(StringComparer.Ordinal);
         private Theme _themeOverride;
+        private object _dataContext;
+        private bool _hasLocalDataContext;
+        private bool _enabled = true;
+        private string _name;
 
         public Control()
         {
@@ -50,15 +55,38 @@ namespace Forma
             MouseFilter = MouseFilter.Stop;
             FocusMode = FocusMode.None;
             Visible = true;
-            Enabled = true;
             HorizontalSizeFlags = SizeFlags.Fill;
             VerticalSizeFlags = SizeFlags.Fill;
         }
 
-        public string Name { get; set; }
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if (_name == value) return;
+                _name = value;
+                NameChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
         public Control Parent { get; private set; }
         public ReadOnlyCollection<Control> Children => _readOnlyChildren;
         public UIContext Context { get; private set; }
+        public ResourceDictionary Resources { get; } = new ResourceDictionary();
+        public ControlClassList Classes { get; } = new ControlClassList();
+        public IDictionary<string, StyleBox> ThemeStyleOverrides => _styleOverrides;
+        public bool HasLocalDataContext => _hasLocalDataContext;
+        public object DataContext
+        {
+            get => _hasLocalDataContext ? _dataContext : Parent?.DataContext;
+            set
+            {
+                var previous = DataContext;
+                _dataContext = value;
+                _hasLocalDataContext = true;
+                NotifyDataContextChanged(previous, DataContext);
+            }
+        }
         /// <summary>Optional theme applied to this control and inherited by its descendants while drawing.</summary>
         public Theme ThemeOverride
         {
@@ -78,7 +106,16 @@ namespace Forma
         private bool _visible;
         /// <summary>Matches Godot's Control.visible: toggling it requeues the parent's layout, since Container wires each child's visibility_changed signal to queue_sort().</summary>
         public bool Visible { get => _visible; set { if (_visible == value) return; _visible = value; QueueLayout(); } }
-        public bool Enabled { get; set; }
+        public bool Enabled
+        {
+            get => _enabled;
+            set
+            {
+                if (_enabled == value) return;
+                _enabled = value;
+                EnabledChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
         public MouseFilter MouseFilter { get; set; }
         public FocusMode FocusMode { get; set; }
         /// <summary>Optional explicit focus order used before tree traversal.</summary>
@@ -171,6 +208,13 @@ namespace Forma
         public event EventHandler MouseExited;
         public event EventHandler FocusEntered;
         public event EventHandler FocusExited;
+        public event EventHandler Attached;
+        public event EventHandler Detached;
+        public event EventHandler EnabledChanged;
+        public event EventHandler NameChanged;
+        public event EventHandler<DataContextChangedEventArgs> DataContextChanged;
+        public event Action<Control, Control> ChildAdded;
+        public event Action<Control, Control> ChildRemoved;
         /// <summary>Raised when this control supplies drag data after the pointer passes the drag threshold.</summary>
         public event Action<Control, object> DragStarted;
         /// <summary>Raised when a drag started by this control ends; the boolean indicates whether it was accepted.</summary>
@@ -183,22 +227,66 @@ namespace Forma
             for (var ancestor = this; ancestor != null; ancestor = ancestor.Parent)
                 if (ancestor == child) throw new InvalidOperationException("A control cannot be added below one of its descendants.");
             child.RemoveFromParent();
+            var previousDataContext = child.DataContext;
             _children.Add(child);
             child.Parent = this;
+            child.NotifyInheritedDataContextChanged(previousDataContext, child.DataContext);
             child._treeOrder = ++_nextChildOrder;
             _childOrderDirty = true;
             child.SetContext(Context);
+            ChildAdded?.Invoke(this, child);
             QueueLayout();
         }
 
         public bool RemoveChild(Control child)
         {
             if (child == null || !_children.Remove(child)) return false;
+            var previousDataContext = child.DataContext;
             child.Parent = null;
+            child.NotifyInheritedDataContextChanged(previousDataContext, child.DataContext);
             _childOrderDirty = true;
             child.SetContext(null);
+            ChildRemoved?.Invoke(this, child);
             QueueLayout();
             return true;
+        }
+
+        void IAddChild.AddChild(object child) => AddChild((Control)child);
+
+        public void ClearDataContext()
+        {
+            if (!_hasLocalDataContext) return;
+            var previous = DataContext;
+            _dataContext = null;
+            _hasLocalDataContext = false;
+            NotifyDataContextChanged(previous, DataContext);
+        }
+
+        public bool TryFindResource(string key, out object value)
+        {
+            if (Resources.TryFind(key, out value)) return true;
+            if (Parent != null) return Parent.TryFindResource(key, out value);
+            if (Context != null) return Context.Resources.TryFind(key, out value);
+            value = null;
+            return false;
+        }
+
+        public T FindName<T>(string name) where T : class => NameScope.GetNameScope(this)?.Find<T>(name);
+
+        private void NotifyDataContextChanged(object previous, object current)
+        {
+            if (Equals(previous, current)) return;
+            DataContextChanged?.Invoke(this, new DataContextChangedEventArgs(previous, current));
+            foreach (var child in _children)
+                child.NotifyInheritedDataContextChanged(previous, current);
+        }
+
+        private void NotifyInheritedDataContextChanged(object previous, object current)
+        {
+            if (_hasLocalDataContext || Equals(previous, current)) return;
+            DataContextChanged?.Invoke(this, new DataContextChangedEventArgs(previous, current));
+            foreach (var child in _children)
+                child.NotifyInheritedDataContextChanged(previous, current);
         }
 
         /// <summary>Moves an existing child to a different sibling index without changing its parent or UI context.</summary>
@@ -485,7 +573,13 @@ namespace Forma
         {
             var previous = Context;
             Context = context;
-            if (previous != context) OnContextChanged(previous, context);
+            if (previous != context)
+            {
+                OnContextChanged(previous, context);
+                if (previous != null) Detached?.Invoke(this, EventArgs.Empty);
+                XamlAttachment.ContextChanged(this, previous, context);
+                if (context != null) Attached?.Invoke(this, EventArgs.Empty);
+            }
             foreach (var child in _children) child.SetContext(context);
         }
 

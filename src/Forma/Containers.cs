@@ -43,6 +43,7 @@ namespace Forma
     {
         private BoxAlignment _alignment;
         private bool _reverseSort;
+        public BoxContainer() : this(Orientation.Vertical) { }
         public BoxContainer(Orientation orientation) { Orientation = orientation; }
         public Orientation Orientation { get; }
         public float Separation { get; set; } = float.NaN;

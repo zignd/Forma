@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <FormaXamlBuildAssembly>$(MSBuildThisFileDirectory)../../src/Forma.Xaml.Build/bin/$(FormaRuntime)/$(Configuration)/net10.0/Forma.Xaml.Build.dll</FormaXamlBuildAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(FormaRuntime)' == 'MonoGame'" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FormaRuntime)' == 'FNA'" />
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Import Project="../../src/Forma.Xaml.Build/buildTransitive/Forma.Xaml.Build.targets" />
+
+</Project>

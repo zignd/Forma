@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Forma.Xaml;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -20,6 +21,8 @@ namespace Forma
     {
         private readonly List<Control> _roots = new List<Control>();
         private readonly List<Control> _rootsInDrawOrder = new List<Control>();
+        private readonly HashSet<XamlAttachmentScope> _xamlScopes = new HashSet<XamlAttachmentScope>();
+        private readonly HashSet<Action<GameTime>> _frameBoundaryCallbacks = new HashSet<Action<GameTime>>();
         private readonly UIFontSelection _tooltipFontSelection = new UIFontSelection();
         private MouseState _previousMouse;
         private KeyboardState _previousKeyboard;
@@ -53,6 +56,7 @@ namespace Forma
             Theme = new Theme { FontFamily = UIFontDefaultRegistry.FontFamily };
         }
         public IReadOnlyList<Control> Roots => _roots;
+        public ResourceDictionary Resources { get; } = new ResourceDictionary();
         public Theme Theme
         {
             get => _theme;
@@ -160,6 +164,8 @@ namespace Forma
         /// <summary>Updates the tree from supplied states; this overload makes UI input deterministic in tests.</summary>
         public void Update(GameTime gameTime, MouseState mouse, KeyboardState keyboard)
         {
+            UpdateFrameBoundaryCallbacks(gameTime);
+            UpdateXamlScopes(gameTime);
             if (Math.Abs(DisplayScale - 1f) > .0001f)
             {
                 mouse = new MouseState(
@@ -561,6 +567,44 @@ namespace Forma
             foreach (var root in _roots) root.MarkInheritedLayoutDirectionDirty();
         }
 
+        internal void RegisterXamlScope(XamlAttachmentScope scope) => _xamlScopes.Add(scope);
+        internal void UnregisterXamlScope(XamlAttachmentScope scope) => _xamlScopes.Remove(scope);
+
+        private void UpdateXamlScopes(GameTime gameTime)
+        {
+            var snapshot = new List<XamlAttachmentScope>(_xamlScopes);
+            foreach (var scope in snapshot) scope.Update(gameTime);
+        }
+
+        public IDisposable RegisterFrameBoundaryCallback(Action<GameTime> callback)
+        {
+            if (callback == null) throw new ArgumentNullException(nameof(callback));
+            lock (_frameBoundaryCallbacks) _frameBoundaryCallbacks.Add(callback);
+            return new FrameBoundaryRegistration(this, callback);
+        }
+
+        private void UpdateFrameBoundaryCallbacks(GameTime gameTime)
+        {
+            Action<GameTime>[] callbacks;
+            lock (_frameBoundaryCallbacks) callbacks = new List<Action<GameTime>>(_frameBoundaryCallbacks).ToArray();
+            foreach (var callback in callbacks) callback(gameTime);
+        }
+
+        private sealed class FrameBoundaryRegistration : IDisposable
+        {
+            private UIContext _owner;
+            private Action<GameTime> _callback;
+            public FrameBoundaryRegistration(UIContext owner, Action<GameTime> callback) { _owner = owner; _callback = callback; }
+            public void Dispose()
+            {
+                var owner = _owner;
+                var callback = _callback;
+                _owner = null;
+                _callback = null;
+                if (owner != null) lock (owner._frameBoundaryCallbacks) owner._frameBoundaryCallbacks.Remove(callback);
+            }
+        }
+
         private IReadOnlyList<Control> GetRootsInDrawOrder()
         {
             if (!_rootOrderDirty) return _rootsInDrawOrder;
@@ -577,6 +621,10 @@ namespace Forma
 
         public void Dispose()
         {
+            var roots = _roots.ToArray();
+            foreach (var root in roots) Remove(root);
+            _xamlScopes.Clear();
+            lock (_frameBoundaryCallbacks) _frameBoundaryCallbacks.Clear();
             _renderer?.Dispose();
             _renderer = null;
             _iconResources?.Dispose();

@@ -9,6 +9,9 @@
     <Description>Optional video integration for Forma.</Description>
     <PackageTags>forma;$(FormaRuntime);ui;video;media;game-development</PackageTags>
     <IsPackable>true</IsPackable>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <IsAotCompatible>true</IsAotCompatible>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>disable</Nullable>
   </PropertyGroup>

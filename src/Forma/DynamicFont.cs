@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+#if !FORMA_EXTERNAL_DYNAMIC_TEXT_BACKEND
 using FreeTypeSharp;
 using HarfBuzzSharp;
 using Microsoft.Win32.SafeHandles;
@@ -19,9 +20,35 @@ using HarfBuzzBlob = HarfBuzzSharp.Blob;
 using HarfBuzzBuffer = HarfBuzzSharp.Buffer;
 using HarfBuzzFace = HarfBuzzSharp.Face;
 using HarfBuzzFont = HarfBuzzSharp.Font;
+#endif
 
 namespace Forma
 {
+    public sealed class DynamicTextNativeDiagnostics
+    {
+        private readonly string _freeTypeLibraryName;
+        private readonly string _freeTypePackageId;
+        private readonly string _harfBuzzLibraryName;
+        private readonly string _harfBuzzPackageId;
+
+        internal DynamicTextNativeDiagnostics(string freeTypeLibraryName, string freeTypePackageId, string harfBuzzLibraryName, string harfBuzzPackageId)
+        {
+            _freeTypeLibraryName = freeTypeLibraryName;
+            _freeTypePackageId = freeTypePackageId;
+            _harfBuzzLibraryName = harfBuzzLibraryName;
+            _harfBuzzPackageId = harfBuzzPackageId;
+        }
+
+        public static DynamicTextNativeDiagnostics Current => DynamicTextBackendRegistry.Backend.Diagnostics;
+        public string RuntimeIdentifier => RuntimeInformation.RuntimeIdentifier;
+        public string FreeTypeLibraryName => _freeTypeLibraryName;
+        public string FreeTypePackageId => _freeTypePackageId;
+        public string HarfBuzzLibraryName => _harfBuzzLibraryName;
+        public string HarfBuzzPackageId => _harfBuzzPackageId;
+        public bool UsesRuntimeGeneratedMarshalling => false;
+        public bool RegistersUnmanagedCallbacks => false;
+    }
+
     public sealed class UIFontAsset
     {
         private readonly byte[] _source;
@@ -68,11 +95,8 @@ namespace Forma
         public Stream OpenStream() => new MemoryStream(_source, writable: false);
     }
 
-    public sealed unsafe class UIFontFace : IDisposable
+    public sealed class UIFontFace : IDisposable
     {
-        private static int _activePinnedMemories;
-        private static int _activeFreeTypeLibraries;
-        private static int _activeFreeTypeFaces;
         public const int MaximumSourceBytes = 64 * 1024 * 1024;
         public const int MaximumFaces = 256;
         public const int MaximumTables = 4096;
@@ -80,76 +104,28 @@ namespace Forma
         public const int MaximumGlyphDimension = 4096;
         public const int MaximumGlyphArea = 16 * 1024 * 1024;
 
-        private const long MaximumRasterTicks = TimeSpan.TicksPerMillisecond * 100;
-        private readonly object _sync = new object();
-        private readonly PinnedFontMemoryHandle _memory;
-        private readonly FreeTypeLibraryHandle _library;
-        private readonly FreeTypeFaceHandle _face;
         private readonly byte[] _source;
-        private readonly HarfBuzzBlob _harfBuzzBlob;
-        private readonly HarfBuzzFace _harfBuzzFace;
-        private readonly ReadOnlyCollection<UIFontVariationAxis> _variationAxes;
-        private ReadOnlyCollection<int> _supportedCodePoints;
-        private bool _disposed;
+        private readonly IDynamicTextFaceBackend _backend;
 
         private UIFontFace(byte[] source, int faceIndex)
         {
             _source = source;
             Identity = new UIFontIdentity("font-face", $"{Convert.ToHexString(SHA256.HashData(source))}:{faceIndex}");
-            var fontData = SfntFontData.Parse(source, faceIndex);
-            _variationAxes = fontData.VariationAxes.AsReadOnly();
-            _memory = new PinnedFontMemoryHandle(source);
-            try
-            {
-                _library = FreeTypeLibraryHandle.Create();
-                _face = FreeTypeFaceHandle.Create(_library, _memory, source.Length, faceIndex);
-                var face = Pointer;
-                FaceCount = checked((int)face->num_faces);
-                FaceIndex = checked((int)face->face_index);
-                GlyphCount = checked((int)face->num_glyphs);
-                FamilyName = ReadUtf8(face->family_name);
-                StyleName = ReadUtf8(face->style_name);
-                UnitsPerEm = face->units_per_EM;
-                if (UnitsPerEm == 0)
-                    throw Error(FontLoadErrorCode.UnsupportedFormat, "Font face does not provide scalable design units.");
-                var charmapError = FT_Select_Charmap(face, FT_Encoding_.FT_ENCODING_UNICODE);
-                if (charmapError != FT_Error.FT_Err_Ok)
-                    throw Error(FontLoadErrorCode.UnsupportedFormat, "Font face does not provide a Unicode character map.");
-                DesignMetrics = CreateFaceMetrics(face, UnitsPerEm);
-                _harfBuzzBlob = new HarfBuzzBlob(_memory.Address, source.Length, MemoryMode.ReadOnly);
-                _harfBuzzFace = new HarfBuzzFace(_harfBuzzBlob, faceIndex);
-            }
-            catch
-            {
-                _harfBuzzFace?.Dispose();
-                _harfBuzzBlob?.Dispose();
-                _face?.Dispose();
-                _library?.Dispose();
-                _memory.Dispose();
-                throw;
-            }
+            _backend = DynamicTextBackendRegistry.Backend.CreateFace(source, faceIndex);
         }
 
-        public int FaceCount { get; }
-        public int FaceIndex { get; }
+        public int FaceCount => _backend.FaceCount;
+        public int FaceIndex => _backend.FaceIndex;
         public UIFontIdentity Identity { get; }
-        public int GlyphCount { get; }
-        public string FamilyName { get; }
-        public string StyleName { get; }
-        public ushort UnitsPerEm { get; }
-        public UIFontFaceMetrics DesignMetrics { get; }
-        public IReadOnlyList<UIFontVariationAxis> VariationAxes => _variationAxes;
-        internal static (int PinnedMemories, int FreeTypeLibraries, int FreeTypeFaces) NativeHandleCounts =>
-            (Volatile.Read(ref _activePinnedMemories), Volatile.Read(ref _activeFreeTypeLibraries), Volatile.Read(ref _activeFreeTypeFaces));
+        public int GlyphCount => _backend.GlyphCount;
+        public string FamilyName => _backend.FamilyName;
+        public string StyleName => _backend.StyleName;
+        public ushort UnitsPerEm => _backend.UnitsPerEm;
+        public UIFontFaceMetrics DesignMetrics => _backend.DesignMetrics;
+        public IReadOnlyList<UIFontVariationAxis> VariationAxes => _backend.VariationAxes;
+        internal static (int PinnedMemories, int FreeTypeLibraries, int FreeTypeFaces) NativeHandleCounts => DynamicTextBackendRegistry.Backend.NativeHandleCounts;
 
-        internal byte[] CopySource()
-        {
-            lock (_sync)
-            {
-                ThrowIfDisposed();
-                return (byte[])_source.Clone();
-            }
-        }
+        internal byte[] CopySource() => (byte[])_source.Clone();
 
         public static UIFontFace FromMemory(ReadOnlyMemory<byte> source, int faceIndex = 0)
         {
@@ -189,6 +165,158 @@ namespace Forma
                 throw new ArgumentException("The font path must remain inside the project directory.", nameof(relativePath));
             using var stream = File.OpenRead(path);
             return FromStream(stream, faceIndex);
+        }
+
+        public uint GetGlyphId(int unicodeScalar) => _backend.GetGlyphId(unicodeScalar);
+        public bool SupportsCharacter(int unicodeScalar) => GetGlyphId(unicodeScalar) != 0;
+        public IReadOnlyList<int> GetSupportedCodePoints() => _backend.GetSupportedCodePoints();
+
+        public UIFontFaceMetrics GetMetrics(float logicalSize)
+        {
+            ValidateLogicalSize(logicalSize);
+            var scale = logicalSize / UnitsPerEm;
+            return new UIFontFaceMetrics(
+                DesignMetrics.Ascender * scale,
+                DesignMetrics.Descender * scale,
+                DesignMetrics.LineGap * scale,
+                DesignMetrics.LineHeight * scale,
+                DesignMetrics.UnderlinePosition * scale,
+                DesignMetrics.UnderlineThickness * scale);
+        }
+
+        public UIFontGlyphMetrics GetGlyphMetrics(uint glyphId, float logicalSize, IReadOnlyList<UIFontVariationCoordinate> variations = null)
+            => _backend.GetGlyphMetrics(glyphId, logicalSize, variations);
+
+        public UIFontGlyphBitmap RasterizeCharacter(int unicodeScalar, float logicalSize, float displayScale = 1, UIFontHinting hinting = UIFontHinting.Default, IReadOnlyList<UIFontVariationCoordinate> variations = null)
+            => RasterizeGlyph(GetGlyphId(unicodeScalar), logicalSize, displayScale, hinting, variations);
+
+        public UIFontGlyphBitmap RasterizeGlyph(uint glyphId, float logicalSize, float displayScale = 1, UIFontHinting hinting = UIFontHinting.Default, IReadOnlyList<UIFontVariationCoordinate> variations = null)
+            => _backend.RasterizeGlyph(glyphId, logicalSize, displayScale, hinting, variations);
+
+        public UIFontShapedRun Shape(string text, float logicalSize, TextDirection direction = TextDirection.Auto, string locale = null, string script = null, IReadOnlyList<UIFontOpenTypeFeature> features = null, IReadOnlyList<UIFontVariationCoordinate> variations = null)
+            => _backend.Shape(text, logicalSize, direction, locale, script, features, variations);
+
+        public void Dispose() => _backend.Dispose();
+
+        internal static bool IsNativeDependencyFailure(Exception exception)
+        {
+            while (exception is TypeInitializationException && exception.InnerException != null)
+                exception = exception.InnerException;
+            return exception is DllNotFoundException or FileLoadException or BadImageFormatException or EntryPointNotFoundException;
+        }
+
+        private static void ValidateLogicalSize(float logicalSize)
+        {
+            if (!float.IsFinite(logicalSize) || logicalSize <= 0) throw new ArgumentOutOfRangeException(nameof(logicalSize));
+        }
+
+        private static FontLoadException Error(FontLoadErrorCode errorCode, string message) => new FontLoadException(errorCode, message);
+    }
+
+#if !FORMA_EXTERNAL_DYNAMIC_TEXT_BACKEND
+    internal sealed class FreeTypeHarfBuzzDynamicTextBackend : IDynamicTextBackend
+    {
+        internal static FreeTypeHarfBuzzDynamicTextBackend Instance { get; } = new FreeTypeHarfBuzzDynamicTextBackend();
+        private static readonly DynamicTextNativeDiagnostics NativeDiagnostics = new DynamicTextNativeDiagnostics(
+            FT.LibName,
+            "FreeTypeSharp",
+            "libHarfBuzzSharp",
+            "HarfBuzzSharp.NativeAssets");
+
+        private FreeTypeHarfBuzzDynamicTextBackend() { }
+
+        public string Name => "FreeTypeSharp/HarfBuzzSharp";
+        public DynamicTextNativeDiagnostics Diagnostics => NativeDiagnostics;
+        public (int PinnedMemories, int FreeTypeLibraries, int FreeTypeFaces) NativeHandleCounts => FreeTypeHarfBuzzFaceBackend.NativeHandleCounts;
+        public IDynamicTextFaceBackend CreateFace(byte[] source, int faceIndex) => new FreeTypeHarfBuzzFaceBackend(source, faceIndex);
+    }
+
+    internal sealed unsafe class FreeTypeHarfBuzzFaceBackend : IDynamicTextFaceBackend
+    {
+        private static int _activePinnedMemories;
+        private static int _activeFreeTypeLibraries;
+        private static int _activeFreeTypeFaces;
+        private const int MaximumSourceBytes = UIFontFace.MaximumSourceBytes;
+        private const int MaximumFaces = UIFontFace.MaximumFaces;
+        private const int MaximumTables = UIFontFace.MaximumTables;
+        private const int MaximumTableBytes = UIFontFace.MaximumTableBytes;
+        private const int MaximumGlyphDimension = UIFontFace.MaximumGlyphDimension;
+        private const int MaximumGlyphArea = UIFontFace.MaximumGlyphArea;
+
+        private const long MaximumRasterTicks = TimeSpan.TicksPerMillisecond * 100;
+        private readonly object _sync = new object();
+        private readonly PinnedFontMemoryHandle _memory;
+        private readonly FreeTypeLibraryHandle _library;
+        private readonly FreeTypeFaceHandle _face;
+        private readonly byte[] _source;
+        private readonly HarfBuzzBlob _harfBuzzBlob;
+        private readonly HarfBuzzFace _harfBuzzFace;
+        private readonly ReadOnlyCollection<UIFontVariationAxis> _variationAxes;
+        private ReadOnlyCollection<int> _supportedCodePoints;
+        private bool _disposed;
+
+        internal FreeTypeHarfBuzzFaceBackend(byte[] source, int faceIndex)
+        {
+            _source = source;
+            Identity = new UIFontIdentity("font-face", $"{Convert.ToHexString(SHA256.HashData(source))}:{faceIndex}");
+            var fontData = SfntFontData.Parse(source, faceIndex);
+            _variationAxes = fontData.VariationAxes.AsReadOnly();
+            _memory = new PinnedFontMemoryHandle(source);
+            try
+            {
+                _library = FreeTypeLibraryHandle.Create();
+                _face = FreeTypeFaceHandle.Create(_library, _memory, source.Length, faceIndex);
+                var face = Pointer;
+                FaceCount = checked((int)face->num_faces);
+                FaceIndex = checked((int)face->face_index);
+                GlyphCount = checked((int)face->num_glyphs);
+                FamilyName = ReadUtf8(face->family_name);
+                StyleName = ReadUtf8(face->style_name);
+                UnitsPerEm = face->units_per_EM;
+                if (UnitsPerEm == 0)
+                    throw Error(FontLoadErrorCode.UnsupportedFormat, "Font face does not provide scalable design units.");
+                var charmapError = FT_Select_Charmap(face, FT_Encoding_.FT_ENCODING_UNICODE);
+                if (charmapError != FT_Error.FT_Err_Ok)
+                    throw Error(FontLoadErrorCode.UnsupportedFormat, "Font face does not provide a Unicode character map.");
+                DesignMetrics = CreateFaceMetrics(face, UnitsPerEm);
+                _harfBuzzBlob = new HarfBuzzBlob(_memory.Address, source.Length, MemoryMode.ReadOnly);
+                _harfBuzzFace = new HarfBuzzFace(_harfBuzzBlob, faceIndex);
+            }
+            catch (Exception exception)
+            {
+                _harfBuzzFace?.Dispose();
+                _harfBuzzBlob?.Dispose();
+                _face?.Dispose();
+                _library?.Dispose();
+                _memory.Dispose();
+                if (IsNativeDependencyFailure(exception))
+                    throw new FontLoadException(
+                        FontLoadErrorCode.NativeFailure,
+                        "A native font dependency is unavailable or incompatible.",
+                        exception);
+                throw;
+            }
+        }
+
+        public int FaceCount { get; }
+        public int FaceIndex { get; }
+        public UIFontIdentity Identity { get; }
+        public int GlyphCount { get; }
+        public string FamilyName { get; }
+        public string StyleName { get; }
+        public ushort UnitsPerEm { get; }
+        public UIFontFaceMetrics DesignMetrics { get; }
+        public IReadOnlyList<UIFontVariationAxis> VariationAxes => _variationAxes;
+        internal static (int PinnedMemories, int FreeTypeLibraries, int FreeTypeFaces) NativeHandleCounts =>
+            (Volatile.Read(ref _activePinnedMemories), Volatile.Read(ref _activeFreeTypeLibraries), Volatile.Read(ref _activeFreeTypeFaces));
+
+        internal byte[] CopySource()
+        {
+            lock (_sync)
+            {
+                ThrowIfDisposed();
+                return (byte[])_source.Clone();
+            }
         }
 
         public uint GetGlyphId(int unicodeScalar)
@@ -493,6 +621,13 @@ namespace Forma
                 throw Error(FontLoadErrorCode.NativeFailure, $"Failed to {operation}: {error}.");
         }
 
+        internal static bool IsNativeDependencyFailure(Exception exception)
+        {
+            while (exception is TypeInitializationException && exception.InnerException != null)
+                exception = exception.InnerException;
+            return exception is DllNotFoundException or FileLoadException or BadImageFormatException or EntryPointNotFoundException;
+        }
+
         private static FontLoadException Error(FontLoadErrorCode errorCode, string message) => new FontLoadException(errorCode, message);
 
         private sealed class SfntFontData
@@ -706,4 +841,5 @@ namespace Forma
             }
         }
     }
+#endif
 }

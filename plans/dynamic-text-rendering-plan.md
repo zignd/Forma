@@ -104,7 +104,7 @@ native-load runtime gates.
 Use `scripts/track-plan.sh` at the start and end of each implementation session:
 
 ```sh
-bash scripts/track-plan.sh docs/dynamic-text-rendering-plan.md
+bash scripts/track-plan.sh plans/dynamic-text-rendering-plan.md
 ```
 
 Update task boxes only when the implementation and its focused validation are complete. Add newly

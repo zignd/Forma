@@ -583,6 +583,39 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void LinkButton_RequestsUriThroughOptionalHostCapability()
+        {
+            var requested = new List<string>();
+            var launched = new List<Uri>();
+            var link = new LinkButton
+            {
+                Uri = "https://example.com/docs",
+                Size = new Vector2(100, 30),
+                UriLauncher = (_, uri) => { launched.Add(uri); return true; },
+            };
+            link.UriRequested += (_, uri) => requested.Add(uri);
+            var context = new UIContext();
+            context.Add(link);
+
+            context.Update(Time, Mouse(10, 10), new KeyboardState());
+            context.Update(Time, Mouse(10, 10, ButtonState.Pressed), new KeyboardState());
+            context.Update(Time, Mouse(10, 10), new KeyboardState());
+
+            Assert.That(link.IsUriLaunchingAvailable, Is.True);
+            Assert.That(requested, Is.EqualTo(new[] { "https://example.com/docs" }));
+            Assert.That(launched.Single().AbsoluteUri, Is.EqualTo("https://example.com/docs"));
+
+            link.UriLauncher = (_, _) => throw new PlatformNotSupportedException();
+            Assert.DoesNotThrow(() =>
+            {
+                context.Update(Time, Mouse(10, 10, ButtonState.Pressed), new KeyboardState());
+                context.Update(Time, Mouse(10, 10), new KeyboardState());
+            });
+            link.UriLauncher = null;
+            Assert.That(link.IsUriLaunchingAvailable, Is.False);
+        }
+
+        [Test]
         public void Label_MapsGodotPublicTextStateAndLineQueries()
         {
             var label = new Label { Text = "one|two|three", ParagraphSeparator = "|", Padding = new Thickness(0), Size = new Vector2(120, 48) };
@@ -2675,6 +2708,7 @@ namespace Forma.Tests
             Assert.That(capabilities.HasFlag(VideoPlaybackCapabilities.Audio), Is.True);
             Assert.That(capabilities.HasFlag(VideoPlaybackCapabilities.LocalFileLoading),
                 Is.EqualTo(runtime == "FNA"));
+            Assert.That(capabilities.HasFlag(VideoPlaybackCapabilities.Seeking), Is.False);
         }
 
         [Test]
@@ -6890,6 +6924,21 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void ColorPicker_NamedColorsMatchSelectedRuntime()
+        {
+            var picker = new ColorPicker();
+            var properties = typeof(Color).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            foreach (var property in properties)
+            {
+                if (property.PropertyType != typeof(Color) || property.Name == "MonoGameOrange") continue;
+                picker.ColorHtml = property.Name;
+                Assert.That(picker.Color, Is.EqualTo((Color)property.GetValue(null)), property.Name);
+            }
+
+            Assert.Throws<FormatException>(() => picker.ColorHtml = "MonoGameOrange");
+        }
+
+        [Test]
         public void ColorPicker_DeferredModeFlushesOneColorChangedAfterSliderDrag()
         {
             var picker = new ColorPicker { DeferredMode = true, Size = new Vector2(180, 140) };
@@ -7673,6 +7722,19 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void FileDialog_ReportsUnavailableFilesystemWithoutEnumerating()
+        {
+            var fileSystem = new UnavailableFileDialogFileSystem();
+            var dialog = new FileDialog { FileSystem = fileSystem };
+
+            Assert.DoesNotThrow(() => dialog.Refresh("/unavailable"));
+            Assert.That(dialog.IsFileSystemAvailable, Is.False);
+            Assert.That(dialog.Entries, Is.Empty);
+            Assert.That(dialog.Message, Is.EqualTo("Filesystem access is unavailable."));
+            Assert.That(fileSystem.Operations, Is.Zero);
+        }
+
+        [Test]
         public void FileDialog_SuppressesInvalidOpenActionsAndAppendsSaveExtension()
         {
             var tempRoot = Path.Combine(Path.GetTempPath(), "MonoGameUiFileDialog_" + Guid.NewGuid().ToString("N"));
@@ -7710,6 +7772,19 @@ namespace Forma.Tests
             {
                 Directory.Delete(tempRoot, recursive: true);
             }
+        }
+
+        private sealed class UnavailableFileDialogFileSystem : IFileDialogFileSystem
+        {
+            public bool IsAvailable => false;
+            public int Operations { get; private set; }
+            public string GetCurrentDirectory() { Operations++; throw new PlatformNotSupportedException(); }
+            public bool FileExists(string path) { Operations++; throw new PlatformNotSupportedException(); }
+            public bool DirectoryExists(string path) { Operations++; throw new PlatformNotSupportedException(); }
+            public IEnumerable<string> EnumerateEntries(string path) { Operations++; throw new PlatformNotSupportedException(); }
+            public string GetParentDirectory(string path) { Operations++; throw new PlatformNotSupportedException(); }
+            public void CreateDirectory(string path) { Operations++; throw new PlatformNotSupportedException(); }
+            public DateTime GetLastWriteTimeUtc(string path) { Operations++; throw new PlatformNotSupportedException(); }
         }
 
         [Test]

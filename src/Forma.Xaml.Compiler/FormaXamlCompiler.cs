@@ -26,6 +26,11 @@ public sealed class FormaXamlCompiler
     private static readonly Regex BuildDirectivePattern = new("\\s+x:(?:Class|DataType)\\s*=\\s*(['\\\"]).*?\\1", RegexOptions.CultureInvariant | RegexOptions.Singleline);
     private static readonly Regex NameDirectivePattern = new("x:Name(?=\\s*=)", RegexOptions.CultureInvariant);
     private static readonly Regex BindingAttributePattern = new("\\s+[A-Za-z_][A-Za-z0-9_.]*\\s*=\\s*(['\\\"])\\{Binding.*?\\}\\1", RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private static readonly Regex ResourceAttributePattern = new("\\s+[A-Za-z_][A-Za-z0-9_.]*\\s*=\\s*(['\\\"])\\{(?:Static|Dynamic)Resource\\s+.*?\\}\\1", RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private static readonly Regex StyleElementPattern = new("<Style\\b[^>]*(?:/>|>.*?</Style\\s*>)", RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private static readonly Regex StoryboardElementPattern = new("<Storyboard\\b[^>]*(?:/>|>.*?</Storyboard\\s*>)", RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private static readonly Regex EventTriggerElementPattern = new("<EventTrigger\\b[^>]*(?:/>|>.*?</EventTrigger\\s*>)", RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private static readonly Regex PropertyTriggerElementPattern = new("<PropertyTrigger\\b[^>]*(?:/>|>.*?</PropertyTrigger\\s*>)", RegexOptions.CultureInvariant | RegexOptions.Singleline);
     private readonly IXamlTypeSystem _typeSystem;
     private readonly TransformerConfiguration _configuration;
     private readonly FormaXamlParser _parser = new();
@@ -72,7 +77,7 @@ public sealed class FormaXamlCompiler
         var compiler = CreateCompiler();
         var contextType = compiler.CreateContextType(typeSystem.CreateTypeBuilder(context));
         var generatedBuilder = typeSystem.CreateTypeBuilder(generated);
-        var document = ParseAndTransform(compiler, PrepareForEmission(source));
+        var document = ParseAndTransform(compiler, PrepareForEmission(source, null));
         compiler.Compile(document, generatedBuilder, contextType, "Populate", "Build", "XamlNamespaceInfo", XamlNamespaces.Forma, new StringFileSource(sourcePath, source));
         var runtimeType = generated.CreateType()!;
         var provider = Expression.Parameter(typeof(IServiceProvider));
@@ -92,12 +97,12 @@ public sealed class FormaXamlCompiler
         return new FormaCompiledCallbacks(Build, populate);
     }
 
-    public void CompileCecil(string source, string sourcePath, CecilTypeSystem typeSystem, TypeDefinition generatedType, TypeDefinition contextType, FormaXamlParseOptions? options = null)
+    public void CompileCecil(string source, string sourcePath, CecilTypeSystem typeSystem, TypeDefinition generatedType, TypeDefinition contextType, FormaXamlParseOptions? options = null, IReadOnlyCollection<string>? eventMemberNames = null)
     {
         RequireSemanticSuccess(source, sourcePath, options);
         var compiler = CreateCompiler();
         var contextBuilder = compiler.CreateContextType(typeSystem.CreateTypeBuilder(contextType));
-        var document = ParseAndTransform(compiler, PrepareForEmission(source));
+        var document = ParseAndTransform(compiler, PrepareForEmission(source, eventMemberNames));
         compiler.Compile(document, typeSystem.CreateTypeBuilder(generatedType), contextBuilder, "Populate", "Build", "XamlNamespaceInfo", XamlNamespaces.Forma, new StringFileSource(sourcePath, source));
     }
 
@@ -130,13 +135,31 @@ public sealed class FormaXamlCompiler
         return document;
     }
 
-    private static string PrepareForEmission(string source)
+    private static string PrepareForEmission(string source, IReadOnlyCollection<string>? eventMemberNames)
     {
         var withoutBuildDirectives = BuildDirectivePattern.Replace(source, match =>
             new string(match.Value.Select(character => character is '\r' or '\n' ? character : ' ').ToArray()));
         var withoutBindings = BindingAttributePattern.Replace(withoutBuildDirectives, match =>
             new string(match.Value.Select(character => character is '\r' or '\n' ? character : ' ').ToArray()));
-        return NameDirectivePattern.Replace(withoutBindings, "  Name");
+        var withoutResources = ResourceAttributePattern.Replace(withoutBindings, match =>
+            new string(match.Value.Select(character => character is '\r' or '\n' ? character : ' ').ToArray()));
+        var withoutStyles = StyleElementPattern.Replace(withoutResources, match =>
+            new string(match.Value.Select(character => character is '\r' or '\n' ? character : ' ').ToArray()));
+        var withoutStoryboards = StoryboardElementPattern.Replace(withoutStyles, match =>
+            new string(match.Value.Select(character => character is '\r' or '\n' ? character : ' ').ToArray()));
+        var withoutEventTriggers = EventTriggerElementPattern.Replace(withoutStoryboards, match =>
+            new string(match.Value.Select(character => character is '\r' or '\n' ? character : ' ').ToArray()));
+        var withoutTriggers = PropertyTriggerElementPattern.Replace(withoutEventTriggers, match =>
+            new string(match.Value.Select(character => character is '\r' or '\n' ? character : ' ').ToArray()));
+        var withoutEvents = withoutTriggers;
+        if (eventMemberNames != null)
+            foreach (var eventName in eventMemberNames)
+            {
+                var pattern = new Regex($"\\s+{Regex.Escape(eventName)}\\s*=\\s*(['\\\"]).*?\\1", RegexOptions.CultureInvariant | RegexOptions.Singleline);
+                withoutEvents = pattern.Replace(withoutEvents, match =>
+                    new string(match.Value.Select(character => character is '\r' or '\n' ? character : ' ').ToArray()));
+            }
+        return NameDirectivePattern.Replace(withoutEvents, "  Name");
     }
 
     private static bool ConvertValue(AstTransformationContext context, IXamlAstValueNode node, IXamlType type, out IXamlAstValueNode result)

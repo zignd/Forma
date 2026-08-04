@@ -102,9 +102,10 @@ matrices, static-link review, store compliance, and device tests.
 
 ## Deployment Constraints
 
-- Trimming and NativeAOT remain unsupported for both peers, consistent with `runtime-support.md`.
-  Support requires dedicated consumers that preserve native binding entry points and pass layout,
-  native-load, and package-content tests. The public API itself avoids reflection-based activation.
+- Trimming and NativeAOT are executed for both peers on `osx-arm64`. Dedicated packed consumers
+  preserve native entry points and pass multilingual layout, native-load, atlas-render,
+  JIT/AOT-diagnostic-parity, and package-content tests. Other RIDs remain unsupported until the same
+  evidence exists. The public API avoids reflection-based activation.
 - Desktop uses dynamic native libraries. Linux/macOS library names and Windows DLL search behavior
   are validated from an empty NuGet cache; system installation is neither required nor searched by
   Forma.

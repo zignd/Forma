@@ -22,6 +22,7 @@ public sealed class FormaXamlObject
     public string XmlNamespace { get; }
     public string TypeName { get; }
     public FormaSourceLocation Location { get; }
+    public FormaXamlObject? Parent { get; internal set; }
     public List<FormaXamlMember> Members { get; } = [];
     public List<FormaXamlObject> Children { get; } = [];
 

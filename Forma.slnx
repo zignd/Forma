@@ -16,9 +16,12 @@
     <Project Path="src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Forma.AotAnalyzerConsumer/Forma.AotAnalyzerConsumer.csproj" />
     <Project Path="tests/Forma.DynamicTextSpike/Forma.DynamicTextSpike.csproj" />
     <Project Path="tests/Forma.FnaVideoSmoke/Forma.FnaVideoSmoke.csproj" />
+    <Project Path="tests/Forma.NativeFontFailureProbe/Forma.NativeFontFailureProbe.csproj" />
     <Project Path="tests/Forma.RenderTests/Forma.RenderTests.csproj" />
+    <Project Path="tests/Forma.StaticFontBackendSpike/Forma.StaticFontBackendSpike.csproj" />
     <Project Path="tests/Forma.Tests/Forma.Tests.csproj" />
     <Project Path="tests/Forma.Xaml.Build.Integration/Forma.Xaml.Build.Integration.csproj" />
     <Project Path="tests/Forma.Xaml.Compiler.Tests/Forma.Xaml.Compiler.Tests.csproj" />

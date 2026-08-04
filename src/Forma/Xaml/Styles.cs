@@ -12,6 +12,7 @@ namespace Forma.Xaml
         public Style(string selector) => Selector = StyleSelector.Parse(selector);
         public StyleSelector Selector { get; }
         public IList<IStyleSetter> Setters { get; } = new List<IStyleSetter>();
+        public void AddSetter(IStyleSetter setter) => Setters.Add(setter ?? throw new ArgumentNullException(nameof(setter)));
     }
 
     public interface IStyleSetter

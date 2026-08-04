@@ -6,6 +6,13 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Forma
 {
+    internal static class RuntimeVideoPlaybackAdapter
+    {
+        public const bool SupportsSeeking = false;
+
+        public static bool TrySetPlayPosition(VideoPlayer player, TimeSpan position) => false;
+    }
+
     internal static class RuntimeVideoLoader
     {
         public static VideoPlaybackCapabilities Capabilities =>

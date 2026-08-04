@@ -131,6 +131,21 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void ClassifiesNativeLoaderFailuresWithoutLeakingOtherErrors()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(UIFontFace.IsNativeDependencyFailure(new DllNotFoundException()), Is.True);
+                Assert.That(UIFontFace.IsNativeDependencyFailure(new FileLoadException()), Is.True);
+                Assert.That(UIFontFace.IsNativeDependencyFailure(new BadImageFormatException()), Is.True);
+                Assert.That(UIFontFace.IsNativeDependencyFailure(new EntryPointNotFoundException()), Is.True);
+                Assert.That(UIFontFace.IsNativeDependencyFailure(
+                    new TypeInitializationException("NativeFont", new DllNotFoundException())), Is.True);
+                Assert.That(UIFontFace.IsNativeDependencyFailure(new InvalidDataException()), Is.False);
+            });
+        }
+
+        [Test]
         [CancelAfter(15000)]
         public void BoundedMalformedFontAndTextFuzzFailsSafelyWithoutHandleDrift()
         {
@@ -299,6 +314,26 @@ namespace Forma.Tests
                 Assert.That(kerned.Glyphs.Select(glyph => glyph.GlyphId), Is.EqualTo(new uint[] { 2, 456 }));
                 Assert.That(kerned.Glyphs.Select(glyph => glyph.AdvanceX), Is.EqualTo(new[] { 14.921875f, 16.5625f }));
                 Assert.That(unkerned.Glyphs.Select(glyph => glyph.AdvanceX), Is.EqualTo(new[] { 16.5625f, 16.5625f }));
+            });
+        }
+
+        [Test]
+        public void DefaultBackendReportsBoundedDiagnosticsWithoutNativeTypesInPublicApi()
+        {
+            var diagnostics = DynamicTextNativeDiagnostics.Current;
+            var publicApi = string.Join("\n", typeof(UIFontFace).Assembly.GetExportedTypes()
+                .SelectMany(type => type.GetMembers())
+                .Select(member => member.ToString()));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(DynamicTextBackendRegistry.Backend.Name, Is.EqualTo("FreeTypeSharp/HarfBuzzSharp"));
+                Assert.That(diagnostics.FreeTypeLibraryName, Is.EqualTo("freetype"));
+                Assert.That(diagnostics.FreeTypePackageId, Is.EqualTo("FreeTypeSharp"));
+                Assert.That(diagnostics.HarfBuzzLibraryName, Is.EqualTo("libHarfBuzzSharp"));
+                Assert.That(diagnostics.HarfBuzzPackageId, Is.EqualTo("HarfBuzzSharp.NativeAssets"));
+                Assert.That(publicApi, Does.Not.Contain("FreeTypeSharp"));
+                Assert.That(publicApi, Does.Not.Contain("HarfBuzzSharp"));
             });
         }
 

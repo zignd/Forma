@@ -29,8 +29,16 @@
     <Touch Files="$(FormaXamlIntermediateDirectory)/discovery.stamp" AlwaysCreate="true" />
   </Target>
 
+  <Target Name="FormaXamlValidateSigning"
+          BeforeTargets="FormaXamlCompile"
+          Condition="'@(FormaXaml)' != ''">
+    <Error Condition="'$(SignAssembly)' == 'true'"
+           Text="Forma XAML injection currently cannot modify a compiler-signed assembly. Disable signing or add an approved re-signing stage after FormaXamlCompile and before packaging." />
+  </Target>
+
   <Target Name="FormaXamlCompile"
           AfterTargets="CoreCompile"
+      BeforeTargets="ILLink;ComputeIlcCompileInputs;IlcCompile;LinkNative;PrepareForPublish;CopyFilesToOutputDirectory;Publish"
           DependsOnTargets="ResolveReferences"
           Condition="'@(FormaXaml)' != ''"
           Inputs="@(FormaXaml);@(IntermediateAssembly);$(FormaXamlBuildAssembly);$(MSBuildThisFileFullPath);@(ReferencePath)"
@@ -43,6 +51,16 @@
                       ValidateOnly="$(FormaXamlValidateOnly)" />
               <Touch Files="$(FormaXamlIntermediateDirectory)/compile.stamp" AlwaysCreate="true" />
   </Target>
+
+            <Target Name="FormaXamlVerifyInjectionOrder"
+                BeforeTargets="ILLink;ComputeIlcCompileInputs;IlcCompile;LinkNative;PrepareForPublish;CopyFilesToOutputDirectory;Publish"
+               DependsOnTargets="FormaXamlCompile"
+               Condition="'@(FormaXaml)' != '' and '$(FormaXamlValidateOnly)' != 'true'">
+              <Error Condition="!Exists('$(FormaXamlIntermediateDirectory)/compile.stamp')"
+                Text="Forma XAML injection must complete before trimming, AOT compilation, signing, output copy, or publishing." />
+              <Error Condition="'@(IntermediateAssembly)' == '' or !Exists('@(IntermediateAssembly)')"
+                Text="Forma XAML injection requires the compiled intermediate assembly before platform linking or packaging." />
+            </Target>
 
   <Target Name="FormaXamlCopyDevelopmentSources"
           AfterTargets="FormaXamlCompile"

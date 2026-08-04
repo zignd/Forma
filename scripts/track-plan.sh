@@ -6,7 +6,7 @@ set -euo pipefail
 # for all modes. Without a plan path, the dynamic text rendering plan is summarized.
 
 script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-default_plan="$(cd "$script_directory/.." && pwd)/docs/dynamic-text-rendering-plan.md"
+default_plan="$(cd "$script_directory/.." && pwd)/plans/dynamic-text-rendering-plan.md"
 plan="$default_plan"
 mode="summary"
 fail_if_incomplete=false

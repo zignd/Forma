@@ -7,8 +7,11 @@ CONFIGURATION ?= Debug
 CATALOG_ARGS ?=
 MONOGAME_PROJECT ?= $(abspath ../MonoGame/MonoGame.Framework/MonoGame.Framework.DesktopGL.csproj)
 FNA_PROJECT ?= $(abspath ../FNA/FNA.Core.csproj)
-PLAN ?= docs/dynamic-text-rendering-plan.md
+PLAN ?= plans/dynamic-text-rendering-plan.md
 TRACK_ARGS ?= --summary
+NATIVEAOT_RUNTIME ?=
+NATIVEAOT_PROFILE ?=
+NATIVEAOT_MODE ?=
 
 MONOGAME_CATALOG := samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj
 FNA_CATALOG := samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj
@@ -26,11 +29,11 @@ DOTNET_ARGS := --configuration "$(CONFIGURATION)" --nologo
 	catalog-monogame catalog-monogame-local catalog-fna catalog-fna-local \
 	xaml-game-monogame xaml-game-fna smoke smoke-monogame smoke-fna render-parity video-smoke \
 	text-spike text-spike-local text-baseline xaml-spike \
-	compliance backend-references parity packages nativeaot check check-all \
+	compliance backend-references parity packages aot-analyzers native-font-failures static-font-backend nativeaot check check-all \
 	icons icons-import icons-verify unicode unicode-verify track clean
 
 help: ## Show available targets and configuration variables.
-	@awk 'BEGIN { FS = ":.*## "; printf "Forma development targets\n\n" } /^[a-zA-Z0-9_.-]+:.*## / { printf "  %-24s %s\n", $$1, $$2 } END { printf "\nVariables: CONFIGURATION, DOTNET, CATALOG_ARGS, MONOGAME_PROJECT, FNA_PROJECT, PLAN, TRACK_ARGS\n" }' $(MAKEFILE_LIST)
+	@awk 'BEGIN { FS = ":.*## "; printf "Forma development targets\n\n" } /^[a-zA-Z0-9_.-]+:.*## / { printf "  %-24s %s\n", $$1, $$2 } END { printf "\nVariables: CONFIGURATION, DOTNET, CATALOG_ARGS, MONOGAME_PROJECT, FNA_PROJECT, PLAN, TRACK_ARGS, NATIVEAOT_RUNTIME, NATIVEAOT_PROFILE, NATIVEAOT_MODE\n" }' $(MAKEFILE_LIST)
 
 setup: tools restore ## Restore local tools and both runtime dependency graphs.
 
@@ -146,8 +149,17 @@ parity: ## Build/test both runtimes and compare references and public APIs.
 packages: ## Build and validate all peer packages and isolated consumers.
 	bash scripts/test-package-consumer.sh
 
-nativeaot: ## Validate trim-only and NativeAOT package consumers on macOS arm64.
-	bash scripts/test-nativeaot-package-consumer.sh
+aot-analyzers: ## Build fast source-linked trim/AOT analyzer consumers for both runtimes.
+	bash scripts/check-aot-analyzers.sh
+
+native-font-failures: ## Verify bounded missing, incompatible, and rejected native font failures.
+	bash scripts/check-native-font-failures.sh
+
+static-font-backend: ## Validate source-injected platform font backends without FreeType/HarfBuzz sidecars.
+	FORMA_RUNTIME="$(NATIVEAOT_RUNTIME)" bash scripts/test-static-font-backend-spike.sh
+
+nativeaot: static-font-backend ## Validate trim-only and NativeAOT package consumers on macOS arm64.
+	NATIVEAOT_RUNTIME="$(NATIVEAOT_RUNTIME)" NATIVEAOT_PROFILE="$(NATIVEAOT_PROFILE)" NATIVEAOT_MODE="$(NATIVEAOT_MODE)" bash scripts/test-nativeaot-package-consumer.sh
 
 xaml-spike: ## Validate XAML compiler feasibility and a compiler-free NativeAOT view.
 	bash scripts/test-xaml-spike.sh
@@ -168,7 +180,7 @@ unicode: ## Regenerate canonical Unicode 17 managed tables and conformance cases
 unicode-verify: ## Download pinned Unicode sources and byte-compare generated outputs.
 	$(DOTNET) run --project tools/Forma.UnicodePipeline/Forma.UnicodePipeline.csproj -- verify
 
-check: compliance icons-verify unicode-verify parity test-xaml ## Run the portable CI validation gates.
+check: compliance icons-verify unicode-verify parity test-xaml aot-analyzers native-font-failures ## Run the portable CI validation gates.
 
 check-all: check backend-references smoke render-parity video-smoke packages nativeaot ## Run every validation, including graphical, package, and NativeAOT checks.
 

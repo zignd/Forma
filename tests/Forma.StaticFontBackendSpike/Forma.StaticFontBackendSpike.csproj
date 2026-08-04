@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <FormaRuntime Condition="'$(FormaRuntime)' == ''">MonoGame</FormaRuntime>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="PlatformDynamicTextBackend.cs" />
+    <ProjectReference Include="../../src/Forma.DynamicText/Forma.DynamicText.csproj"
+                      AdditionalProperties="FormaRuntime=$(FormaRuntime);FormaDynamicTextBackend=External;FormaDynamicTextBackendSource=$(MSBuildThisFileDirectory)PlatformDynamicTextBackend.cs" />
+  </ItemGroup>
+
+</Project>

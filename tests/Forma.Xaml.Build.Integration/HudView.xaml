@@ -5,6 +5,53 @@
          x:DataType="local:HudViewModel"
          x:Name="HudRoot"
          Position="3,4">
+  <Control.Resources>
+    <ResourceDictionary>
+      <local:ResourceValue x:Key="StaticValue" Name="Static" />
+      <local:ResourceValue x:Key="DynamicValue" Name="Dynamic" />
+      <Style x:Key="TargetStyle" Selector="ResourceTarget.styled">
+        <Setter Property="TooltipText" Value="Styled" />
+        <Setter Property="Margins" Value="1,2,3,4" />
+        <Setter Property="Value" Value="{StaticResource StaticValue}" />
+      </Style>
+      <Storyboard x:Key="AttachPulse" FillBehavior="HoldEnd">
+        <Vector2Timeline TargetName="StyleTarget" Property="CustomMinimumSize">
+          <KeyFrame Time="0:0:0" Value="2,3" />
+          <KeyFrame Time="0:0:0.1" Value="8,9" Easing="CubicOut" />
+        </Vector2Timeline>
+      </Storyboard>
+      <Storyboard x:Key="PropertyPulse" FillBehavior="HoldEnd" RepeatBehavior="2">
+        <Vector2Timeline TargetName="DynamicTarget" Property="CustomMinimumSize">
+          <KeyFrame Time="0:0:0" Value="1,2" />
+          <KeyFrame Time="0:0:0.05" Value="6,7" />
+        </Vector2Timeline>
+      </Storyboard>
+      <ResourceDictionary x:Key="LocalPalette" />
+      <ResourceDictionary x:Key="Winner">
+        <ResourceDictionary x:Key="LocalMarker" />
+      </ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary>
+          <ResourceDictionary x:Key="MergedPalette" />
+          <ResourceDictionary x:Key="Winner">
+            <ResourceDictionary x:Key="MergedMarker" />
+          </ResourceDictionary>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Control.Resources>
+  <EventTrigger SourceName="StyleTarget" Event="Attached">
+    <BeginStoryboard Storyboard="{StaticResource AttachPulse}" />
+  </EventTrigger>
+  <PropertyTrigger Binding="{Binding IsActive}" Value="True">
+    <BeginStoryboard Storyboard="{StaticResource PropertyPulse}" />
+  </PropertyTrigger>
+  <EventTrigger SourceName="DynamicTarget" Event="StopRequested">
+    <StopStoryboard Storyboard="{StaticResource PropertyPulse}" />
+  </EventTrigger>
   <Label x:Name="Child" Text="{Binding Message}" />
   <LineEdit x:Name="Editor" Text="{Binding Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+  <local:ResourceTarget x:Name="StaticTarget" Value="{StaticResource StaticValue}" />
+  <local:ResourceTarget x:Name="DynamicTarget" Value="{DynamicResource DynamicValue}" />
+  <local:ResourceTarget x:Name="StyleTarget" Classes="styled" TooltipText="Underlying" Attached="OnStyleTargetAttached" />
 </Control>

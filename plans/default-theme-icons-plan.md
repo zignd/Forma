@@ -69,7 +69,7 @@ Check a phase only after every task and exit criterion in that phase is complete
 Use the existing plan tracker at the start and end of implementation sessions:
 
 ```sh
-bash scripts/track-plan.sh docs/default-theme-icons-plan.md
+bash scripts/track-plan.sh plans/default-theme-icons-plan.md
 ```
 
 Add newly discovered required work to this document. A phase dashboard entry may be checked only

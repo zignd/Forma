@@ -67,11 +67,24 @@ UI renderer; custom-effect support remains a runtime-specific application conten
 | AV1 video | Unsupported | Native dav1dfile is present, but AV1 is unsupported until a licensed fixture passes every desktop gate |
 | Audio | Backend dependent | Native FAudio is supplied; video audio is not claimed because the fixture is silent |
 | Pause/resume, volume, loop, completion, disposal | Shared/injected backend tests | Shared tests plus real Theora completion/disposal smoke |
-| Seeking | Reported only when `VideoPlayer.SetPlayPosition` exists | Reported only when `VideoPlayer.SetPlayPosition` exists |
+| Seeking | Unsupported by the pinned 3.8.5 package API | Unsupported by the pinned 2.2.11.2602 package API |
 | Track selection | Stored for API compatibility; no built-in track-switch claim | Stored for API compatibility; no built-in track-switch claim |
 
 `VideoPlaybackCapabilities`, `IsPlaybackAvailable`, and `PlaybackUnavailableReason` let applications
-present optional behavior without treating graceful unavailability as successful playback.
+present optional behavior without treating graceful unavailability as successful playback. Capability
+selection is compile-time and does not use reflection. A missing backend or codec does not fail
+startup; `Play` converts `NotImplementedException` and `PlatformNotSupportedException` into a stable
+unavailable state and disposes the rejected backend.
+
+## Platform Capabilities
+
+Desktop services are explicit at the control boundary. `FileDialog.FileSystem` accepts an
+`IFileDialogFileSystem`; its desktop default uses `System.IO`, while unavailable hosts can report
+`IsAvailable = false` and receive a stable empty listing. `LinkButton.UriLauncher` is an optional
+host callback and no longer starts a desktop process from core. Line and text edit clipboard reads
+use host callbacks, clipboard writes use request events, and runtime text input is selected by the
+MonoGame/FNA compile-time adapter. Dynamic fonts accept memory and streams; `FromProjectFile` is a
+bounded desktop convenience API rather than a required font source.
 
 ## Native Dependencies
 
@@ -85,15 +98,42 @@ not impose a transitive MonoGame backend.
 
 ## Trimming and AOT
 
+| Package/profile | RID | Analyzer-clean | Published | Executed | Platform-validated |
+| --- | --- | --- | --- | --- | --- |
+| `Forma.MonoGame` core | `osx-arm64` | Yes | Trim + AOT | Yes | macOS arm64 / OpenGL |
+| `Forma.FNA` core | `osx-arm64` | Yes | Trim + AOT | Yes | macOS arm64 / Metal |
+| `Forma.Media.MonoGame` capability smoke | `osx-arm64` | Yes | Trim + AOT | Yes | No codec claim |
+| `Forma.Media.FNA` capability smoke | `osx-arm64` | Yes | Trim + AOT | Yes | No codec claim |
+| `Forma.DynamicText.MonoGame` | `osx-arm64` | Yes | Trim + AOT | Multilingual atlas | macOS arm64 / OpenGL |
+| `Forma.DynamicText.FNA` | `osx-arm64` | Yes | Trim + AOT | Multilingual atlas | macOS arm64 / Metal |
+
+No other RID or platform has a public NativeAOT support claim. "Platform-validated" here means the
+named public desktop host/backend only; it does not imply a restricted or console target.
+
 Forma targets `net10.0`. Trim-only and NativeAOT packed consumers are validated on macOS arm64 for
-`Forma.MonoGame`, `Forma.FNA`, and their matching `Forma.DynamicText` packages. The gate covers
-native-free core, packed-XNB `SpriteFont`, and dynamic-text graphical profiles for both peers. It
+`Forma.MonoGame`, `Forma.FNA`, and their matching `Forma.Media` and `Forma.DynamicText` packages.
+The gate covers native-free core, optional media, packed-XNB `SpriteFont`, and dynamic-text graphical
+profiles for both peers. It
 publishes from empty package caches, executes every output, rejects Forma-owned `IL2xxx`/`IL3xxx`
 warnings, verifies native-free imports, and proves packaged FreeType/HarfBuzz loading:
 
 ```sh
-bash scripts/test-nativeaot-package-consumer.sh
+make nativeaot
+make nativeaot NATIVEAOT_RUNTIME=MonoGame NATIVEAOT_PROFILE=media NATIVEAOT_MODE=aot
+make nativeaot NATIVEAOT_RUNTIME=FNA NATIVEAOT_PROFILE=dynamic NATIVEAOT_MODE=trimmed
+make aot-analyzers
+make native-font-failures
 ```
+
+Run on macOS arm64 with .NET SDK 10.0.x, Xcode command-line tools, recursive submodules, and network
+access for the first restore. Valid profiles are `core`, `media`, `spritefont`, and `dynamic`; valid
+modes are `trimmed` and `aot`. The gate packs all selected Forma packages, restores each consumer
+from an empty cache, publishes self-contained `osx-arm64` output, executes it, and records logs,
+native manifests, binaries, and multilingual render/layout diagnostics under `Artifacts/nativeaot`.
+The fast `aot-analyzers` target builds warning-as-error source-linked consumers for both peers.
+`native-font-failures` runs fresh-process missing, incompatible, and rejected FreeType probes; the
+full dynamic AOT cells additionally remove FreeType from copied native outputs and require the
+bounded failure diagnostic.
 
 MonoGame graphics profiles currently report one upstream `MonoGame.Framework` `IL2104` summary;
 FNA NativeAOT and graphical trim-only profiles report one upstream `FNA.NET` `IL2104` summary. These
@@ -102,10 +142,51 @@ also require unversioned aliases for the versioned native libraries supplied by
 `FNA.NET.NativeAssets`; the gate stages those aliases and preserves only the XNB reader metadata used
 by its packed SpriteFont.
 
-This validation does not cover `Forma.Media`, other RIDs, iOS, Android, or any console. Those modes
-remain unsupported until their own packed consumers execute. NativeAOT compatibility is not console
+This validation does not cover media codec playback, other RIDs, iOS, Android, or any console. Those
+modes remain unsupported until their own packed consumers execute. NativeAOT compatibility is not console
 support; authorized hardware and platform-holder validation remain separate. Further work is tracked
-in the [NativeAOT and console readiness plan](nativeaot-console-readiness-plan.md).
+in the [NativeAOT and console readiness plan](../plans/nativeaot-console-readiness-plan.md).
+
+Release XAML injection is built and stamp-verified with .NET 10 on current GitHub-hosted Ubuntu,
+Windows, and macOS runners for both peers. The Cecil rewrite is build-host-neutral and must complete
+before linker, NativeAOT, signing, output-copy, and publish targets. Compiler-signed target
+assemblies are currently rejected because post-compile injection would invalidate the signature;
+an authorized platform must provide an approved re-signing stage after injection. The public
+`osx-arm64` NativeAOT execution gate itself runs on a macOS arm64 host; cross-OS AOT compilation is
+not claimed.
+
+### XAML Build Hosts
+
+| Build host | SDK | Injection | Declared target restriction |
+| --- | --- | --- | --- |
+| Ubuntu latest | .NET 10.0.x | CI stamp-verified for both peers | Does not publish the declared macOS AOT target |
+| Windows latest | .NET 10.0.x | CI stamp-verified for both peers | Does not publish the declared macOS AOT target |
+| macOS latest | .NET 10.0.x | CI stamp-verified for both peers | macOS arm64 hosts execute the public AOT gate |
+
+Releases pin XamlX fork commit `0337e9b2f6450ac90cb988a3fac61f36f58c4fcc` and Mono.Cecil 0.11.6.
+Injection must precede platform linking, AOT, signing, and packaging. Signed intermediate assemblies
+are rejected until an approved post-injection re-signing stage is supplied.
+
+### Reflection Migration
+
+Applications that discover Forma controls with reflection must own the required trim annotations or
+replace discovery with an explicit registry. Prefer `typeof(MyControl)`, generic factories, and
+generated registration over `Assembly.GetTypes`, string type names, or `Activator.CreateInstance`.
+Do not root the complete Forma assembly. A linked application is expected to remove unused public
+library APIs; compatibility means statically referenced and generated-XAML members survive and
+execute, not that every unused package member remains in the application binary. Consumer-defined enum conversion through
+`XamlValueConverter` preserves public fields only; broader consumer reflection remains the
+application's trimming contract.
+
+### AOT Diagnostics
+
+NativeAOT outputs do not provide JIT compilation, runtime code generation, or the same managed stack
+and dump experience as a normal framework-dependent build. Keep the publish `.pdb`/`.dSYM`, native
+symbols, exact package lock/evidence artifact, RID, SDK version, and linker/AOT log for every release.
+Crash addresses may require native symbolication and managed generic frames can be less descriptive.
+Forma's bounded diagnostics expose capability state, native-font package provenance, and atlas
+counters, but do not scan modules or reveal native handles. Reproduce failures with the matching
+trim-only profile before comparing its deterministic diagnostics with AOT.
 
 ## Package Migration
 
@@ -130,5 +211,11 @@ core/media pairs before reference resolution.
 ## Release Gate
 
 The manual Release workflow builds both runtimes, checks API/reference parity, validates all six
-packages and isolated consumers, and uploads reviewable artifacts from one commit and version. It
-does not publish. Adding any package push path requires separate explicit user approval.
+packages and isolated consumers, validates licenses and native redistribution notices, and uploads
+reviewable artifacts from one commit and version. Its independent macOS arm64 job executes all 16
+trim/AOT cells and retains their binaries, manifests, logs, and diagnostics. It does not publish.
+Adding any package push path requires separate explicit user approval.
+
+Authorized targets use the [authorized host checklist](authorized-host-checklist.md). Completing it
+requires private SDK, toolchain, deployment, and hardware evidence; this public repository records
+only approved capability results.

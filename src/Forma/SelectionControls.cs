@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -23,8 +22,11 @@ namespace Forma
         }
         /// <summary>Optional absolute URI opened when this link is activated, like Godot's uri property.</summary>
         public string Uri { get; set; } = string.Empty;
+        /// <summary>Optional host capability used to launch absolute URIs.</summary>
+        public Func<LinkButton, System.Uri, bool> UriLauncher { get; set; }
+        public bool IsUriLaunchingAvailable => UriLauncher != null;
         public LinkButtonUnderlineMode UnderlineMode { get; set; } = LinkButtonUnderlineMode.Always;
-        /// <summary>Raised after a valid URI has been requested from the operating system.</summary>
+        /// <summary>Raised when a valid URI is activated, whether or not a launcher is available.</summary>
         public event Action<LinkButton, string> UriRequested;
         internal override void Draw(UIRenderContext context)
         {
@@ -40,15 +42,10 @@ namespace Forma
         private void OpenUri()
         {
             if (string.IsNullOrWhiteSpace(Uri) || !System.Uri.TryCreate(Uri, UriKind.Absolute, out var uri)) return;
-            try
-            {
-                System.Diagnostics.Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
-                UriRequested?.Invoke(this, uri.AbsoluteUri);
-            }
-            catch (Exception)
-            {
-                // Browser/process availability is platform-dependent; a pressed link still retains normal button semantics.
-            }
+            UriRequested?.Invoke(this, uri.AbsoluteUri);
+            try { UriLauncher?.Invoke(this, uri); }
+            catch (PlatformNotSupportedException) { }
+            catch (NotImplementedException) { }
         }
     }
 

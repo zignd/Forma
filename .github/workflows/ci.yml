@@ -38,6 +38,8 @@ jobs:
           dotnet test tests/Forma.Xaml.Tests/Forma.Xaml.Tests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
           dotnet test tests/Forma.Xaml.Tool.Tests/Forma.Xaml.Tool.Tests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
           dotnet test tests/Forma.Xaml.Game.Tests/Forma.Xaml.Game.Tests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
+          dotnet build tests/Forma.Xaml.Build.Integration/Forma.Xaml.Build.Integration.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
+          test -f "tests/Forma.Xaml.Build.Integration/obj/$FORMA_RUNTIME/Release/net10.0/FormaXaml/compile.stamp"
           dotnet build "samples/Forma.Xaml.Game.$FORMA_RUNTIME/Forma.Xaml.Game.$FORMA_RUNTIME.csproj" --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
       - name: Compile render tests
         shell: bash
@@ -228,3 +230,26 @@ jobs:
           name: forma-peer-packages
           path: Artifacts/packages/*/*.*nupkg
           if-no-files-found: error
+
+  nativeaot:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Validate packed trim-only and NativeAOT consumers
+        run: make nativeaot
+      - name: Upload NativeAOT validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: forma-nativeaot-osx-arm64-evidence
+          path: |
+            Artifacts/nativeaot/logs/*.log
+            Artifacts/nativeaot/diagnostics/*.txt
+            Artifacts/nativeaot/native-manifests/*.txt
+            Artifacts/nativeaot/publish/**
+          if-no-files-found: warn

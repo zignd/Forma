@@ -1369,6 +1369,32 @@ namespace Forma
     public enum FileDialogSortOption { Name, NameReverse, Type, TypeReverse, ModifiedTime, ModifiedTimeReverse }
     public enum FileDialogCustomization { HiddenFiles, CreateFolder, FileFilter, FileSort, Favorites, Recent, Layout, OverwriteWarning, Delete }
 
+    public interface IFileDialogFileSystem
+    {
+        bool IsAvailable { get; }
+        string GetCurrentDirectory();
+        bool FileExists(string path);
+        bool DirectoryExists(string path);
+        IEnumerable<string> EnumerateEntries(string path);
+        string GetParentDirectory(string path);
+        void CreateDirectory(string path);
+        DateTime GetLastWriteTimeUtc(string path);
+    }
+
+    public sealed class DesktopFileDialogFileSystem : IFileDialogFileSystem
+    {
+        public static DesktopFileDialogFileSystem Instance { get; } = new DesktopFileDialogFileSystem();
+        private DesktopFileDialogFileSystem() { }
+        public bool IsAvailable => true;
+        public string GetCurrentDirectory() => Directory.GetCurrentDirectory();
+        public bool FileExists(string path) => File.Exists(path);
+        public bool DirectoryExists(string path) => Directory.Exists(path);
+        public IEnumerable<string> EnumerateEntries(string path) => Directory.EnumerateFileSystemEntries(path);
+        public string GetParentDirectory(string path) => Directory.GetParent(path)?.FullName;
+        public void CreateDirectory(string path) => Directory.CreateDirectory(path);
+        public DateTime GetLastWriteTimeUtc(string path) => File.GetLastWriteTimeUtc(path);
+    }
+
     public sealed class FileDialogOption
     {
         internal FileDialogOption(string name, IEnumerable<string> values, int defaultIndex)
@@ -1394,7 +1420,7 @@ namespace Forma
         private readonly List<FileDialogOption> _options = new List<FileDialogOption>();
         private readonly List<string> _entries = new List<string>();
         private readonly List<string> _selectedFiles = new List<string>();
-        private readonly bool[] _customizationFlags = new bool[Enum.GetValues(typeof(FileDialogCustomization)).Length];
+        private readonly bool[] _customizationFlags = new bool[(int)FileDialogCustomization.Delete + 1];
         private readonly ConfirmationDialog _overwriteConfirmation;
         private string _pendingOverwritePath = string.Empty;
         private readonly List<string> _history = new List<string>();
@@ -1434,6 +1460,8 @@ namespace Forma
         public FileDialogSortOption SortOption { get; set; } = FileDialogSortOption.Name;
         public bool ShowHiddenFiles { get; set; }
         public bool CanCreateFolders { get; set; } = true;
+        public IFileDialogFileSystem FileSystem { get; set; } = DesktopFileDialogFileSystem.Instance;
+        public bool IsFileSystemAvailable => FileSystem?.IsAvailable == true;
         public bool OverwriteWarningEnabled
         {
             get => IsCustomizationFlagEnabled(FileDialogCustomization.OverwriteWarning);
@@ -1525,7 +1553,7 @@ namespace Forma
         public string GetCurrentPath()
         {
             if (string.IsNullOrEmpty(CurrentFile)) return CurrentPath ?? string.Empty;
-            return Path.IsPathRooted(CurrentFile) ? CurrentFile : Path.GetFullPath(Path.Combine(string.IsNullOrEmpty(CurrentPath) ? Directory.GetCurrentDirectory() : CurrentPath, CurrentFile));
+            return Path.IsPathRooted(CurrentFile) ? CurrentFile : Path.GetFullPath(Path.Combine(string.IsNullOrEmpty(CurrentPath) ? FileSystem.GetCurrentDirectory() : CurrentPath, CurrentFile));
         }
         public void SetCurrentPath(string path)
         {
@@ -1533,7 +1561,7 @@ namespace Forma
             var fullPath = Path.GetFullPath(path);
             var directory = Path.GetDirectoryName(fullPath);
             var fileName = Path.GetFileName(fullPath);
-            if (!string.IsNullOrEmpty(directory) && Directory.Exists(directory)) NavigateTo(directory);
+            if (!string.IsNullOrEmpty(directory) && FileSystem.DirectoryExists(directory)) NavigateTo(directory);
             if (!string.IsNullOrEmpty(fileName)) SelectFile(fullPath);
         }
         public IReadOnlyList<string> GetSelectedFiles() => _selectedFiles;
@@ -1546,14 +1574,19 @@ namespace Forma
             CurrentPath = Path.GetFullPath(path);
             _entries.Clear();
             Message = string.Empty;
-            if (!Directory.Exists(CurrentPath)) return;
+            if (!IsFileSystemAvailable)
+            {
+                Message = "Filesystem access is unavailable.";
+                return;
+            }
+            if (!FileSystem.DirectoryExists(CurrentPath)) return;
             try
             {
-                foreach (var entry in Directory.EnumerateFileSystemEntries(CurrentPath))
+                foreach (var entry in FileSystem.EnumerateEntries(CurrentPath))
                 {
                     var name = Path.GetFileName(entry);
                     if (!ShowHiddenFiles && name.StartsWith(".", StringComparison.Ordinal)) continue;
-                    if ((Directory.Exists(entry) || MatchesFilter(name)) && MatchesFilenameFilter(name)) _entries.Add(entry);
+                    if ((FileSystem.DirectoryExists(entry) || MatchesFilter(name)) && MatchesFilenameFilter(name)) _entries.Add(entry);
                 }
             }
             catch (UnauthorizedAccessException)
@@ -1570,16 +1603,17 @@ namespace Forma
         public void NavigateTo(string path)
         {
             if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("A directory path is required.", nameof(path));
-            if (!Directory.Exists(path)) throw new DirectoryNotFoundException(path);
+            if (!IsFileSystemAvailable) throw new PlatformNotSupportedException("Filesystem access is unavailable.");
+            if (!FileSystem.DirectoryExists(path)) throw new DirectoryNotFoundException(path);
             Refresh(path);
             PushHistory();
         }
         public void GoUp()
         {
             if (string.IsNullOrEmpty(CurrentPath)) return;
-            var parent = Directory.GetParent(CurrentPath);
+            var parent = FileSystem.GetParentDirectory(CurrentPath);
             if (parent == null) return;
-            Refresh(parent.FullName);
+            Refresh(parent);
             PushHistory();
         }
         /// <summary>Whether GoBack() has an earlier directory to return to, matching Godot's dir_prev enablement.</summary>
@@ -1605,7 +1639,8 @@ namespace Forma
             if (!EffectiveCanCreateFolders) throw new InvalidOperationException("Folder creation is disabled.");
             if (string.IsNullOrWhiteSpace(CurrentPath)) throw new InvalidOperationException("A current directory is required.");
             if (string.IsNullOrWhiteSpace(name) || name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) throw new ArgumentException("A valid folder name is required.", nameof(name));
-            var path = Path.Combine(CurrentPath, name); Directory.CreateDirectory(path); Refresh(CurrentPath); FolderCreated?.Invoke(this, path); return path;
+            if (!IsFileSystemAvailable) throw new PlatformNotSupportedException("Filesystem access is unavailable.");
+            var path = Path.Combine(CurrentPath, name); FileSystem.CreateDirectory(path); Refresh(CurrentPath); FolderCreated?.Invoke(this, path); return path;
         }
         public void SelectEntry(int index, bool append = false)
         {
@@ -1625,7 +1660,7 @@ namespace Forma
         {
             if (index < 0 || index >= _entries.Count) throw new ArgumentOutOfRangeException(nameof(index));
             var entry = _entries[index];
-            if (Directory.Exists(entry))
+            if (FileSystem.DirectoryExists(entry))
             {
                 NavigateTo(entry);
                 // Godot's _file_list_item_activated clears the filename field on directory navigation
@@ -1657,20 +1692,20 @@ namespace Forma
                     Hide();
                     return;
                 case FileDialogMode.OpenFile:
-                    if (string.IsNullOrEmpty(CurrentFile) || !File.Exists(CurrentFile)) return;
+                    if (string.IsNullOrEmpty(CurrentFile) || !FileSystem.FileExists(CurrentFile)) return;
                     SaveCurrentDirectoryToRecent();
                     FileSelected?.Invoke(this, CurrentFile);
                     Hide();
                     return;
                 case FileDialogMode.OpenAny:
                     SaveCurrentDirectoryToRecent();
-                    if (!string.IsNullOrEmpty(CurrentFile) && File.Exists(CurrentFile)) FileSelected?.Invoke(this, CurrentFile);
-                    else DirectorySelected?.Invoke(this, Directory.Exists(CurrentFile) ? CurrentFile : CurrentPath);
+                    if (!string.IsNullOrEmpty(CurrentFile) && FileSystem.FileExists(CurrentFile)) FileSelected?.Invoke(this, CurrentFile);
+                    else DirectorySelected?.Invoke(this, FileSystem.DirectoryExists(CurrentFile) ? CurrentFile : CurrentPath);
                     Hide();
                     return;
                 case FileDialogMode.OpenDirectory:
                     SaveCurrentDirectoryToRecent();
-                    DirectorySelected?.Invoke(this, Directory.Exists(CurrentFile) ? CurrentFile : CurrentPath);
+                    DirectorySelected?.Invoke(this, FileSystem.DirectoryExists(CurrentFile) ? CurrentFile : CurrentPath);
                     Hide();
                     return;
                 case FileDialogMode.SaveFile:
@@ -1700,7 +1735,7 @@ namespace Forma
                 var row = new Rectangle(entriesBounds.X + 1, entriesBounds.Y + 1 + (int)(index * EntryHeight), Math.Max(0, entriesBounds.Width - 2), (int)EntryHeight);
                 if (row.Bottom > entriesBounds.Bottom) break;
                 if (_selectedFiles.Contains(entry)) context.Fill(row, context.Theme.AccentColor);
-                var isDirectory = Directory.Exists(entry);
+                var isDirectory = FileSystem.DirectoryExists(entry);
                 var icon = GetThemeIcon(isDirectory ? "folder" : "file");
                 var textX = row.X + 4;
                 if (icon.HasValue)
@@ -1780,7 +1815,7 @@ namespace Forma
             var path = ResolveSavePath();
             if (string.IsNullOrEmpty(path)) return;
             CurrentFile = path;
-            if (OverwriteWarningEnabled && File.Exists(path))
+            if (OverwriteWarningEnabled && FileSystem.FileExists(path))
             {
                 _pendingOverwritePath = path;
                 _overwriteConfirmation.DialogText = "File \"" + path + "\" already exists.\nDo you want to overwrite it?";
@@ -1817,7 +1852,7 @@ namespace Forma
             if (string.IsNullOrWhiteSpace(candidate)) return string.Empty;
             candidate = Path.IsPathRooted(candidate)
                 ? Path.GetFullPath(candidate)
-                : Path.GetFullPath(Path.Combine(string.IsNullOrEmpty(CurrentPath) ? Directory.GetCurrentDirectory() : CurrentPath, candidate));
+                : Path.GetFullPath(Path.Combine(string.IsNullOrEmpty(CurrentPath) ? FileSystem.GetCurrentDirectory() : CurrentPath, candidate));
             return EnsureSaveExtension(candidate);
         }
         private void ApplyFileModePresentation()
@@ -1892,14 +1927,14 @@ namespace Forma
         }
         private int CompareEntries(string left, string right)
         {
-            var directoryOrder = Directory.Exists(left).CompareTo(Directory.Exists(right));
+            var directoryOrder = FileSystem.DirectoryExists(left).CompareTo(FileSystem.DirectoryExists(right));
             if (directoryOrder != 0) return -directoryOrder;
             var leftName = Path.GetFileName(left);
             var rightName = Path.GetFileName(right);
             var compareByType = SortOption == FileDialogSortOption.Type || SortOption == FileDialogSortOption.TypeReverse;
             var compareByTime = SortOption == FileDialogSortOption.ModifiedTime || SortOption == FileDialogSortOption.ModifiedTimeReverse;
             var comparison = compareByTime
-                ? DateTime.Compare(File.GetLastWriteTimeUtc(left), File.GetLastWriteTimeUtc(right))
+                ? DateTime.Compare(FileSystem.GetLastWriteTimeUtc(left), FileSystem.GetLastWriteTimeUtc(right))
                 : compareByType
                 ? string.Compare(Path.GetExtension(leftName), Path.GetExtension(rightName), StringComparison.OrdinalIgnoreCase)
                 : string.Compare(leftName, rightName, StringComparison.OrdinalIgnoreCase);

@@ -62,7 +62,12 @@ public sealed class FormaXamlParser
             if (directive && attribute.Name.LocalName == "Class" && !isRoot)
                 diagnostics.Add(Diagnostic(FormaDiagnosticCodes.InvalidDirective, "x:Class is valid only on the document root.", Location(attribute, sourcePath)));
         }
-        foreach (var child in element.Elements()) result.Children.Add(BuildObject(child, sourcePath, diagnostics, false));
+        foreach (var child in element.Elements())
+        {
+            var childObject = BuildObject(child, sourcePath, diagnostics, false);
+            childObject.Parent = result;
+            result.Children.Add(childObject);
+        }
         return result;
     }
 
@@ -74,6 +79,7 @@ public sealed class FormaXamlParser
         var names = new Dictionary<string, FormaSourceLocation>(StringComparer.Ordinal);
         var dataTypes = new Stack<string?>();
         ValidateObject(document.Root, document, options, diagnostics, names, dataTypes, document.DataType);
+        ValidateResources(document, diagnostics);
 
         foreach (var timeline in document.DescendantsAndSelf().Where(node => node.TypeName.EndsWith("Timeline", StringComparison.Ordinal)))
         {
@@ -86,6 +92,37 @@ public sealed class FormaXamlParser
             if (!timeline.Children.Any(child => child.TypeName == "KeyFrame"))
                 diagnostics.Add(Diagnostic(FormaDiagnosticCodes.Storyboard, "A timeline requires at least one KeyFrame.", timeline.Location));
         }
+    }
+
+    private static void ValidateResources(FormaXamlDocument document, List<FormaDiagnostic> diagnostics)
+    {
+        var keys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var dictionary in document.DescendantsAndSelf().Where(node => node.TypeName == "ResourceDictionary"))
+        {
+            var localKeys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var entry in dictionary.Children.Where(child => !child.TypeName.Contains('.')))
+            {
+                var key = entry.FindDirective("Key");
+                if (string.IsNullOrWhiteSpace(key))
+                {
+                    diagnostics.Add(Diagnostic(FormaDiagnosticCodes.Resource, $"Resource '{entry.TypeName}' requires x:Key.", entry.Location));
+                    continue;
+                }
+                keys.Add(key);
+                if (!localKeys.Add(key))
+                    diagnostics.Add(Diagnostic(FormaDiagnosticCodes.Resource, $"Resource key '{key}' is duplicated in one dictionary.", entry.Location));
+            }
+        }
+
+        foreach (var node in document.DescendantsAndSelf())
+            foreach (var member in node.Members.Where(member => !member.IsDirective))
+            {
+                const string prefix = "{StaticResource ";
+                if (!member.Value.StartsWith(prefix, StringComparison.Ordinal) || !member.Value.EndsWith('}')) continue;
+                var key = member.Value.Substring(prefix.Length, member.Value.Length - prefix.Length - 1).Trim();
+                if (key.Length == 0 || !keys.Contains(key))
+                    diagnostics.Add(Diagnostic(FormaDiagnosticCodes.Resource, $"Static resource '{key}' was not found in this XAML document.", member.Location));
+            }
     }
 
     private static void ValidateObject(
@@ -118,6 +155,9 @@ public sealed class FormaXamlParser
                 catch (FormatException exception) { diagnostics.Add(Diagnostic(FormaDiagnosticCodes.Selector, exception.Message, node.Location)); }
             }
         }
+        if (node.TypeName == "Setter" &&
+            (string.IsNullOrWhiteSpace(node.FindMember("Property")) || string.IsNullOrWhiteSpace(node.FindMember("Value"))))
+            diagnostics.Add(Diagnostic(FormaDiagnosticCodes.Selector, "Setter requires Property and Value.", node.Location));
 
         if (node.TypeName is "PropertyTrigger" && node.FindMember("Binding") == null)
             diagnostics.Add(Diagnostic(FormaDiagnosticCodes.Trigger, "PropertyTrigger requires a Binding.", node.Location));

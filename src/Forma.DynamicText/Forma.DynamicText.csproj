@@ -8,20 +8,34 @@
     <Description>Optional runtime font loading, shaping, and rasterization dependencies for Forma.$(FormaRuntime).</Description>
     <PackageTags>forma;$(FormaRuntime);ui;fonts;text-shaping</PackageTags>
     <IsPackable>true</IsPackable>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <IsAotCompatible>true</IsAotCompatible>
     <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>disable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <FormaDynamicTextBackend Condition="'$(FormaDynamicTextBackend)' == ''">FreeTypeHarfBuzz</FormaDynamicTextBackend>
+    <DefineConstants Condition="'$(FormaDynamicTextBackend)' == 'External'">$(DefineConstants);FORMA_EXTERNAL_DYNAMIC_TEXT_BACKEND</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="../Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
     <Compile Include="../Forma/DynamicFont.cs" Link="DynamicFont.cs" />
+    <Compile Include="../Forma/DynamicTextNativeBackend.cs" Link="DynamicTextNativeBackend.cs" />
+    <Compile Include="$(FormaDynamicTextBackendSource)" Link="PlatformDynamicTextBackend.cs" Condition="'$(FormaDynamicTextBackend)' == 'External' and '$(FormaDynamicTextBackendSource)' != ''" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="FreeTypeSharp" Version="$(FreeTypeSharpVersion)" />
-    <PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="$(HarfBuzzSharpVersion)" />
+    <PackageReference Include="FreeTypeSharp" Version="$(FreeTypeSharpVersion)" Condition="'$(FormaDynamicTextBackend)' == 'FreeTypeHarfBuzz'" />
+    <PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" Condition="'$(FormaDynamicTextBackend)' == 'FreeTypeHarfBuzz'" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="$(HarfBuzzSharpVersion)" Condition="'$(FormaDynamicTextBackend)' == 'FreeTypeHarfBuzz'" />
   </ItemGroup>
+
+    <Target Name="ValidateDynamicTextBackend" BeforeTargets="CoreCompile">
+      <Error Condition="'$(FormaDynamicTextBackend)' != 'FreeTypeHarfBuzz' and '$(FormaDynamicTextBackend)' != 'External'"
+        Text="FormaDynamicTextBackend must be FreeTypeHarfBuzz or External." />
+      <Error Condition="'$(FormaDynamicTextBackend)' == 'External' and '$(FormaDynamicTextBackendSource)' == ''"
+        Text="FormaDynamicTextBackendSource is required when FormaDynamicTextBackend=External." />
+    </Target>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Forma.Tests" />

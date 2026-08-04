@@ -31,6 +31,44 @@ authorized hardware.
 The optional dynamic package resolves FreeType and HarfBuzz native assets for its declared runtime
 identifiers. Publish and test every target RID in a clean environment; do not rely on system-installed
 libraries. Ship font licenses and the repository third-party notices with redistributed fonts.
+Forma selects the permissive FreeType License and HarfBuzz's MIT license. Binary redistribution
+requires retaining their acknowledgments and notices, which `make compliance` enforces; neither
+selected license requires a source offer. Modified or source redistribution must be reviewed against
+the corresponding upstream terms rather than inferred from this binary-package conclusion.
+
+### Internal Backend Boundary
+
+`UIFontFace`, `DynamicUIFont`, and `TextLayoutEngine` do not expose FreeTypeSharp, HarfBuzzSharp,
+native handles, or platform font types. `UIFontFace` delegates face metadata, character/glyph lookup,
+metrics, variations, shaping, rasterization, diagnostics, and disposal to an internal backend
+contract. The normal `Forma.DynamicText.<Runtime>` build selects `FreeTypeHarfBuzz` and preserves
+the existing desktop package behavior.
+
+Authorized source builds may set `FormaDynamicTextBackend=External` and provide
+`FormaDynamicTextBackendSource` pointing to a source file compiled into `Forma.DynamicText`. That
+file defines the internal `ExternalDynamicTextBackend` implementation. Selection is compile-time:
+there is no assembly scanning, reflection activation, runtime generic construction, or public
+backend API. The source remains in authorized infrastructure when it contains platform SDK details.
+
+Run `make static-font-backend` to publish and execute the NDA-neutral platform-adapter spike for both
+runtime peers. The gate verifies the unchanged public face API and rejects FreeType/HarfBuzz managed
+dependencies and sidecar libraries from the spike output. This proves the replacement boundary and
+packaging shape; target-specific font quality, lifecycle, and policy remain platform validation work.
+
+`DynamicTextNativeDiagnostics.Current` reports the target RID, logical native library names, and
+NuGet packaging sources without scanning loaded modules or exposing handles. Forma owns one direct
+entry point, `FT_Set_Var_Design_Coordinates`, against FreeTypeSharp's `freetype` library name. All
+other FreeType calls use FreeTypeSharp; shaping uses HarfBuzzSharp and its `libHarfBuzzSharp` native
+assets. Forma owns pinned-memory, FreeType-library, and FreeType-face safe handles. HarfBuzzSharp owns
+its blob, face, font, and buffer handles. This path registers no unmanaged callbacks and uses no
+runtime-generated marshalling.
+
+Missing, incompatible, or rejected native font libraries fail face creation with
+`FontLoadException` and `FontLoadErrorCode.NativeFailure`. The public message is bounded and stable;
+loader details remain available through `InnerException` for host diagnostics. Run
+`make native-font-failures` to exercise missing files, invalid binaries, and valid libraries with
+missing FreeType exports in fresh processes for both peers. Packed dynamic consumers also require
+exactly one loaded FreeType and HarfBuzz module from their publish directory.
 
 MGCB/XNB is not required for dynamic text. MonoGame MGCB SpriteFonts and FNA-compatible XNB
 SpriteFonts are optional offline compatibility routes.

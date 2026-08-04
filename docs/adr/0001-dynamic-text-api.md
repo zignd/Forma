@@ -3,7 +3,7 @@
 - Status: Accepted provisionally for implementation
 - Date: 2026-08-01
 - Owners: Forma maintainers
-- Related plan: `docs/dynamic-text-rendering-plan.md`
+- Related plan: `plans/dynamic-text-rendering-plan.md`
 
 ## Context
 
@@ -117,7 +117,7 @@ length, lines, glyphs, and synchronous shaping/rasterization work.
 | Per-cell `TreeItem` custom fonts | Add `UIFont` equivalents; preserve SpriteFont setters through adapters. |
 | Catalog 1x/2x XNB pair | Keep until dynamic rendering passes Phase 8 gates, then remove. |
 
-The detailed source inventory is maintained in `docs/dynamic-text-callsite-inventory.md`.
+The detailed source inventory is maintained in `plans/dynamic-text-callsite-inventory.md`.
 
 ## Rejected alternatives
 

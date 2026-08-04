@@ -3,7 +3,6 @@
 // Control APIs and behavior are adapted from Godot Engine's video_stream_player.cpp;
 // see THIRD-PARTY-NOTICES.md.
 
-using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
@@ -78,7 +77,7 @@ namespace Forma
         public MediaState PlaybackState => _backend?.State ?? MediaState.Stopped;
         public static VideoPlaybackCapabilities RuntimeCapabilities =>
             RuntimeVideoLoader.Capabilities |
-            (BuiltInVideoPlaybackBackend.SupportsSeeking ? VideoPlaybackCapabilities.Seeking : VideoPlaybackCapabilities.None);
+            (RuntimeVideoPlaybackAdapter.SupportsSeeking ? VideoPlaybackCapabilities.Seeking : VideoPlaybackCapabilities.None);
         public bool IsPlaybackAvailable => !_backendUnavailable;
         public string PlaybackUnavailableReason => _backendUnavailableReason;
         public event EventHandler Finished;
@@ -191,11 +190,7 @@ namespace Forma
 
     internal sealed class BuiltInVideoPlaybackBackend : IVideoPlaybackBackend
     {
-        private static readonly MethodInfo SetPlayPositionMethod = typeof(VideoPlayer).GetMethod(
-            "SetPlayPosition", BindingFlags.Instance | BindingFlags.Public, [typeof(TimeSpan)]);
         private readonly VideoPlayer _player = new VideoPlayer();
-
-        internal static bool SupportsSeeking => SetPlayPositionMethod != null;
 
         public MediaState State => _player.State;
         public TimeSpan PlayPosition => _player.PlayPosition;
@@ -206,12 +201,7 @@ namespace Forma
         public void Resume() => _player.Resume();
         public void Stop() => _player.Stop();
         public Texture2D GetTexture() => _player.GetTexture();
-        public bool TrySetPlayPosition(TimeSpan position)
-        {
-            if (SetPlayPositionMethod == null) return false;
-            SetPlayPositionMethod.Invoke(_player, [position]);
-            return true;
-        }
+        public bool TrySetPlayPosition(TimeSpan position) => RuntimeVideoPlaybackAdapter.TrySetPlayPosition(_player, position);
         public void Dispose() => _player.Dispose();
     }
 }

@@ -4,7 +4,7 @@ set -euo pipefail
 # Purpose: Verify required license files, third-party notices, per-file SPDX identifiers, and the
 # explicit MonoGame and ok_color attributions. Usage: `bash scripts/check-compliance.sh` from any
 # directory. The script exits nonzero on the first compliance failure and otherwise prints the
-# number of tracked C# files checked.
+# number of repository C# files checked.
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -45,12 +45,19 @@ jq -e '.unicodeVersion == "17.0.0" and (.files | length > 0) and all(.files[]; (
 for required_notice in "Godot Engine" "Bjorn Ottosson" "MonoGame" "FNA.NET" "Inter" "JetBrains Mono" "Noto Sans Arabic" "FreeType" "HarfBuzz" "Unicode Character Database" "Unicode License V3"; do
   grep -Fq "$required_notice" "$repository_root/THIRD-PARTY-NOTICES.md"
 done
+grep -Fq '<FreeTypeSharpVersion>3.1.0</FreeTypeSharpVersion>' "$repository_root/Directory.Build.props"
+grep -Fq '<HarfBuzzSharpVersion>14.2.1.1</HarfBuzzSharpVersion>' "$repository_root/Directory.Build.props"
+grep -Fq 'FreeType 2.13.2 through FreeTypeSharp 3.1.0' "$repository_root/THIRD-PARTY-NOTICES.md"
+grep -Fq 'based in part on the work of the FreeType Team' "$repository_root/THIRD-PARTY-NOTICES.md"
+grep -Fq 'HarfBuzz 14.2.1 through HarfBuzzSharp 14.2.1.1' "$repository_root/THIRD-PARTY-NOTICES.md"
+grep -Fq 'Permission is hereby granted, without written agreement' "$repository_root/THIRD-PARTY-NOTICES.md"
+grep -Fq 'THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES' "$repository_root/THIRD-PARTY-NOTICES.md"
 
 source_count=0
 while IFS= read -r source_file; do
   grep -Eq '^// SPDX-License-Identifier: (MIT|MS-PL)$' "$repository_root/$source_file"
   source_count=$((source_count + 1))
-done < <(git -C "$repository_root" ls-files '*.cs')
+done < <(git -C "$repository_root" ls-files --cached --others --exclude-standard '*.cs')
 
 graphics_fixture="tests/Forma.RenderTests/GraphicsDeviceTestFixtureBase.cs"
 grep -Fq "MonoGame Foundation" "$repository_root/$graphics_fixture"
@@ -59,4 +66,4 @@ grep -Fq "Microsoft Public License (Ms-PL)" "$repository_root/THIRD-PARTY-NOTICE
 
 grep -Fq "Copyright (c) 2021 Björn Ottosson" "$repository_root/src/Forma/OkColor.cs"
 
-printf 'Compliance: %d tracked C# files and %d classified theme icons validated.\n' "$source_count" "$icon_source_count"
+printf 'Compliance: %d repository C# files and %d classified theme icons validated.\n' "$source_count" "$icon_source_count"

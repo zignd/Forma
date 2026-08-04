@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
@@ -101,7 +102,7 @@ namespace Forma.Xaml
             ["Maroon"] = new Color(128, 0, 0),
         };
 
-        public static object Convert(string text, Type targetType)
+        public static object Convert(string text, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] Type targetType)
         {
             if (targetType == null) throw new ArgumentNullException(nameof(targetType));
             if (targetType == typeof(string)) return text;
@@ -131,7 +132,7 @@ namespace Forma.Xaml
             return System.Convert.ChangeType(text, targetType, CultureInfo.InvariantCulture);
         }
 
-        public static bool TryConvert(string text, Type targetType, out object value)
+        public static bool TryConvert(string text, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] Type targetType, out object value)
         {
             try
             {
@@ -346,6 +347,13 @@ namespace Forma.Xaml
             ValidateKey(key);
             _values.Add(key, value);
             OnChanged();
+        }
+
+        public void Add(ResourceDictionary dictionary)
+        {
+            if (dictionary == null) throw new ArgumentNullException(nameof(dictionary));
+            foreach (var item in dictionary._values) Add(item.Key, item.Value);
+            foreach (var merged in dictionary.MergedDictionaries) MergedDictionaries.Add(merged);
         }
 
         public bool TryFind(string key, out object value)

@@ -20,6 +20,7 @@ public static class FormaDiagnosticCodes
     public const string InvalidName = "FXAML2002";
     public const string Binding = "FXAML3001";
     public const string CompiledBinding = "FXAML3002";
+    public const string Resource = "FXAML3501";
     public const string Selector = "FXAML4001";
     public const string Trigger = "FXAML5001";
     public const string Storyboard = "FXAML6001";

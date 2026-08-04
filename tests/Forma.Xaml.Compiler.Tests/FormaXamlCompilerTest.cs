@@ -89,6 +89,42 @@ public class FormaXamlCompilerTest
     }
 
     [Test]
+    public void Parser_ReportsDuplicateAndMissingStaticResources()
+    {
+        const string source = """
+            <Control xmlns="https://forma.dev/xaml" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                <Control.Resources>
+                    <ResourceDictionary>
+                        <ResourceDictionary x:Key="Duplicate" />
+                        <ResourceDictionary x:Key="Duplicate" />
+                    </ResourceDictionary>
+                </Control.Resources>
+                <Control DataContext="{StaticResource Missing}" />
+            </Control>
+            """;
+        var result = new FormaXamlParser().Parse(source, "InvalidResources.xaml");
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Diagnostics.Count(diagnostic => diagnostic.Code == FormaDiagnosticCodes.Resource), Is.EqualTo(2));
+            Assert.That(result.Diagnostics, Has.Some.Matches<FormaDiagnostic>(diagnostic => diagnostic.Message.Contains("duplicated", StringComparison.Ordinal)));
+            Assert.That(result.Diagnostics, Has.Some.Matches<FormaDiagnostic>(diagnostic => diagnostic.Message.Contains("was not found", StringComparison.Ordinal)));
+        });
+    }
+
+    [Test]
+    public void Parser_ReportsMalformedStyleSetter()
+    {
+        const string source = """
+            <Control xmlns="https://forma.dev/xaml">
+                <Style Selector="Control"><Setter Property="TooltipText" /></Style>
+            </Control>
+            """;
+        var result = new FormaXamlParser().Parse(source, "InvalidStyle.xaml");
+        Assert.That(result.Diagnostics, Has.Some.Matches<FormaDiagnostic>(diagnostic =>
+            diagnostic.Code == FormaDiagnosticCodes.Selector && diagnostic.Message.Contains("Property and Value", StringComparison.Ordinal)));
+    }
+
+    [Test]
     public void SreCompiler_BuildsFormaTreeAndUsesTypedConverter()
     {
         const string source = "<Control xmlns='https://forma.dev/xaml' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' x:Class='Game.View' Position='12,34'><Control Name='Child' /></Control>";
@@ -115,5 +151,58 @@ public class FormaXamlCompilerTest
         const string source = "<Control xmlns='https://forma.dev/xaml' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' x:Class='Game.View' Position='12,34' />";
         new FormaXamlCompiler(typeSystem, typeof(Control).Assembly.GetName().Name!).CompileCecil(source, "CecilView.xaml", typeSystem, generated, context);
         Assert.That(generated.Methods.Select(method => method.Name), Does.Contain("Populate"));
+    }
+
+    [Test]
+    public void BuildTask_EmitsTypedAdvancedConstructCallsWithoutReflectionFallback()
+    {
+        var testDirectory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+        var configuration = testDirectory.Parent!.Name;
+        var runtime = testDirectory.Parent.Parent!.Name;
+        var repository = testDirectory;
+        while (repository != null && !File.Exists(Path.Combine(repository.FullName, "Directory.Build.props")))
+            repository = repository.Parent;
+        Assert.That(repository, Is.Not.Null, "Could not locate the Forma repository root.");
+        var fixturePath = Path.Combine(
+            repository!.FullName,
+            "tests",
+            "Forma.Xaml.Build.Integration",
+            "bin",
+            runtime,
+            configuration,
+            "net10.0",
+            "Forma.Xaml.Build.Integration.dll");
+        Assert.That(File.Exists(fixturePath), Is.True, $"Injected fixture was not built at '{fixturePath}'.");
+
+        using var fixture = AssemblyDefinition.ReadAssembly(fixturePath);
+        var calls = fixture.MainModule.Types
+            .SelectMany(AllTypes)
+            .SelectMany(type => type.Methods)
+            .Where(method => method.HasBody)
+            .SelectMany(method => method.Body.Instructions)
+            .Select(instruction => instruction.Operand)
+            .OfType<MethodReference>()
+            .Select(method => $"{method.DeclaringType.FullName}.{method.Name}")
+            .ToArray();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(calls, Does.Contain("Forma.Xaml.ResourceDictionary.Add"));
+            Assert.That(calls, Does.Contain("Forma.Xaml.Style.AddSetter"));
+            Assert.That(calls, Does.Contain("Forma.Xaml.CompiledBinding.AttachOneWay"));
+            Assert.That(calls, Does.Contain("Forma.Xaml.CompiledBinding.AttachTwoWay"));
+            Assert.That(calls, Does.Contain("Forma.Xaml.CompiledEvent.Attach"));
+            Assert.That(calls, Does.Contain("Forma.Xaml.Storyboard.AddTimeline"));
+            Assert.That(calls, Does.Contain("Forma.Xaml.CompiledStoryboardTrigger.AttachEvent"));
+            Assert.That(calls, Does.Contain("Forma.Xaml.CompiledStoryboardTrigger.AttachProperty"));
+            Assert.That(calls, Does.Contain("Forma.Xaml.CompiledStoryboardTrigger.AttachStopEvent"));
+            Assert.That(calls, Has.None.StartsWith("System.Reflection."));
+        });
+    }
+
+    private static IEnumerable<TypeDefinition> AllTypes(TypeDefinition type)
+    {
+        yield return type;
+        foreach (var nested in type.NestedTypes.SelectMany(AllTypes)) yield return nested;
     }
 }

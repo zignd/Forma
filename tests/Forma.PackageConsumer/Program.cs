@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 
 using var context = new UIContext();
 var compiledModel = new ConsumerViewModel { Message = "Compiled package view" };
@@ -15,12 +18,54 @@ var compiledView = new ConsumerView { DataContext = compiledModel };
 var compiledScope = NameScope.GetNameScope(compiledView) ?? throw new InvalidOperationException("Compiled package view has no namescope.");
 var compiledLabel = compiledScope.Find<Label>("Message");
 var compiledEditor = compiledScope.Find<LineEdit>("Editor");
-if (compiledLabel.Text != compiledModel.Message || compiledEditor.Text != compiledModel.Message) return 1;
+var staticTarget = compiledScope.Find<ConsumerTarget>("StaticTarget");
+var dynamicTarget = compiledScope.Find<ConsumerTarget>("DynamicTarget");
+var styleTarget = compiledScope.Find<ConsumerTarget>("StyleTarget");
+if (compiledLabel.Text != compiledModel.Message || compiledEditor.Text != compiledModel.Message) throw new InvalidOperationException("Packed typed bindings did not initialize.");
+if (staticTarget.Value.Name != "Static" || dynamicTarget.Value.Name != "Dynamic") throw new InvalidOperationException("Packed resource references did not initialize.");
+if (!compiledView.Resources.ContainsKey("LocalPalette") || !compiledView.Resources.TryFind("MergedPalette", out _)) throw new InvalidOperationException("Packed local or merged resources were not populated.");
+var winner = (ResourceDictionary)compiledView.Resources["Winner"];
+if (!winner.ContainsKey("LocalMarker") || winner.ContainsKey("MergedMarker")) throw new InvalidOperationException("Packed merged-resource precedence was not preserved.");
+if (styleTarget.TooltipText != "Styled" || styleTarget.Value.Name != "Static") throw new InvalidOperationException("Packed selector style did not apply.");
 compiledModel.Message = "One-way update";
-if (compiledLabel.Text != compiledModel.Message) return 1;
+if (compiledLabel.Text != compiledModel.Message) throw new InvalidOperationException("Packed one-way binding did not update.");
 compiledEditor.Text = "Two-way update";
-if (compiledModel.Message != compiledEditor.Text) return 1;
+if (compiledModel.Message != compiledEditor.Text) throw new InvalidOperationException("Packed two-way binding did not update.");
 context.Add(compiledView);
+if (compiledView.AttachedHandlerCalls != 1 || styleTarget.CustomMinimumSize != new Vector2(2, 3)) throw new InvalidOperationException("Packed event hookup or event trigger did not run.");
+context.Update(new GameTime(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(100)));
+if (styleTarget.CustomMinimumSize != new Vector2(8, 9)) throw new InvalidOperationException("Packed event storyboard did not advance.");
+compiledModel.IsActive = true;
+if (dynamicTarget.CustomMinimumSize != new Vector2(1, 2)) throw new InvalidOperationException("Packed property trigger did not start.");
+context.Update(new GameTime(TimeSpan.FromMilliseconds(150), TimeSpan.FromMilliseconds(50)));
+if (dynamicTarget.CustomMinimumSize != new Vector2(1, 2)) throw new InvalidOperationException("Packed storyboard repeat behavior was not preserved.");
+dynamicTarget.RaiseStopRequested();
+if (dynamicTarget.CustomMinimumSize != Vector2.Zero) throw new InvalidOperationException("Packed StopStoryboard did not restore its target.");
+compiledModel.IsActive = false;
+compiledView.Resources["DynamicValue"] = new ConsumerResourceValue { Name = "Replaced" };
+if (dynamicTarget.Value.Name != "Replaced") throw new InvalidOperationException("Packed dynamic resource did not observe replacement.");
+context.Remove(compiledView);
+if (styleTarget.CustomMinimumSize != Vector2.Zero || dynamicTarget.StopRequestedSubscriberCount != 0) throw new InvalidOperationException("Packed clocks or event triggers remained attached.");
+if (styleTarget.TooltipText != "Underlying" || styleTarget.Value.Name != "Underlying" || dynamicTarget.Value.Name != "Underlying") throw new InvalidOperationException("Packed style or resource values were not restored.");
+var detachedText = compiledLabel.Text;
+compiledModel.Message = "After detach";
+compiledModel.IsActive = true;
+if (compiledLabel.Text != detachedText || dynamicTarget.CustomMinimumSize != Vector2.Zero) throw new InvalidOperationException("Packed binding or property trigger remained attached.");
+compiledEditor.Text = "Detached edit";
+if (compiledModel.Message == compiledEditor.Text) throw new InvalidOperationException("Packed two-way binding remained attached.");
+var inheritedThemeStyle = new StyleBoxEmpty();
+context.Theme.SetStyleBox("consumer", inheritedThemeStyle, nameof(BaseButton));
+var derivedButton = new ConsumerButton();
+context.Add(derivedButton);
+if (!ReferenceEquals(derivedButton.GetThemeStyleBox("consumer"), inheritedThemeStyle)) throw new InvalidOperationException("Packed theme inheritance failed.");
+var tooltipProperty = new XamlProperty<string>(
+    nameof(Control.TooltipText),
+    target => ((Control)target).TooltipText,
+    (target, value) => ((Control)target).TooltipText = value);
+var inheritedTypeStyle = new Style(nameof(BaseButton));
+inheritedTypeStyle.Setters.Add(new StyleSetter<string>(tooltipProperty, "Inherited type style"));
+using var styleAttachment = StyleEngine.Attach(derivedButton, new[] { inheritedTypeStyle });
+if (derivedButton.TooltipText != "Inherited type style") throw new InvalidOperationException("Packed type selector inheritance failed.");
 var root = new VBoxContainer
 {
     Size = new Vector2(320, 180),
@@ -31,6 +76,7 @@ context.Add(root);
 context.Layout();
 context.Update(new GameTime(), new MouseState(), new KeyboardState());
 var spriteFontDrawSucceeded = true;
+var dynamicTextDiagnostics = string.Empty;
 #if FORMA_SPRITEFONT_DRAW
 using (var game = new Game())
 {
@@ -49,6 +95,38 @@ using (var game = new Game())
     drawRoot.AddChild(new Button { Font = spriteFont, Text = "Continue" });
 #if FORMA_DYNAMIC_TEXT
     drawRoot.AddChild(new Label { Text = "Automatic dynamic default" });
+    using var latinFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/Inter_Regular.ttf");
+    using var arabicFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoSansArabic_Variable.ttf");
+    using var devanagariFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoSansDevanagari_Subset.ttf");
+    using var hebrewFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoSansHebrew_Subset.ttf");
+    var multilingualFont = new DynamicUIFont(latinFace, 18, UIFontHinting.Default, arabicFace, devanagariFace, hebrewFace);
+    var corpus = new[]
+    {
+        (Name: "latin", Text: "Forma", Locale: "en"),
+        (Name: "arabic", Text: "مرحبا", Locale: "ar"),
+        (Name: "indic", Text: "क्ष", Locale: "hi"),
+        (Name: "bidi", Text: "abc שלום 123", Locale: "he"),
+        (Name: "fallback", Text: "Forma مرحبا क्ष", Locale: "ar"),
+        (Name: "missing", Text: "\u0378", Locale: "en"),
+    };
+    var diagnostics = new StringBuilder();
+    foreach (var item in corpus)
+    {
+        var layout = new TextLayoutEngine().Layout(multilingualFont, item.Text, new TextLayoutOptions(locale: item.Locale));
+        if (layout.Runs.Count == 0 || layout.Runs.SelectMany(run => run.Glyphs).Any() == false) return 1;
+        if (item.Name == "missing" && layout.Runs.SelectMany(run => run.Glyphs).Single().GlyphId != 0) return 1;
+        drawRoot.AddChild(new Label { Text = item.Text, UIFont = multilingualFont });
+        diagnostics.Append(item.Name).Append('|')
+            .Append(layout.Size.X.ToString("R", CultureInfo.InvariantCulture)).Append(',')
+            .Append(layout.Size.Y.ToString("R", CultureInfo.InvariantCulture)).Append('|');
+        foreach (var run in layout.Runs)
+        {
+            diagnostics.Append(run.Start).Append(':').Append(run.Length).Append(':').Append((int)run.Direction).Append(':');
+            foreach (var glyph in run.Glyphs) diagnostics.Append(glyph.GlyphId).Append('@').Append(glyph.Utf16Cluster).Append(',');
+            diagnostics.Append(';');
+        }
+        diagnostics.AppendLine();
+    }
 #endif
     drawContext.Add(drawRoot);
     drawContext.Layout();
@@ -62,6 +140,16 @@ using (var game = new Game())
     spriteFontDrawSucceeded = pixels.Any(pixel => pixel != Color.Transparent);
 #if FORMA_DYNAMIC_TEXT
     spriteFontDrawSucceeded &= drawContext.DynamicGlyphDiagnostics.Misses > 0;
+    var pixelBytes = new byte[pixels.Length * sizeof(uint)];
+    for (var index = 0; index < pixels.Length; index++)
+    {
+        var packed = pixels[index].PackedValue;
+        BitConverter.TryWriteBytes(pixelBytes.AsSpan(index * sizeof(uint), sizeof(uint)), packed);
+    }
+    diagnostics.Append("render|").Append(Convert.ToHexString(SHA256.HashData(pixelBytes))).Append('|')
+        .Append(drawContext.DynamicGlyphDiagnostics.GlyphCount).Append('|')
+        .Append(drawContext.DynamicGlyphDiagnostics.Misses).AppendLine();
+    dynamicTextDiagnostics = diagnostics.ToString();
 #endif
 }
 #endif
@@ -79,23 +167,38 @@ var dynamicLayout = new TextLayoutEngine().Layout(new DynamicUIFont(face, 18), "
 if (dynamicLayout.Runs.Count == 0 || dynamicLayout.Runs.SelectMany(run => run.Glyphs).Any() == false) return 1;
 if (face.RasterizeCharacter('A', 18).Pixels.Length == 0) return 1;
 if (typeof(DynamicUIFont).Assembly.GetName().Name != "Forma.DynamicText") return 1;
+var nativeText = DynamicTextNativeDiagnostics.Current;
+if (string.IsNullOrWhiteSpace(nativeText.RuntimeIdentifier) ||
+    nativeText.FreeTypeLibraryName != "freetype" ||
+    nativeText.FreeTypePackageId != "FreeTypeSharp" ||
+    nativeText.HarfBuzzLibraryName != "libHarfBuzzSharp" ||
+    nativeText.HarfBuzzPackageId != "HarfBuzzSharp.NativeAssets" ||
+    nativeText.UsesRuntimeGeneratedMarshalling ||
+    nativeText.RegistersUnmanagedCallbacks) return 1;
 var outputDirectory = Path.GetFullPath(AppContext.BaseDirectory);
 var packagedModules = NativeModuleInspector.GetLoadedModulePaths()
     .Select(Path.GetFullPath)
     .Where(fileName => fileName.StartsWith(outputDirectory, StringComparison.Ordinal))
     .Select(fileName => Path.GetFileName(fileName) ?? string.Empty)
     .ToArray();
-if (!packagedModules.Any(fileName => fileName.Contains("freetype", StringComparison.OrdinalIgnoreCase)) ||
-    !packagedModules.Any(fileName => fileName.Contains("harfbuzz", StringComparison.OrdinalIgnoreCase))) return 1;
+if (packagedModules.Count(fileName => fileName.Contains("freetype", StringComparison.OrdinalIgnoreCase)) != 1 ||
+    packagedModules.Count(fileName => fileName.Contains("harfbuzz", StringComparison.OrdinalIgnoreCase)) != 1) return 1;
+var diagnosticsPath = Environment.GetEnvironmentVariable("FORMA_DYNAMIC_TEXT_DIAGNOSTICS");
+if (!string.IsNullOrWhiteSpace(diagnosticsPath)) File.WriteAllText(diagnosticsPath, dynamicTextDiagnostics);
 #else
 if (context.Theme.FontFamily is not null) return 1;
 #endif
 #if !FORMA_CORE_ONLY
 using var video = new VideoStreamPlayer();
+if (typeof(VideoStreamPlayer).Assembly.GetName().Name != "Forma.Media") return 1;
+if (VideoStreamPlayer.RuntimeCapabilities == VideoPlaybackCapabilities.None) return 1;
+if (VideoStreamPlayer.RuntimeCapabilities.HasFlag(VideoPlaybackCapabilities.Seeking)) return 1;
+if (video.GetStreamPosition() != 0 || video.IsPlaying()) return 1;
+video.SetStreamPosition(12);
 Action<UIContext, GraphicsDevice> drawingSurface = (drawingContext, graphicsDevice) => drawingContext.Draw(graphicsDevice);
 _ = drawingSurface;
 
-return context.Roots.Count == 2 && spriteFontDrawSucceeded && VideoStreamPlayer.RuntimeCapabilities != VideoPlaybackCapabilities.None ? 0 : 1;
+return context.Roots.Count == 2 && spriteFontDrawSucceeded ? 0 : 1;
 #else
 return context.Roots.Count == 2 && spriteFontDrawSucceeded ? 0 : 1;
 #endif

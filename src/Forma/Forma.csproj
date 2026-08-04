@@ -13,6 +13,9 @@
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>disable</Nullable>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +24,7 @@
 
   <ItemGroup>
     <Compile Remove="DynamicFont.cs" />
+    <Compile Remove="DynamicTextNativeBackend.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''">

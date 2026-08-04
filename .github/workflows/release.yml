@@ -33,7 +33,8 @@ jobs:
           test "$monogame_core_version" = "$fna_dynamic_text_version"
           test "$monogame_core_version" = "$fna_media_version"
           printf 'Peer release version: %s\n' "$monogame_core_version"
-      - run: bash scripts/check-compliance.sh
+      - name: Validate licenses and native redistribution notices
+        run: bash scripts/check-compliance.sh
       - run: dotnet run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- verify
       - run: bash scripts/check-runtime-parity.sh
       - run: make CONFIGURATION=Release test-xaml
@@ -45,4 +46,23 @@ jobs:
           path: |
             Artifacts/packages/*/*.nupkg
             Artifacts/packages/*/*.snupkg
+          if-no-files-found: error
+
+  nativeaot:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Validate release NativeAOT matrix
+        run: make nativeaot
+      - name: Upload NativeAOT release evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nativeaot-osx-arm64-release-evidence
+          path: Artifacts/nativeaot/**
           if-no-files-found: error

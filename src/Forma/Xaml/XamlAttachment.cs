@@ -38,6 +38,31 @@ namespace Forma.Xaml
         }
     }
 
+    public static class CompiledEvent
+    {
+        public static IDisposable Attach<TTarget, THandler>(
+            Control root,
+            TTarget target,
+            THandler handler,
+            Action<TTarget, THandler> add,
+            Action<TTarget, THandler> remove)
+            where TTarget : class
+            where THandler : Delegate
+        {
+            if (root == null) throw new ArgumentNullException(nameof(root));
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+            if (add == null) throw new ArgumentNullException(nameof(add));
+            if (remove == null) throw new ArgumentNullException(nameof(remove));
+            var subscription = BindingSubscriptions.Event<THandler>(
+                value => add(target, value),
+                value => remove(target, value),
+                handler);
+            XamlAttachment.RegisterDisposable(root, subscription);
+            return subscription;
+        }
+    }
+
     internal sealed class XamlAttachmentScope : IDisposable
     {
         private readonly List<IDisposable> _owned = new List<IDisposable>();

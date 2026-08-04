@@ -233,6 +233,14 @@ Button.primary:hover
 Supported pseudo states are `:hover`, `:focus`, `:disabled`, `:pressed`, and `:checked`. Descendant,
 child, sibling, universal, attribute, negation, and selector-list syntax are outside v1.
 
+Styles declare typed setters with compiler-validated property names and values:
+
+```xml
+<Style x:Key="PrimaryAction" Selector="Button.primary">
+  <Setter Property="Margins" Value="4,2" />
+</Style>
+```
+
 Specificity is compared lexicographically as name count, class plus pseudo-state count, then type
 count. Declaration order breaks equal specificity, with the later style winning. A setter property
 path and converted value are validated against the selected control type. When a selector stops
@@ -308,6 +316,7 @@ Diagnostic families:
 | `FXAML1001`-`FXAML1004` | XML, root namespace, and directive errors |
 | `FXAML2001`-`FXAML2002` | Duplicate or invalid names |
 | `FXAML3001`-`FXAML3002` | Binding syntax and compiled-binding errors |
+| `FXAML3501` | Resource key and lookup errors |
 | `FXAML4001` | Selector errors |
 | `FXAML5001` | Trigger errors |
 | `FXAML6001` | Storyboard/timeline errors |

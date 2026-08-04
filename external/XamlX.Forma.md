@@ -70,3 +70,18 @@ make xaml-spike
 Record the new commit and delta in this file. Review the submodule diff with
 `git diff --submodule=log -- external/XamlX` before committing the Forma gitlink. Do not use
 `git submodule update --remote` in CI or release builds.
+
+## Updates and Security Response
+
+Forma maintainers own the XamlX gitlink, Mono.Cecil pin, build-package closure, and response to
+GitHub advisories, NuGet advisories, upstream release notes, repository ownership changes, and
+transitive dependency alerts. Review alerts weekly and before every release. A remotely exploitable
+or build-host code-execution issue blocks package publication until an audited update or bounded
+mitigation passes; other confirmed high-severity issues receive a patch release within seven days.
+
+Every update requires review of the upstream diff and fork delta, licenses/notices, compiler package
+contents, deterministic pack output, portable PDB behavior, malformed-XAML diagnostics, empty-cache
+restore, `make xaml-spike`, and the complete packed trim/AOT matrix. Do not suppress an advisory to
+advance the pin. If no safe revision is available, withdraw the affected build package while leaving
+the runtime package usable without XAML tooling. Record the reviewed revision, advisory disposition,
+and any changed closure in this file before release.

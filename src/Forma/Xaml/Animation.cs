@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 
 namespace Forma.Xaml
@@ -56,6 +57,7 @@ namespace Forma.Xaml
         public string TargetName { get; }
         public XamlProperty<T> Property { get; }
         public IList<KeyFrame<T>> KeyFrames { get; } = new List<KeyFrame<T>>();
+        public void AddKeyFrame(KeyFrame<T> keyFrame) => KeyFrames.Add(keyFrame ?? throw new ArgumentNullException(nameof(keyFrame)));
         public TimeSpan Duration
         {
             get
@@ -166,32 +168,50 @@ namespace Forma.Xaml
 
     public sealed class Storyboard
     {
+        private readonly ConditionalWeakTable<Control, List<StoryboardClock>> _clocks = new ConditionalWeakTable<Control, List<StoryboardClock>>();
+
         public IList<IStoryboardTimeline> Timelines { get; } = new List<IStoryboardTimeline>();
         public RepeatBehavior RepeatBehavior { get; set; } = RepeatBehavior.Once;
         public bool AutoReverse { get; set; }
         public FillBehavior FillBehavior { get; set; } = FillBehavior.Stop;
+        public void AddTimeline(IStoryboardTimeline timeline) => Timelines.Add(timeline ?? throw new ArgumentNullException(nameof(timeline)));
 
         public StoryboardClock Begin(Control root)
         {
             var scope = NameScope.GetNameScope(root) ?? throw new InvalidOperationException("The storyboard root has no namescope.");
-            var clock = new StoryboardClock(this, scope);
+            var clock = new StoryboardClock(this, scope, root);
+            _clocks.GetOrCreateValue(root).Add(clock);
             XamlAttachment.RegisterDisposable(root, clock);
             XamlAttachment.RegisterUpdateParticipant(root, clock);
             return clock;
+        }
+
+        public void Stop(Control root)
+        {
+            if (root == null) throw new ArgumentNullException(nameof(root));
+            if (!_clocks.TryGetValue(root, out var clocks)) return;
+            foreach (var clock in clocks.ToArray()) clock.Stop();
+        }
+
+        internal void Unregister(Control root, StoryboardClock clock)
+        {
+            if (_clocks.TryGetValue(root, out var clocks)) clocks.Remove(clock);
         }
     }
 
     public sealed class StoryboardClock : IXamlUpdateParticipant, IDisposable
     {
         private readonly Storyboard _storyboard;
+        private readonly Control _root;
         private readonly List<IActiveTimeline> _timelines = new List<IActiveTimeline>();
         private readonly TimeSpan _duration;
         private TimeSpan _elapsed;
         private bool _disposed;
 
-        internal StoryboardClock(Storyboard storyboard, NameScope scope)
+        internal StoryboardClock(Storyboard storyboard, NameScope scope, Control root)
         {
             _storyboard = storyboard;
+            _root = root;
             foreach (var timeline in storyboard.Timelines)
             {
                 _timelines.Add(timeline.Activate(scope));
@@ -233,6 +253,7 @@ namespace Forma.Xaml
             if (_disposed) return;
             IsRunning = false;
             DisposeTimelines();
+            _storyboard.Unregister(_root, this);
         }
 
         private void Complete()
@@ -258,6 +279,7 @@ namespace Forma.Xaml
             _disposed = true;
             IsRunning = false;
             DisposeTimelines();
+            _storyboard.Unregister(_root, this);
         }
     }
 
@@ -362,6 +384,122 @@ namespace Forma.Xaml
             private Action _dispose;
             public ActionDisposable(Action dispose) => _dispose = dispose;
             public void Dispose() { var dispose = _dispose; _dispose = null; dispose?.Invoke(); }
+        }
+    }
+
+    public static class CompiledStoryboardTrigger
+    {
+        public static IDisposable AttachEvent<TTarget, THandler>(
+            Control root,
+            TTarget target,
+            Action<TTarget, THandler> add,
+            Action<TTarget, THandler> remove,
+            Func<Action, THandler> createHandler,
+            Storyboard storyboard)
+            where TTarget : class
+            where THandler : Delegate
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (add == null) throw new ArgumentNullException(nameof(add));
+            if (remove == null) throw new ArgumentNullException(nameof(remove));
+            return StoryboardTriggers.AttachEvent(
+                root,
+                handler => add(target, handler),
+                handler => remove(target, handler),
+                createHandler,
+                storyboard);
+        }
+
+        public static IDisposable AttachProperty<TSource, TValue>(
+            Control root,
+            Func<TSource, TValue> read,
+            string propertyName,
+            TValue expected,
+            Storyboard storyboard)
+            where TSource : class
+        {
+            var attachment = new CompiledPropertyStoryboardTrigger<TSource, TValue>(root, read, propertyName, expected, storyboard);
+            XamlAttachment.RegisterDisposable(root, attachment);
+            return attachment;
+        }
+
+        public static IDisposable AttachStopEvent<TTarget, THandler>(
+            Control root,
+            TTarget target,
+            Action<TTarget, THandler> add,
+            Action<TTarget, THandler> remove,
+            Func<Action, THandler> createHandler,
+            Storyboard storyboard)
+            where TTarget : class
+            where THandler : Delegate
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            var subscription = BindingSubscriptions.Event(
+                handler => add(target, handler),
+                handler => remove(target, handler),
+                createHandler(() => storyboard.Stop(root)));
+            XamlAttachment.RegisterDisposable(root, subscription);
+            return subscription;
+        }
+    }
+
+    internal sealed class CompiledPropertyStoryboardTrigger<TSource, TValue> : IDisposable where TSource : class
+    {
+        private readonly Control _root;
+        private readonly Func<TSource, TValue> _read;
+        private readonly string _propertyName;
+        private readonly TValue _expected;
+        private readonly Storyboard _storyboard;
+        private IDisposable _subscription;
+        private TSource _source;
+        private StoryboardClock _clock;
+        private bool _disposed;
+
+        public CompiledPropertyStoryboardTrigger(Control root, Func<TSource, TValue> read, string propertyName, TValue expected, Storyboard storyboard)
+        {
+            _root = root ?? throw new ArgumentNullException(nameof(root));
+            _read = read ?? throw new ArgumentNullException(nameof(read));
+            _propertyName = string.IsNullOrWhiteSpace(propertyName) ? throw new ArgumentException("A source property is required.", nameof(propertyName)) : propertyName;
+            _expected = expected;
+            _storyboard = storyboard ?? throw new ArgumentNullException(nameof(storyboard));
+            root.DataContextChanged += DataContextChanged;
+            AttachSource(root.DataContext as TSource);
+        }
+
+        private void DataContextChanged(object sender, DataContextChangedEventArgs args) => AttachSource(args.CurrentValue as TSource);
+
+        private void AttachSource(TSource source)
+        {
+            _subscription?.Dispose();
+            _subscription = null;
+            _source = source;
+            if (source is System.ComponentModel.INotifyPropertyChanged notifications)
+                _subscription = BindingSubscriptions.PropertyChanged(notifications, _propertyName, Update);
+            Update();
+        }
+
+        private void Update()
+        {
+            if (_disposed) return;
+            var matches = _source != null && EqualityComparer<TValue>.Default.Equals(_read(_source), _expected);
+            if (matches && _clock == null) _clock = _storyboard.Begin(_root);
+            else if (!matches && _clock != null)
+            {
+                _clock.Stop();
+                _clock = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            _root.DataContextChanged -= DataContextChanged;
+            _subscription?.Dispose();
+            _subscription = null;
+            _source = null;
+            _clock?.Stop();
+            _clock = null;
         }
     }
 }

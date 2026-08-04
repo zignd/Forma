@@ -30,6 +30,9 @@
 
   <ItemGroup Condition="'$(IncludeDynamicText)' == 'true'">
     <None Include="../Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoSansArabic_Variable.ttf" Link="Fonts/NotoSansArabic_Variable.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoSansDevanagari_Subset.ttf" Link="Fonts/NotoSansDevanagari_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Assets/Fonts/NotoSansHebrew_Subset.ttf" Link="Fonts/NotoSansHebrew_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="../../docs/examples/DynamicTextQuickStart.cs" Link="Examples/DynamicTextQuickStart.cs" />
   </ItemGroup>
 

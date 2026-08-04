@@ -155,18 +155,18 @@ using (var game = new Game())
 #endif
 #if FORMA_DYNAMIC_TEXT
 #if FORMA_DYNAMIC_TEXT_DEFAULT
-if (context.Theme.FontFamily?.Primary is not DynamicUIFont) return 1;
+if (context.Theme.FontFamily?.Primary is not DynamicUIFont) throw new InvalidOperationException("Dynamic text was not installed as the default font.");
 DynamicTextDefaults.Install(Path.Combine(AppContext.BaseDirectory, "Fonts", "Inter_Regular.ttf"), 18);
 using (var replacementContext = new UIContext())
-    if (replacementContext.Theme.FontFamily?.Primary is not DynamicUIFont replacement || replacement.Size != 18) return 1;
+    if (replacementContext.Theme.FontFamily?.Primary is not DynamicUIFont replacement || replacement.Size != 18) throw new InvalidOperationException("The replacement dynamic text default was not installed.");
 #else
-if (context.Theme.FontFamily is not null) return 1;
+if (context.Theme.FontFamily is not null) throw new InvalidOperationException("Dynamic text defaults were not disabled.");
 #endif
 using var face = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/Inter_Regular.ttf");
 var dynamicLayout = new TextLayoutEngine().Layout(new DynamicUIFont(face, 18), "Forma");
-if (dynamicLayout.Runs.Count == 0 || dynamicLayout.Runs.SelectMany(run => run.Glyphs).Any() == false) return 1;
-if (face.RasterizeCharacter('A', 18).Pixels.Length == 0) return 1;
-if (typeof(DynamicUIFont).Assembly.GetName().Name != "Forma.DynamicText") return 1;
+if (dynamicLayout.Runs.Count == 0 || dynamicLayout.Runs.SelectMany(run => run.Glyphs).Any() == false) throw new InvalidOperationException("Dynamic text shaping produced no glyphs.");
+if (face.RasterizeCharacter('A', 18).Pixels.Length == 0) throw new InvalidOperationException("Dynamic text rasterization produced no pixels.");
+if (typeof(DynamicUIFont).Assembly.GetName().Name != "Forma.DynamicText") throw new InvalidOperationException("DynamicUIFont was not loaded from Forma.DynamicText.");
 var nativeText = DynamicTextNativeDiagnostics.Current;
 if (string.IsNullOrWhiteSpace(nativeText.RuntimeIdentifier) ||
     nativeText.FreeTypeLibraryName != "freetype" ||
@@ -174,15 +174,18 @@ if (string.IsNullOrWhiteSpace(nativeText.RuntimeIdentifier) ||
     nativeText.HarfBuzzLibraryName != "libHarfBuzzSharp" ||
     nativeText.HarfBuzzPackageId != "HarfBuzzSharp.NativeAssets" ||
     nativeText.UsesRuntimeGeneratedMarshalling ||
-    nativeText.RegistersUnmanagedCallbacks) return 1;
+    nativeText.RegistersUnmanagedCallbacks) throw new InvalidOperationException("Dynamic text native diagnostics did not match the packaged backend contract.");
 var outputDirectory = Path.GetFullPath(AppContext.BaseDirectory);
 var packagedModules = NativeModuleInspector.GetLoadedModulePaths()
     .Select(Path.GetFullPath)
     .Where(fileName => fileName.StartsWith(outputDirectory, StringComparison.Ordinal))
     .Select(fileName => Path.GetFileName(fileName) ?? string.Empty)
     .ToArray();
-if (packagedModules.Count(fileName => fileName.Contains("freetype", StringComparison.OrdinalIgnoreCase)) != 1 ||
-    packagedModules.Count(fileName => fileName.Contains("harfbuzz", StringComparison.OrdinalIgnoreCase)) != 1) return 1;
+var freeTypeModuleName = OperatingSystem.IsWindows() ? "freetype.dll" : OperatingSystem.IsLinux() ? "libfreetype.so" : "libfreetype.dylib";
+var harfBuzzModuleName = OperatingSystem.IsWindows() ? "libHarfBuzzSharp.dll" : OperatingSystem.IsLinux() ? "libHarfBuzzSharp.so" : "libHarfBuzzSharp.dylib";
+if (packagedModules.Count(fileName => string.Equals(fileName, freeTypeModuleName, StringComparison.OrdinalIgnoreCase)) != 1 ||
+    packagedModules.Count(fileName => string.Equals(fileName, harfBuzzModuleName, StringComparison.OrdinalIgnoreCase)) != 1)
+    throw new InvalidOperationException($"Expected one packaged FreeType and HarfBuzz module; loaded: {string.Join(", ", packagedModules)}");
 var diagnosticsPath = Environment.GetEnvironmentVariable("FORMA_DYNAMIC_TEXT_DIAGNOSTICS");
 if (!string.IsNullOrWhiteSpace(diagnosticsPath)) File.WriteAllText(diagnosticsPath, dynamicTextDiagnostics);
 #else

@@ -14,6 +14,7 @@
     <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
     <ProjectReference Include="../../src/Forma.Xaml.Compiler/Forma.Xaml.Compiler.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
     <ProjectReference Include="../../src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../Forma.Xaml.Build.Integration/Forma.Xaml.Build.Integration.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

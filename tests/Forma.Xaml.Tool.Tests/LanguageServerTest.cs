@@ -50,7 +50,11 @@ public sealed class LanguageServerTest
         const string uri = "file:///Views/Hud.xaml";
         const string source = """
             <Control xmlns="https://forma.dev/xaml" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Root" Classes="hud">
-              <Style x:Key="HudStyle" Selector="Control.hud" />
+                            <Control.Resources>
+                                <ResourceDictionary>
+                                    <Style x:Key="HudStyle" Selector="Control.hud" />
+                                </ResourceDictionary>
+                            </Control.Resources>
               <Control x:Name="Score" ThemeOverride="{StaticResource HudStyle}" />
               <Vector2Timeline TargetName="Score" Property="Position"><KeyFrame Time="0:0:0" Value="0,0" /></Vector2Timeline>
             </Control>

@@ -107,6 +107,21 @@ for story_name in "Dynamic Sizes" "Display Density" "Fallback Chain" "Shaping an
   ' "$story_actual" >/dev/null
 done
 
+for story_name in "Selector Styles" "Storyboards and Triggers" "Compiled Data Binding"; do
+  story_actual="$stage_directory/$(tr ' ' '-' <<<"$story_name").json"
+  dotnet run --project "$project" \
+    --configuration Release \
+    "${msbuild_options[@]}" \
+    --no-build \
+    -- \
+    ${catalog_options[@]+"${catalog_options[@]}"} \
+    --metrics "$story_actual" \
+    --frames 3 \
+    --display-scale 2 \
+    --story "$story_name"
+  jq -e --arg story "$story_name" '.selectedStory == $story' "$story_actual" >/dev/null
+done
+
 inventory_1x="$stage_directory/icon-inventory-1x.json"
 dotnet run --project "$project" \
   --configuration Release \

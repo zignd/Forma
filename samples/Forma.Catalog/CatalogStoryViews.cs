@@ -25,6 +25,58 @@ public sealed class CatalogStoryViewModel : INotifyPropertyChanged
     }
 }
 
+public sealed class CatalogBindingStoryViewModel : INotifyPropertyChanged
+{
+    private string _projectName = "Aurora UI";
+    private float _completion = 64;
+    private bool _autoSaveEnabled = true;
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    public string ProjectName { get => _projectName; set { if (Set(ref _projectName, value)) NotifySummary(); } }
+    public float Completion { get => _completion; set { if (Set(ref _completion, value)) NotifySummary(); } }
+    public bool AutoSaveEnabled { get => _autoSaveEnabled; set { if (Set(ref _autoSaveEnabled, value)) NotifySummary(); } }
+    public string CompletionText => $"Progress: {Completion:0}%";
+    public string Summary => $"{ProjectName} is {Completion:0}% complete · autosave {(AutoSaveEnabled ? "on" : "off")}";
+
+    public void Reset()
+    {
+        ProjectName = "Aurora UI";
+        Completion = 64;
+        AutoSaveEnabled = true;
+    }
+
+    private bool Set<T>(ref T field, T value, [CallerMemberName] string name = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        return true;
+    }
+
+    private void NotifySummary()
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CompletionText)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Summary)));
+    }
+}
+
+public sealed class CatalogAnimationStoryViewModel : INotifyPropertyChanged
+{
+    private bool _isLooping;
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    public bool IsLooping
+    {
+        get => _isLooping;
+        set
+        {
+            if (_isLooping == value) return;
+            _isLooping = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLooping)));
+        }
+    }
+}
+
 public sealed class DynamicSizesStoryView : BoxContainer
 {
     public DynamicSizesStoryView() : base(Orientation.Vertical)
@@ -38,6 +90,37 @@ public sealed class DynamicSizesStoryView : BoxContainer
     }
 
     public CatalogStoryViewModel ViewModel { get; }
+}
+
+public sealed class StylesStoryView : BoxContainer
+{
+    public StylesStoryView() : base(Orientation.Vertical) => FormaXamlLoader.Load(this);
+}
+
+public sealed class AnimationsStoryView : BoxContainer
+{
+    public AnimationsStoryView() : base(Orientation.Vertical)
+    {
+        ViewModel = new CatalogAnimationStoryViewModel();
+        DataContext = ViewModel;
+        FormaXamlLoader.Load(this);
+    }
+
+    public CatalogAnimationStoryViewModel ViewModel { get; }
+}
+
+public sealed class DataBindingStoryView : BoxContainer
+{
+    public DataBindingStoryView() : base(Orientation.Vertical)
+    {
+        ViewModel = new CatalogBindingStoryViewModel();
+        DataContext = ViewModel;
+        FormaXamlLoader.Load(this);
+    }
+
+    public CatalogBindingStoryViewModel ViewModel { get; }
+
+    private void OnResetPressed(object sender, System.EventArgs args) => ViewModel.Reset();
 }
 
 public sealed class IconInventoryStoryView : BoxContainer

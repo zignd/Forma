@@ -53,6 +53,51 @@ public sealed class CatalogInventoryTest
         Assert.That(storyNames, Does.Contain("SpriteFont Compatibility"));
         Assert.That(storyNames, Does.Contain("Atlas Inspector"));
         Assert.That(storyNames, Does.Contain("Failure States"));
+        Assert.That(storyNames, Does.Contain("Selector Styles"));
+        Assert.That(storyNames, Does.Contain("Storyboards and Triggers"));
+        Assert.That(storyNames, Does.Contain("Compiled Data Binding"));
+    }
+
+    [Test]
+    public void XamlFeatureStoriesExposeStylesAnimationsAndTypedBindings()
+    {
+        var stories = StoryCatalog.Create(null);
+        var styleStory = stories.Single(story => story.Name == "Selector Styles");
+        var animationStory = stories.Single(story => story.Name == "Storyboards and Triggers");
+        var bindingStory = stories.Single(story => story.Name == "Compiled Data Binding");
+        var styleRoot = styleStory.Factory();
+        var animationRoot = (AnimationsStoryView)animationStory.Factory();
+        var bindingRoot = (DataBindingStoryView)bindingStory.Factory();
+        using var context = new UIContext();
+        context.Add(styleRoot);
+        context.Add(animationRoot);
+        context.Add(bindingRoot);
+
+        var styleScope = NameScope.GetNameScope(styleRoot);
+        var selectedCard = styleScope.Find<ColorRect>("SelectedCard");
+        var bindingScope = NameScope.GetNameScope(bindingRoot);
+        bindingScope.Find<LineEdit>("ProjectNameEditor").Text = "Atlas Tools";
+        bindingScope.Find<HSlider>("CompletionSlider").Value = 82;
+        var animationScope = NameScope.GetNameScope(animationRoot);
+        var loopTarget = animationScope.Find<ColorRect>("LoopTarget");
+        var initialLoopColor = loopTarget.Color;
+        animationRoot.ViewModel.IsLooping = true;
+        context.Update(
+            new GameTime(TimeSpan.FromSeconds(.4), TimeSpan.FromSeconds(.4)),
+            new Microsoft.Xna.Framework.Input.MouseState(),
+            new Microsoft.Xna.Framework.Input.KeyboardState());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(styleStory.XamlPath, Is.EqualTo("StylesStoryView.xaml"));
+            Assert.That(animationStory.XamlPath, Is.EqualTo("AnimationsStoryView.xaml"));
+            Assert.That(bindingStory.XamlPath, Is.EqualTo("DataBindingStoryView.xaml"));
+            Assert.That(selectedCard.Color, Is.EqualTo(new Color(246, 185, 73)));
+            Assert.That(bindingRoot.ViewModel.ProjectName, Is.EqualTo("Atlas Tools"));
+            Assert.That(bindingRoot.ViewModel.Completion, Is.EqualTo(82));
+            Assert.That(bindingScope.Find<Label>("BindingSummary").Text, Does.Contain("Atlas Tools is 82% complete"));
+            Assert.That(loopTarget.Color, Is.Not.EqualTo(initialLoopColor));
+        });
     }
 
     [TestCase("Display Density", "densityStatus")]

@@ -63,6 +63,24 @@ public static class StoryCatalog
                     : $"Interactive example of [color=#30b9a4]{type.FullName}[/color]. Use the property inspector to change its public writable values at runtime.",
                 () => CreateExample(type, texture, explicitFactories)));
         }
+        stories.Add(new ComponentStory(
+            "XAML",
+            "Selector Styles",
+            "Compare type, class, name, and hover selectors while the style engine resolves specificity and restores underlying values.",
+            () => new StylesStoryView(),
+            xamlPath: "StylesStoryView.xaml"));
+        stories.Add(new ComponentStory(
+            "XAML",
+            "Storyboards and Triggers",
+            "Run color and size timelines from an event trigger, then toggle a repeating storyboard through a typed property trigger.",
+            () => new AnimationsStoryView(),
+            xamlPath: "AnimationsStoryView.xaml"));
+        stories.Add(new ComponentStory(
+            "XAML",
+            "Compiled Data Binding",
+            "Edit a typed view model through two-way controls and watch one-way labels and progress update through [color=#30b9a4]INotifyPropertyChanged[/color].",
+            () => new DataBindingStoryView(),
+            xamlPath: "DataBindingStoryView.xaml"));
         stories.Add(CreateIconInventoryStory());
         stories.Add(CreateIconCustomizationStory(texture));
         stories.Add(CreateIconDiagnosticsStory(setDisplayScale));

@@ -11,6 +11,7 @@
     <Project Path="src/Forma/Forma.csproj" />
     <Project Path="src/Forma.DynamicText/Forma.DynamicText.csproj" />
     <Project Path="src/Forma.Media/Forma.Media.csproj" />
+    <Project Path="src/Forma.Svg/Forma.Svg.csproj" />
     <Project Path="src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" />
     <Project Path="src/Forma.Xaml.Compiler/Forma.Xaml.Compiler.csproj" />
     <Project Path="src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj" />
@@ -20,8 +21,10 @@
     <Project Path="tests/Forma.DynamicTextSpike/Forma.DynamicTextSpike.csproj" />
     <Project Path="tests/Forma.FnaVideoSmoke/Forma.FnaVideoSmoke.csproj" />
     <Project Path="tests/Forma.NativeFontFailureProbe/Forma.NativeFontFailureProbe.csproj" />
+    <Project Path="tests/Forma.RenderSmoke/Forma.RenderSmoke.csproj" />
     <Project Path="tests/Forma.RenderTests/Forma.RenderTests.csproj" />
     <Project Path="tests/Forma.StaticFontBackendSpike/Forma.StaticFontBackendSpike.csproj" />
+    <Project Path="tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj" />
     <Project Path="tests/Forma.Tests/Forma.Tests.csproj" />
     <Project Path="tests/Forma.Xaml.Build.Integration/Forma.Xaml.Build.Integration.csproj" />
     <Project Path="tests/Forma.Xaml.Compiler.Tests/Forma.Xaml.Compiler.Tests.csproj" />

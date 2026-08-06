@@ -50,7 +50,7 @@ namespace Forma
     /// <summary>Reports cumulative work and current occupancy for a device-scoped SVG raster cache.</summary>
     public readonly struct SvgRasterCacheDiagnostics
     {
-        internal SvgRasterCacheDiagnostics(int pageCount, int capacity, int usedArea, int entryCount, int documentCount, long hits, long misses, long parses, long rasterizations, long uploads, long evictions, long documentEvictions, long failures, string lastDiagnostic, long bytes, int pendingUploads, long uploadBytes, long parseTicks, long rasterTicks)
+        internal SvgRasterCacheDiagnostics(int pageCount, int capacity, int usedArea, int entryCount, int documentCount, long hits, long misses, long parses, long rasterizations, long uploads, long evictions, long documentEvictions, long failures, string lastDiagnostic, long bytes, int pendingUploads, long uploadBytes, long parseTicks, long rasterTicks, string backendId, string backendVersion, string profileVersion)
         {
             PageCount = pageCount;
             Capacity = capacity;
@@ -71,6 +71,9 @@ namespace Forma
             UploadBytes = uploadBytes;
             ParseTime = TimeSpan.FromSeconds((double)parseTicks / Stopwatch.Frequency);
             RasterTime = TimeSpan.FromSeconds((double)rasterTicks / Stopwatch.Frequency);
+            BackendId = backendId ?? string.Empty;
+            BackendVersion = backendVersion ?? string.Empty;
+            ProfileVersion = profileVersion ?? string.Empty;
         }
 
         public int PageCount { get; }
@@ -92,6 +95,9 @@ namespace Forma
         public long UploadBytes { get; }
         public TimeSpan ParseTime { get; }
         public TimeSpan RasterTime { get; }
+        public string BackendId { get; }
+        public string BackendVersion { get; }
+        public string ProfileVersion { get; }
     }
 
     /// <summary>Provides an immutable RGBA snapshot of an SVG atlas page for diagnostics.</summary>
@@ -273,6 +279,7 @@ namespace Forma
                 usedArea = checked(usedArea + page.Allocator.UsedArea);
                 if (page.Dirty) pendingUploads++;
             }
+            var backendHealth = SvgBackendRegistry.Health;
             return new SvgRasterCacheDiagnostics(
                 _pages.Count,
                 checked(_pages.Count * _options.PageWidth * _options.PageHeight),
@@ -292,7 +299,10 @@ namespace Forma
                 pendingUploads,
                 _uploadBytes,
                 _parseTicks,
-                _rasterTicks);
+                _rasterTicks,
+                backendHealth.BackendId,
+                backendHealth.Version,
+                backendHealth.ProfileVersion);
         }
 
         internal IReadOnlyList<SvgRasterAtlasPageSnapshot> GetDebugPages()

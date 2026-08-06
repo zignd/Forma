@@ -9,7 +9,14 @@ namespace Forma.Tests
     public sealed class SvgRasterCacheTest
     {
         [SetUp]
-        public void InstallBackend() => SvgBackendDefaults.Install();
+        public void InstallBackend()
+        {
+    #if THORVG
+            SvgThorvgBackendDefaults.Install();
+    #else
+            SvgSkiaBackendDefaults.Install();
+    #endif
+        }
 
         [Test]
         public void StoreParsesOnceReusesExactSizeAndPreservesTransparentPadding()
@@ -35,6 +42,9 @@ namespace Forma.Tests
                 Assert.That(diagnostics.Misses, Is.EqualTo(2));
                 Assert.That(diagnostics.Hits, Is.EqualTo(1));
                 Assert.That(diagnostics.DocumentCount, Is.EqualTo(1));
+                Assert.That(diagnostics.BackendId, Is.EqualTo(SvgRuntime.Health.BackendId));
+                Assert.That(diagnostics.BackendVersion, Is.EqualTo(SvgRuntime.Health.Version));
+                Assert.That(diagnostics.ProfileVersion, Is.EqualTo("1"));
                 Assert.That(paddingPixel, Is.EqualTo(new byte[4]));
                 Assert.That(pixels[(first.Bounds.Y * 16 + first.Bounds.X) * 4 + 3], Is.GreaterThan((byte)0));
             });

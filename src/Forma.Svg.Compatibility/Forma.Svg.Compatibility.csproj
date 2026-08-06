@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Forma.Svg.Compatibility</AssemblyName>
+    <RootNamespace>Forma</RootNamespace>
+    <PackageId>Forma.Svg.$(FormaRuntime)</PackageId>
+    <VersionPrefix>$(FormaVersion)</VersionPrefix>
+    <Description>Compatibility package for Forma runtime SVG. New applications should reference Forma.Svg.Skia.$(FormaRuntime).</Description>
+    <PackageTags>forma;$(FormaRuntime);ui;svg;compatibility</PackageTags>
+    <IsPackable>true</IsPackable>
+    <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Forma.Svg/Forma.Svg.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../NOTICE.md" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../docs/svg-backend-migration.md" Pack="true" PackagePath="docs/" />
+    <None Include="PackageBuild/Forma.Svg.Compatibility.PackageInitializer.cs.txt" Pack="true" PackagePath="buildTransitive/" />
+    <None Include="PackageGuards/Forma.Svg.Compatibility.$(FormaRuntime).targets" Pack="true" PackagePath="buildTransitive/$(PackageId).targets" />
+  </ItemGroup>
+
+</Project>

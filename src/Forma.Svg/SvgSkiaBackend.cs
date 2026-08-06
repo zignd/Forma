@@ -14,7 +14,9 @@ namespace Forma
     {
         private const SvgBackendFeatures Features = SvgBackendFeatures.Paths | SvgBackendFeatures.Gradients |
             SvgBackendFeatures.Clips | SvgBackendFeatures.Transforms | SvgBackendFeatures.LocalReferences |
-            SvgBackendFeatures.CurrentColor;
+            SvgBackendFeatures.CurrentColor | SvgBackendFeatures.Shapes | SvgBackendFeatures.Strokes |
+            SvgBackendFeatures.Styles | SvgBackendFeatures.Masks | SvgBackendFeatures.ViewBoxes |
+            SvgBackendFeatures.PreserveAspectRatio | SvgBackendFeatures.Opacity;
 
         internal static SvgSkiaBackend Instance { get; } = new SvgSkiaBackend();
 
@@ -87,14 +89,27 @@ namespace Forma
             try
             {
                 using var surface = SKSurface.Create(new SKImageInfo(1, 1, SKColorType.Rgba8888, SKAlphaType.Premul));
-                if (surface == null) return new SvgBackendHealth(true, false, "Svg.Skia", version, Features, "SkiaSharp could not create a health-probe surface.");
-                return new SvgBackendHealth(true, true, "Svg.Skia", version, Features, $"Svg.Skia is available for {RuntimeInformation.RuntimeIdentifier}.");
+                if (surface == null) return CreateHealth(false, version, "SkiaSharp could not create a health-probe surface.");
+                return CreateHealth(true, version, $"Svg.Skia is available for {RuntimeInformation.RuntimeIdentifier}.");
             }
             catch (Exception exception) when (exception is DllNotFoundException or EntryPointNotFoundException or TypeInitializationException)
             {
-                return new SvgBackendHealth(true, false, "Svg.Skia", version, Features, $"SkiaSharp native initialization failed: {exception.GetType().Name}.");
+                return CreateHealth(false, version, $"SkiaSharp native initialization failed: {exception.GetType().Name}.");
             }
         }
+
+        private static SvgBackendHealth CreateHealth(bool available, string version, string diagnostic) =>
+            new SvgBackendHealth(
+                true,
+                available,
+                "skia",
+                "Svg.Skia",
+                version,
+                "1",
+                Features,
+                available ? SvgNativeAvailability.Packaged : SvgNativeAvailability.Unavailable,
+                SvgBackendLinkMode.Dynamic,
+                diagnostic);
 
         private sealed class SvgSkiaDocument : ISvgBackendDocument
         {

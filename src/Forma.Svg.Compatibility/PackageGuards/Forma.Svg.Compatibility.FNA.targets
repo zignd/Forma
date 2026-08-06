@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <FormaSvgCompatibilityPackageReferenced>true</FormaSvgCompatibilityPackageReferenced>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Forma.Svg.Compatibility.PackageInitializer.cs.txt" Link="obj/Forma.Svg.Compatibility.PackageInitializer.cs" Visible="false" />
+  </ItemGroup>
+  <Target Name="WarnFormaSvgCompatibilityFnaPackage" BeforeTargets="CoreCompile">
+    <Warning Text="Forma.Svg.FNA is a compatibility package. Migrate to Forma.Svg.Skia.FNA." />
+  </Target>
+</Project>

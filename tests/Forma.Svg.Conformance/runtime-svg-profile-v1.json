@@ -1,0 +1,39 @@
+{
+  "profileVersion": "1",
+  "scales": [1.0, 1.25, 1.5, 1.75, 2.0, 2.5],
+  "fixtures": [
+    "path",
+    "linear-gradient",
+    "clip",
+    "transform",
+    "local-use",
+    "current-color",
+    "shapes",
+    "styles-and-dashes",
+    "stroke-opacity",
+    "nested-transforms",
+    "radial-gradient",
+    "mask",
+    "view-box-meet",
+    "view-box-slice",
+    "view-box-none"
+  ],
+  "excluded": [
+    "animation",
+    "external-resources",
+    "filters",
+    "foreign-object",
+    "images",
+    "scripts-and-events",
+    "text-and-fonts"
+  ],
+  "tolerances": {
+    "themeAlphaCoveragePercent": 4.0,
+    "semanticAlphaCoveragePercent": 8.0,
+    "themeMeanPremultipliedChannel": 12,
+    "themePercentile95PremultipliedChannel": 48,
+    "semanticMeanPremultipliedChannel": 26,
+    "semanticPercentile95PremultipliedChannel": 128,
+    "boundsPixelsAtScale": "ceil(scale)"
+  }
+}

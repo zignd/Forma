@@ -1,0 +1,48 @@
+# SVG Backend Selection and Migration
+
+## Explicit Packages
+
+Choose exactly one runtime-matched backend:
+
+```xml
+<PackageReference Include="Forma.Svg.Skia.MonoGame" Version="0.1.0-alpha.1" />
+```
+
+or:
+
+```xml
+<PackageReference Include="Forma.Svg.ThorVG.MonoGame" Version="0.1.0-alpha.1" />
+```
+
+Use `.FNA` peers with `Forma.FNA`. Package build targets install the selected backend without
+reflection. Source-project hosts call `SvgSkiaBackendDefaults.Install()` or
+`SvgThorvgBackendDefaults.Install()` before first SVG use; `Verify()` additionally runs a bounded
+2x2 raster check.
+
+Existing `Forma.Svg.MonoGame` and `Forma.Svg.FNA` packages remain one-window compatibility packages.
+They emit a build warning, depend on explicit Skia, and preserve existing output. Migrate by removing
+the compatibility package, adding one explicit package, cleaning lock/output directories, and
+confirming the publish contains only the chosen engine. Build guards reject mixed peers/backends.
+The compatibility package IDs remain available throughout the `0.x` release line and are scheduled
+for removal in Forma `1.0.0`, after at least one published release has carried the migration warning.
+
+`SvgRuntime.Health` exposes `BackendId`, `Version`, `ProfileVersion`, `NativeAvailability`,
+`LinkMode`, tested features, and a bounded diagnostic. Missing native assets, ABI mismatch, conflict,
+and late selection fail explicitly. Forma never falls back from ThorVG to Skia. Default theme icons
+can still use `ThemeIconRenderingPolicy.BitmapAtlas` as the renderer-independent rollback.
+
+## Deployment Status
+
+| Backend | macOS arm64 | Linux x64 | Windows x64 | Restricted/console |
+| --- | --- | --- | --- | --- |
+| Skia 5.2.0 | Supported reference | Supported reference | Supported reference | Untested |
+| ThorVG 1.1.0 dynamic | Experimental, validated | Experimental, validated | Untested | Not applicable |
+| ThorVG ABI 1 static | Reference host validated | Reference host validated | Untested | Console-ready architecture only |
+
+"Console-ready" means source/static integration is available. "Console-qualified" requires current
+authorized evidence for the exact SDK, compiler, linker, hardware, source commit, ABI/profile, and
+Forma release. No console is currently qualified.
+
+Rollback consists of removing the ThorVG package and selecting explicit Skia, or selecting bitmap
+atlas policy when runtime SVG is optional. Application SVG failures remain explicit; only default
+theme icons have their documented PNG fallback.

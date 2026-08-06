@@ -1,7 +1,8 @@
 #nullable enable
+using System;
 using System.Runtime.CompilerServices;
 
-internal static class FormaSvgPackageInitializer
+internal static class FormaSvgCompatibilityPackageInitializer
 {
     [ModuleInitializer]
     internal static void Initialize()

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Forma
 {
-    public static class SvgBackendDefaults
+    public static class SvgSkiaBackendDefaults
     {
         public static SvgBackendHealth Health => SvgSkiaBackend.Instance.Health;
 
@@ -31,20 +31,14 @@ namespace Forma
         }
     }
 
-    internal sealed class DefaultThemeSvgSourceProvider : IDefaultThemeSvgSourceProvider
+    [Obsolete("Use SvgSkiaBackendDefaults to select the Skia backend explicitly.")]
+    public static class SvgBackendDefaults
     {
-        internal static readonly DefaultThemeSvgSourceProvider Instance = new DefaultThemeSvgSourceProvider();
-        private readonly Dictionary<string, SvgImageSource> _sources = new Dictionary<string, SvgImageSource>(StringComparer.Ordinal);
+        public static SvgBackendHealth Health => SvgSkiaBackendDefaults.Health;
 
-        public SvgImageSource GetSource(string name)
-        {
-            lock (_sources)
-            {
-                if (_sources.TryGetValue(name, out var source)) return source;
-                source = SvgImageSource.FromManifestResource(typeof(DefaultThemeSvgSourceProvider).Assembly, $"Forma.ThemeIcons.Svg.{name}.svg");
-                _sources.Add(name, source);
-                return source;
-            }
-        }
+        public static void Install() => SvgSkiaBackendDefaults.Install();
+
+        public static SvgBackendHealth Verify() => SvgSkiaBackendDefaults.Verify();
     }
+
 }

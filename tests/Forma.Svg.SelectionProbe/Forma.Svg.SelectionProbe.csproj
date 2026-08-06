@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.Svg.SelectionProbe</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(FormaRuntime)' == 'MonoGame'" />
+  </ItemGroup>
+
+</Project>

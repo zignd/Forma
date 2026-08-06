@@ -17,28 +17,80 @@ namespace Forma
         Transforms = 1 << 3,
         LocalReferences = 1 << 4,
         CurrentColor = 1 << 5,
+        Shapes = 1 << 6,
+        Strokes = 1 << 7,
+        Styles = 1 << 8,
+        Masks = 1 << 9,
+        ViewBoxes = 1 << 10,
+        PreserveAspectRatio = 1 << 11,
+        Opacity = 1 << 12,
+    }
+
+    /// <summary>Identifies how backend native code is supplied to the process.</summary>
+    public enum SvgBackendLinkMode
+    {
+        Managed,
+        Dynamic,
+        Static,
+    }
+
+    /// <summary>Identifies where an SVG backend's native implementation comes from.</summary>
+    public enum SvgNativeAvailability
+    {
+        Unavailable,
+        Managed,
+        Packaged,
+        HostProvided,
     }
 
     /// <summary>Describes backend registration, native availability, version, and diagnostics.</summary>
     public readonly struct SvgBackendHealth
     {
-        internal SvgBackendHealth(bool isRegistered, bool isNativeAvailable, string name, string version, SvgBackendFeatures supportedFeatures, string diagnostic)
+        private const int MaxDiagnosticLength = 512;
+
+        internal SvgBackendHealth(
+            bool isRegistered,
+            bool isNativeAvailable,
+            string backendId,
+            string name,
+            string version,
+            string profileVersion,
+            SvgBackendFeatures supportedFeatures,
+            SvgNativeAvailability nativeAvailability,
+            SvgBackendLinkMode linkMode,
+            string diagnostic)
         {
             IsRegistered = isRegistered;
             IsNativeAvailable = isNativeAvailable;
+            BackendId = backendId ?? string.Empty;
             Name = name ?? string.Empty;
             Version = version ?? string.Empty;
+            ProfileVersion = profileVersion ?? string.Empty;
             SupportedFeatures = supportedFeatures;
-            Diagnostic = diagnostic ?? string.Empty;
+            NativeAvailability = nativeAvailability;
+            LinkMode = linkMode;
+            Diagnostic = BoundDiagnostic(diagnostic);
         }
 
         public bool IsRegistered { get; }
         public bool IsNativeAvailable { get; }
         public bool IsAvailable => IsRegistered && IsNativeAvailable;
+        public string BackendId { get; }
         public string Name { get; }
         public string Version { get; }
+        public string ProfileVersion { get; }
         public SvgBackendFeatures SupportedFeatures { get; }
+        public SvgNativeAvailability NativeAvailability { get; }
+        public SvgBackendLinkMode LinkMode { get; }
         public string Diagnostic { get; }
+
+        private static string BoundDiagnostic(string diagnostic)
+        {
+            if (string.IsNullOrEmpty(diagnostic)) return string.Empty;
+            return diagnostic.Length <= MaxDiagnosticLength
+                ? diagnostic
+                : diagnostic.Substring(0, MaxDiagnosticLength);
+        }
     }
 
     /// <summary>Exposes health information for the statically registered runtime SVG backend.</summary>
@@ -102,7 +154,17 @@ namespace Forma
         private static int _started;
 
         internal static SvgBackendHealth Health => Volatile.Read(ref _backend)?.Health ??
-            new SvgBackendHealth(false, false, string.Empty, string.Empty, SvgBackendFeatures.None, "No SVG backend is registered. Reference and initialize the runtime-matched Forma.Svg package.");
+            new SvgBackendHealth(
+                false,
+                false,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                SvgBackendFeatures.None,
+                SvgNativeAvailability.Unavailable,
+                SvgBackendLinkMode.Managed,
+                "No SVG backend is registered. Reference and explicitly install a runtime-matched Forma SVG backend package.");
 
         internal static ISvgRasterizerBackend Backend
         {
@@ -111,7 +173,7 @@ namespace Forma
                 Volatile.Write(ref _started, 1);
                 var backend = Volatile.Read(ref _backend);
                 if (backend == null)
-                    throw new InvalidOperationException("No SVG backend is registered. Reference and initialize the runtime-matched Forma.Svg package.");
+                    throw new InvalidOperationException("No SVG backend is registered. Reference and explicitly install a runtime-matched Forma SVG backend package.");
                 if (!backend.Health.IsNativeAvailable)
                     throw new InvalidOperationException(backend.Health.Diagnostic);
                 return backend;
@@ -124,9 +186,9 @@ namespace Forma
             var current = Volatile.Read(ref _backend);
             if (ReferenceEquals(current, backend)) return;
             if (current != null)
-                throw new InvalidOperationException($"SVG backend '{current.Health.Name}' is already registered.");
+                throw new InvalidOperationException($"SVG backend '{current.Health.BackendId}' is already registered; cannot install '{backend.Health.BackendId}'.");
             if (Volatile.Read(ref _started) != 0)
-                throw new InvalidOperationException("The SVG backend cannot change after the first document is parsed.");
+                throw new InvalidOperationException($"SVG backend '{backend.Health.BackendId}' cannot be installed after SVG parsing has started.");
             Volatile.Write(ref _backend, backend);
         }
     }

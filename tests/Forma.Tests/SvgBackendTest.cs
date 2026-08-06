@@ -9,6 +9,13 @@ namespace Forma.Tests
     [TestFixture]
     public sealed class SvgBackendTest
     {
+        [TestCaseSource(typeof(SvgProfileV1Fixtures), nameof(SvgProfileV1Fixtures.All))]
+        public void RasterizesProfileV1AtApprovedScales(string name, string svg)
+        {
+            SvgSkiaBackendDefaults.Install();
+            AssertProfileScales(name, svg);
+        }
+
         [TestCase("<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8'><path d='M0 0h8v8H0z' fill='#f00'/></svg>")]
         [TestCase("<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8'><defs><linearGradient id='g'><stop stop-color='#f00'/><stop offset='1' stop-color='#00f'/></linearGradient></defs><rect width='8' height='8' fill='url(#g)'/></svg>")]
         [TestCase("<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8'><defs><clipPath id='c'><circle cx='4' cy='4' r='3'/></clipPath></defs><rect width='8' height='8' clip-path='url(#c)' fill='#0f0'/></svg>")]
@@ -23,7 +30,7 @@ namespace Forma.Tests
         [TestCase("<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8'><defs><mask id='m'><rect width='4' height='8' fill='#fff'/></mask></defs><rect width='8' height='8' fill='#0cf' mask='url(#m)'/></svg>")]
         public void RasterizesSupportedFeatureFixtures(string svg)
         {
-            SvgBackendDefaults.Install();
+            SvgSkiaBackendDefaults.Install();
             var source = SvgImageSource.FromMemory(Encoding.UTF8.GetBytes(svg));
             var backend = SvgBackendRegistry.Backend;
             using var document = backend.Parse(source.CopySource());
@@ -38,10 +45,30 @@ namespace Forma.Tests
             });
         }
 
+        private static void AssertProfileScales(string name, string svg)
+        {
+            var source = SvgImageSource.FromMemory(Encoding.UTF8.GetBytes(svg));
+            using var document = SvgBackendRegistry.Backend.Parse(source.CopySource());
+            foreach (var scale in new[] { 1f, 1.25f, 1.5f, 1.75f, 2f, 2.5f })
+            {
+                var width = Math.Max(1, (int)MathF.Ceiling(source.IntrinsicSize.X * scale));
+                var height = Math.Max(1, (int)MathF.Ceiling(source.IntrinsicSize.Y * scale));
+                var raster = SvgBackendRegistry.Backend.Rasterize(document, width, height);
+                Assert.That(raster.Pixels.Where((_, index) => index % 4 == 3), Has.Some.GreaterThan((byte)0), $"{name} at {scale}x");
+                for (var index = 0; index < raster.Pixels.Length; index += 4)
+                {
+                    var alpha = raster.Pixels[index + 3];
+                    Assert.That(raster.Pixels[index], Is.LessThanOrEqualTo(alpha), $"{name} red at {scale}x");
+                    Assert.That(raster.Pixels[index + 1], Is.LessThanOrEqualTo(alpha), $"{name} green at {scale}x");
+                    Assert.That(raster.Pixels[index + 2], Is.LessThanOrEqualTo(alpha), $"{name} blue at {scale}x");
+                }
+            }
+        }
+
         [Test]
         public void InstallsParsesAndRasterizesPremultipliedRgba()
         {
-            SvgBackendDefaults.Install();
+            SvgSkiaBackendDefaults.Install();
             var health = SvgRuntime.Health;
             var source = SvgImageSource.FromMemory(Encoding.UTF8.GetBytes(
                 "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='12' viewBox='0 0 16 12'><defs><linearGradient id='g'><stop offset='0' stop-color='#ff0000'/><stop offset='1' stop-color='#0000ff' stop-opacity='.5'/></linearGradient></defs><rect width='16' height='12' fill='url(#g)'/></svg>"));
@@ -52,11 +79,15 @@ namespace Forma.Tests
             Assert.Multiple(() =>
             {
                 Assert.That(health.IsAvailable, Is.True, health.Diagnostic);
+                Assert.That(health.BackendId, Is.EqualTo("skia"));
                 Assert.That(health.Name, Is.EqualTo("Svg.Skia"));
                 Assert.That(health.Version, Does.StartWith("5.2.0"));
-                Assert.That(health.SupportedFeatures, Is.EqualTo(
-                    SvgBackendFeatures.Paths | SvgBackendFeatures.Gradients | SvgBackendFeatures.Clips |
-                    SvgBackendFeatures.Transforms | SvgBackendFeatures.LocalReferences | SvgBackendFeatures.CurrentColor));
+                Assert.That(health.ProfileVersion, Is.EqualTo("1"));
+                Assert.That(health.NativeAvailability, Is.EqualTo(SvgNativeAvailability.Packaged));
+                Assert.That(health.LinkMode, Is.EqualTo(SvgBackendLinkMode.Dynamic));
+                Assert.That(health.SupportedFeatures & SvgBackendFeatures.Paths, Is.EqualTo(SvgBackendFeatures.Paths));
+                Assert.That(health.SupportedFeatures & SvgBackendFeatures.Masks, Is.EqualTo(SvgBackendFeatures.Masks));
+                Assert.That(health.SupportedFeatures & SvgBackendFeatures.PreserveAspectRatio, Is.EqualTo(SvgBackendFeatures.PreserveAspectRatio));
                 Assert.That(raster.Width, Is.EqualTo(32));
                 Assert.That(raster.Height, Is.EqualTo(24));
                 Assert.That(raster.Pixels, Has.Length.EqualTo(32 * 24 * 4));
@@ -75,7 +106,7 @@ namespace Forma.Tests
         [Test]
         public void HonorsViewBoxPreserveAspectRatioModes()
         {
-            SvgBackendDefaults.Install();
+            SvgSkiaBackendDefaults.Install();
             var backend = SvgBackendRegistry.Backend;
             var meet = Rasterize("xMidYMid meet");
             var slice = Rasterize("xMidYMid slice");
@@ -102,8 +133,8 @@ namespace Forma.Tests
         [Test]
         public void EveryDefaultThemeSvgResourceParsesAndRasterizes()
         {
-            SvgBackendDefaults.Install();
-            var assembly = typeof(SvgBackendDefaults).Assembly;
+            SvgSkiaBackendDefaults.Install();
+            var assembly = typeof(SvgImageSource).Assembly;
             var resources = assembly.GetManifestResourceNames()
                 .Where(name => name.StartsWith("Forma.ThemeIcons.Svg.", StringComparison.Ordinal) && name.EndsWith(".svg", StringComparison.Ordinal))
                 .OrderBy(name => name, StringComparer.Ordinal)
@@ -124,7 +155,7 @@ namespace Forma.Tests
         [Test]
         public void AssertsPaintOutputsForStrokeOpacityDashAndLinecap()
         {
-            SvgBackendDefaults.Install();
+            SvgSkiaBackendDefaults.Install();
             var backend = SvgBackendRegistry.Backend;
 
             // fill-opacity=0.5 on a solid rect must produce partial premultiplied alpha in the interior.

@@ -84,12 +84,19 @@
     <EmbeddedResource Include="Resources/ThemeIcons/theme-icons-1x.png" LogicalName="Forma.ThemeIcons.theme-icons-1x.png" />
     <EmbeddedResource Include="Resources/ThemeIcons/theme-icons-2x.png" LogicalName="Forma.ThemeIcons.theme-icons-2x.png" />
     <EmbeddedResource Include="Resources/ThemeIcons/theme-icons.json" LogicalName="Forma.ThemeIcons.theme-icons.json" />
+    <EmbeddedResource Include="../../assets/theme-icons/svg/*.svg" LogicalName="Forma.ThemeIcons.Svg.%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Forma.DynamicText" />
     <InternalsVisibleTo Include="Forma.Media" />
-    <InternalsVisibleTo Include="Forma.Svg" />
+    <InternalsVisibleTo Include="Forma.Svg.Skia" />
+    <InternalsVisibleTo Include="Forma.Svg.ThorVG" />
+    <InternalsVisibleTo Include="Forma.Svg.SelectionProbe" />
+    <InternalsVisibleTo Include="Forma.Svg.Benchmark.Skia" />
+    <InternalsVisibleTo Include="Forma.Svg.Benchmark.ThorVG" />
+    <InternalsVisibleTo Include="Forma.ThorVG.StaticHost" />
+    <InternalsVisibleTo Include="Forma.ThorVG.Tests" />
     <InternalsVisibleTo Include="Forma.RenderSmoke" />
     <InternalsVisibleTo Include="Forma.RenderTests" />
     <InternalsVisibleTo Include="Forma.Tests" />

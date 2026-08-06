@@ -32,6 +32,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="../Forma.Svg.Conformance/SvgProfileV1Fixtures.cs" Link="SvgConformance/SvgProfileV1Fixtures.cs" />
+    <Compile Include="../Forma.Svg.Conformance/SvgProfileV1Corpus.cs" Link="SvgConformance/SvgProfileV1Corpus.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="../Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../Assets/Fonts/NotoSansArabic_Variable.ttf" Link="Fonts/NotoSansArabic_Variable.ttf" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../Assets/Fonts/NotoSansDevanagari_Subset.ttf" Link="Fonts/NotoSansDevanagari_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />

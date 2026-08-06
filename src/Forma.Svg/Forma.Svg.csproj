@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>Forma.Svg</AssemblyName>
+    <AssemblyName>Forma.Svg.Skia</AssemblyName>
     <RootNamespace>Forma</RootNamespace>
-    <PackageId>Forma.Svg.$(FormaRuntime)</PackageId>
+    <PackageId>Forma.Svg.Skia.$(FormaRuntime)</PackageId>
     <VersionPrefix>$(FormaVersion)</VersionPrefix>
-    <Description>Optional bounded runtime SVG parsing and rasterization for Forma.$(FormaRuntime).</Description>
+    <Description>Optional bounded Svg.Skia runtime SVG backend for Forma.$(FormaRuntime).</Description>
     <PackageTags>forma;$(FormaRuntime);ui;svg;graphics</PackageTags>
     <IsPackable>true</IsPackable>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
@@ -42,7 +42,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Forma.Tests" />
-    <EmbeddedResource Include="../../assets/theme-icons/svg/*.svg" LogicalName="Forma.ThemeIcons.Svg.%(Filename)%(Extension)" />
+    <InternalsVisibleTo Include="Forma.Svg.Benchmark.Skia" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,6 +52,8 @@
     <None Include="../../RELEASE_NOTES.md" Pack="true" PackagePath="" />
     <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" />
     <None Include="../../docs/runtime-svg.md" Pack="true" PackagePath="docs/" />
+    <None Include="../../docs/runtime-svg-profile-v1.md" Pack="true" PackagePath="docs/" />
+    <None Include="../../docs/svg-backend-migration.md" Pack="true" PackagePath="docs/" />
     <None Include="PackageBuild/Forma.Svg.PackageInitializer.cs.txt" Pack="true" PackagePath="buildTransitive/" />
     <None Include="PackageGuards/Forma.Svg.$(FormaRuntime).targets" Pack="true" PackagePath="buildTransitive/$(PackageId).targets" />
   </ItemGroup>

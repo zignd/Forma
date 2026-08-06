@@ -75,6 +75,29 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void RuntimeShapingMatchesHarfBuzzAndCoreTextReferences()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var shaped = face.Shape("runtime.", 16, TextDirection.LeftToRight, "en", "Latn");
+            var origins = new float[shaped.Glyphs.Count];
+            var penX = 0f;
+            for (var index = 0; index < shaped.Glyphs.Count; index++)
+            {
+                origins[index] = penX + shaped.Glyphs[index].OffsetX;
+                penX += shaped.Glyphs[index].AdvanceX;
+            }
+            var harfBuzzAdvances = new[] { 6.03125f, 9.46875f, 9.453125f, 5.234375f, 3.875f, 14.015625f, 9.328125f, 4.609375f };
+            var coreTextOrigins = new[] { 0f, 6.0234375f, 15.484375f, 24.9375f, 30.171875f, 34.046875f, 48.0625f, 57.390625f };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(shaped.Glyphs, Has.Count.EqualTo(8));
+                Assert.That(shaped.Glyphs.Select(glyph => glyph.AdvanceX), Is.EqualTo(harfBuzzAdvances).Within(0.0001f));
+                Assert.That(origins, Is.EqualTo(coreTextOrigins).Within(1f / 32));
+            });
+        }
+
+        [Test]
         public void ReadsVariableAxesAndRasterizesCombiningMarks()
         {
             using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/NotoSansArabic_Variable.ttf");

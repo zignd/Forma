@@ -28,17 +28,6 @@ namespace Forma
         public LinkButtonUnderlineMode UnderlineMode { get; set; } = LinkButtonUnderlineMode.Always;
         /// <summary>Raised when a valid URI is activated, whether or not a launcher is available.</summary>
         public event Action<LinkButton, string> UriRequested;
-        internal override void Draw(UIRenderContext context)
-        {
-            base.Draw(context);
-            var underline = UnderlineMode == LinkButtonUnderlineMode.Always || (UnderlineMode == LinkButtonUnderlineMode.OnHover && (IsHovering || IsPressing));
-            if (underline && EffectiveUIFont != null && !string.IsNullOrEmpty(Text))
-            {
-                var width = (int)TextMetrics.Measure(EffectiveUIFont, Text).X;
-                var x = Bounds.X + Math.Max((int)Padding.Left, (Bounds.Width - width) / 2);
-                context.Fill(new Rectangle(x, Bounds.Bottom - Math.Max(2, (int)Padding.Bottom), Math.Max(0, width), 1), context.Theme.AccentColor);
-            }
-        }
         private void OpenUri()
         {
             if (string.IsNullOrWhiteSpace(Uri) || !System.Uri.TryCreate(Uri, UriKind.Absolute, out var uri)) return;
@@ -211,18 +200,6 @@ namespace Forma
             var maskY = layout.Source.Y + (int)((localY - layout.Destination.Y) * ClickMask.Height / (float)layout.Destination.Height);
             return ClickMask[maskX, maskY];
         }
-        internal override void Draw(UIRenderContext context)
-        {
-            var texture = GetCurrentTexture();
-            if (texture != null) DrawTexture(context, texture, GetTextureLayout(new Vector2(texture.Width, texture.Height)));
-            else base.Draw(context);
-            if (Context?.FocusedControl == this)
-            {
-                var focusLayout = GetFocusOverlayLayout();
-                if (focusLayout.HasValue) DrawTexture(context, TextureFocused, focusLayout.Value);
-            }
-            foreach (var child in GetChildrenInDrawOrder()) if (child.Visible) child.DrawTree(context);
-        }
         /// <summary>Computes the focus-ring overlay's draw layout, matching Godot's draw_focus_only:
         /// the destination rect (and tile flag) are reused from the PRIMARY drawn texture's own layout,
         /// only falling back to geometry computed from the focus texture's own size when there is no
@@ -253,7 +230,7 @@ namespace Forma
             if (IsHovering) return TextureHover ?? (ButtonPressed && TexturePressed != null ? TexturePressed : TextureNormal);
             return TextureNormal;
         }
-        private void DrawTexture(UIRenderContext context, Texture2D texture, TextureButtonLayout layout)
+        internal void DrawTemplateTexture(UIRenderContext context, Texture2D texture, TextureButtonLayout layout)
         {
             var effects = (FlipH ? SpriteEffects.FlipHorizontally : SpriteEffects.None) | (FlipV ? SpriteEffects.FlipVertically : SpriteEffects.None);
             if (layout.Tile)
@@ -274,6 +251,8 @@ namespace Forma
 
     public class ScrollBar : Range
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.ScrollBar;
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions | AccessibilityActions.Scroll;
         private enum HighlightRegion { None, Decrement, Increment, Range }
         private bool _dragging;
         private bool _decrementActive;
@@ -305,6 +284,8 @@ namespace Forma
         public bool SmoothScrollEnabled { get; set; }
         public bool DragNodeEnabled { get; set; } = true;
         public bool IsDraggingGrabber => _dragging;
+        internal bool IsDecrementActive => _decrementActive;
+        internal bool IsIncrementActive => _incrementActive;
         public bool IsDecrementHighlighted => _highlight == HighlightRegion.Decrement;
         public bool IsIncrementHighlighted => _highlight == HighlightRegion.Increment;
         public bool IsRangeHighlighted => _highlight == HighlightRegion.Range;
@@ -391,7 +372,7 @@ namespace Forma
         private bool IsDragNodeTarget(Control target)
         {
             if (_dragNode == null) ResolveDragNode();
-            for (var control = target; control != null; control = control.Parent)
+            for (var control = target; control != null; control = control.VisualParent)
                 if (control == _dragNode) return true;
             return false;
         }
@@ -536,18 +517,7 @@ namespace Forma
             else if (Orientation == Orientation.Vertical && key == Keys.Down) ScrollTo(Value + step);
             else base.KeyPressed(key);
         }
-        internal override void Draw(UIRenderContext context)
-        {
-            context.Fill(Bounds, context.Theme.BackgroundColor);
-            var decr = GetDecrementButtonRectangle();
-            var incr = GetIncrementButtonRectangle();
-            context.Fill(ToGlobal(decr), _decrementActive ? context.Theme.AccentColor : IsDecrementHighlighted ? context.Theme.HoverColor : context.Theme.PanelColor);
-            context.Fill(ToGlobal(incr), _incrementActive ? context.Theme.AccentColor : IsIncrementHighlighted ? context.Theme.HoverColor : context.Theme.PanelColor);
-            var grabberLocal = GetGrabberRectangle();
-            var grabber = ToGlobal(grabberLocal);
-            context.Fill(grabber, _dragging ? context.Theme.AccentColor : IsRangeHighlighted ? context.Theme.HoverColor : context.Theme.PanelBorderColor); context.Border(grabber, context.Theme.FocusColor);
-            base.Draw(context);
-        }
+        internal override bool HitTestBeforeChildren(Point point) => ContainsPoint(point);
         private void UpdateHighlight(Point point)
         {
             var local = ToLocalMainAxis(point);
@@ -712,6 +682,9 @@ namespace Forma
 
     public sealed class TextureProgressBar : Range
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.ProgressBar;
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions &
+            ~(AccessibilityActions.Increment | AccessibilityActions.Decrement | AccessibilityActions.SetValue);
         // Godot's TextureProgressBar::TextureProgressBar() calls set_mouse_filter(MOUSE_FILTER_PASS),
         // the same as TextureRect/NinePatchRect - a decorative progress bar shouldn't swallow pointer
         // events meant for whatever is behind or around it.
@@ -932,7 +905,7 @@ namespace Forma
             }
             return result;
         }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawTemplate(UIRenderContext context)
         {
             // Godot's NOTIFICATION_DRAW only ever draws a layer when its texture is actually valid -
             // there is no fallback fill anywhere; an untextured TextureProgressBar renders fully
@@ -950,7 +923,6 @@ namespace Forma
                 }
             }
             DrawLayer(context, Over, TintOver, Vector2.Zero);
-            base.Draw(context);
         }
         private bool IsRadial => FillMode == TextureProgressFillMode.Clockwise || FillMode == TextureProgressFillMode.CounterClockwise || FillMode == TextureProgressFillMode.ClockwiseAndCounterClockwise;
         private void DrawLayer(UIRenderContext context, Texture2D texture, Color tint, Vector2 offset)
@@ -1087,8 +1059,9 @@ namespace Forma
     }
 
     /// <summary>Godot-style tab strip with per-tab state, tooltips, metadata and optional close buttons.</summary>
-    public sealed class TabBar : Control
+    public sealed class TabBar : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.TabList;
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private const int OffsetButtonWidth = 16;
         private readonly List<TabBarItem> _tabs = new List<TabBarItem>();
@@ -1414,7 +1387,7 @@ namespace Forma
             }
             else base.KeyPressed(key);
         }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawTabStrip(UIRenderContext context)
         {
             context.Fill(Bounds, context.Theme.BackgroundColor);
             var viewport = GetTabViewport();
@@ -1440,7 +1413,6 @@ namespace Forma
                 DrawOffsetButton(context, GetDecrementButtonRect(), false, HasPreviousVisibleTab());
                 DrawOffsetButton(context, GetIncrementButtonRect(), true, HasNextVisibleTab());
             }
-            base.Draw(context);
         }
         private TabBarItem GetTab(int tab) { if (tab < 0 || tab >= _tabs.Count) throw new ArgumentOutOfRangeException(nameof(tab)); return _tabs[tab]; }
         private List<int> GetVisibleTabs() { var visible = new List<int>(); for (var index = 0; index < _tabs.Count; index++) if (!_tabs[index].Hidden) visible.Add(index); return visible; }
@@ -1612,8 +1584,9 @@ namespace Forma
     }
 
     /// <summary>Godot-style selectable list supporting item state, columns, keyboard navigation and tile layouts.</summary>
-    public sealed class ItemList : Control
+    public sealed class ItemList : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.List;
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private readonly List<ItemListEntry> _entries = new List<ItemListEntry>();
         private ItemListSelectionMode _selectionMode;
@@ -1994,7 +1967,7 @@ namespace Forma
                 SearchNext(_searchString, true);
             }
         }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawItemList(UIRenderContext context)
         {
             context.Fill(Bounds, context.Theme.BackgroundColor); context.Border(Bounds, context.Theme.PanelBorderColor);
             for (var index = 0; index < _entries.Count; index++)
@@ -2027,7 +2000,6 @@ namespace Forma
                 }
                 if (EffectiveUIFont != null && !string.IsNullOrEmpty(entry.Text)) context.Text(EffectiveUIFont, entry.Text, new Vector2(textX, rect.Y + Math.Max(2, (rect.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), entry.Disabled ? context.Theme.DisabledTextColor : entry.CustomForegroundColor ?? context.Theme.TextColor);
             }
-            base.Draw(context);
         }
         private void SelectFromPointer(int index)
         {
@@ -2151,10 +2123,19 @@ namespace Forma
     /// authoring tags (`b`, `i`, `u`, `s`/`strike`, `color`, and `br`) while preserving the retained
     /// Control model and plain-text <see cref="Label.Text"/> projection.
     /// </summary>
-    public class RichTextLabel : Label
+    [TemplatePart(RichTextPresenterPartName, typeof(Container))]
+    public class RichTextLabel : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Document;
+        public override string AccessibilityName => string.IsNullOrEmpty(base.AccessibilityName) ? Text ?? string.Empty : base.AccessibilityName;
+        public const string RichTextPresenterPartName = "PART_RichTextPresenter";
         private const int ContextMenuCopyId = 1;
         private const int ContextMenuSelectAllId = 2;
+        private readonly UIFontSelection _fontSelection = new UIFontSelection();
+        private string _text = string.Empty;
+        private LabelAutowrapMode _autowrapMode;
+        private TextDirection _textDirection = TextDirection.Auto;
+        private float _letterSpacing;
         private readonly List<RichTextSpan> _spans = new List<RichTextSpan>();
         private readonly List<RichTextMetaRegion> _metaRegions = new List<RichTextMetaRegion>();
         private readonly List<TextStyle> _styleStack = new List<TextStyle> { default };
@@ -2194,6 +2175,32 @@ namespace Forma
                 else if (id == ContextMenuSelectAllId) SelectAll();
             };
         }
+        public string Text { get => _text; set { value ??= string.Empty; if (_text == value) return; _text = value; QueueLayout(); } }
+        public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
+        public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection, FontFamily, FontSize, FontWeight, FontStyle, FontStretch);
+        public Color? FontColor { get => Foreground; set => Foreground = value; }
+        public new HorizontalAlignment HorizontalAlignment { get; set; }
+        public new VerticalAlignment VerticalAlignment { get; set; }
+        public bool Autowrap { get => AutowrapMode != LabelAutowrapMode.Off; set => AutowrapMode = value ? LabelAutowrapMode.WordSmart : LabelAutowrapMode.Off; }
+        public LabelAutowrapMode AutowrapMode { get => _autowrapMode; set { _autowrapMode = value; QueueLayout(); } }
+        public TextDirection TextDirection { get => _textDirection; set { if (_textDirection == value) return; _textDirection = value; QueueLayout(); } }
+        public float LetterSpacing
+        {
+            get => _letterSpacing;
+            set
+            {
+                if (!float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
+                if (_letterSpacing == value) return;
+                _letterSpacing = value;
+                QueueLayout();
+            }
+        }
+        public Thickness Padding { get; set; } = new Thickness(3);
+        public void SetText(string text) => Text = text;
+        public string GetText() => Text;
+        public void SetAutowrapMode(LabelAutowrapMode mode) { if (!Enum.IsDefined(typeof(LabelAutowrapMode), mode)) throw new ArgumentOutOfRangeException(nameof(mode)); AutowrapMode = mode; }
+        public LabelAutowrapMode GetAutowrapMode() => AutowrapMode;
         public IReadOnlyList<RichTextSpan> Spans => _spans;
         /// <summary>Current deterministic hit regions for spans carrying metadata.</summary>
         public IReadOnlyList<RichTextMetaRegion> MetaRegions { get { BuildMetaRegions(); return _metaRegions; } }
@@ -2374,15 +2381,15 @@ namespace Forma
             var measuredText = Text.IndexOf('\t') >= 0 ? Text.Replace('\t', ' ') : Text;
             if (!FitContent)
             {
-                var textSize = EffectiveUIFont == null || string.IsNullOrEmpty(measuredText) ? Vector2.Zero : TextMetrics.Measure(EffectiveUIFont, measuredText);
+                var textSize = EffectiveUIFont == null || string.IsNullOrEmpty(measuredText) ? Vector2.Zero : CreateTextLayout(measuredText, new TextLayoutOptions()).Size;
                 if (AutowrapMode != LabelAutowrapMode.Off && EffectiveUIFont != null && !string.IsNullOrEmpty(measuredText)) textSize.X = 0;
                 return Vector2.Max(CustomMinimumSize, textSize + new Vector2(Padding.Horizontal, Padding.Vertical));
             }
-            var text = EffectiveUIFont == null ? Vector2.Zero : TextMetrics.Measure(EffectiveUIFont, measuredText);
+            var text = EffectiveUIFont == null ? Vector2.Zero : CreateTextLayout(measuredText, new TextLayoutOptions()).Size;
             return Vector2.Max(CustomMinimumSize, new Vector2(text.X + Padding.Horizontal, GetContentHeight() + Padding.Vertical));
         }
         /// <summary>Returns the document's retained visual line count. Explicit and automatic wrapped lines are included.</summary>
-        public new int GetLineCount() => GetVisualLines().Count;
+        public int GetLineCount() => GetVisualLines().Count;
         /// <summary>Returns the number of explicit newline-delimited document paragraphs.</summary>
         public int GetParagraphCount() => GetExplicitParagraphCount();
         /// <summary>Returns the number of explicit paragraphs intersecting the clipped document viewport.</summary>
@@ -2412,7 +2419,7 @@ namespace Forma
             return line >= 0 && line < lines.Count ? new Point(lines[line].Start, lines[line].End) : Point.Zero;
         }
         /// <summary>Returns the number of visual lines intersecting the clipped document viewport.</summary>
-        public new int GetVisibleLineCount()
+        public int GetVisibleLineCount()
         {
             var top = ScrollOffset; var bottom = top + GetViewportHeight(); var visible = 0;
             foreach (var line in GetVisualLines()) if (line.Bottom > top && line.Y < bottom) visible++;
@@ -2428,7 +2435,7 @@ namespace Forma
             return width;
         }
         /// <summary>Returns the retained height of a visual line, or zero for an invalid line.</summary>
-        public new int GetLineHeight(int line)
+        public int GetLineHeight(int line)
         {
             var lines = GetVisualLines();
             return line >= 0 && line < lines.Count ? lines[line].Height : 0;
@@ -2489,7 +2496,7 @@ namespace Forma
             ScrollToSelection();
             return true;
         }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawRichText(UIRenderContext context)
         {
             EnsurePlainTextSpan();
             BuildMetaRegions();
@@ -2532,7 +2539,7 @@ namespace Forma
                             while (end < span.Text.Length && span.Text[end] != '\r' && span.Text[end] != '\n' && span.Text[end] != '\t') end++;
                             var chunk = span.Text.Substring(offset, end - offset);
                             var direction = TextDirection == TextDirection.Inherited ? TextDirection.Auto : TextDirection;
-                            var layout = TextMetrics.Layout(EffectiveUIFont, chunk, new TextLayoutOptions(direction: direction, locale: Language));
+                            var layout = CreateTextLayout(EffectiveUIFont, chunk, new TextLayoutOptions(direction: direction, locale: Language));
                             if (Autowrap && cursor.X > origin.X && cursor.X + layout.Size.X > right)
                             {
                                 cursor.X = origin.X;
@@ -2541,7 +2548,7 @@ namespace Forma
                             if (Autowrap && layout.Size.X > right - origin.X)
                             {
                                 var wrapping = AutowrapMode == LabelAutowrapMode.Arbitrary ? TextWrapping.Character : TextWrapping.Word;
-                                layout = TextMetrics.Layout(EffectiveUIFont, chunk, new TextLayoutOptions(Math.Max(1, right - origin.X), wrapping, direction: direction, locale: Language));
+                                layout = CreateTextLayout(EffectiveUIFont, chunk, new TextLayoutOptions(Math.Max(1, right - origin.X), wrapping, direction: direction, locale: Language));
                             }
                             DrawRichTextLayout(context, layout, cursor, span, color, textIndex);
                             var lastLine = layout.Lines[layout.Lines.Count - 1];
@@ -2554,7 +2561,6 @@ namespace Forma
                 }
                 finally { if (ScrollActive) context.PopClip(); }
             }
-            DrawLabelChildren(context);
         }
         private void DrawRichTextLayout(UIRenderContext context, TextLayout layout, Vector2 position, RichTextSpan span, Color color, int textIndex)
         {
@@ -3276,7 +3282,7 @@ namespace Forma
                 var end = offset + 1;
                 while (end < text.Length && text[end] != '\r' && text[end] != '\n' && text[end] != '\t') end++;
                 var chunk = text.Substring(offset, end - offset);
-                var layout = TextMetrics.Layout(EffectiveUIFont, chunk);
+                var layout = CreateTextLayout(EffectiveUIFont, chunk, new TextLayoutOptions());
                 for (var chunkOffset = 0; chunkOffset < chunk.Length;)
                 {
                     var next = layout.GetNextGraphemeBoundary(chunkOffset);
@@ -3287,6 +3293,12 @@ namespace Forma
                 offset = end;
             }
             return units;
+        }
+        private TextLayout CreateTextLayout(string text, TextLayoutOptions options) => CreateTextLayout(EffectiveUIFont, text, options);
+        private TextLayout CreateTextLayout(UIFont font, string text, TextLayoutOptions options)
+        {
+            var layout = TextMetrics.Layout(font, text, options);
+            return LetterSpacing == 0 ? layout : TextLayoutAdjuster.Apply(layout, LetterSpacing);
         }
         private readonly struct TextUnit
         {

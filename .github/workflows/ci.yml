@@ -76,10 +76,13 @@ jobs:
           if [[ "$FORMA_RUNTIME" == "FNA" ]]; then
             env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES FormaRuntime=FNA xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
             env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=FNA --no-build --nologo
+            env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=FNA
           else
             FormaRuntime=MonoGame xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
             xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame --no-build --nologo
+            xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame
             MonoGamePlatform=DesktopVK FormaNativeRuntime=true CatalogBackend=Vulkan xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
+            MonoGamePlatform=DesktopVK FormaNativeRuntime=true xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=DesktopVK -p:FormaNativeRuntime=true
           fi
       - name: Validate Linux FNA video
         if: runner.os == 'Linux' && matrix.runtime == 'FNA'
@@ -107,9 +110,11 @@ jobs:
           if [[ "$FORMA_RUNTIME" == "MonoGame" ]]; then
             MonoGamePlatform=Windows CatalogBackend=WindowsDX FormaRuntime=MonoGame bash scripts/check-catalog-smoke.sh
             dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=Windows --nologo
+            dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=Windows
           else
             FormaRuntime=FNA bash scripts/check-catalog-smoke.sh
             dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=FNA --no-build --nologo
+            dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=FNA
           fi
       - name: Validate Windows FNA video
         if: runner.os == 'Windows' && matrix.runtime == 'FNA'
@@ -130,7 +135,9 @@ jobs:
         env:
           FormaCatalogViewportWidth: 1440
           FormaCatalogViewportHeight: 900
-        run: FormaRuntime="$FORMA_RUNTIME" bash scripts/check-catalog-smoke.sh
+        run: |
+          FormaRuntime="$FORMA_RUNTIME" bash scripts/check-catalog-smoke.sh
+          dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME"
       - name: Validate macOS render-test isolation
         if: runner.os == 'macOS'
         shell: bash

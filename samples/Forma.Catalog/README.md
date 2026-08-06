@@ -31,6 +31,11 @@ The catalog opts into `GraphicsDeviceManager.AllowHighDpi` when the selected run
 Runtime/backend identity is reported in the diagnostics label and metrics, while the product title
 remains `Forma Catalog` in both hosts.
 
+The hosts verify and activate the matching `Forma.Svg` companion during startup. Select the
+`Runtime SVG` story to inspect compiled and file sources, exact-size raster diagnostics, SVG/PNG
+default-theme policy, tint, RTL, and rejected external input. Bounded captures can force a policy
+with `--theme-icon-policy RuntimeSvg`, `BitmapAtlas`, or `Auto`.
+
 Search the catalog for the `Typography` stories to exercise dynamic sizes, display density,
 fallback, OpenType features, bidi ordering, atlas diagnostics, failure recovery, and SpriteFont
 compatibility. The header's `Dynamic text` toggle is the shared rollback switch for both hosts.

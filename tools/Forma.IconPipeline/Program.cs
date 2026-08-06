@@ -104,7 +104,7 @@ internal static class IconPipeline
             1,
             config.SourceRevision,
             "Svg.Skia",
-            "3.2.0",
+            "5.2.0",
             "PNG RGBA8888 sRGB premultiplied alpha",
             Padding,
             atlasFiles,
@@ -164,6 +164,9 @@ internal static class IconPipeline
         using var input = File.OpenRead(path);
         var svg = new SKSvg();
         var picture = svg.Load(input) ?? throw new InvalidDataException($"Unable to load SVG: {path}");
+        var sourceDocument = svg.SourceDocument;
+        if (sourceDocument == null || sourceDocument.Width.Value <= 0 || sourceDocument.Height.Value <= 0)
+            throw new InvalidDataException($"Icon has zero size: {icon.Name}");
         var bounds = picture.CullRect;
         var logicalWidth = (int)MathF.Ceiling(bounds.Width);
         var logicalHeight = (int)MathF.Ceiling(bounds.Height);

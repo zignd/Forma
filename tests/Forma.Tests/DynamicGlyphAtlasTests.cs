@@ -60,17 +60,21 @@ namespace Forma.Tests
             Assert.That(allocator.UsedArea, Is.Zero);
         }
 
-        [TestCase(1f)]
-        [TestCase(1.5f)]
-        [TestCase(2f)]
-        public void DynamicGlyphBitmapOriginPreservesHorizontalSpacingAndSnapsVertically(float displayScale)
+        [TestCase(1f, 2f)]
+        [TestCase(1.5f, 2f)]
+        [TestCase(2f, 2f)]
+        [TestCase(3f, 3f)]
+        public void DynamicGlyphsUseAtLeastTwoXPhysicalRasterDensity(float displayScale, float expectedRasterScale)
         {
-            var position = UIRenderContext.SnapDynamicGlyphPosition(new Vector2(10.25f, 20.75f), 2, 9, displayScale);
+            var baseline = new Vector2(10.25f, 20.75f);
+            var rasterScale = UIRenderContext.GetDynamicGlyphRasterScale(displayScale);
+            var position = UIRenderContext.GetDynamicGlyphPosition(baseline, 2, 9, displayScale, rasterScale);
 
             Assert.Multiple(() =>
             {
-                Assert.That(position.X, Is.EqualTo(10.25f + 2 / displayScale).Within(0.0001f));
-                Assert.That(position.Y * displayScale, Is.EqualTo(MathF.Round(20.75f * displayScale) - 9).Within(0.0001f));
+                Assert.That(rasterScale, Is.EqualTo(expectedRasterScale));
+                Assert.That(position.X, Is.EqualTo(baseline.X + 2 / rasterScale).Within(0.0001f));
+                Assert.That((position.Y + 9 / rasterScale) * displayScale, Is.EqualTo(MathF.Round(baseline.Y * displayScale)).Within(0.0001f));
             });
         }
 

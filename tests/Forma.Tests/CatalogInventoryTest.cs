@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 using System;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -44,6 +45,7 @@ public sealed class CatalogInventoryTest
         Assert.That(storyNames, Does.Contain("Complete icon inventory"));
         Assert.That(storyNames, Does.Contain("Override and suppression"));
         Assert.That(storyNames, Does.Contain("Atlas diagnostics"));
+        Assert.That(storyNames, Does.Contain("Runtime SVG"));
         Assert.That(storyNames, Does.Contain("Dynamic Sizes"));
         Assert.That(storyNames, Does.Contain("Display Density"));
         Assert.That(storyNames, Does.Contain("Fallback Chain"));
@@ -54,8 +56,213 @@ public sealed class CatalogInventoryTest
         Assert.That(storyNames, Does.Contain("Atlas Inspector"));
         Assert.That(storyNames, Does.Contain("Failure States"));
         Assert.That(storyNames, Does.Contain("Selector Styles"));
+        Assert.That(storyNames, Does.Contain("Template Systems"));
+        Assert.That(storyNames, Does.Contain("Composition Systems"));
+        Assert.That(storyNames, Does.Contain("Collection Systems"));
         Assert.That(storyNames, Does.Contain("Storyboards and Triggers"));
         Assert.That(storyNames, Does.Contain("Compiled Data Binding"));
+        Assert.That(storyNames, Does.Contain("Flat Data Grid"));
+        Assert.That(storyNames, Does.Contain("Hierarchical Data Grid"));
+    }
+
+    [TestCase(nameof(Viewbox))]
+    [TestCase(nameof(Border))]
+    public void SingleChildContainerStoriesCanBeConstructed(string storyName)
+    {
+        var story = StoryCatalog.Create(null).Single(item => item.Name == storyName);
+
+        var root = story.Factory();
+
+        Assert.That(root.VisualChildren, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void EveryCatalogStoryCanBeConstructed()
+    {
+        foreach (var story in StoryCatalog.Create(null))
+        {
+            Control root = null;
+            Assert.DoesNotThrow(() => root = story.Factory(), $"{story.Category} / {story.Name}");
+            (root as IDisposable)?.Dispose();
+        }
+    }
+
+    [Test]
+    public void TemplateSystemsStoryUsesCompiledXamlChromeAndPreservesOwnerBehavior()
+    {
+        var story = StoryCatalog.Create(null).Single(item => item.Name == "Template Systems");
+        var gallery = (TemplateGalleryStoryView)story.Factory();
+        gallery.Size = new Vector2(720, 800);
+        using var context = new UIContext { ViewportSize = new Vector2(720, 800) };
+        context.Add(gallery);
+        context.Layout();
+        var scope = NameScope.GetNameScope(gallery);
+        var button = scope.Find<Button>("ReferenceButton");
+        var alternateButton = scope.Find<Button>("ReferenceButtonAlternate");
+        var list = scope.Find<ListBox>("ReferenceList");
+        var grid = scope.Find<DataGrid>("ReferenceGrid");
+        var tree = scope.Find<Tree>("ReferenceTree");
+        var editor = scope.Find<LineEdit>("ReferenceEditor");
+        var dialog = scope.Find<ConfirmationDialog>("ReferenceDialog");
+        var navigation = scope.Find<ListBox>("ReferenceNavigation");
+        var confirmed = 0;
+        var canceled = 0;
+        var buttonActivations = 0;
+        button.Pressed += (_, _) => buttonActivations++;
+        alternateButton.Pressed += (_, _) => buttonActivations++;
+        dialog.Confirmed += (_, _) => confirmed++;
+        dialog.Canceled += (_, _) => canceled++;
+
+        var accept = (BaseButton)dialog.GetTemplateChild(AcceptDialog.AcceptButtonPartName);
+        var cancel = (BaseButton)dialog.GetTemplateChild(AcceptDialog.CancelButtonPartName);
+        accept.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
+        accept.KeyReleased(Microsoft.Xna.Framework.Input.Keys.Enter);
+        cancel.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
+        cancel.KeyReleased(Microsoft.Xna.Framework.Input.Keys.Enter);
+        button.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
+        button.KeyReleased(Microsoft.Xna.Framework.Input.Keys.Enter);
+        alternateButton.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
+        alternateButton.KeyReleased(Microsoft.Xna.Framework.Input.Keys.Enter);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(story.XamlPath, Is.EqualTo("TemplateGalleryStoryView.xaml"));
+            Assert.That(button.TemplateRoot, Is.TypeOf<Border>());
+            Assert.That(alternateButton.TemplateRoot, Is.TypeOf<OverlayPanel>());
+            Assert.That(buttonActivations, Is.EqualTo(2));
+            Assert.That(list.GetTemplateChild(ListBox.ItemsPresenterPartName), Is.TypeOf<ItemsPresenter>());
+            Assert.That(grid.GetTemplateChild(DataGrid.ColumnHeadersPartName), Is.TypeOf<GridPanel>());
+            Assert.That(tree.GetTemplateChild(Tree.TreePresenterPartName), Is.TypeOf<TreePresenter>());
+            Assert.That(editor.GetTemplateChild(LineEdit.EditorPresenterPartName), Is.TypeOf<LineEditPresenter>());
+            Assert.That(navigation.ItemsPanel.CreateInstance().Root, Is.TypeOf<StackPanel>());
+            Assert.That(confirmed, Is.EqualTo(1));
+            Assert.That(canceled, Is.EqualTo(1));
+            Assert.That(typeof(TemplateGalleryStoryView).GetMethod("Draw", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly), Is.Null);
+        });
+    }
+
+    [Test]
+    public void CompositionSystemsStoryExercisesFoundationsSelectorsBindingsAndThemeReplacement()
+    {
+        var story = StoryCatalog.Create(null).Single(item => item.Name == "Composition Systems");
+        var composition = (CompositionSystemsStoryView)story.Factory();
+        composition.Size = new Vector2(720, 620);
+        using var context = new UIContext { ViewportSize = new Vector2(900, 700) };
+        context.Add(composition);
+        context.Layout();
+        var scope = NameScope.GetNameScope(composition);
+        var gradient = scope.Find<Border>("GradientSurface");
+        var shape = scope.Find<PathShape>("EffectShape");
+        var grid = scope.Find<GridPanel>("ResponsiveGrid");
+        var partButton = scope.Find<Button>("PartSelectorProbe");
+        var part = (Border)partButton.TemplateRoot;
+        var themeProbe = scope.Find<CatalogThemeButton>("ThemeProbe");
+        var applyTheme = scope.Find<Button>("ApplyThemeTemplate");
+
+        applyTheme.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
+        applyTheme.KeyReleased(Microsoft.Xna.Framework.Input.Keys.Enter);
+        context.Layout();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(story.XamlPath, Is.EqualTo("CompositionSystemsStoryView.xaml"));
+            Assert.That(gradient.Background, Is.TypeOf<LinearGradientBrush>());
+            Assert.That(shape.Effect, Is.TypeOf<DropShadowEffect>());
+            Assert.That(grid.ColumnDefinitions, Has.Count.EqualTo(2));
+            Assert.That(GridPanel.GetColumn(grid.Children[1]), Is.EqualTo(1));
+            Assert.That(scope.Find<Label>("SelfRelative").Text, Is.EqualTo("SelfRelative"));
+            Assert.That(scope.Find<Label>("AncestorRelative").Text, Is.EqualTo("CompositionRoot"));
+            Assert.That(part.BorderThickness, Is.EqualTo(new Thickness(2)));
+            Assert.That(part.Opacity, Is.EqualTo(.86f));
+            Assert.That(themeProbe.TemplateRoot.Name, Is.EqualTo("ThemeReplacementChrome"));
+            Assert.That(composition.ThemeReplacementCount, Is.EqualTo(1));
+            Assert.That(typeof(CompositionSystemsStoryView).GetMethod("Draw", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly), Is.Null);
+        });
+    }
+
+    [Test]
+    public void CollectionSystemsStoryExercisesDeltasSelectionEventRowsAndVirtualization()
+    {
+        var story = StoryCatalog.Create(null).Single(item => item.Name == "Collection Systems");
+        var collection = (CollectionSystemsStoryView)story.Factory();
+        collection.Size = new Vector2(720, 920);
+        using var context = new UIContext { ViewportSize = new Vector2(1200, 1000) };
+        context.Add(collection);
+        context.Layout();
+        var scope = NameScope.GetNameScope(collection);
+        var actions = new List<NotifyCollectionChangedAction>();
+        collection.ViewModel.MutableItems.CollectionChanged += (_, args) => actions.Add(args.Action);
+
+        static void Press(Button button)
+        {
+            button.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
+            button.KeyReleased(Microsoft.Xna.Framework.Input.Keys.Enter);
+        }
+
+        Press(scope.Find<Button>("AddItem"));
+        Press(scope.Find<Button>("RemoveItem"));
+        Press(scope.Find<Button>("MoveItem"));
+        Press(scope.Find<Button>("ReplaceItem"));
+        Press(scope.Find<Button>("ResetItems"));
+        context.Layout();
+
+        var single = scope.Find<ListBox>("SingleSelection");
+        var multi = scope.Find<ListBox>("MultiSelection");
+        var toggle = scope.Find<ListBox>("ToggleSelection");
+        single.SelectedIndex = 0;
+        multi.SelectedIndex = 0;
+        toggle.SelectedIndex = 0;
+
+        var eventTemplate = (DataTemplate)collection.Resources["EventfulRowTemplate"];
+        using var eventInstance = eventTemplate.CreateInstance(new CatalogCollectionItem("Row action"));
+        eventInstance.Activate();
+        var eventRow = (CatalogEventfulRow)eventInstance.Root;
+        Press(NameScope.GetNameScope(eventRow).Find<Button>("RowAction"));
+
+        var vertical = scope.Find<ListBox>("VerticalVirtualList");
+        var horizontal = scope.Find<ListBox>("HorizontalVirtualList");
+        var grid = scope.Find<ListBox>("GridVirtualList");
+        var verticalPanel = (VirtualizingStackPanel)((ItemsPresenter)vertical.GetTemplateChild(ListBox.ItemsPresenterPartName)).Panel;
+        var horizontalPanel = (VirtualizingStackPanel)((ItemsPresenter)horizontal.GetTemplateChild(ListBox.ItemsPresenterPartName)).Panel;
+        var gridPanel = (VirtualizingGridPanel)((ItemsPresenter)grid.GetTemplateChild(ListBox.ItemsPresenterPartName)).Panel;
+        var initialContainers = verticalPanel.RealizedContainers.ToDictionary(pair => pair.Value, pair => pair.Key);
+        foreach (var container in initialContainers.Keys.Cast<ListBoxItem>()) container.IsSelectable = false;
+        vertical.ScrollOffset = new Vector2(0, 3400);
+        horizontal.ScrollOffset = new Vector2(13_200, 0);
+        grid.ScrollOffset = new Vector2(0, 3600);
+        context.Layout();
+        var reusedContainers = verticalPanel.RealizedContainers
+            .Where(pair => initialContainers.TryGetValue(pair.Value, out var previousIndex) && previousIndex != pair.Key)
+            .Select(pair => (ListBoxItem)pair.Value)
+            .ToArray();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(story.XamlPath, Is.EqualTo("CollectionSystemsStoryView.xaml"));
+            Assert.That(actions, Does.Contain(NotifyCollectionChangedAction.Add));
+            Assert.That(actions, Does.Contain(NotifyCollectionChangedAction.Remove));
+            Assert.That(actions, Does.Contain(NotifyCollectionChangedAction.Move));
+            Assert.That(actions, Does.Contain(NotifyCollectionChangedAction.Replace));
+            Assert.That(actions, Does.Contain(NotifyCollectionChangedAction.Reset));
+            Assert.That(scope.Find<Label>("MutationStatus").Text, Is.EqualTo("Reset"));
+            Assert.That(single.SelectionMode, Is.EqualTo(ItemListSelectionMode.Single));
+            Assert.That(multi.SelectionMode, Is.EqualTo(ItemListSelectionMode.Multi));
+            Assert.That(toggle.SelectionMode, Is.EqualTo(ItemListSelectionMode.Toggle));
+            Assert.That(single.HasSelection && multi.HasSelection && toggle.HasSelection, Is.True);
+            Assert.That(eventRow.HandlerCalls, Is.EqualTo(1));
+            Assert.That(verticalPanel.RealizedCount, Is.LessThan(64));
+            Assert.That(horizontalPanel.RealizedCount, Is.LessThan(64));
+            Assert.That(gridPanel.RealizedCount, Is.LessThan(64));
+            Assert.That(vertical.ScrollOffset.Y, Is.GreaterThan(0));
+            Assert.That(horizontal.ScrollOffset.X, Is.GreaterThan(0));
+            Assert.That(grid.ScrollOffset.Y, Is.GreaterThan(0));
+            Assert.That(verticalPanel.RealizedContainers.Keys, Has.None.Matches<int>(initialContainers.ContainsValue));
+            Assert.That(reusedContainers, Is.Not.Empty);
+            Assert.That(reusedContainers, Has.All.Matches<ListBoxItem>(container => container.IsSelectable));
+            Assert.That(vertical.RealizationDiagnostics, Is.Empty);
+            Assert.That(horizontal.RealizationDiagnostics, Is.Empty);
+            Assert.That(grid.RealizationDiagnostics, Is.Empty);
+        });
     }
 
     [Test]
@@ -100,6 +307,241 @@ public sealed class CatalogInventoryTest
         });
     }
 
+    [Test]
+    public void DataGridStoriesExerciseCompiledFlatAndHierarchicalWorkflows()
+    {
+        var stories = StoryCatalog.Create(null);
+        var flatStory = stories.Single(story => story.Name == "Flat Data Grid");
+        var hierarchyStory = stories.Single(story => story.Name == "Hierarchical Data Grid");
+        var flat = (FlatDataGridStoryView)flatStory.Factory();
+        var hierarchy = (HierarchicalDataGridStoryView)hierarchyStory.Factory();
+        flat.Size = new Vector2(760, 480);
+        hierarchy.Size = new Vector2(760, 480);
+        using var context = new UIContext { ViewportSize = new Vector2(1600, 900) };
+        context.Add(flat);
+        context.Add(hierarchy);
+        context.Layout();
+        var flatScope = NameScope.GetNameScope(flat);
+        var flatGrid = flatScope.Find<DataGrid>("FlatGrid");
+        var filter = flatScope.Find<LineEdit>("GridFilter");
+
+        flatGrid.ActivateColumnHeader(2);
+        filter.Text = "Contributor 0001";
+        context.Layout();
+        flatGrid.SelectCell(new CellIndex(flatGrid.GetRowPath(0), 0));
+        Assert.Multiple(() =>
+        {
+            Assert.That(flatStory.XamlPath, Is.EqualTo("FlatDataGridStoryView.xaml"));
+            Assert.That(flatGrid.SortDescriptions, Has.Count.EqualTo(1));
+            Assert.That(flatGrid.RealizedCount, Is.EqualTo(1));
+            Assert.That(flatGrid.SelectedCells, Has.Count.EqualTo(1));
+            Assert.That(flatGrid.Columns[0].CellTemplate, Is.TypeOf<DataTemplate>());
+            Assert.That(flatGrid.Viewport.X, Is.GreaterThan(0));
+            Assert.That(flatGrid.Viewport.Y, Is.GreaterThan(0));
+            Assert.That(flatGrid.GetRealizedContainer(0).Bounds.Width, Is.GreaterThan(0));
+            Assert.That(flatGrid.GetRealizedContainer(0).Bounds.Height, Is.GreaterThan(0));
+            Assert.That(flatGrid.GetCell(0, 0).Bounds.Width, Is.GreaterThan(0));
+            Assert.That(flatGrid.GetCell(0, 0).Bounds.Height, Is.GreaterThan(0));
+        });
+
+        var hierarchyScope = NameScope.GetNameScope(hierarchy);
+        var treeGrid = hierarchyScope.Find<DataGrid>("TreeGrid");
+        var treeFilter = hierarchyScope.Find<LineEdit>("TreeFilter");
+        var addChild = Flatten(hierarchy).OfType<Button>().Single(button => button.Text == "Add child");
+        var rootPath = treeGrid.GetRowPath(0);
+        var childCount = hierarchy.ViewModel.Roots[0].Children.Count;
+        treeGrid.ActivateColumnHeader(1);
+        addChild.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
+        addChild.KeyReleased(Microsoft.Xna.Framework.Input.Keys.Enter);
+        treeFilter.Text = "Live document 1";
+        context.Layout();
+        treeGrid.SelectRowHeader(rootPath);
+        Assert.Multiple(() =>
+        {
+            Assert.That(hierarchyStory.XamlPath, Is.EqualTo("HierarchicalDataGridStoryView.xaml"));
+            Assert.That(hierarchy.ViewModel.Roots[0].Children, Has.Count.EqualTo(childCount + 1));
+            Assert.That(treeGrid.SortDescriptions, Has.Count.EqualTo(1));
+            Assert.That(treeGrid.FilterMode, Is.EqualTo(DataGridFilterMode.IncludeAncestorsOfMatches));
+            Assert.That(treeGrid.HierarchySource.IndexOfPath(rootPath), Is.GreaterThanOrEqualTo(0));
+            Assert.That(treeGrid.HierarchySource.IsExpanded(rootPath), Is.True);
+            Assert.That(treeGrid.SelectedRowPaths, Does.Contain(rootPath));
+            Assert.That(treeGrid.RealizedCount, Is.LessThan(4));
+            Assert.That(treeGrid.RealizedCellCount, Is.EqualTo(treeGrid.RealizedCount * 2));
+            Assert.That(treeGrid.Viewport.X, Is.GreaterThan(0));
+            Assert.That(treeGrid.Viewport.Y, Is.GreaterThan(0));
+            Assert.That(treeGrid.GetRealizedContainer(0).Bounds.Width, Is.GreaterThan(0));
+            Assert.That(treeGrid.GetRealizedContainer(0).Bounds.Height, Is.GreaterThan(0));
+            Assert.That(treeGrid.GetCell(0, 0).Bounds.Width, Is.GreaterThan(0));
+            Assert.That(treeGrid.GetCell(0, 0).Bounds.Height, Is.GreaterThan(0));
+        });
+    }
+
+    [TestCase("Flat Data Grid", "FlatGrid")]
+    [TestCase("Hierarchical Data Grid", "TreeGrid")]
+    public void DataGridStoriesRemainVisibleWhenHostedInCatalogShell(string storyName, string gridName)
+    {
+        var font = CreateTestFont();
+        var uiFont = new SpriteFontAdapter(font);
+        var shell = new CatalogShell(StoryCatalog.Create(null), uiFont, uiFont, font) { Size = new Vector2(1440, 720) };
+        using var context = new UIContext { ViewportSize = shell.Size };
+        context.Theme.FontFamily = new UIFontFamily(new UIFont[] { uiFont });
+        context.Add(shell);
+        Assert.That(shell.SelectStory(storyName), Is.True);
+        context.Layout();
+        context.Layout();
+
+        var grid = NameScope.GetNameScope(shell.ActiveStoryControl).Find<DataGrid>(gridName);
+        var preview = NameScope.GetNameScope(shell).Find<CatalogPreviewContainer>("Preview");
+        var cell = grid.GetCell(0, 0);
+        var row = (DataGridRow)grid.GetRealizedContainer(0);
+        var rowContent = (ContentPresenter)row.GetTemplateChild(ContentControl.ContentPresenterPartName);
+        var text = cell.ContentTemplate == null
+            ? Flatten(cell).OfType<TextBlock>().First()
+            : (TextBlock)((ContentPresenter)cell.GetTemplateChild(ContentControl.ContentPresenterPartName)).PresentedControl;
+        var scrollPresenter = (ScrollPresenter)grid.GetTemplateChild(ListBox.ScrollPresenterPartName);
+        var visibleBounds = Rectangle.Intersect(cell.VisualBounds, scrollPresenter.Bounds);
+        var hit = context.HitTest(visibleBounds.Center);
+        var hitInsideCell = false;
+        var hitPath = new List<string>();
+        for (var control = hit; control != null; control = control.VisualParent)
+        {
+            hitPath.Add(control.GetType().Name);
+            if (!ReferenceEquals(control, cell)) continue;
+            hitInsideCell = true;
+            break;
+        }
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(grid.RealizedCount, Is.GreaterThan(0));
+            Assert.That(text.Text, Is.Not.Empty);
+            Assert.That(text.EffectiveUIFont, Is.Not.Null);
+            Assert.That(visibleBounds.Width, Is.GreaterThan(0));
+            Assert.That(visibleBounds.Height, Is.GreaterThan(0));
+            Assert.That(hit, Is.Not.Null);
+            Assert.That(hitInsideCell, Is.True,
+                $"{string.Join(" -> ", hitPath)}; point={visibleBounds.Center}; cell={cell.VisualBounds}; row={row.VisualBounds}; rowContent={rowContent.VisualBounds}; presented={rowContent.PresentedControl?.VisualBounds}; hitTest={rowContent.IsHitTestVisible}");
+            Assert.That(shell.ActiveStoryControl.VisualBounds.Bottom, Is.LessThanOrEqualTo(preview.VisualBounds.Bottom),
+                $"story={shell.ActiveStoryControl.VisualBounds}; preview={preview.VisualBounds}");
+            Assert.That(grid.VisualBounds.Bottom, Is.LessThanOrEqualTo(preview.VisualBounds.Bottom),
+                $"grid={grid.VisualBounds}; preview={preview.VisualBounds}");
+            Assert.That(scrollPresenter.VisualBounds.Bottom, Is.LessThanOrEqualTo(preview.VisualBounds.Bottom),
+                $"scroll={scrollPresenter.VisualBounds}; preview={preview.VisualBounds}");
+            if (grid.VerticalScrollBar.Visible)
+                Assert.That(grid.VerticalScrollBar.VisualBounds.Bottom, Is.LessThanOrEqualTo(preview.VisualBounds.Bottom),
+                    $"bar={grid.VerticalScrollBar.VisualBounds}; preview={preview.VisualBounds}");
+        });
+    }
+
+    [Test]
+    public void CatalogNavigationScrollsWhenStoriesExceedTheSidebarViewport()
+    {
+        var font = CreateTestFont();
+        var shell = new CatalogShell(StoryCatalog.Create(null), font, font) { Size = new Vector2(1280, 720) };
+        using var context = new UIContext { ViewportSize = shell.Size };
+        context.Add(shell);
+        context.Layout();
+        var navigation = NameScope.GetNameScope(shell).Find<ItemList>("Navigation");
+        var scroll = navigation.Parent as ScrollContainer;
+
+        Assert.That(scroll, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(scroll.Viewport.Y, Is.GreaterThan(0));
+            Assert.That(scroll.Extent.Y, Is.GreaterThan(scroll.Viewport.Y));
+            Assert.That(scroll.MaxScrollOffset.Y, Is.GreaterThan(0));
+        });
+
+        var point = new Point(scroll.Bounds.Center.X, scroll.Bounds.Top + 10);
+        context.Update(new GameTime(), new Microsoft.Xna.Framework.Input.MouseState(
+            point.X, point.Y, 0,
+            Microsoft.Xna.Framework.Input.ButtonState.Released,
+            Microsoft.Xna.Framework.Input.ButtonState.Released,
+            Microsoft.Xna.Framework.Input.ButtonState.Released,
+            Microsoft.Xna.Framework.Input.ButtonState.Released,
+            Microsoft.Xna.Framework.Input.ButtonState.Released),
+            new Microsoft.Xna.Framework.Input.KeyboardState());
+        context.Update(new GameTime(), new Microsoft.Xna.Framework.Input.MouseState(
+            point.X, point.Y, -120,
+            Microsoft.Xna.Framework.Input.ButtonState.Released,
+            Microsoft.Xna.Framework.Input.ButtonState.Released,
+            Microsoft.Xna.Framework.Input.ButtonState.Released,
+            Microsoft.Xna.Framework.Input.ButtonState.Released,
+            Microsoft.Xna.Framework.Input.ButtonState.Released),
+            new Microsoft.Xna.Framework.Input.KeyboardState());
+        context.Layout();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(scroll.VerticalScroll, Is.GreaterThan(0));
+            Assert.That(navigation.Position.Y, Is.LessThan(0));
+        });
+    }
+
+    [Test]
+    public void CatalogPreviewScrollsStoriesThatExceedTheWindowHeight()
+    {
+        var font = CreateTestFont();
+        var shell = new CatalogShell(StoryCatalog.Create(null), font, font) { Size = new Vector2(1280, 520) };
+        using var context = new UIContext { ViewportSize = shell.Size };
+        context.Add(shell);
+        Assert.That(shell.SelectStory("Letter Spacing"), Is.True);
+        context.Layout();
+        context.Layout();
+
+        var scope = NameScope.GetNameScope(shell);
+        var preview = scope.Find<CatalogPreviewContainer>("Preview");
+        ScrollContainer scroll = null;
+        for (var parent = preview.VisualParent; parent != null; parent = parent.VisualParent)
+        {
+            if (parent is not ScrollContainer candidate) continue;
+            scroll = candidate;
+            break;
+        }
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(scroll, Is.Not.Null);
+            Assert.That(scroll.ClipContents, Is.True);
+            Assert.That(scroll.VisualBounds.Bottom, Is.LessThanOrEqualTo(shell.VisualBounds.Bottom));
+            Assert.That(preview.GetMinimumSize().Y, Is.GreaterThan(scroll.Viewport.Y));
+            Assert.That(scroll.MaxScrollOffset.Y, Is.GreaterThan(0));
+            Assert.That(scroll.HorizontalScrollBar.Visible, Is.False);
+        });
+
+        Assert.That(scroll.PointerWheel(-120), Is.True);
+        Assert.That(scroll.VerticalScroll, Is.GreaterThan(0));
+    }
+
+    [Test]
+    public void CatalogInteractionExceptionsIdentifyTheStoryAndHitControl()
+    {
+        var story = new ComponentStory("Collections", "Broken Grid", "Test", () => new DataGrid());
+        var grid = new DataGrid { Name = "ExampleGrid", ItemsSource = new[] { "First" }, Size = new Vector2(320, 120) };
+        grid.Columns.Add(new DataGridTextColumn
+        {
+            Header = "Name",
+            Binding = DataGridBinding<string>.Create<string>(value => value),
+        });
+        using var context = new UIContext { ViewportSize = grid.Size };
+        context.Add(grid);
+        context.Layout();
+        var header = grid.GetColumnHeader(0);
+        header.Name = "NameHeader";
+        var cause = new InvalidOperationException("Missing typed binding.");
+
+        var exception = CatalogGame.CreateInteractionException(story, header, cause);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exception.Message, Does.Contain("Collections / Broken Grid"));
+            Assert.That(exception.Message, Does.Contain("DataGridColumnHeader#NameHeader"));
+            Assert.That(exception.Message, Does.Contain("DataGrid#ExampleGrid"));
+            Assert.That(exception.Message, Does.Contain("Missing typed binding."));
+            Assert.That(exception.InnerException, Is.SameAs(cause));
+        });
+    }
+
     [TestCase("Display Density", "densityStatus")]
     [TestCase("Fallback Chain", "fallbackPreview")]
     [TestCase("Wrapping and Selection", "wrappingDiagnostics")]
@@ -113,6 +555,33 @@ public sealed class CatalogInventoryTest
         {
             Assert.That(story.Category, Is.EqualTo("Typography"));
             Assert.That(root.Children.SelectMany(Flatten).Select(control => control.Name), Does.Contain(expectedControlName));
+        });
+    }
+
+    [Test]
+    public void RuntimeSvgStoryExposesCompiledFilePolicyAndFailureSurfaces()
+    {
+        var story = StoryCatalog.Create(null).Single(item => item.Name == "Runtime SVG");
+        var root = story.Factory();
+        var names = root.Children.SelectMany(Flatten).Select(control => control.Name).ToArray();
+        root.Size = new Vector2(640, 320);
+        using var context = new UIContext();
+        context.Add(root);
+        context.Layout();
+        var scroll = root.Children.OfType<ScrollContainer>().Single();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(story.Category, Is.EqualTo("Theme icons"));
+            Assert.That(story.XamlPath, Is.EqualTo("RuntimeSvgStoryView.xaml"));
+            Assert.That(names, Does.Contain("compiledSvg"));
+            Assert.That(names, Does.Contain("fileSvg"));
+            Assert.That(names, Does.Contain("runtimePolicy"));
+            Assert.That(names, Does.Contain("bitmapPolicy"));
+            Assert.That(names, Does.Contain("invalidStatus"));
+            Assert.That(scroll.Size.Y, Is.LessThanOrEqualTo(root.Size.Y));
+            Assert.That(scroll.MaxScrollOffset.Y, Is.GreaterThan(0));
+            Assert.That(scroll.ClipContents, Is.True);
         });
     }
 
@@ -153,6 +622,7 @@ public sealed class CatalogInventoryTest
             .SingleOrDefault(metadata => metadata.Key == "FormaCatalogXamlRoot")?.Value;
         if (sourceRoot == null) Assert.Ignore("Catalog XAML source metadata is intentionally Debug-only.");
         var sourcePath = Path.Combine(sourceRoot, "CatalogShell.xaml");
+        shell.ReportHotReloadDiagnostics(1, "FXAML2501 invalid template part");
         var replacementShellTree = (BoxContainer)Forma.Xaml.Compiler.FormaXamlCompiler.CreateSre(typeof(CatalogShell).Assembly.GetName().Name)
             .CompileSre(File.ReadAllText(sourcePath), "CatalogShell.xaml").Build(null);
         replacementShellTree.DataContext = shell.DataContext;
@@ -164,6 +634,7 @@ public sealed class CatalogInventoryTest
             Assert.That(shell.ActiveStory.XamlPath, Is.EqualTo("DynamicSizesStoryView.xaml"));
             Assert.That(shell.ActiveStoryControl.DataContext, Is.SameAs(retainedModel));
             Assert.That(shell.ActiveStoryControl.Parent.Name, Is.EqualTo("Preview"));
+            Assert.That(NameScope.GetNameScope(shell).Find<Label>("HotReloadStatus").Text, Does.Contain("FXAML2501"));
         });
     }
 
@@ -264,7 +735,7 @@ public sealed class CatalogInventoryTest
         }
         var stories = StoryCatalog.Create(null, createDynamicFont: CreateFont).Where(story => story.Category == "Typography").ToArray();
 
-        Assert.That(stories, Has.Length.EqualTo(9));
+        Assert.That(stories, Has.Length.EqualTo(10));
         foreach (var story in stories)
         {
             using var context = new UIContext { ViewportSize = new Vector2(720, 450), DisplayScale = 1 };
@@ -330,6 +801,54 @@ public sealed class CatalogInventoryTest
     }
 
     [Test]
+    public void LetterSpacingStoryEditsTracksAndResetsRichText()
+    {
+        using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+        UIFont CreateFont(string _, float size, System.Collections.Generic.IReadOnlyList<UIFontVariationCoordinate> variations) =>
+            new DynamicUIFont(face, size, UIFontHinting.Light, variations ?? Array.Empty<UIFontVariationCoordinate>());
+        var story = StoryCatalog.Create(null, createDynamicFont: CreateFont).Single(item => item.Name == "Letter Spacing");
+        var root = story.Factory();
+        story.Attached(root);
+        var input = (LineEdit)root.Children[0];
+        var controls = root.Children[1];
+        var spacing = (Slider)controls.Children[0];
+        var reset = (Button)controls.Children[1];
+        var status = (Label)root.Children[2];
+        var natural = (RichTextLabel)root.Children[3];
+        var tracked = (RichTextLabel)root.Children[4];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(story.Category, Is.EqualTo("Typography"));
+            Assert.That(spacing.Value, Is.EqualTo(.25f));
+            Assert.That(tracked.LetterSpacing, Is.EqualTo(.25f));
+            Assert.That(status.Text, Does.Contain("Tracking +0.25 px"));
+            Assert.That(status.Text, Does.Contain("Delta +"));
+        });
+
+        input.Text = "runtime.";
+        spacing.Value = -.5f;
+        Assert.Multiple(() =>
+        {
+            Assert.That(natural.Text, Is.EqualTo("runtime."));
+            Assert.That(tracked.Text, Is.EqualTo("runtime."));
+            Assert.That(tracked.LetterSpacing, Is.EqualTo(-.5f));
+            Assert.That(status.Text, Does.Contain("Tracking -0.50 px"));
+            Assert.That(status.Text, Does.Contain("Delta -"));
+        });
+
+        reset.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
+        reset.KeyReleased(Microsoft.Xna.Framework.Input.Keys.Enter);
+        Assert.Multiple(() =>
+        {
+            Assert.That(spacing.Value, Is.Zero);
+            Assert.That(tracked.LetterSpacing, Is.Zero);
+            Assert.That(status.Text, Does.Contain("Tracking 0.00 px"));
+            Assert.That(status.Text, Does.Contain("Delta 0.00 px"));
+        });
+    }
+
+    [Test]
     public void WrappingSelectionStoryProjectsEditorSelectionThroughRetainedLayout()
     {
         using var interFace = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
@@ -379,6 +898,19 @@ public sealed class CatalogInventoryTest
             Assert.That(shell.DynamicTextEnabled, Is.False);
             Assert.That(selected, Is.False);
         });
+    }
+
+    [Test]
+    public void CatalogDescriptionUsesReadableSmallTextTracking()
+    {
+        var font = CreateTestFont();
+        var shell = new CatalogShell(
+            new[] { new ComponentStory("Test", "Description", "runtime.", () => new Label { Text = "Preview" }) },
+            font,
+            font);
+        var description = NameScope.GetNameScope(shell).Find<RichTextLabel>("Description");
+
+        Assert.That(description.LetterSpacing, Is.EqualTo(.25f));
     }
 
     [Test]
@@ -436,6 +968,8 @@ public sealed class CatalogInventoryTest
                 "--story", "Complete icon inventory",
                 "--viewport-width", "720",
                 "--viewport-height", "480",
+                "--theme-icon-policy", "BitmapAtlas",
+                "--layout-direction", "RTL",
                 "--watch-effect", effectPath,
             ]);
 
@@ -445,6 +979,8 @@ public sealed class CatalogInventoryTest
             Assert.That(options.StoryName, Is.EqualTo("Complete icon inventory"));
             Assert.That(options.ViewportWidth, Is.EqualTo(720));
             Assert.That(options.ViewportHeight, Is.EqualTo(480));
+            Assert.That(options.ThemeIconPolicy, Is.EqualTo(ThemeIconRenderingPolicy.BitmapAtlas));
+            Assert.That(options.LayoutDirection, Is.EqualTo(LayoutDirection.RightToLeft));
             Assert.That(options.WatchedEffectPath, Is.EqualTo(effectPath));
         }
         finally

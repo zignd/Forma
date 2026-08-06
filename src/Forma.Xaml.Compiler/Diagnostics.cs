@@ -18,9 +18,17 @@ public static class FormaDiagnosticCodes
     public const string InvalidDirective = "FXAML1004";
     public const string DuplicateName = "FXAML2001";
     public const string InvalidName = "FXAML2002";
+    public const string Template = "FXAML2501";
+    public const string ContentModel = "FXAML2502";
+    public const string AttachedProperty = "FXAML2503";
+    public const string DataGrid = "FXAML2601";
     public const string Binding = "FXAML3001";
     public const string CompiledBinding = "FXAML3002";
+    public const string RelativeSource = "FXAML3003";
     public const string Resource = "FXAML3501";
+    public const string SvgAssetMissing = "FXAML3601";
+    public const string SvgAssetInvalid = "FXAML3602";
+    public const string SvgAssetDuplicate = "FXAML3603";
     public const string Selector = "FXAML4001";
     public const string Trigger = "FXAML5001";
     public const string Storyboard = "FXAML6001";

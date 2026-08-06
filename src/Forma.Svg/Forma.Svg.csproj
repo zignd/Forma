@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Forma.Svg</AssemblyName>
+    <RootNamespace>Forma</RootNamespace>
+    <PackageId>Forma.Svg.$(FormaRuntime)</PackageId>
+    <VersionPrefix>$(FormaVersion)</VersionPrefix>
+    <Description>Optional bounded runtime SVG parsing and rasterization for Forma.$(FormaRuntime).</Description>
+    <PackageTags>forma;$(FormaRuntime);ui;svg;graphics</PackageTags>
+    <IsPackable>true</IsPackable>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <IsAotCompatible>true</IsAotCompatible>
+    <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="Svg.Skia" Version="$(SvgSkiaVersion)" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="$(SkiaSharpVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''">
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' != ''">
+    <ProjectReference Include="$(MonoGameProjectPath)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' == ''">
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''">
+    <ProjectReference Include="$(FnaProjectPath)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Forma.Tests" />
+    <EmbeddedResource Include="../../assets/theme-icons/svg/*.svg" LogicalName="Forma.ThemeIcons.Svg.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../NOTICE.md" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../RELEASE_NOTES.md" Pack="true" PackagePath="" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" />
+    <None Include="../../docs/runtime-svg.md" Pack="true" PackagePath="docs/" />
+    <None Include="PackageBuild/Forma.Svg.PackageInitializer.cs.txt" Pack="true" PackagePath="buildTransitive/" />
+    <None Include="PackageGuards/Forma.Svg.$(FormaRuntime).targets" Pack="true" PackagePath="buildTransitive/$(PackageId).targets" />
+  </ItemGroup>
+
+</Project>

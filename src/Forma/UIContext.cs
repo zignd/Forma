@@ -13,6 +13,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Forma
 {
+    public enum ThemeVariant { Default, Light, Dark, HighContrast }
+    public enum InputModality { Pointer, Touch, Keyboard, Gamepad }
+
     /// <summary>
     /// Owns a UI tree's input state, focus and rendering. Add it to a Game's update/draw loop, or use
     /// <see cref="UIComponent"/> for the usual game component integration.
@@ -23,6 +26,7 @@ namespace Forma
         private readonly List<Control> _rootsInDrawOrder = new List<Control>();
         private readonly HashSet<XamlAttachmentScope> _xamlScopes = new HashSet<XamlAttachmentScope>();
         private readonly HashSet<Action<GameTime>> _frameBoundaryCallbacks = new HashSet<Action<GameTime>>();
+        private readonly List<SvgPrewarmRequest> _svgPrewarmRequests = new List<SvgPrewarmRequest>();
         private readonly UIFontSelection _tooltipFontSelection = new UIFontSelection();
         private MouseState _previousMouse;
         private KeyboardState _previousKeyboard;
@@ -44,6 +48,11 @@ namespace Forma
         private LayoutDirection _rootLayoutDirection = LayoutDirection.ApplicationLocale;
         private float _displayScale = 1f;
         private Theme _theme;
+        private Vector2 _viewportSize;
+        private ThemeVariant _themeVariant;
+        private ThemeIconRenderingPolicy _themeIconRenderingPolicy;
+        private InputModality _inputModality;
+        private long _themeGeneration;
         /// <summary>Most recently dispatched pointer position, available to retained controls that coordinate transient surfaces.</summary>
         public Point PointerPosition { get; private set; }
         /// <summary>Keyboard state for the input frame currently being dispatched, including modifier keys used by controls such as Tree.</summary>
@@ -70,6 +79,7 @@ namespace Forma
                 ThemeChanged(_theme, EventArgs.Empty);
             }
         }
+        internal long ThemeGeneration => _themeGeneration;
         public TextLayoutEngine TextLayoutEngine { get; } = new TextLayoutEngine();
         public Control FocusedControl { get; private set; }
         /// <summary>Whether retained touch-style interactions should be enabled for pointer input.</summary>
@@ -78,7 +88,51 @@ namespace Forma
         public bool IsDragging => _dragSource != null;
         /// <summary>Payload supplied by the active retained drag source, or null when not dragging.</summary>
         public object DragData => _dragData;
-        public Vector2 ViewportSize { get; set; }
+        public Vector2 ViewportSize
+        {
+            get => _viewportSize;
+            set
+            {
+                if (_viewportSize == value) return;
+                _viewportSize = value;
+                AdaptiveEnvironmentChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public ThemeVariant ThemeVariant
+        {
+            get => _themeVariant;
+            set
+            {
+                if (!Enum.IsDefined(typeof(ThemeVariant), value)) throw new ArgumentOutOfRangeException(nameof(value));
+                if (_themeVariant == value) return;
+                _themeVariant = value;
+                AdaptiveEnvironmentChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public ThemeIconRenderingPolicy ThemeIconRenderingPolicy
+        {
+            get => _themeIconRenderingPolicy;
+            set
+            {
+                if (!Enum.IsDefined(typeof(ThemeIconRenderingPolicy), value)) throw new ArgumentOutOfRangeException(nameof(value));
+                if (_themeIconRenderingPolicy == value) return;
+                _themeIconRenderingPolicy = value;
+                foreach (var root in _roots) root.MarkThemeDirty();
+            }
+        }
+        public InputModality InputModality
+        {
+            get => _inputModality;
+            set
+            {
+                if (!Enum.IsDefined(typeof(InputModality), value)) throw new ArgumentOutOfRangeException(nameof(value));
+                if (_inputModality == value) return;
+                _inputModality = value;
+                AdaptiveEnvironmentChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler AdaptiveEnvironmentChanged;
+        internal event EventHandler ThemeGenerationChanged;
         /// <summary>Physical display pixels per logical UI coordinate. Input is mapped back to logical coordinates and drawing is scaled to physical pixels.</summary>
         public float DisplayScale
         {
@@ -89,6 +143,8 @@ namespace Forma
                 if (_displayScale == value) return;
                 _displayScale = value;
                 ClearDynamicGlyphCache();
+                foreach (var root in _roots) root.MarkDisplayScaleLayoutDirty();
+                AdaptiveEnvironmentChanged?.Invoke(this, EventArgs.Empty);
             }
         }
         /// <summary>Optionally resolves a denser font atlas for the supplied logical font and display scale.</summary>
@@ -99,23 +155,56 @@ namespace Forma
         public IReadOnlyList<DynamicGlyphAtlasPageSnapshot> GetDynamicGlyphAtlasPages() => _renderer?.DynamicGlyphPages ?? Array.Empty<DynamicGlyphAtlasPageSnapshot>();
         /// <summary>Clears device-scoped dynamic glyph pages between draw calls. Cumulative counters remain available.</summary>
         public void ClearDynamicGlyphCache() => _renderer?.ClearDynamicGlyphCache();
+        /// <summary>Read-only diagnostics for this context's device-scoped SVG raster cache.</summary>
+        public SvgRasterCacheDiagnostics SvgRasterDiagnostics => _renderer?.SvgRasterDiagnostics ?? default;
+        /// <summary>Returns immutable RGBA snapshots of currently allocated SVG-atlas pages.</summary>
+        public IReadOnlyList<SvgRasterAtlasPageSnapshot> GetSvgRasterAtlasPages() => _renderer?.SvgRasterPages ?? Array.Empty<SvgRasterAtlasPageSnapshot>();
+        /// <summary>Clears device-scoped SVG documents, rasters, and pages between draw calls.</summary>
+        public void ClearSvgRasterCache() => _renderer?.ClearSvgRasterCache();
+        /// <summary>Queues an SVG raster variant for creation before the next UI draw.</summary>
+        public void PrewarmSvg(SvgImageSource source, Vector2 logicalSize)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (!float.IsFinite(logicalSize.X) || !float.IsFinite(logicalSize.Y) || logicalSize.X <= 0 || logicalSize.Y <= 0) throw new ArgumentOutOfRangeException(nameof(logicalSize));
+            _svgPrewarmRequests.Add(new SvgPrewarmRequest(source, logicalSize));
+        }
         /// <summary>Application locale used by controls with <see cref="LayoutDirection.ApplicationLocale"/>.</summary>
         public CultureInfo ApplicationCulture
         {
             get => _applicationCulture;
-            set { _applicationCulture = value ?? throw new ArgumentNullException(nameof(value)); MarkLayoutDirectionsDirty(); }
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(value));
+                if (Equals(_applicationCulture, value)) return;
+                var previous = CaptureLayoutDirections();
+                _applicationCulture = value;
+                MarkLayoutDirectionsDirty(previous);
+            }
         }
         /// <summary>System locale used by controls with <see cref="LayoutDirection.SystemLocale"/>.</summary>
         public CultureInfo SystemCulture
         {
             get => _systemCulture;
-            set { _systemCulture = value ?? throw new ArgumentNullException(nameof(value)); MarkLayoutDirectionsDirty(); }
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(value));
+                if (Equals(_systemCulture, value)) return;
+                var previous = CaptureLayoutDirections();
+                _systemCulture = value;
+                MarkLayoutDirectionsDirty(previous);
+            }
         }
         /// <summary>Fallback layout direction for root controls whose direction is inherited.</summary>
         public LayoutDirection RootLayoutDirection
         {
             get => _rootLayoutDirection;
-            set { _rootLayoutDirection = value; MarkLayoutDirectionsDirty(); }
+            set
+            {
+                if (_rootLayoutDirection == value) return;
+                var previous = CaptureLayoutDirections();
+                _rootLayoutDirection = value;
+                MarkLayoutDirectionsDirty(previous);
+            }
         }
         /// <summary>Delay before hover help becomes visible. Defaults to Godot-like delayed presentation.</summary>
         public TimeSpan TooltipDelay { get; set; } = TimeSpan.FromMilliseconds(700);
@@ -135,8 +224,58 @@ namespace Forma
         internal event Action<Control, Point> RetainedPointerReleased;
         private void ThemeChanged(object sender, EventArgs args)
         {
+            _themeGeneration++;
             TextLayoutEngine.Clear();
             foreach (var root in _roots) root.MarkThemeDirty();
+            ThemeGenerationChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        internal void ResetInteractionState(Control root)
+        {
+            if (root == null) return;
+            if (IsInVisualSubtree(root, FocusedControl))
+            {
+                foreach (var key in CurrentKeyboardState.GetPressedKeys()) FocusedControl.KeyReleased(key);
+                SetFocus(null);
+            }
+            if (IsInVisualSubtree(root, _captured))
+            {
+                var captured = _captured;
+                _captured = null;
+                for (var control = captured; control != null; control = control.VisualParent)
+                {
+                    control.PointerReleased(PointerPosition, false);
+                    if (control.ConsumeEventAccepted() || control.MouseFilter != MouseFilter.Pass) break;
+                }
+            }
+            if (IsInVisualSubtree(root, _dragSource))
+            {
+                _dragSource.NotifyDragEnded(false);
+                _dragSource = null;
+                _dragData = null;
+            }
+            if (IsInVisualSubtree(root, _hovered))
+            {
+                _hovered.PointerExited();
+                _hovered = null;
+            }
+            if (IsInVisualSubtree(root, _tooltipOwner))
+            {
+                _tooltipOwner = null;
+                _tooltipText = string.Empty;
+                _tooltipElapsed = TimeSpan.Zero;
+                IsTooltipVisible = false;
+            }
+        }
+
+        internal bool HasPinnedInteraction(Control root) =>
+            IsInVisualSubtree(root, _captured) || IsInVisualSubtree(root, _dragSource);
+
+        private static bool IsInVisualSubtree(Control root, Control control)
+        {
+            for (var current = control; current != null; current = current.VisualParent)
+                if (ReferenceEquals(current, root)) return true;
+            return false;
         }
 
         public void Add(Control control)
@@ -240,7 +379,7 @@ namespace Forma
             }
             var wheelDelta = mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue;
             if (wheelDelta != 0)
-                for (var control = target; control != null; control = control.Parent)
+                for (var control = target; control != null; control = control.VisualParent)
                     if (control.PointerWheel(wheelDelta)) break;
 
             foreach (var key in keyboard.GetPressedKeys())
@@ -252,7 +391,7 @@ namespace Forma
 
             // Input handlers may add transient roots (for example a MenuButton opening its PopupMenu).
             // Process a stable snapshot so the current frame remains valid; the new root participates next frame.
-            foreach (var root in new List<Control>(_roots)) if (root.Visible) root.Process(gameTime);
+            foreach (var root in new List<Control>(_roots)) if (root.IsRendered) root.Process(gameTime);
             _previousMouse = mouse;
             _previousKeyboard = keyboard;
         }
@@ -274,7 +413,8 @@ namespace Forma
                 _iconResources?.Dispose();
                 _iconResources = new DefaultThemeIconResources(graphicsDevice);
             }
-            _iconResources.Ensure(DisplayScale);
+            if (_iconResources.Ensure(DisplayScale, ThemeIconRenderingPolicy))
+                foreach (var root in _roots) root.MarkThemeDirty();
             Layout();
             if (_renderer == null || _renderer.GraphicsDevice != graphicsDevice)
             {
@@ -285,23 +425,39 @@ namespace Forma
             _renderer.DisplayScale = DisplayScale;
             _renderer.DisplayFontResolver = DisplayFontResolver;
             _renderer.TextLayoutEngine = TextLayoutEngine;
+            _renderer.ThemeIconSvgFallback = _iconResources.RecordSvgFallback;
+            foreach (var request in _svgPrewarmRequests) _renderer.PrewarmSvg(request.Source, request.LogicalSize);
+            _svgPrewarmRequests.Clear();
             _renderer.Begin();
             try
             {
-                foreach (var root in GetRootsInDrawOrder()) if (root.Visible) root.DrawTree(_renderer);
+                foreach (var root in GetRootsInDrawOrder()) if (root.IsRendered) root.DrawTree(_renderer);
                 DrawTooltip(_renderer);
             }
             finally { _renderer.End(); }
+        }
+
+        private readonly struct SvgPrewarmRequest
+        {
+            internal SvgPrewarmRequest(SvgImageSource source, Vector2 logicalSize)
+            {
+                Source = source;
+                LogicalSize = logicalSize;
+            }
+
+            internal SvgImageSource Source { get; }
+            internal Vector2 LogicalSize { get; }
         }
 
         public void SetFocus(Control control)
         {
             var modalPopup = GetActiveModalPopup();
             if (control != null && modalPopup != null && !modalPopup.IsAncestorOf(control)) return;
-            if (control != null && (control.Context != this || !control.Visible || !control.Enabled || control.FocusMode == FocusMode.None)) return;
+            if (control != null && (control.Context != this || !control.IsRendered || !control.IsEffectivelyEnabled || control.FocusMode == FocusMode.None)) return;
             if (FocusedControl == control) return;
-            FocusedControl?.FocusLost();
+            var previous = FocusedControl;
             FocusedControl = control;
+            previous?.FocusLost();
             FocusedControl?.FocusGained();
         }
 
@@ -318,7 +474,8 @@ namespace Forma
 
         private static Control HitTest(Control control, Point point)
         {
-            if (!control.Visible || !control.Enabled) return null;
+            if (!control.IsRendered || !control.IsEffectivelyEnabled || !control.IsHitTestVisible || !control.TryTransformHitTestPoint(point, out point)) return null;
+            if (!control.ContainsComposedClipPoint(point)) return null;
             if (control.ClipContents && !control.ContainsPoint(point)) return null;
             if (control.MouseFilter != MouseFilter.Ignore && control.ContainsPoint(point) && control.HitTestBeforeChildren(point)) return control;
             var children = control.GetChildrenInDrawOrder();
@@ -332,7 +489,7 @@ namespace Forma
 
         private static void DispatchPointerPressed(Control target, Point point)
         {
-            for (var control = target; control != null; control = control.Parent)
+            for (var control = target; control != null; control = control.VisualParent)
             {
                 control.PointerPressed(point);
                 if (control.ConsumeEventAccepted() || control.MouseFilter != MouseFilter.Pass) break;
@@ -341,7 +498,7 @@ namespace Forma
 
         private static void DispatchPointerMoved(Control target, Point point)
         {
-            for (var control = target; control != null; control = control.Parent)
+            for (var control = target; control != null; control = control.VisualParent)
             {
                 control.PointerMoved(point);
                 if (control.ConsumeEventAccepted() || control.MouseFilter != MouseFilter.Pass) break;
@@ -360,7 +517,7 @@ namespace Forma
         private static void DispatchPointerButtonTransition(Control target, Point point, PointerButton button, ButtonState current, ButtonState previous)
         {
             if (target == null || current == previous) return;
-            for (var control = target; control != null; control = control.Parent)
+            for (var control = target; control != null; control = control.VisualParent)
             {
                 if (current == ButtonState.Pressed) control.PointerButtonPressed(point, button);
                 else control.PointerButtonReleased(point, button);
@@ -370,7 +527,7 @@ namespace Forma
 
         private static void DispatchPointerReleased(Control target, Point point)
         {
-            for (var control = target; control != null; control = control.Parent)
+            for (var control = target; control != null; control = control.VisualParent)
             {
                 control.PointerReleased(point, control.ContainsPoint(point));
                 if (control.ConsumeEventAccepted() || control.MouseFilter != MouseFilter.Pass) break;
@@ -424,14 +581,14 @@ namespace Forma
 
         private static bool DispatchShortcutInput(Control control, Keys key, KeyboardState keyboard)
         {
-            if (control == null || !control.Visible || !control.Enabled) return false;
+            if (control == null || !control.IsRendered || !control.IsEffectivelyEnabled) return false;
             var children = control.GetChildrenInDrawOrder();
             for (var i = children.Count - 1; i >= 0; i--)
                 if (DispatchShortcutInput(children[i], key, keyboard)) return true;
             return control.ShortcutInput(key, keyboard);
         }
 
-        private bool CanFocus(Control control) => control != null && control.Context == this && control.Visible && control.Enabled && control.FocusMode != FocusMode.None;
+        private bool CanFocus(Control control) => control != null && control.Context == this && control.IsRendered && control.IsEffectivelyEnabled && control.FocusMode != FocusMode.None;
 
         /// <summary>Forwards one platform text-input character to the focused retained control.</summary>
         public void TextInput(char character)
@@ -460,7 +617,7 @@ namespace Forma
 
         private Control GetDropTarget(Point point)
         {
-            for (var control = HitTest(point); control != null; control = control.Parent)
+            for (var control = HitTest(point); control != null; control = control.VisualParent)
                 if (control.CanDropData(point, _dragData)) return control;
             return null;
         }
@@ -478,7 +635,7 @@ namespace Forma
 
         private static Popup GetTopmostModalPopup(Control control)
         {
-            if (!control.Visible) return null;
+            if (!control.IsRendered) return null;
             var children = control.GetChildrenInDrawOrder();
             for (var index = children.Count - 1; index >= 0; index--)
             {
@@ -510,7 +667,7 @@ namespace Forma
         /// </summary>
         private static Control GetTooltipOwner(Control target, Point position, out string text)
         {
-            for (var control = target; control != null; control = control.Parent)
+            for (var control = target; control != null; control = control.VisualParent)
             {
                 text = control.GetTooltip(position);
                 if (!string.IsNullOrEmpty(text)) return control;
@@ -540,8 +697,9 @@ namespace Forma
 
         private static void CollectFocusable(Control control, List<Control> result)
         {
-            if (control.Visible && control.Enabled && control.FocusMode == FocusMode.All) result.Add(control);
-            foreach (var child in control.Children) CollectFocusable(child, result);
+            if (!control.IsRendered || !control.IsEffectivelyEnabled) return;
+            if (control.FocusMode == FocusMode.All) result.Add(control);
+            foreach (var child in control.VisualChildren) CollectFocusable(child, result);
         }
 
         internal void MarkRootOrderDirty() => _rootOrderDirty = true;
@@ -562,9 +720,17 @@ namespace Forma
                 ? ApplicationCulture.TextInfo.IsRightToLeft
                 : ResolveLayoutDirection(RootLayoutDirection);
         }
-        private void MarkLayoutDirectionsDirty()
+        private List<KeyValuePair<Control, Dictionary<Control, LayoutDirection>>> CaptureLayoutDirections()
         {
-            foreach (var root in _roots) root.MarkInheritedLayoutDirectionDirty();
+            var values = new List<KeyValuePair<Control, Dictionary<Control, LayoutDirection>>>(_roots.Count);
+            foreach (var root in _roots)
+                values.Add(new KeyValuePair<Control, Dictionary<Control, LayoutDirection>>(root, root.CaptureEffectiveLayoutDirections()));
+            return values;
+        }
+
+        private static void MarkLayoutDirectionsDirty(List<KeyValuePair<Control, Dictionary<Control, LayoutDirection>>> previous)
+        {
+            foreach (var pair in previous) pair.Key.MarkInheritedLayoutDirectionDirty(pair.Value);
         }
 
         internal void RegisterXamlScope(XamlAttachmentScope scope) => _xamlScopes.Add(scope);
@@ -621,15 +787,29 @@ namespace Forma
 
         public void Dispose()
         {
+            System.Runtime.ExceptionServices.ExceptionDispatchInfo failure = null;
             var roots = _roots.ToArray();
-            foreach (var root in roots) Remove(root);
+            foreach (var root in roots)
+            {
+                try { Remove(root); }
+                catch (Exception exception) { failure ??= System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(exception); }
+            }
+            var xamlScopes = _xamlScopes.ToArray();
+            foreach (var scope in xamlScopes)
+            {
+                try { scope.DisposeOwner(); }
+                catch (Exception exception) { failure ??= System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(exception); }
+            }
             _xamlScopes.Clear();
             lock (_frameBoundaryCallbacks) _frameBoundaryCallbacks.Clear();
-            _renderer?.Dispose();
+            try { _renderer?.Dispose(); }
+            catch (Exception exception) { failure ??= System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(exception); }
             _renderer = null;
-            _iconResources?.Dispose();
+            try { _iconResources?.Dispose(); }
+            catch (Exception exception) { failure ??= System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(exception); }
             _iconResources = null;
             TextLayoutEngine.Clear();
+            failure?.Throw();
         }
     }
 

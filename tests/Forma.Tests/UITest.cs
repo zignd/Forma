@@ -142,6 +142,42 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void BaseButton_CustomTemplateReplacesChromeWithoutReplacingInputSemantics()
+        {
+            var context = new UIContext();
+            var button = new Button { Size = new Vector2(80, 30), Text = "Action" };
+            var presses = 0;
+            button.Pressed += (_, _) => presses++;
+            context.Add(button);
+            context.Layout();
+            var packagedRoot = button.TemplateRoot;
+
+            button.Template = ControlTemplate.Create<Button>((_, _) => new Border
+            {
+                Background = new SolidColorBrush(Color.CornflowerBlue),
+            });
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(button.TemplateRoot, Is.TypeOf<Border>());
+                Assert.That(button.TemplateRoot, Is.Not.SameAs(packagedRoot));
+                Assert.That(button.GetTemplateChild(ContentControl.ContentPresenterPartName), Is.Null);
+                Assert.That(typeof(BaseButton).GetMethod("Draw", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly), Is.Null);
+                Assert.That(context.HitTest(new Point(10, 10)), Is.SameAs(button));
+            });
+
+            context.Update(Time, Mouse(10, 10), new KeyboardState());
+            context.Update(Time, Mouse(10, 10, ButtonState.Pressed), new KeyboardState());
+            context.Update(Time, Mouse(10, 10), new KeyboardState());
+            button.GrabFocus();
+            context.Update(Time, Mouse(100, 100), new KeyboardState(Keys.Enter));
+            context.Update(Time, Mouse(100, 100), new KeyboardState());
+
+            Assert.That(presses, Is.EqualTo(2));
+        }
+
+        [Test]
         public void BaseButton_KeepPressedOutsideAffectsOnlyVisualStateNotActivation()
         {
             // Verified against Godot source: BaseButton::on_action_event gates real activation solely on
@@ -473,7 +509,35 @@ namespace Forma.Tests
             Assert.That(display.GetMinimumSize(), Is.EqualTo(new Vector2(16, 12)));
             display.Icon = null;
             Assert.That(display.GetMinimumSize(), Is.EqualTo(Vector2.Zero));
+
+            var inheritedTheme = new Theme();
+            inheritedTheme.SetIcon("foundation", icon, nameof(ThemeIconView));
+            var parent = new Control { ThemeOverride = inheritedTheme };
+            var inherited = new ThemeIconView { ThemeItemName = "foundation", ThemeTypeName = nameof(ThemeIconView) };
+            parent.AddChild(inherited);
+            Assert.That(inherited.GetMinimumSize(), Is.EqualTo(new Vector2(16, 12)));
             Assert.That(texture.IsDisposed, Is.False);
+        }
+
+        [Test]
+        public void Shape_DirectStrokePropertiesDriveHitGeometry()
+        {
+            var line = new LineShape
+            {
+                Stroke = new SolidColorBrush(Color.White),
+                StrokeThickness = 4,
+                StartPoint = new Vector2(10, 10),
+                EndPoint = new Vector2(30, 10),
+                StrokeStartLineCap = StrokeLineCap.Square,
+                StrokeEndLineCap = StrokeLineCap.Square,
+                StrokeDashArray = new[] { 5f, 10f },
+            };
+
+            Assert.That(line.ContainsPoint(new Point(9, 10)), Is.True, "The direct start-cap property must extend the first dash.");
+            Assert.That(line.ContainsPoint(new Point(20, 10)), Is.False, "The direct dash-array property must leave the first gap empty.");
+            Assert.That(line.StrokeStyle, Is.Not.Null);
+            Assert.That(line.StrokeStyle.StartLineCap, Is.EqualTo(StrokeLineCap.Square));
+            Assert.That(line.StrokeStyle.DashArray, Is.EqualTo(new[] { 5f, 10f }));
         }
 
         [Test]
@@ -1009,6 +1073,51 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void RangeControls_CustomTemplatesPreserveOwnerStateAndSliderInput()
+        {
+            var context = new UIContext();
+            var slider = new HSlider
+            {
+                Size = new Vector2(100, 20),
+                Value = 20,
+                Template = ControlTemplate.Create<Slider>((_, _) => new Border
+                {
+                    Background = new SolidColorBrush(Color.DarkSeaGreen),
+                }),
+            };
+            var progress = new ProgressBar
+            {
+                Position = new Vector2(0, 30),
+                Size = new Vector2(100, 20),
+                Value = 35,
+                Template = ControlTemplate.Create<ProgressBar>((_, _) => new Border
+                {
+                    Background = new SolidColorBrush(Color.CornflowerBlue),
+                }),
+            };
+            context.Add(slider);
+            context.Add(progress);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(slider.TemplateRoot, Is.TypeOf<Border>());
+                Assert.That(progress.TemplateRoot, Is.TypeOf<Border>());
+                Assert.That(progress.Value, Is.EqualTo(35));
+                Assert.That(context.HitTest(new Point(75, 10)), Is.SameAs(slider));
+                Assert.That(typeof(Slider).GetMethod("Draw", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly), Is.Null);
+                Assert.That(typeof(ProgressBar).GetMethod("Draw", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly), Is.Null);
+            });
+
+            context.Update(Time, Mouse(75, 10), new KeyboardState());
+            context.Update(Time, Mouse(75, 10, ButtonState.Pressed), new KeyboardState());
+            context.Update(Time, Mouse(75, 10), new KeyboardState());
+
+            Assert.That(slider.Value, Is.EqualTo(75));
+            Assert.That(progress.Value, Is.EqualTo(35));
+        }
+
+        [Test]
         public void OptionButton_TracksGodotItemStateAndPresentsItsPopup()
         {
             var option = new OptionButton { Size = new Vector2(120, 28) };
@@ -1335,6 +1444,737 @@ namespace Forma.Tests
             Assert.That(left.Bounds, Is.EqualTo(new Rectangle(0, 0, 20, 10)));
             Assert.That(right.Bounds, Is.EqualTo(new Rectangle(24, 0, 76, 10)));
             Assert.That(bottom.Bounds, Is.EqualTo(new Rectangle(0, 14, 20, 46)));
+        }
+
+        [Test]
+        public void Control_UniversalBoxPropertiesConstrainDesiredSizeAcrossPanels()
+        {
+            var control = new Control
+            {
+                Width = 80,
+                AspectRatio = 2,
+                MinWidth = 90,
+                MaxWidth = 85,
+                MinHeight = 20,
+                MaxHeight = 50,
+                Margin = new Thickness(3, 4, 5, 6),
+            };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(control.GetBoundDesiredSize(), Is.EqualTo(new Vector2(90, 40)));
+                Assert.That(control.Margins, Is.EqualTo(new Thickness(3, 4, 5, 6)));
+                Assert.Throws<ArgumentOutOfRangeException>(() => control.Width = -1);
+                Assert.Throws<ArgumentOutOfRangeException>(() => control.MaxHeight = float.NaN);
+                Assert.Throws<ArgumentOutOfRangeException>(() => control.AspectRatio = 0);
+            });
+
+            control.MinWidth = 0;
+            var stack = new StackPanel();
+            stack.AddChild(control);
+            Assert.That(stack.GetMinimumSize(), Is.EqualTo(new Vector2(88, 50)));
+
+            stack.RemoveChild(control);
+            var overlay = new OverlayPanel();
+            overlay.AddChild(control);
+            Assert.That(overlay.GetMinimumSize(), Is.EqualTo(new Vector2(88, 50)));
+        }
+
+        [Test]
+        public void StackPanel_ArrangesIntrinsicChildrenWithGapCrossAlignmentAndRtlOrder()
+        {
+            var panel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Gap = 4,
+                CrossAxisAlignment = CrossAxisAlignment.Center,
+                Size = new Vector2(100, 30),
+            };
+            var first = new Control { CustomMinimumSize = new Vector2(20, 10) };
+            var second = new Control { CustomMinimumSize = new Vector2(30, 20) };
+            panel.AddChild(first);
+            panel.AddChild(second);
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(panel.GetMinimumSize(), Is.EqualTo(new Vector2(54, 20)));
+                Assert.That(first.Bounds, Is.EqualTo(new Rectangle(0, 10, 20, 10)));
+                Assert.That(second.Bounds, Is.EqualTo(new Rectangle(24, 5, 30, 20)));
+            });
+
+            panel.LayoutDirection = LayoutDirection.RightToLeft;
+            context.Layout();
+            Assert.Multiple(() =>
+            {
+                Assert.That(first.Bounds.X, Is.EqualTo(80));
+                Assert.That(second.Bounds.X, Is.EqualTo(46));
+            });
+        }
+
+        [Test]
+        public void CanvasAndOverlayPanels_ApplyAttachedPlacementMarginsAndRtlAlignment()
+        {
+            var canvas = new CanvasPanel { Size = new Vector2(100, 60) };
+            var stretched = new Control { CustomMinimumSize = new Vector2(10, 10), Margins = new Thickness(2) };
+            CanvasPanel.SetLeft(stretched, 10);
+            CanvasPanel.SetRight(stretched, 20);
+            CanvasPanel.SetTop(stretched, 5);
+            canvas.AddChild(stretched);
+            var overlay = new OverlayPanel { Size = new Vector2(100, 60) };
+            var aligned = new Control { CustomMinimumSize = new Vector2(20, 10), Margins = new Thickness(2) };
+            OverlayPanel.SetHorizontalAlignment(aligned, HorizontalAlignment.Left);
+            OverlayPanel.SetVerticalAlignment(aligned, VerticalAlignment.Bottom);
+            overlay.AddChild(aligned);
+            var context = new UIContext();
+            context.Add(canvas);
+            context.Add(overlay);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(stretched.Bounds, Is.EqualTo(new Rectangle(12, 7, 66, 10)));
+                Assert.That(aligned.Bounds, Is.EqualTo(new Rectangle(2, 48, 20, 10)));
+                Assert.That(overlay.GetMinimumSize(), Is.EqualTo(new Vector2(24, 14)));
+            });
+
+            overlay.LayoutDirection = LayoutDirection.RightToLeft;
+            context.Layout();
+            Assert.That(aligned.Bounds.X, Is.EqualTo(78));
+        }
+
+        [Test]
+        public void WrapPanel_UsesIndependentGapsMarginsCrossAlignmentAndRtlMirroring()
+        {
+            var panel = new WrapPanel
+            {
+                Size = new Vector2(55, 60),
+                ItemGap = 5,
+                LineGap = 7,
+                CrossAxisAlignment = CrossAxisAlignment.Center,
+            };
+            var first = new Control { CustomMinimumSize = new Vector2(20, 10), Margins = new Thickness(1) };
+            var second = new Control { CustomMinimumSize = new Vector2(20, 20), Margins = new Thickness(1) };
+            var third = new Control { CustomMinimumSize = new Vector2(30, 10) };
+            panel.AddChild(first);
+            panel.AddChild(second);
+            panel.AddChild(third);
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(panel.LineCount, Is.EqualTo(2));
+                Assert.That(first.Bounds, Is.EqualTo(new Rectangle(1, 6, 20, 10)));
+                Assert.That(second.Bounds, Is.EqualTo(new Rectangle(28, 1, 20, 20)));
+                Assert.That(third.Bounds, Is.EqualTo(new Rectangle(0, 29, 30, 10)));
+                Assert.That(panel.GetMinimumSize(), Is.EqualTo(new Vector2(30, 39)));
+            });
+
+            panel.LayoutDirection = LayoutDirection.RightToLeft;
+            context.Layout();
+            Assert.Multiple(() =>
+            {
+                Assert.That(first.Bounds.X, Is.EqualTo(34));
+                Assert.That(second.Bounds.X, Is.EqualTo(7));
+                Assert.That(third.Bounds.X, Is.EqualTo(25));
+            });
+        }
+
+        [Test]
+        public void FoundationalLayoutLengths_AreTypedValidatedAndUseContentForIndefinitePercentages()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(LayoutLength.Pixels(12).Resolve(100, 7), Is.EqualTo(12));
+                Assert.That(LayoutLength.Percent(.25f).Resolve(100, 7), Is.EqualTo(25));
+                Assert.That(LayoutLength.Percent(.25f).Resolve(float.PositiveInfinity, 7), Is.EqualTo(7));
+                Assert.That(LayoutLength.Auto.Resolve(100, 7), Is.EqualTo(7));
+                Assert.That(GridTrackSize.MinMax(LayoutLength.Pixels(10), LayoutLength.Percent(.5f)), Is.EqualTo(new GridTrackSizeValueSource().Value));
+                Assert.That(() => GridTrackSize.Star(0), Throws.TypeOf<ArgumentOutOfRangeException>());
+                Assert.That(() => LayoutLength.Pixels(float.NaN), Throws.TypeOf<ArgumentOutOfRangeException>());
+            });
+        }
+
+        private sealed class GridTrackSizeValueSource
+        {
+            public GridTrackSize Value => GridTrackSize.MinMax(LayoutLength.Pixels(10), LayoutLength.Percent(.5f));
+        }
+
+        [Test]
+        public void FlexPanel_AppliesOrderGrowJustificationReverseAndRtl()
+        {
+            var panel = new FlexPanel { Size = new Vector2(100, 30), ColumnGap = 4, AlignItems = FlexAlign.Center };
+            var first = new Control { CustomMinimumSize = new Vector2(20, 10) };
+            var second = new Control { CustomMinimumSize = new Vector2(20, 20) };
+            FlexPanel.SetOrder(first, 1);
+            FlexPanel.SetGrow(first, 1);
+            panel.AddChild(first);
+            panel.AddChild(second);
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(second.Bounds, Is.EqualTo(new Rectangle(0, 5, 20, 20)));
+                Assert.That(first.Bounds, Is.EqualTo(new Rectangle(24, 10, 76, 10)));
+            });
+
+            panel.Direction = FlexDirection.RowReverse;
+            context.Layout();
+            Assert.That(second.Bounds.X, Is.EqualTo(80));
+            panel.LayoutDirection = LayoutDirection.RightToLeft;
+            context.Layout();
+            Assert.That(second.Bounds.X, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void FlexPanel_MirrorsColumnCrossAlignmentAndKeepsEqualOrderStable()
+        {
+            var panel = new FlexPanel
+            {
+                Direction = FlexDirection.Column,
+                AlignItems = FlexAlign.Start,
+                LayoutDirection = LayoutDirection.RightToLeft,
+                Size = new Vector2(30, 80),
+            };
+            var children = new List<Control>();
+            for (var index = 0; index < 32; index++)
+            {
+                var child = new Control { CustomMinimumSize = new Vector2(10, 2) };
+                FlexPanel.SetOrder(child, index % 2);
+                children.Add(child);
+                panel.AddChild(child);
+            }
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(children[0].Bounds.X, Is.EqualTo(20));
+                for (var index = 0; index < 16; index++)
+                {
+                    Assert.That(children[index * 2].Bounds.Y, Is.EqualTo(index * 2));
+                    Assert.That(children[index * 2 + 1].Bounds.Y, Is.EqualTo(32 + index * 2));
+                }
+            });
+        }
+
+        [Test]
+        public void GridPanel_ResolvesExplicitTracksSpansAlignmentGapsAndRtl()
+        {
+            var panel = new GridPanel { Size = new Vector2(120, 50), ColumnGap = 5, RowGap = 4 };
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Pixels(20) });
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Star() });
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Auto });
+            panel.RowDefinitions.Add(new RowDefinition { Height = GridTrackSize.Auto });
+            panel.RowDefinitions.Add(new RowDefinition { Height = GridTrackSize.Star() });
+            var fixedChild = new Control { CustomMinimumSize = new Vector2(10, 10) };
+            var aligned = new Control { CustomMinimumSize = new Vector2(15, 8) };
+            GridPanel.SetColumn(aligned, 2);
+            GridPanel.SetHorizontalAlignment(aligned, HorizontalAlignment.Right);
+            GridPanel.SetVerticalAlignment(aligned, VerticalAlignment.Center);
+            var spanning = new Control { CustomMinimumSize = new Vector2(50, 12) };
+            GridPanel.SetRow(spanning, 1);
+            GridPanel.SetColumnSpan(spanning, 2);
+            panel.AddChild(fixedChild);
+            panel.AddChild(aligned);
+            panel.AddChild(spanning);
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixedChild.Bounds, Is.EqualTo(new Rectangle(0, 0, 20, 10)));
+                Assert.That(aligned.Bounds, Is.EqualTo(new Rectangle(105, 1, 15, 8)));
+                Assert.That(spanning.Bounds, Is.EqualTo(new Rectangle(0, 14, 100, 36)));
+            });
+
+            panel.LayoutDirection = LayoutDirection.RightToLeft;
+            context.Layout();
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixedChild.Bounds.X, Is.EqualTo(100));
+                Assert.That(aligned.Bounds.X, Is.EqualTo(0));
+            });
+        }
+
+        [Test]
+        public void GridPanel_MinMaxStarDefinitionMutationAndHighScaleStayDeterministic()
+        {
+            var flexible = new ColumnDefinition { Width = GridTrackSize.MinMax(LayoutLength.Pixels(20), LayoutLength.Star()) };
+            var panel = new GridPanel { Size = new Vector2(50.5f, 20), ColumnGap = .5f };
+            panel.ColumnDefinitions.Add(flexible);
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Pixels(10) });
+            var first = new Control { CustomMinimumSize = new Vector2(5, 10) };
+            var second = new Control { CustomMinimumSize = new Vector2(5, 10) };
+            GridPanel.SetColumn(second, 1);
+            panel.AddChild(first);
+            panel.AddChild(second);
+            var context = new UIContext { DisplayScale = 2 };
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(first.Size.X, Is.EqualTo(40));
+                Assert.That(second.Position.X, Is.EqualTo(40.5f));
+            });
+
+            flexible.Width = GridTrackSize.Pixels(25);
+            context.Layout();
+            Assert.Multiple(() =>
+            {
+                Assert.That(first.Size.X, Is.EqualTo(25));
+                Assert.That(second.Position.X, Is.EqualTo(25.5f));
+            });
+        }
+
+        [Test]
+        public void CanvasPanel_AnchorPositionDoesNotDriftAcrossLayouts()
+        {
+            var panel = new CanvasPanel { Size = new Vector2(100, 100) };
+            var child = new Control { Position = new Vector2(50, 50), CustomMinimumSize = new Vector2(20, 20) };
+            var movedBeforeLayout = new Control { Position = new Vector2(50, 50), CustomMinimumSize = new Vector2(20, 20) };
+            CanvasPanel.SetAnchor(child, new Vector2(.5f));
+            CanvasPanel.SetAnchor(movedBeforeLayout, new Vector2(.5f));
+            movedBeforeLayout.Position = new Vector2(70, 70);
+            panel.AddChild(child);
+            panel.AddChild(movedBeforeLayout);
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+            Assert.That(child.Position, Is.EqualTo(new Vector2(40, 40)));
+            Assert.That(movedBeforeLayout.Position, Is.EqualTo(new Vector2(60, 60)));
+
+            panel.QueueLayout();
+            context.Layout();
+            Assert.That(child.Position, Is.EqualTo(new Vector2(40, 40)));
+
+            child.Position = new Vector2(70, 70);
+            context.Layout();
+            Assert.That(child.Position, Is.EqualTo(new Vector2(60, 60)));
+        }
+
+        [Test]
+        public void FlexPanel_FreezesMinimumAndMaximumThenRedistributesRemainingSpace()
+        {
+            var shrinking = new FlexPanel { Size = new Vector2(50, 20) };
+            var firstMinimum = new Control { CustomMinimumSize = new Vector2(40, 10) };
+            var secondMinimum = new Control { CustomMinimumSize = new Vector2(40, 10) };
+            shrinking.AddChild(firstMinimum);
+            shrinking.AddChild(secondMinimum);
+            var growing = new FlexPanel { Size = new Vector2(100, 20) };
+            var capped = new Control { CustomMinimumSize = new Vector2(20, 10), CustomMaximumSize = new Vector2(30, -1) };
+            var uncapped = new Control { CustomMinimumSize = new Vector2(20, 10) };
+            FlexPanel.SetGrow(capped, 1);
+            FlexPanel.SetGrow(uncapped, 1);
+            growing.AddChild(capped);
+            growing.AddChild(uncapped);
+            var context = new UIContext();
+            context.Add(shrinking);
+            context.Add(growing);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(firstMinimum.Size.X, Is.EqualTo(40));
+                Assert.That(secondMinimum.Size.X, Is.EqualTo(40));
+                Assert.That(capped.Size.X, Is.EqualTo(30));
+                Assert.That(uncapped.Size.X, Is.EqualTo(70));
+                Assert.That(() => FlexPanel.SetBasis(capped, LayoutLength.Star()), Throws.TypeOf<ArgumentException>());
+            });
+        }
+
+        [Test]
+        public void GridPanel_SpanningContentPreservesFixedTracksAndUsesFlexibleRemainder()
+        {
+            var panel = new GridPanel { Size = new Vector2(100, 20) };
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Pixels(80) });
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Auto });
+            var spanning = new Control { CustomMinimumSize = new Vector2(100, 10) };
+            GridPanel.SetColumnSpan(spanning, 2);
+            var marker = new Control { CustomMinimumSize = new Vector2(5, 10) };
+            GridPanel.SetColumn(marker, 1);
+            panel.AddChild(spanning);
+            panel.AddChild(marker);
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(spanning.Size.X, Is.EqualTo(100));
+                Assert.That(marker.Position.X, Is.EqualTo(80));
+                Assert.That(marker.Size.X, Is.EqualTo(20));
+            });
+        }
+
+        [Test]
+        public void LayoutConstraintsRejectInvalidUnitsAndWrapMinimumIsIntrinsic()
+        {
+            var child = new Control { CustomMinimumSize = new Vector2(20, 10) };
+            var panel = new WrapPanel();
+            panel.AddChild(child);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(panel.GetMinimumSize(), Is.EqualTo(new Vector2(20, 10)));
+                Assert.That(() => FlexPanel.SetBasis(child, LayoutLength.Star()), Throws.TypeOf<ArgumentException>());
+                Assert.That(() => GridTrackSize.MinMax(LayoutLength.Star(), LayoutLength.Auto), Throws.TypeOf<ArgumentException>());
+                Assert.That(() => GridTrackSize.MinMax(LayoutLength.Pixels(20), LayoutLength.Pixels(10)), Throws.TypeOf<ArgumentException>());
+                Assert.That(GridTrackSize.MinMax(LayoutLength.Pixels(10), LayoutLength.Star()), Is.Not.EqualTo(default(GridTrackSize)));
+            });
+        }
+
+        [Test]
+        public void LayoutPanels_SnapFractionalEdgesAtDisplayScale()
+        {
+            var overlay = new OverlayPanel { Size = new Vector2(21, 20) };
+            var centered = new Control { CustomMinimumSize = new Vector2(10, 10) };
+            OverlayPanel.SetHorizontalAlignment(centered, HorizontalAlignment.Center);
+            overlay.AddChild(centered);
+            var stack = new StackPanel { Orientation = Orientation.Horizontal, Size = new Vector2(20, 10) };
+            var first = new Control { CustomMinimumSize = new Vector2(5.25f, 10) };
+            var second = new Control { CustomMinimumSize = new Vector2(5.25f, 10) };
+            var third = new Control { CustomMinimumSize = new Vector2(5.25f, 10) };
+            stack.AddChild(first);
+            stack.AddChild(second);
+            stack.AddChild(third);
+            var context = new UIContext { DisplayScale = 2 };
+            context.Add(overlay);
+            context.Add(stack);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(centered.Position.X, Is.EqualTo(5.5f));
+                Assert.That(first.Position.X + first.Size.X, Is.EqualTo(second.Position.X));
+                Assert.That(second.Position.X + second.Size.X, Is.EqualTo(third.Position.X));
+                Assert.That(first.Position.X * 2, Is.EqualTo(MathF.Round(first.Position.X * 2)));
+                Assert.That(third.Size.X * 2, Is.EqualTo(MathF.Round(third.Size.X * 2)));
+            });
+
+            context.DisplayScale = 1;
+            context.Layout();
+            Assert.That(centered.Position.X, Is.EqualTo(6));
+            context.DisplayScale = 2;
+            context.Layout();
+            Assert.That(centered.Position.X, Is.EqualTo(5.5f));
+        }
+
+        [Test]
+        public void LayoutPanels_LayerAndClipConstrainedOverflow()
+        {
+            var overlay = new OverlayPanel { Size = new Vector2(30, 30) };
+            var lower = new Button { CustomMinimumSize = new Vector2(30, 30) };
+            var upper = new Button { CustomMinimumSize = new Vector2(30, 30) };
+            OverlayPanel.SetZIndex(lower, 1);
+            OverlayPanel.SetZIndex(upper, 2);
+            overlay.AddChild(upper);
+            overlay.AddChild(lower);
+            var stack = new StackPanel { Orientation = Orientation.Horizontal, Position = new Vector2(40, 0), Size = new Vector2(20, 10), ClipContents = false };
+            var overflow = new Control { CustomMinimumSize = new Vector2(40, 10) };
+            CanvasPanel.SetZIndex(overflow, 3);
+            stack.AddChild(overflow);
+            var context = new UIContext();
+            context.Add(overlay);
+            context.Add(stack);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.HitTest(new Point(5, 5)), Is.SameAs(upper));
+                Assert.That(OverlayPanel.GetZIndex(upper), Is.EqualTo(2));
+                Assert.That(CanvasPanel.GetZIndex(overflow), Is.EqualTo(3));
+                Assert.That(overflow.Size.X, Is.EqualTo(40));
+                Assert.That(context.HitTest(new Point(70, 5)), Is.SameAs(overflow));
+            });
+
+            stack.ClipContents = true;
+            Assert.That(context.HitTest(new Point(70, 5)), Is.Not.SameAs(overflow));
+        }
+
+        [Test]
+        public void GridPanel_PercentageTrackFallsBackToContentUntilConstraintIsDefinite()
+        {
+            var panel = new GridPanel();
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Percent(.5f) });
+            var child = new Control { CustomMinimumSize = new Vector2(20, 10) };
+            panel.AddChild(child);
+
+            Assert.That(panel.GetMinimumSize().X, Is.EqualTo(20));
+
+            panel.Size = new Vector2(100, 10);
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+            Assert.That(child.Size.X, Is.EqualTo(50));
+        }
+
+        [Test]
+        public void GridPanel_FreezesConstrainedStarTracksAndOrdersSpansPerAxis()
+        {
+            var stars = new GridPanel { Size = new Vector2(100, 10) };
+            stars.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Star() });
+            stars.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Star() });
+            var wide = new Control { CustomMinimumSize = new Vector2(80, 10) };
+            var marker = new Control();
+            GridPanel.SetColumn(marker, 1);
+            stars.AddChild(wide);
+            stars.AddChild(marker);
+
+            var autos = new GridPanel();
+            autos.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Auto });
+            autos.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Auto });
+            var spanning = new Control { CustomMinimumSize = new Vector2(100, 10) };
+            GridPanel.SetColumnSpan(spanning, 2);
+            var singleColumn = new Control { CustomMinimumSize = new Vector2(80, 10) };
+            GridPanel.SetRowSpan(singleColumn, 3);
+            autos.AddChild(spanning);
+            autos.AddChild(singleColumn);
+
+            var context = new UIContext();
+            context.Add(stars);
+            context.Layout();
+            Assert.Multiple(() =>
+            {
+                Assert.That(wide.Size.X, Is.EqualTo(80));
+                Assert.That(marker.Position.X, Is.EqualTo(80));
+                Assert.That(marker.Size.X, Is.EqualTo(20));
+                Assert.That(autos.GetMinimumSize().X, Is.EqualTo(100));
+            });
+        }
+
+        [Test]
+        public void FlexPanel_NoWrapIgnoresAlignContentAndWrapReverseMirrorsLines()
+        {
+            var singleLine = new FlexPanel
+            {
+                Size = new Vector2(100, 50),
+                AlignItems = FlexAlign.Stretch,
+                AlignContent = FlexAlignContent.Start,
+            };
+            var stretched = new Control { CustomMinimumSize = new Vector2(20, 10) };
+            singleLine.AddChild(stretched);
+
+            var reversed = new FlexPanel
+            {
+                Size = new Vector2(25, 100),
+                Wrap = FlexWrap.WrapReverse,
+                AlignContent = FlexAlignContent.Start,
+            };
+            var first = new Control { CustomMinimumSize = new Vector2(10, 10) };
+            var second = new Control { CustomMinimumSize = new Vector2(10, 10) };
+            var third = new Control { CustomMinimumSize = new Vector2(10, 10) };
+            reversed.AddChild(first);
+            reversed.AddChild(second);
+            reversed.AddChild(third);
+            var context = new UIContext();
+            context.Add(singleLine);
+            context.Add(reversed);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(stretched.Size.Y, Is.EqualTo(50));
+                Assert.That(first.Position.Y, Is.EqualTo(90));
+                Assert.That(second.Position.Y, Is.EqualTo(90));
+                Assert.That(third.Position.Y, Is.EqualTo(80));
+            });
+        }
+
+        [Test]
+        public void Control_ComposedVisualStateUsesTransformClipAndHitTestVisibilityForSubtrees()
+        {
+            var root = new Control
+            {
+                Position = new Vector2(10, 10),
+                Size = new Vector2(20, 20),
+                RenderTransform = new TranslateTransform { X = 30, Y = 5 },
+                TransformOrigin = Vector2.Zero,
+                Clip = new EllipseGeometry(),
+                Foreground = Color.Lime,
+                Language = "ar",
+                FontSize = 18,
+            };
+            var child = new Control { Position = new Vector2(5, 5), Size = new Vector2(10, 10) };
+            root.AddChild(child);
+            var context = new UIContext();
+            context.Add(root);
+            BringIntoViewRequestedEventArgs request = null;
+            root.BringIntoViewRequested += (_, value) => { request = value; value.Handled = true; };
+            child.BringIntoView();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.HitTest(new Point(50, 25)), Is.SameAs(child));
+                Assert.That(context.HitTest(new Point(41, 16)), Is.Null, "The transformed point is inside bounds but outside the elliptical clip.");
+                Assert.That(context.HitTest(new Point(20, 20)), Is.Null, "The untransformed location must not remain interactive.");
+                Assert.That(root.VisualBounds, Is.EqualTo(new Rectangle(40, 15, 20, 20)));
+                Assert.That(root.FocusBounds, Is.EqualTo(root.VisualBounds));
+                Assert.That(root.AccessibilityBounds, Is.EqualTo(root.VisualBounds));
+                Assert.That(child.VisualBounds, Is.EqualTo(new Rectangle(45, 20, 10, 10)));
+                Assert.That(request?.Target, Is.SameAs(child));
+                Assert.That(request?.TargetBounds, Is.EqualTo(child.VisualBounds));
+                Assert.That(child.Foreground, Is.EqualTo(Color.Lime));
+                Assert.That(child.Language, Is.EqualTo("ar"));
+                Assert.That(child.FontSize, Is.EqualTo(18));
+                Assert.Throws<ArgumentOutOfRangeException>(() => root.Opacity = 1.01f);
+                Assert.That(typeof(DrawingElement).IsSubclassOf(typeof(Control)), Is.True);
+                Assert.That(typeof(TemplatedControl).IsAssignableFrom(typeof(DrawingElement)), Is.False);
+            });
+
+            root.IsHitTestVisible = false;
+            Assert.That(context.HitTest(new Point(50, 25)), Is.Null);
+        }
+
+        [Test]
+        public void Control_VisibilityEffectiveStateAndPixelSnappingShareUniversalSemantics()
+        {
+            var panel = new StackPanel { Orientation = Orientation.Horizontal, Size = new Vector2(20, 20) };
+            var child = new Control
+            {
+                CustomMinimumSize = new Vector2(10.25f, 10),
+                FocusMode = FocusMode.All,
+                Visibility = Visibility.Hidden,
+                PixelSnapping = PixelSnapping.Disabled,
+            };
+            panel.AddChild(child);
+            var context = new UIContext { DisplayScale = 2 };
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(panel.GetMinimumSize().X, Is.EqualTo(10.25f));
+                Assert.That(child.Size.X, Is.EqualTo(10.25f));
+                Assert.That(context.HitTest(new Point(5, 5)), Is.SameAs(panel));
+                Assert.That(child.IsEffectivelyEnabled, Is.True);
+                Assert.That(child.EffectiveCursor, Is.EqualTo(Cursor.Arrow));
+            });
+
+            child.GrabFocus();
+            Assert.That(context.FocusedControl, Is.Null);
+            panel.Enabled = false;
+            Assert.That(child.IsEffectivelyEnabled, Is.False);
+            child.Visibility = Visibility.Collapsed;
+            Assert.That(panel.GetMinimumSize(), Is.EqualTo(Vector2.Zero));
+        }
+
+        [Test]
+        public void HorizontalRtlPanelsUseRightMarginAsLogicalStart()
+        {
+            var margins = new Thickness(2, 0, 8, 0);
+            var stack = new StackPanel { Orientation = Orientation.Horizontal, LayoutDirection = LayoutDirection.RightToLeft, Size = new Vector2(100, 20) };
+            var stackChild = new Control { CustomMinimumSize = new Vector2(20, 10), Margins = margins };
+            stack.AddChild(stackChild);
+            var wrap = new WrapPanel { LayoutDirection = LayoutDirection.RightToLeft, Size = new Vector2(100, 20) };
+            var wrapChild = new Control { CustomMinimumSize = new Vector2(20, 10), Margins = margins };
+            wrap.AddChild(wrapChild);
+            var flex = new FlexPanel { LayoutDirection = LayoutDirection.RightToLeft, Size = new Vector2(100, 20) };
+            var flexChild = new Control { CustomMinimumSize = new Vector2(20, 10), Margins = margins };
+            flex.AddChild(flexChild);
+            var verticalWrap = new WrapPanel { Orientation = Orientation.Vertical, LayoutDirection = LayoutDirection.RightToLeft, Size = new Vector2(100, 30) };
+            var verticalWrapChild = new Control { CustomMinimumSize = new Vector2(20, 10), Margins = margins };
+            verticalWrap.AddChild(verticalWrapChild);
+            var columnFlex = new FlexPanel { Direction = FlexDirection.Column, AlignItems = FlexAlign.Start, LayoutDirection = LayoutDirection.RightToLeft, Size = new Vector2(100, 30) };
+            var columnFlexChild = new Control { CustomMinimumSize = new Vector2(20, 10), Margins = margins };
+            columnFlex.AddChild(columnFlexChild);
+            var context = new UIContext();
+            context.Add(stack);
+            context.Add(wrap);
+            context.Add(flex);
+            context.Add(verticalWrap);
+            context.Add(columnFlex);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(stackChild.Position.X, Is.EqualTo(72));
+                Assert.That(wrapChild.Position.X, Is.EqualTo(72));
+                Assert.That(flexChild.Position.X, Is.EqualTo(72));
+                Assert.That(verticalWrapChild.Position.X, Is.EqualTo(72));
+                Assert.That(columnFlexChild.Position.X, Is.EqualTo(72));
+            });
+        }
+
+        [Test]
+        public void FlexPanel_WrapUsesMinMaxConstrainedHypotheticalSizes()
+        {
+            var panel = new FlexPanel { Wrap = FlexWrap.Wrap, AlignContent = FlexAlignContent.Start, Size = new Vector2(50, 30) };
+            var first = new Control { CustomMinimumSize = new Vector2(40, 10) };
+            var second = new Control { CustomMinimumSize = new Vector2(40, 10) };
+            FlexPanel.SetBasis(first, LayoutLength.Pixels(0));
+            FlexPanel.SetBasis(second, LayoutLength.Pixels(0));
+            panel.AddChild(first);
+            panel.AddChild(second);
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(panel.GetMinimumSize().X, Is.EqualTo(40));
+                Assert.That(first.Position.Y, Is.EqualTo(0));
+                Assert.That(second.Position.Y, Is.EqualTo(10));
+            });
+        }
+
+        [Test]
+        public void GridPanel_SpanRedistributesPastCappedFitContentTrack()
+        {
+            var panel = new GridPanel { Size = new Vector2(100, 10) };
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.FitContent(20) });
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridTrackSize.Auto });
+            var spanning = new Control { CustomMinimumSize = new Vector2(100, 10) };
+            GridPanel.SetColumnSpan(spanning, 2);
+            var marker = new Control();
+            GridPanel.SetColumn(marker, 1);
+            panel.AddChild(spanning);
+            panel.AddChild(marker);
+            var context = new UIContext();
+            context.Add(panel);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(spanning.Size.X, Is.EqualTo(100));
+                Assert.That(marker.Position.X, Is.EqualTo(20));
+                Assert.That(marker.Size.X, Is.EqualTo(80));
+            });
+        }
+
+        [Test]
+        public void FlexPanel_ReverseAxesPreserveAsymmetricPhysicalMargins()
+        {
+            var rowReverse = new FlexPanel { Direction = FlexDirection.RowReverse, Size = new Vector2(100, 30) };
+            var rowChild = new Control { CustomMinimumSize = new Vector2(20, 10), Margins = new Thickness(2, 0, 8, 0) };
+            rowReverse.AddChild(rowChild);
+            var columnReverse = new FlexPanel { Direction = FlexDirection.ColumnReverse, Size = new Vector2(30, 100) };
+            var columnChild = new Control { CustomMinimumSize = new Vector2(10, 20), Margins = new Thickness(0, 2, 0, 8) };
+            columnReverse.AddChild(columnChild);
+            var wrapReverse = new FlexPanel { Wrap = FlexWrap.WrapReverse, AlignContent = FlexAlignContent.Start, Size = new Vector2(30, 100) };
+            var wrapChild = new Control { CustomMinimumSize = new Vector2(10, 20), Margins = new Thickness(0, 2, 0, 8) };
+            wrapReverse.AddChild(wrapChild);
+            var context = new UIContext();
+            context.Add(rowReverse);
+            context.Add(columnReverse);
+            context.Add(wrapReverse);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rowChild.Position.X, Is.EqualTo(72));
+                Assert.That(columnChild.Position.Y, Is.EqualTo(72));
+                Assert.That(wrapChild.Position.Y, Is.EqualTo(72));
+            });
         }
 
         [Test]
@@ -5872,6 +6712,16 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void TabBar_DefaultTemplateMinimumSizeDoesNotReenterOwnerMeasurement()
+        {
+            var tabs = new TabBar { CustomMinimumSize = new Vector2(120, 28) };
+            tabs.AddTab("Scene");
+            tabs.ApplyTemplate();
+
+            Assert.That(tabs.GetMinimumSize(), Is.EqualTo(new Vector2(120, 28)));
+        }
+
+        [Test]
         public void TabBar_RemoveTabShiftsCurrentAndPreviousIndicesLikeGodot()
         {
             var tabs = new TabBar();
@@ -10015,6 +10865,62 @@ namespace Forma.Tests
             Assert.That(icon, Is.Not.InstanceOf<IDisposable>());
         }
 
+        [Test]
+        public void ThemeIcon_RuntimeSvgFallbackPreservesLogicalAndAtlasMetadata()
+        {
+            var texture = (Texture2D)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(Texture2D));
+            var source = SvgImageSource.FromMemory(System.Text.Encoding.UTF8.GetBytes(
+                "<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><rect width='10' height='6'/></svg>"));
+            var icon = new ThemeIcon(source, texture, new Rectangle(8, 12, 20, 12), new Point(10, 6), 2);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(icon.ScalableSource, Is.SameAs(source));
+                Assert.That(icon.Texture, Is.SameAs(texture));
+                Assert.That(icon.SourceRectangle, Is.EqualTo(new Rectangle(8, 12, 20, 12)));
+                Assert.That(icon.LogicalSize, Is.EqualTo(new Point(10, 6)));
+                Assert.That(icon.Density, Is.EqualTo(2));
+            });
+        }
+
+        [Test]
+        public void DefaultThemeSvgSourceFailureFallsBackPerIcon()
+        {
+            var fallbackCount = 0;
+            var source = DefaultThemeIconResources.TryGetSvgSource(
+                () => throw new SvgLoadException(SvgLoadErrorCode.UnsupportedFeature, "unsupported fixture"),
+                () => fallbackCount++);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(source, Is.Null);
+                Assert.That(fallbackCount, Is.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public void DefaultThemeSvgSourceFailureFallsBackForAllCaughtExceptionTypes()
+        {
+            var exceptionFactories = new Func<Exception>[]
+            {
+                () => new SvgLoadException(SvgLoadErrorCode.UnsupportedFeature, "unsupported"),
+                () => new InvalidOperationException("no backend"),
+                () => new IOException("file read error"),
+                () => new UnauthorizedAccessException("access denied"),
+                () => new NotSupportedException("not supported source type"),
+            };
+            foreach (var factory in exceptionFactories)
+            {
+                var fallbackCount = 0;
+                var capturedFactory = factory;
+                var result = DefaultThemeIconResources.TryGetSvgSource(
+                    () => throw capturedFactory(),
+                    () => fallbackCount++);
+                Assert.That(result, Is.Null, $"TryGetSvgSource must return null for {capturedFactory().GetType().Name}.");
+                Assert.That(fallbackCount, Is.EqualTo(1), $"TryGetSvgSource must record exactly one fallback for {capturedFactory().GetType().Name}.");
+            }
+        }
+
         [TestCase(0.75f, 1)]
         [TestCase(1f, 1)]
         [TestCase(1.25f, 1)]
@@ -10190,6 +11096,21 @@ namespace Forma.Tests
                 Assert.That(richText.GetLineCount(), Is.EqualTo(2));
                 Assert.That(richText.GetLineRange(0), Is.EqualTo(new Point(0, 2)));
                 Assert.That(richText.GetLineRange(1), Is.EqualTo(new Point(2, 4)));
+            });
+        }
+
+        [Test]
+        public void RichTextLabelLetterSpacingAdjustsMeasuredGraphemeAdvances()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var font = new DynamicUIFont(face, 16, UIFontHinting.Light);
+            var natural = new RichTextLabel { UIFont = font, Text = "runtime.", Padding = Thickness.Zero };
+            var tracked = new RichTextLabel { UIFont = font, Text = "runtime.", Padding = Thickness.Zero, LetterSpacing = .25f };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(tracked.GetMinimumSize().X - natural.GetMinimumSize().X, Is.EqualTo(1.75f).Within(.0001f));
+                Assert.That(() => tracked.LetterSpacing = float.NaN, Throws.TypeOf<ArgumentOutOfRangeException>());
             });
         }
 
@@ -10938,6 +11859,57 @@ namespace Forma.Tests
             // the current pointer position: 0 + (72-52) = 20, regardless of where within the bar the
             // press landed.
             Assert.That(split.SplitOffset, Is.EqualTo(20).Within(.001));
+        }
+
+        [Test]
+        public void SplitContainer_TemplateReplacementPreservesLogicalChildrenAndOwnerInput()
+        {
+            var split = new HSplitContainer { Size = new Vector2(120, 30), DragAreaSize = 6 };
+            var first = new Control { CustomMinimumSize = new Vector2(10, 10) };
+            var second = new Control { CustomMinimumSize = new Vector2(10, 10) };
+            split.AddChild(first);
+            split.AddChild(second);
+            var context = new UIContext();
+            context.Add(split);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(first.Parent, Is.SameAs(split));
+                Assert.That(first.VisualParent, Is.TypeOf<ContentPresenter>());
+                Assert.That(second.VisualParent, Is.TypeOf<ContentPresenter>());
+                Assert.That(typeof(SplitContainer).GetMethod("Draw", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly), Is.Null);
+            });
+
+            split.Template = ControlTemplate.Create<SplitContainer>((_, _) => new Border
+            {
+                Background = new SolidColorBrush(Color.CornflowerBlue),
+            });
+            var third = new Control { CustomMinimumSize = new Vector2(10, 10) };
+            split.AddChild(third);
+            context.Layout();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(split.TemplateRoot, Is.TypeOf<Border>());
+                Assert.That(first.Parent, Is.SameAs(split));
+                Assert.That(first.VisualParent, Is.Null);
+                Assert.That(third.Parent, Is.SameAs(split));
+                Assert.That(third.VisualParent, Is.Null);
+            });
+
+            split.GrabFocus();
+            context.Update(Time, Mouse(200, 200), new KeyboardState(Keys.Right));
+            Assert.That(split.SplitOffset, Is.GreaterThan(0));
+
+            split.Template = null;
+            context.Layout();
+            Assert.Multiple(() =>
+            {
+                Assert.That(first.VisualParent, Is.TypeOf<ContentPresenter>());
+                Assert.That(second.VisualParent, Is.TypeOf<ContentPresenter>());
+                Assert.That(third.VisualParent, Is.TypeOf<ContentPresenter>());
+            });
         }
 
         [Test]

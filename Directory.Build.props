@@ -33,6 +33,9 @@
     <FnaNativeAssetsVersion>2.1.2.2602</FnaNativeAssetsVersion>
     <FreeTypeSharpVersion>3.1.0</FreeTypeSharpVersion>
     <HarfBuzzSharpVersion>14.2.1.1</HarfBuzzSharpVersion>
+    <Clipper2Version>2.0.0</Clipper2Version>
+    <SvgSkiaVersion>5.2.0</SvgSkiaVersion>
+    <SkiaSharpVersion>4.148.0</SkiaSharpVersion>
     <TargetFramework Condition="'$(FormaRuntime)' == 'MonoGame' and ('$(MonoGamePlatform)' == 'Windows' or '$(MonoGamePlatform)' == 'WindowsDX')">net10.0-windows</TargetFramework>
     <EnableWindowsTargeting Condition="'$(FormaRuntime)' == 'MonoGame' and ('$(MonoGamePlatform)' == 'Windows' or '$(MonoGamePlatform)' == 'WindowsDX')">true</EnableWindowsTargeting>
   </PropertyGroup>

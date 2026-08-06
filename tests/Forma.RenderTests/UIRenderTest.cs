@@ -30,9 +30,15 @@ namespace Forma.RenderTests
             ui.Add(viewport);
 
             gd.SetRenderTarget(parentTarget);
-            gd.Clear(Color.Blue);
-            ui.Draw(gd);
-            gd.SetRenderTarget(null);
+            try
+            {
+                gd.Clear(Color.Blue);
+                ui.Draw(gd);
+            }
+            finally
+            {
+                gd.SetRenderTarget(null);
+            }
             var pixels = new Color[64 * 64];
             parentTarget.GetData(pixels);
 
@@ -144,20 +150,20 @@ namespace Forma.RenderTests
             Assert.That(first.Diagnostics.AtlasCount, Is.Zero);
             Assert.That(DefaultThemeIconResources.ManifestIconCount, Is.EqualTo(67));
 
-            first.Ensure(1f);
+            first.Ensure(1f, ThemeIconRenderingPolicy.BitmapAtlas);
             var firstIcon = first.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Default OptionButton arrow is missing.");
             Assert.That(first.Diagnostics.ActiveDensity, Is.EqualTo(1));
             Assert.That(first.Diagnostics.AtlasCount, Is.EqualTo(1));
             Assert.That(first.Diagnostics.TextureBytes, Is.GreaterThan(0));
 
-            second.Ensure(1.25f);
+            second.Ensure(1.25f, ThemeIconRenderingPolicy.BitmapAtlas);
             var sharedIcon = second.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Shared OptionButton arrow is missing.");
             Assert.That(sharedIcon.Texture, Is.SameAs(firstIcon.Texture));
             Assert.That(second.Diagnostics.Generation, Is.EqualTo(1));
-            second.Ensure(1.25f);
+            second.Ensure(1.25f, ThemeIconRenderingPolicy.BitmapAtlas);
             Assert.That(second.Diagnostics.Generation, Is.EqualTo(1), "Warm cache access must not decode or create another texture.");
 
-            second.Ensure(1.5f);
+            second.Ensure(1.5f, ThemeIconRenderingPolicy.BitmapAtlas);
             var densityIcon = second.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("2x OptionButton arrow is missing.");
             Assert.That(densityIcon.Density, Is.EqualTo(2));
             Assert.That(densityIcon.LogicalSize, Is.EqualTo(firstIcon.LogicalSize));
@@ -165,7 +171,7 @@ namespace Forma.RenderTests
             Assert.That(second.Diagnostics.AtlasCount, Is.EqualTo(2));
             Assert.That(second.Diagnostics.Generation, Is.EqualTo(2));
             densityIcon.Texture.Dispose();
-            second.Ensure(2f);
+            second.Ensure(2f, ThemeIconRenderingPolicy.BitmapAtlas);
             var recreatedDensityIcon = second.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Recreated 2x OptionButton arrow is missing.");
             Assert.That(recreatedDensityIcon.Texture, Is.Not.SameAs(densityIcon.Texture));
             Assert.That(second.Diagnostics.Generation, Is.EqualTo(3));
@@ -177,7 +183,7 @@ namespace Forma.RenderTests
             Assert.That(originalTexture.IsDisposed, Is.True);
 
             using var replacement = new DefaultThemeIconResources(gd);
-            replacement.Ensure(1f);
+            replacement.Ensure(1f, ThemeIconRenderingPolicy.BitmapAtlas);
             var replacementIcon = replacement.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Recreated OptionButton arrow is missing.");
             Assert.That(replacementIcon.Texture, Is.Not.SameAs(originalTexture));
             Assert.That(replacementIcon.Texture.IsDisposed, Is.False);
@@ -192,8 +198,8 @@ namespace Forma.RenderTests
             using var first = new DefaultThemeIconResources(gd);
             using var second = new DefaultThemeIconResources(secondGame.GraphicsDevice);
 
-            first.Ensure(1f);
-            second.Ensure(1f);
+            first.Ensure(1f, ThemeIconRenderingPolicy.BitmapAtlas);
+            second.Ensure(1f, ThemeIconRenderingPolicy.BitmapAtlas);
             var firstIcon = first.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("First-device arrow is missing.");
             var secondIcon = second.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Second-device arrow is missing.");
 

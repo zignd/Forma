@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 
@@ -122,6 +123,10 @@ namespace Forma.Xaml
                 return new Vector2(components[0], components[1]);
             }
             if (targetType == typeof(Thickness)) return ParseThickness(text);
+            if (targetType == typeof(CornerRadius)) return ParseCornerRadius(text);
+            if (targetType == typeof(GridTrackSize)) return ParseGridTrackSize(text);
+            if (targetType == typeof(Brush)) return ParseBrush(text);
+            if (targetType == typeof(Geometry)) return ParseGeometry(text);
             if (targetType == typeof(TimeSpan)) return TimeSpan.Parse(text, CultureInfo.InvariantCulture);
             if (targetType == typeof(char))
             {
@@ -131,6 +136,12 @@ namespace Forma.Xaml
 
             return System.Convert.ChangeType(text, targetType, CultureInfo.InvariantCulture);
         }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static SvgImageSource ParseSvgAsset(string logicalName) =>
+            SvgImageSource.FromManifestResource(Assembly.GetCallingAssembly(), logicalName);
+
+        public static SvgImageSource ParseSvgFile(string path) => SvgImageSource.FromFile(path);
 
         public static bool TryConvert(string text, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] Type targetType, out object value)
         {
@@ -170,6 +181,22 @@ namespace Forma.Xaml
             return new Vector2(components[0], components[1]);
         }
 
+        public static GridTrackSize ParseGridTrackSize(string text)
+        {
+            var value = text?.Trim() ?? throw new ArgumentNullException(nameof(text));
+            if (value.Equals("Auto", StringComparison.OrdinalIgnoreCase)) return GridTrackSize.Auto;
+            if (value.EndsWith("*", StringComparison.Ordinal))
+            {
+                var weight = value.Length == 1
+                    ? 1
+                    : float.Parse(value.Substring(0, value.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture);
+                return GridTrackSize.Star(weight);
+            }
+            if (value.EndsWith("%", StringComparison.Ordinal))
+                return GridTrackSize.Percent(float.Parse(value.Substring(0, value.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture));
+            return GridTrackSize.Pixels(float.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture));
+        }
+
         public static Thickness ParseThickness(string text)
         {
             var parts = text?.Split(',') ?? Array.Empty<string>();
@@ -185,12 +212,36 @@ namespace Forma.Xaml
             };
         }
 
+        public static CornerRadius ParseCornerRadius(string text)
+        {
+            var parts = ParseVariableComponents(text);
+            return parts.Length switch
+            {
+                1 => new CornerRadius(parts[0]),
+                4 => new CornerRadius(parts[0], parts[1], parts[2], parts[3]),
+                _ => throw new FormatException("CornerRadius requires one or four comma-separated values."),
+            };
+        }
+
+        public static Brush ParseBrush(string text) => new SolidColorBrush(ParseColor(text));
+
+        public static Geometry ParseGeometry(string text) => new PathGeometry(DrawingPath.Parse(text));
+
         private static float[] ParseComponents(string text, int count)
         {
             var parts = text?.Split(',') ?? Array.Empty<string>();
             if (parts.Length != count) throw new FormatException($"Expected {count} comma-separated values.");
             var values = new float[count];
             for (var index = 0; index < count; index++)
+                values[index] = float.Parse(parts[index].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
+            return values;
+        }
+
+        private static float[] ParseVariableComponents(string text)
+        {
+            var parts = text?.Split(',') ?? Array.Empty<string>();
+            var values = new float[parts.Length];
+            for (var index = 0; index < parts.Length; index++)
                 values[index] = float.Parse(parts[index].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
             return values;
         }

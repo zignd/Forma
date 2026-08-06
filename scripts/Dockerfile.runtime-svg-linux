@@ -1,0 +1,19 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libegl1 \
+    libfreetype6-dev \
+    libgl1 \
+    libgl1-mesa-dri \
+    libglx0 \
+    libglx-mesa0 \
+    libharfbuzz-dev \
+    mesa-vulkan-drivers \
+    vulkan-tools \
+    xauth \
+    xvfb \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV FORMA_SKIP_APT=1
+WORKDIR /repo
+ENTRYPOINT ["bash", "scripts/check-runtime-svg-linux.sh"]

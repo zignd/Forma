@@ -71,6 +71,24 @@ public static class StoryCatalog
             xamlPath: "StylesStoryView.xaml"));
         stories.Add(new ComponentStory(
             "XAML",
+            "Template Systems",
+            "Compare seven structural control redesigns authored with compiled XAML templates, styles, and resources without custom drawing.",
+            () => new TemplateGalleryStoryView(),
+            xamlPath: "TemplateGalleryStoryView.xaml"));
+        stories.Add(new ComponentStory(
+            "XAML",
+            "Composition Systems",
+            "Inspect compiled visual primitives, responsive flex and grid layouts, template-part selectors, relative bindings, and live theme-template replacement.",
+            () => new CompositionSystemsStoryView(),
+            xamlPath: "CompositionSystemsStoryView.xaml"));
+        stories.Add(new ComponentStory(
+            "Collections",
+            "Collection Systems",
+            "Exercise observable deltas, eventful rows, selection modes, and bounded vertical, horizontal, and grid virtualization over 10,000 items.",
+            () => new CollectionSystemsStoryView(),
+            xamlPath: "CollectionSystemsStoryView.xaml"));
+        stories.Add(new ComponentStory(
+            "XAML",
             "Storyboards and Triggers",
             "Run color and size timelines from an event trigger, then toggle a repeating storyboard through a typed property trigger.",
             () => new AnimationsStoryView(),
@@ -81,10 +99,24 @@ public static class StoryCatalog
             "Edit a typed view model through two-way controls and watch one-way labels and progress update through [color=#30b9a4]INotifyPropertyChanged[/color].",
             () => new DataBindingStoryView(),
             xamlPath: "DataBindingStoryView.xaml"));
+        stories.Add(new ComponentStory(
+            "Collections",
+            "Flat Data Grid",
+            "Sort typed columns, filter 5,000 rows, and exercise cell ranges while viewport virtualization keeps realization bounded.",
+            () => new FlatDataGridStoryView(),
+            xamlPath: "FlatDataGridStoryView.xaml"));
+        stories.Add(new ComponentStory(
+            "Collections",
+            "Hierarchical Data Grid",
+            "Expand and collapse observable branches, insert live children, sort columns, and select rows across a 10,000-item tree.",
+            () => new HierarchicalDataGridStoryView(),
+            xamlPath: "HierarchicalDataGridStoryView.xaml"));
         stories.Add(CreateIconInventoryStory());
         stories.Add(CreateIconCustomizationStory(texture));
         stories.Add(CreateIconDiagnosticsStory(setDisplayScale));
+        stories.Add(CreateRuntimeSvgStory(setDisplayScale));
         stories.Add(CreateDynamicSizesStory(createDynamicFont));
+        stories.Add(CreateLetterSpacingStory(createDynamicFont));
         stories.Add(CreateDisplayDensityStory(setDisplayScale, createDynamicFont));
         stories.Add(CreateFallbackChainStory(createDynamicFont));
         stories.Add(CreateShapingFeaturesStory(createDynamicFont));
@@ -126,6 +158,95 @@ public static class StoryCatalog
             Refresh();
         },
         "DynamicSizesStoryView.xaml");
+
+    private static ComponentStory CreateLetterSpacingStory(Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
+        "Typography",
+        "Letter Spacing",
+        "Edit the sample and compare natural shaping with adjustable tracking from -1 to 2 logical pixels.",
+        () =>
+        {
+            var column = new VBoxContainer { Separation = 10, CustomMinimumSize = new Vector2(320, 320), HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
+            column.AddChild(new LineEdit
+            {
+                Name = "letterSpacingText",
+                Text = "runtime.",
+                ClearButtonEnabled = true,
+                CustomMinimumSize = new Vector2(320, 38),
+            });
+            var controls = new HBoxContainer { Separation = 10 };
+            controls.AddChild(new Slider(Orientation.Horizontal)
+            {
+                Name = "letterSpacing",
+                MinValue = -1,
+                MaxValue = 2,
+                Step = .05f,
+                Value = .25f,
+                TickCount = 7,
+                CustomMinimumSize = new Vector2(170, 34),
+                HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand,
+            });
+            controls.AddChild(new Button { Name = "resetLetterSpacing", Text = "Reset to zero", CustomMinimumSize = new Vector2(140, 34) });
+            column.AddChild(controls);
+            column.AddChild(new Label { Name = "letterSpacingStatus", AutowrapMode = LabelAutowrapMode.Word, FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(320, 44) });
+            column.AddChild(new RichTextLabel
+            {
+                Name = "naturalSpacingPreview",
+                FitContent = false,
+                ScrollActive = false,
+                AutowrapMode = LabelAutowrapMode.Word,
+                Padding = Thickness.Zero,
+                FontColor = new Color(143, 153, 170),
+                CustomMinimumSize = new Vector2(0, 64),
+            });
+            column.AddChild(new RichTextLabel
+            {
+                Name = "trackedSpacingPreview",
+                FitContent = false,
+                ScrollActive = false,
+                AutowrapMode = LabelAutowrapMode.Word,
+                Padding = Thickness.Zero,
+                FontColor = new Color(48, 185, 164),
+                CustomMinimumSize = new Vector2(0, 64),
+            });
+            return column;
+        },
+        root =>
+        {
+            var input = (LineEdit)root.Children[0];
+            var controls = root.Children[1];
+            var spacing = (Slider)controls.Children[0];
+            var reset = (Button)controls.Children[1];
+            var status = (Label)root.Children[2];
+            var natural = (RichTextLabel)root.Children[3];
+            var tracked = (RichTextLabel)root.Children[4];
+            if (createDynamicFont != null)
+            {
+                natural.UIFont = createDynamicFont("Inter", 28, null);
+                tracked.UIFont = createDynamicFont("Inter", 28, null);
+            }
+            void Refresh()
+            {
+                natural.Text = input.Text;
+                tracked.Text = input.Text;
+                tracked.LetterSpacing = spacing.Value;
+                var naturalWidth = MeasureUnwrappedWidth(natural);
+                var trackedWidth = MeasureUnwrappedWidth(tracked);
+                status.Text = string.Create(CultureInfo.InvariantCulture,
+                    $"Tracking {spacing.Value:+0.00;-0.00;0.00} px   Delta {trackedWidth - naturalWidth:+0.00;-0.00;0.00} px\nNatural {naturalWidth:0.00} px   Tracked {trackedWidth:0.00} px");
+            }
+            static float MeasureUnwrappedWidth(RichTextLabel preview)
+            {
+                var autowrapMode = preview.AutowrapMode;
+                preview.AutowrapMode = LabelAutowrapMode.Off;
+                var width = preview.GetMinimumSize().X;
+                preview.AutowrapMode = autowrapMode;
+                return width;
+            }
+            input.TextChanged += (_, _) => Refresh();
+            spacing.ValueChanged += (_, _) => Refresh();
+            reset.Pressed += (_, _) => spacing.Value = 0;
+            Refresh();
+        });
 
     private static ComponentStory CreateDisplayDensityStory(Action<float> setDisplayScale, Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
@@ -553,6 +674,99 @@ public static class StoryCatalog
         PopulateIconInventory,
         "IconInventoryStoryView.xaml");
 
+    private static ComponentStory CreateRuntimeSvgStory(Action<float> setDisplayScale) => new(
+        "Theme icons",
+        "Runtime SVG",
+        "Compare embedded and file SVGs, exact scaling, tint, RTL, stretch modes, cache diagnostics, and SVG/PNG theme policy.",
+        () => new RuntimeSvgStoryView(),
+        root =>
+        {
+            var scope = NameScope.GetNameScope(root);
+            var status = scope.Find<Label>("svgStatus");
+            var invalid = scope.Find<Label>("invalidStatus");
+            var atlasPreview = scope.Find<SvgAtlasPreview>("atlasPreview");
+            var compiledSvg = scope.Find<Image>("compiledSvg");
+            var fileSvg = scope.Find<Image>("fileSvg");
+            scope.Find<OptionButton>("themeArrow").AddItem("Default arrow");
+            fileSvg.ScalableSource = SvgImageSource.FromFile(Path.Combine(AppContext.BaseDirectory, "Assets", "runtime-catalog.svg"));
+            scope.Find<Image>("drawingImage").VectorSource = new DrawingImage
+            {
+                IntrinsicSize = new Vector2(126, 72),
+                Drawing = new GeometryDrawing
+                {
+                    Geometry = new RectangleGeometry { CornerRadius = new CornerRadius(10) },
+                    Fill = new LinearGradientBrush
+                    {
+                        GradientStops = new[] { new GradientStop(0, new Color(48, 185, 164)), new GradientStop(1, new Color(246, 185, 73)) },
+                    },
+                },
+            };
+            var tree = scope.Find<Tree>("svgTree");
+            var treeRoot = tree.CreateItem();
+            treeRoot.SetText(0, "Source SVG");
+            treeRoot.CreateChild().SetText(0, "Exact scale");
+            treeRoot.CreateChild().SetText(0, "RTL");
+            var gridRoot = new CatalogTreeRow { Name = "Source SVG", Kind = "Source", IsExpanded = true };
+            gridRoot.Children.Add(new CatalogTreeRow { Name = "Exact scale", Kind = "Raster" });
+            gridRoot.Children.Add(new CatalogTreeRow { Name = "PNG fallback", Kind = "Bitmap" });
+            scope.Find<DataGrid>("svgGrid").ItemsSource = new[] { gridRoot };
+            void Refresh()
+            {
+                var health = SvgRuntime.Health;
+                var raster = root.Context.SvgRasterDiagnostics;
+                var icons = root.Context.ThemeIconDiagnostics;
+                status.Text = $"{health.Name} {health.Version.Split('+')[0]} · {root.Context.ThemeIconRenderingPolicy}\nSVG icons {icons.RuntimeSvgIconCount} · PNG fallbacks {icons.BitmapFallbackCount}\nRasters {raster.EntryCount} · pages {raster.PageCount} · {raster.Bytes / 1024f:0.0} KB · hits {raster.Hits} · misses {raster.Misses} · {atlasPreview.Summary}";
+            }
+            scope.Find<Button>("runtimePolicy").Pressed += (_, _) => { root.Context.ThemeIconRenderingPolicy = ThemeIconRenderingPolicy.RuntimeSvg; Refresh(); };
+            scope.Find<Button>("bitmapPolicy").Pressed += (_, _) => { root.Context.ThemeIconRenderingPolicy = ThemeIconRenderingPolicy.BitmapAtlas; Refresh(); };
+            scope.Find<Button>("autoPolicy").Pressed += (_, _) => { root.Context.ThemeIconRenderingPolicy = ThemeIconRenderingPolicy.Auto; Refresh(); };
+            scope.Find<Button>("ltr").Pressed += (_, _) => root.LayoutDirection = LayoutDirection.LeftToRight;
+            scope.Find<Button>("rtl").Pressed += (_, _) => root.LayoutDirection = LayoutDirection.RightToLeft;
+            scope.Find<Button>("stretchContain").Pressed += (_, _) => { compiledSvg.Stretch = ImageStretch.Contain; fileSvg.Stretch = ImageStretch.Contain; Refresh(); };
+            scope.Find<Button>("stretchCover").Pressed += (_, _) => { compiledSvg.Stretch = ImageStretch.Cover; fileSvg.Stretch = ImageStretch.Cover; Refresh(); };
+            scope.Find<Button>("stretchFill").Pressed += (_, _) => { compiledSvg.Stretch = ImageStretch.Fill; fileSvg.Stretch = ImageStretch.Fill; Refresh(); };
+            void SetScale(float scale) => (setDisplayScale ?? (s => root.Context.DisplayScale = s))(scale);
+            scope.Find<Button>("scale100").Pressed += (_, _) => SetScale(1f);
+            scope.Find<Button>("scale125").Pressed += (_, _) => SetScale(1.25f);
+            scope.Find<Button>("scale150").Pressed += (_, _) => SetScale(1.5f);
+            scope.Find<Button>("scale175").Pressed += (_, _) => SetScale(1.75f);
+            scope.Find<Button>("scale200").Pressed += (_, _) => SetScale(2f);
+            scope.Find<Button>("scale250").Pressed += (_, _) => SetScale(2.5f);
+            {
+                var health = SvgRuntime.Health;
+                var rejectionLine = string.Empty;
+                try
+                {
+                    _ = SvgImageSource.FromMemory(System.Text.Encoding.UTF8.GetBytes("<svg xmlns='http://www.w3.org/2000/svg'><image href='https://example.com/external.png'/></svg>"));
+                }
+                catch (SvgLoadException exception)
+                {
+                    rejectionLine = $"Rejected external ref · {exception.Code}: {exception.Message}";
+                }
+                var backendLine = health.IsAvailable
+                    ? $"Backend: {health.Diagnostic}"
+                    : $"Backend absent: {health.Diagnostic}";
+                invalid.Text = $"{rejectionLine}\n{backendLine}";
+            }
+            IDisposable refreshRegistration = null;
+            refreshRegistration = root.Context.RegisterFrameBoundaryCallback(_ =>
+            {
+                if (root.Context == null) refreshRegistration.Dispose();
+                else
+                {
+                    Refresh();
+                    if (root.Context.SvgRasterDiagnostics.EntryCount > 0 && root.Context.ThemeIconDiagnostics.RuntimeSvgIconCount > 0)
+                    {
+                        atlasPreview.RefreshSnapshot();
+                        Refresh();
+                        refreshRegistration.Dispose();
+                    }
+                }
+            });
+            Refresh();
+        },
+        "RuntimeSvgStoryView.xaml");
+
     private static void PopulateIconInventory(Control root)
     {
         var flow = NameScope.GetNameScope(root).Find<FlowContainer>("iconFlow");
@@ -941,8 +1155,10 @@ public static class StoryCatalog
         }
         if (control is Container container)
         {
-            container.AddChild(new ColorRect { Position = new Vector2(24, 24), Size = new Vector2(180, 80), Color = new Color(48, 185, 164) });
-            container.AddChild(new Label { Position = new Vector2(42, 50), Size = new Vector2(140, 28), Text = name });
+            var content = new Container { CustomMinimumSize = new Vector2(240, 128) };
+            content.AddChild(new ColorRect { Position = new Vector2(24, 24), Size = new Vector2(180, 80), Color = new Color(48, 185, 164) });
+            content.AddChild(new Label { Position = new Vector2(42, 50), Size = new Vector2(140, 28), Text = name });
+            container.AddChild(content);
             return;
         }
         if (control is Label label)

@@ -6,6 +6,8 @@
     <FormaMediaRuntime Condition="'$(FormaMediaRuntime)' == ''">$(FormaRuntime)</FormaMediaRuntime>
     <IncludeFormaMedia Condition="'$(IncludeFormaMedia)' == ''">true</IncludeFormaMedia>
     <IncludeDynamicText Condition="'$(IncludeDynamicText)' == ''">false</IncludeDynamicText>
+    <IncludeFormaSvg Condition="'$(IncludeFormaSvg)' == ''">false</IncludeFormaSvg>
+    <FormaSvgRuntime Condition="'$(FormaSvgRuntime)' == ''">$(FormaRuntime)</FormaSvgRuntime>
     <ExerciseSpriteFont Condition="'$(ExerciseSpriteFont)' == ''">false</ExerciseSpriteFont>
     <ExpectDynamicTextDefault Condition="'$(ExpectDynamicTextDefault)' == '' and '$(IncludeDynamicText)' == 'true'">true</ExpectDynamicTextDefault>
     <FormaPackageVersion>0.1.0-alpha.1</FormaPackageVersion>
@@ -13,6 +15,7 @@
     <RestoreSources>$(FormaPackageSource);$(FormaAdditionalPackageSource);https://api.nuget.org/v3/index.json</RestoreSources>
     <DefineConstants Condition="'$(IncludeFormaMedia)' != 'true'">$(DefineConstants);FORMA_CORE_ONLY</DefineConstants>
     <DefineConstants Condition="'$(IncludeDynamicText)' == 'true'">$(DefineConstants);FORMA_DYNAMIC_TEXT</DefineConstants>
+    <DefineConstants Condition="'$(IncludeFormaSvg)' == 'true'">$(DefineConstants);FORMA_SVG</DefineConstants>
     <DefineConstants Condition="'$(ExerciseSpriteFont)' == 'true'">$(DefineConstants);FORMA_SPRITEFONT_DRAW</DefineConstants>
     <DefineConstants Condition="'$(ExpectDynamicTextDefault)' == 'true'">$(DefineConstants);FORMA_DYNAMIC_TEXT_DEFAULT</DefineConstants>
     <DefineConstants Condition="'$(FormaRuntime)' == 'MonoGame'">$(DefineConstants);FORMA_MONOGAME</DefineConstants>
@@ -22,6 +25,7 @@
     <PackageReference Include="Forma.$(FormaRuntime)" Version="$(FormaPackageVersion)" />
     <PackageReference Include="Forma.Xaml.Build.$(FormaRuntime)" Version="$(FormaPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Forma.DynamicText.$(FormaRuntime)" Version="$(FormaPackageVersion)" Condition="'$(IncludeDynamicText)' == 'true'" />
+    <PackageReference Include="Forma.Svg.$(FormaSvgRuntime)" Version="$(FormaPackageVersion)" Condition="'$(IncludeFormaSvg)' == 'true'" />
     <PackageReference Include="Forma.Media.$(FormaMediaRuntime)" Version="$(FormaPackageVersion)" Condition="'$(IncludeFormaMedia)' == 'true'" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5" Condition="'$(FormaRuntime)' == 'MonoGame'" />
     <PackageReference Include="FNA.NET" Version="2.2.11.2602" Condition="'$(FormaRuntime)' == 'FNA'" />

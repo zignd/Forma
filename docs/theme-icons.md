@@ -1,7 +1,15 @@
 # Default Theme Icons
 
 Forma embeds the same 67 logical default icons in its MonoGame and FNA packages. Applications do
-not need MGCB, XNB files, an SVG parser, or copied content assets. Runtime SVG parsing is never used.
+not need MGCB, XNB files, an SVG parser, or copied content assets. The PNG atlases remain the
+native-free default and fallback. The matching optional `Forma.Svg` companion also packages the
+authoritative SVG sources for exact-scale runtime rendering.
+
+Set `UIContext.ThemeIconRenderingPolicy` to `BitmapAtlas`, `RuntimeSvg`, or `Auto`. Runtime SVG keeps
+the selected PNG atlas available as a per-icon fallback, so a missing backend or unsupported source
+never removes the current default icon. `ThemeIconDiagnostics` reports the selected density,
+runtime SVG icon count, PNG fallback count, missing lookups, atlas memory, and cache generation.
+See [runtime-svg.md](runtime-svg.md) for backend setup and security limits.
 
 ## Renderer Selection
 
@@ -9,8 +17,8 @@ The build spike compared Svg.Skia with SVG.NET. Svg.Skia was selected because it
 cross-platform Skia raster path on macOS, Linux, and Windows, exposes explicit sRGB premultiplied
 RGBA output, and does not rely on `System.Drawing.Common`. SVG.NET's normal bitmap path uses
 System.Drawing, which is supported only on Windows in current .NET and therefore cannot provide the
-same clean-checkout command on all CI operating systems. Svg.Skia 3.2.0 is pinned in the tool
-project; CI regenerates and byte-compares output on every supported host.
+same clean-checkout command on all CI operating systems. Svg.Skia 5.2.0 and SkiaSharp 4.148.0 are
+pinned in central build properties; CI regenerates and byte-compares output on every supported host.
 
 ## Ownership and Density
 

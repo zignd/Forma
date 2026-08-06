@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <FormaSvgMonoGamePackageReferenced>true</FormaSvgMonoGamePackageReferenced>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Forma.Svg.PackageInitializer.cs.txt" Link="obj/Forma.Svg.PackageInitializer.cs" Visible="false" />
+  </ItemGroup>
+  <Target Name="ValidateFormaSvgMonoGamePackageGraph" BeforeTargets="ResolveReferences">
+    <Error Condition="'$(FormaSvgFnaPackageReferenced)' == 'true'"
+           Text="Forma.Svg.MonoGame and Forma.Svg.FNA cannot be referenced by the same project. Select one Forma runtime variant." />
+    <Error Condition="'$(FormaCoreFnaPackageReferenced)' == 'true'"
+           Text="Forma.Svg.MonoGame cannot be combined with Forma.FNA. Reference Forma.Svg.FNA instead." />
+  </Target>
+</Project>

@@ -13,6 +13,52 @@ using System.Security.Cryptography;
 using System.Text;
 
 using var context = new UIContext();
+var foundation = new Border
+{
+    Background = new RadialGradientBrush
+    {
+        GradientStops = new[] { new GradientStop(0, Color.White), new GradientStop(1, Color.Transparent) },
+    },
+    CornerRadius = new CornerRadius(4),
+};
+var foundationalShape = new PathShape
+{
+    Data = new PathGeometry(DrawingPath.Parse("M0 0 H24 V16 H0 Z")),
+    Fill = new ConicGradientBrush
+    {
+        GradientStops = new[] { new GradientStop(0, Color.Red), new GradientStop(1, Color.Blue) },
+    },
+    Stroke = new SolidColorBrush(Color.White),
+    StrokeThickness = 2,
+    StrokeDashArray = new[] { 3f, 2f },
+    GeometryTransform = new TransformGroup(),
+};
+((TransformGroup)foundationalShape.GeometryTransform).Children.Add(new TranslateTransform { X = 2, Y = 3 });
+foundation.AddChild(foundationalShape);
+var foundationDrawing = new DrawingImage
+{
+    IntrinsicSize = new Vector2(24, 16),
+    Drawing = new DrawingGroup
+    {
+        Effect = new EffectGroup(),
+        Children =
+        {
+            new GeometryDrawing
+            {
+                Geometry = new RectangleGeometry { CornerRadius = new CornerRadius(2) },
+                Fill = new LinearGradientBrush
+                {
+                    GradientStops = new[] { new GradientStop(0, Color.Lime), new GradientStop(1, Color.Blue) },
+                },
+            },
+        },
+    },
+};
+((EffectGroup)foundationDrawing.Drawing.Effect).Add(new ColorMatrixEffect());
+var foundationText = new TextBlock { Text = "foundation", FontSize = 18, FontWeight = UIFontWeight.SemiBold, LetterSpacing = 1 };
+foundationText.Inlines.Add(new Run("retained"));
+if (!foundationalShape.ContainsPoint(new Point(12, 8)) || foundationDrawing.IntrinsicSize != new Vector2(24, 16) || foundationText.Inlines.Count != 1)
+    throw new InvalidOperationException("Foundational package vocabulary did not survive trimming.");
 var compiledModel = new ConsumerViewModel { Message = "Compiled package view" };
 var compiledView = new ConsumerView { DataContext = compiledModel };
 var compiledScope = NameScope.GetNameScope(compiledView) ?? throw new InvalidOperationException("Compiled package view has no namescope.");
@@ -21,6 +67,8 @@ var compiledEditor = compiledScope.Find<LineEdit>("Editor");
 var staticTarget = compiledScope.Find<ConsumerTarget>("StaticTarget");
 var dynamicTarget = compiledScope.Find<ConsumerTarget>("DynamicTarget");
 var styleTarget = compiledScope.Find<ConsumerTarget>("StyleTarget");
+var packageGrid = compiledScope.Find<DataGrid>("PackageGrid");
+var packageTreeGrid = compiledScope.Find<DataGrid>("PackageTreeGrid");
 if (compiledLabel.Text != compiledModel.Message || compiledEditor.Text != compiledModel.Message) throw new InvalidOperationException("Packed typed bindings did not initialize.");
 if (staticTarget.Value.Name != "Static" || dynamicTarget.Value.Name != "Dynamic") throw new InvalidOperationException("Packed resource references did not initialize.");
 if (!compiledView.Resources.ContainsKey("LocalPalette") || !compiledView.Resources.TryFind("MergedPalette", out _)) throw new InvalidOperationException("Packed local or merged resources were not populated.");
@@ -32,6 +80,16 @@ if (compiledLabel.Text != compiledModel.Message) throw new InvalidOperationExcep
 compiledEditor.Text = "Two-way update";
 if (compiledModel.Message != compiledEditor.Text) throw new InvalidOperationException("Packed two-way binding did not update.");
 context.Add(compiledView);
+context.Layout();
+packageGrid.ActivateColumnHeader(1);
+packageGrid.SelectCell(new CellIndex(packageGrid.GetRowPath(0), 0));
+var packageTreeRoot = packageTreeGrid.GetRowPath(0);
+compiledModel.TreeRows[0].Children.Add(new ConsumerTreeRow { Name = "Observable child" });
+context.Layout();
+if (packageGrid.Columns.Count != 2 || packageGrid.Columns[0].CellTemplate == null || packageGrid.SortDescriptions.Count != 1 || packageGrid.SelectedCells.Count != 1)
+    throw new InvalidOperationException("Packed flat DataGrid columns, templates, sorting, or selection failed.");
+if (!packageTreeGrid.HierarchySource.IsExpanded(packageTreeRoot) || packageTreeGrid.HierarchySource.IndexOfPath(new IndexPath(0, 1)) < 0 || packageTreeGrid.RealizedCount > 16)
+    throw new InvalidOperationException("Packed hierarchical DataGrid expansion, observable deltas, or virtualization failed.");
 if (compiledView.AttachedHandlerCalls != 1 || styleTarget.CustomMinimumSize != new Vector2(2, 3)) throw new InvalidOperationException("Packed event hookup or event trigger did not run.");
 context.Update(new GameTime(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(100)));
 if (styleTarget.CustomMinimumSize != new Vector2(8, 9)) throw new InvalidOperationException("Packed event storyboard did not advance.");
@@ -90,9 +148,15 @@ using (var game = new Game())
     using var content = new ContentManager(game.Services, Path.Combine(AppContext.BaseDirectory, "Content"));
     var spriteFont = content.Load<SpriteFont>("Fonts/Catalog");
     using var drawContext = new UIContext();
+    drawContext.ThemeIconRenderingPolicy = ThemeIconRenderingPolicy.RuntimeSvg;
     var drawRoot = new VBoxContainer { Size = new Vector2(320, 180) };
     drawRoot.AddChild(new Label { Font = spriteFont, Text = "Packed SpriteFont" });
     drawRoot.AddChild(new Button { Font = spriteFont, Text = "Continue" });
+    var packagedOption = new OptionButton { Font = spriteFont };
+    packagedOption.AddItem("One");
+    packagedOption.AddItem("Two");
+    packagedOption.Select(0);
+    drawRoot.AddChild(packagedOption);
 #if FORMA_DYNAMIC_TEXT
     drawRoot.AddChild(new Label { Text = "Automatic dynamic default" });
     using var latinFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/Inter_Regular.ttf");
@@ -138,6 +202,11 @@ using (var game = new Game())
     var pixels = new Color[target.Width * target.Height];
     target.GetData(pixels);
     spriteFontDrawSucceeded = pixels.Any(pixel => pixel != Color.Transparent);
+#if FORMA_SVG
+    spriteFontDrawSucceeded &= drawContext.ThemeIconDiagnostics.RuntimeSvgIconCount > 0;
+#else
+    spriteFontDrawSucceeded &= drawContext.ThemeIconDiagnostics.RuntimeSvgIconCount == 0 && drawContext.ThemeIconDiagnostics.AtlasCount > 0;
+#endif
 #if FORMA_DYNAMIC_TEXT
     spriteFontDrawSucceeded &= drawContext.DynamicGlyphDiagnostics.Misses > 0;
     var pixelBytes = new byte[pixels.Length * sizeof(uint)];
@@ -190,6 +259,25 @@ var diagnosticsPath = Environment.GetEnvironmentVariable("FORMA_DYNAMIC_TEXT_DIA
 if (!string.IsNullOrWhiteSpace(diagnosticsPath)) File.WriteAllText(diagnosticsPath, dynamicTextDiagnostics);
 #else
 if (context.Theme.FontFamily is not null) return 1;
+#endif
+#if FORMA_SVG
+var svgHealth = SvgBackendDefaults.Verify();
+if (!svgHealth.IsAvailable || svgHealth.Name != "Svg.Skia" || !svgHealth.Version.StartsWith("5.2.0", StringComparison.Ordinal))
+    throw new InvalidOperationException($"SVG backend health did not match the packaged contract: {svgHealth.Diagnostic}");
+if (typeof(SvgBackendDefaults).Assembly.GetName().Name != "Forma.Svg")
+    throw new InvalidOperationException("SVG backend was not loaded from Forma.Svg.");
+var svgOutputDirectory = Path.GetFullPath(AppContext.BaseDirectory);
+var svgModules = NativeModuleInspector.GetLoadedModulePaths()
+    .Select(Path.GetFullPath)
+    .Where(fileName => fileName.StartsWith(svgOutputDirectory, StringComparison.Ordinal))
+    .Select(fileName => Path.GetFileName(fileName) ?? string.Empty)
+    .ToArray();
+var skiaModuleName = OperatingSystem.IsWindows() ? "libSkiaSharp.dll" : OperatingSystem.IsLinux() ? "libSkiaSharp.so" : "libSkiaSharp.dylib";
+if (svgModules.Count(fileName => string.Equals(fileName, skiaModuleName, StringComparison.OrdinalIgnoreCase)) != 1)
+    throw new InvalidOperationException($"Expected one packaged SkiaSharp module; loaded: {string.Join(", ", svgModules)}");
+#else
+if (SvgRuntime.Health.IsRegistered || !SvgRuntime.Health.Diagnostic.Contains("runtime-matched Forma.Svg package", StringComparison.Ordinal))
+    throw new InvalidOperationException("Core-only consumer did not report the actionable missing SVG backend setup diagnostic.");
 #endif
 #if !FORMA_CORE_ONLY
 using var video = new VideoStreamPlayer();

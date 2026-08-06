@@ -17,14 +17,18 @@
     <PackageReference Include="Microsoft.Build.Framework" Version="18.3.3" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.3.3" PrivateAssets="All" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" PrivateAssets="All" GeneratePathProperty="true" />
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" PrivateAssets="All" Condition="'$(FormaRuntime)' == 'MonoGame'" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" PrivateAssets="All" Condition="'$(FormaRuntime)' == 'FNA'" />
     <ProjectReference Include="../Forma.Xaml.Compiler/Forma.Xaml.Compiler.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" PrivateAssets="All" />
   </ItemGroup>
 
   <Target Name="CopyFormaXamlTaskDependencies" AfterTargets="Build">
     <ItemGroup>
       <_FormaCecilDependency Include="$(PkgMono_Cecil)/lib/netstandard2.0/*.dll" />
+      <_FormaPeerDependency Include="$(NuGetPackageRoot)$([System.String]::Copy('$(MonoGamePackageId)').ToLowerInvariant())/$(MonoGameVersion)/lib/*/MonoGame.Framework.dll" Condition="'$(FormaRuntime)' == 'MonoGame'" />
+      <_FormaPeerDependency Include="$(NuGetPackageRoot)$([System.String]::Copy('$(FnaPackageId)').ToLowerInvariant())/$(FnaVersion)/lib/net9.0/FNA.NET.dll" Condition="'$(FormaRuntime)' == 'FNA'" />
     </ItemGroup>
-    <Copy SourceFiles="@(_FormaCecilDependency)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_FormaCecilDependency);@(_FormaPeerDependency)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
   </Target>
 
   <ItemGroup>
@@ -40,6 +44,8 @@
     <None Include="$(TargetDir)Forma.Xaml.Compiler.dll" Pack="true" PackagePath="tools/net10.0/" />
     <None Include="$(TargetDir)XamlX.dll" Pack="true" PackagePath="tools/net10.0/" />
     <None Include="$(TargetDir)XamlX.IL.Cecil.dll" Pack="true" PackagePath="tools/net10.0/" />
+    <None Include="$(TargetDir)MonoGame.Framework.dll" Pack="true" PackagePath="tools/net10.0/" Condition="'$(FormaRuntime)' == 'MonoGame'" />
+    <None Include="$(TargetDir)FNA.NET.dll" Pack="true" PackagePath="tools/net10.0/" Condition="'$(FormaRuntime)' == 'FNA'" />
     <None Include="$(PkgMono_Cecil)/lib/netstandard2.0/*.dll" Pack="true" PackagePath="tools/net10.0/" />
   </ItemGroup>
 

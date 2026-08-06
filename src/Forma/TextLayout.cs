@@ -14,6 +14,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Forma
 {
+    public enum UIFontWeight { Thin = 100, ExtraLight = 200, Light = 300, Normal = 400, Medium = 500, SemiBold = 600, Bold = 700, ExtraBold = 800, Black = 900 }
+    public enum UIFontStyle { Normal, Italic, Oblique }
+    public enum UIFontStretch { UltraCondensed = 1, ExtraCondensed, Condensed, SemiCondensed, Normal, SemiExpanded, Expanded, ExtraExpanded, UltraExpanded }
+
     public enum TextWrapping { NoWrap, Character, Word }
     public enum TextTrimming { None, CharacterEllipsis, WordEllipsis }
 
@@ -59,21 +63,32 @@ namespace Forma
 
     public abstract class UIFont : IEquatable<UIFont>
     {
-        protected UIFont(UIFontIdentity identity, float size, IReadOnlyList<UIFontOpenTypeFeature> defaultOpenTypeFeatures = null)
+        protected UIFont(UIFontIdentity identity, float size, IReadOnlyList<UIFontOpenTypeFeature> defaultOpenTypeFeatures = null,
+            UIFontWeight weight = UIFontWeight.Normal, UIFontStyle style = UIFontStyle.Normal, UIFontStretch stretch = UIFontStretch.Normal)
         {
             if (!float.IsFinite(size) || size <= 0) throw new ArgumentOutOfRangeException(nameof(size));
+            if (!Enum.IsDefined(typeof(UIFontWeight), weight)) throw new ArgumentOutOfRangeException(nameof(weight));
+            if (!Enum.IsDefined(typeof(UIFontStyle), style)) throw new ArgumentOutOfRangeException(nameof(style));
+            if (!Enum.IsDefined(typeof(UIFontStretch), stretch)) throw new ArgumentOutOfRangeException(nameof(stretch));
             Identity = identity;
             Size = size;
             DefaultOpenTypeFeatures = defaultOpenTypeFeatures == null ? Array.Empty<UIFontOpenTypeFeature>() : new List<UIFontOpenTypeFeature>(defaultOpenTypeFeatures).AsReadOnly();
+            Weight = weight;
+            Style = style;
+            Stretch = stretch;
         }
 
         public UIFontIdentity Identity { get; }
         public float Size { get; }
+        public UIFontWeight Weight { get; }
+        public UIFontStyle Style { get; }
+        public UIFontStretch Stretch { get; }
         public IReadOnlyList<UIFontOpenTypeFeature> DefaultOpenTypeFeatures { get; }
         public bool Equals(UIFont other) => other != null && Identity == other.Identity && Size.Equals(other.Size);
         public override bool Equals(object obj) => obj is UIFont other && Equals(other);
         public override int GetHashCode() => HashCode.Combine(Identity, Size);
         internal virtual UIFont Resize(float size) => this;
+        internal virtual bool HasThemeDefaults(float size, UIFontHinting hinting, IReadOnlyList<UIFontOpenTypeFeature> features) => Math.Abs(size - Size) < .0001f;
         internal virtual UIFont ApplyThemeDefaults(float size, UIFontHinting hinting, IReadOnlyList<UIFontOpenTypeFeature> features) => Resize(size);
         internal virtual UIFontHinting RasterHinting => UIFontHinting.Default;
         internal virtual long ShapeTicks => 0;
@@ -97,6 +112,24 @@ namespace Forma
 
         public IReadOnlyList<UIFont> Fonts => _fonts;
         public UIFont Primary => _fonts[0];
+
+        public UIFont Match(UIFontWeight weight, UIFontStyle style, UIFontStretch stretch)
+        {
+            if (!Enum.IsDefined(typeof(UIFontWeight), weight)) throw new ArgumentOutOfRangeException(nameof(weight));
+            if (!Enum.IsDefined(typeof(UIFontStyle), style)) throw new ArgumentOutOfRangeException(nameof(style));
+            if (!Enum.IsDefined(typeof(UIFontStretch), stretch)) throw new ArgumentOutOfRangeException(nameof(stretch));
+            UIFont best = null;
+            var bestScore = int.MaxValue;
+            foreach (var font in _fonts)
+            {
+                var score = Math.Abs((int)font.Weight - (int)weight) + Math.Abs((int)font.Stretch - (int)stretch) * 1000;
+                if (font.Style != style) score += font.Style == UIFontStyle.Normal || style == UIFontStyle.Normal ? 100_000 : 10_000;
+                if (score >= bestScore) continue;
+                best = font;
+                bestScore = score;
+            }
+            return best;
+        }
 
         public bool Equals(UIFontFamily other)
         {
@@ -387,7 +420,7 @@ namespace Forma
         private readonly Vector2[] _carets;
         private readonly int[] _wordBoundaries;
 
-        internal TextLayout(string text, UIFont font, TextLayoutOptions options, List<TextLayoutLine> lines, List<TextLayoutRun> runs, Vector2[] carets, Vector2 size, List<TextLayoutRange> visibleRanges = null)
+        internal TextLayout(string text, UIFont font, TextLayoutOptions options, List<TextLayoutLine> lines, List<TextLayoutRun> runs, Vector2[] carets, Vector2 size, List<TextLayoutRange> visibleRanges = null, float letterSpacing = 0)
         {
             Text = text;
             Font = font;
@@ -414,6 +447,7 @@ namespace Forma
                     if (glyph.Utf16Cluster <= visibleEnd && (glyph.IsSynthetic && visibleEnd > 0 || IsSourceVisible(glyph.Utf16Cluster, clippedRanges))) visibleGlyphs.Add(glyph);
             _visibleGlyphs = visibleGlyphs.AsReadOnly();
             Size = size;
+            LetterSpacing = letterSpacing;
         }
 
         public string Text { get; }
@@ -427,6 +461,7 @@ namespace Forma
         public IReadOnlyList<TextLayoutRange> VisibleRanges => _visibleRanges;
         public TextLayoutRange VisibleRange { get; }
         public Vector2 Size { get; }
+        internal float LetterSpacing { get; }
         public RectangleF Bounds => new RectangleF(0, 0, Size.X, Size.Y);
 
         public bool IsUtf16IndexVisible(int utf16Index)
@@ -743,8 +778,9 @@ namespace Forma
 
     internal static class TextLayoutAdjuster
     {
-        public static TextLayout Apply(TextLayout layout)
+        public static TextLayout Apply(TextLayout layout, float letterSpacing = 0)
         {
+            if (!float.IsFinite(letterSpacing)) throw new ArgumentOutOfRangeException(nameof(letterSpacing));
             var options = layout.Options;
             var paragraphs = TextParagraphSplitter.Split(layout.Text, options.ParagraphSeparator);
             var lineParagraphs = new int[layout.Lines.Count];
@@ -759,11 +795,12 @@ namespace Forma
                 paragraphLines[paragraphIndex].Add(lineIndex);
             }
 
-            var xOffsets = new float[layout.Text.Length + 1];
+            var xOffsets = new float[layout.Lines.Count][];
             var yOffsets = new float[layout.Lines.Count];
             var adjustedWidths = new float[layout.Lines.Count];
             for (var lineIndex = 0; lineIndex < layout.Lines.Count; lineIndex++)
             {
+                xOffsets[lineIndex] = new float[layout.Lines[lineIndex].Length + 1];
                 yOffsets[lineIndex] = lineParagraphs[lineIndex] * options.ParagraphSpacing;
                 adjustedWidths[lineIndex] = layout.Lines[lineIndex].Size.X;
             }
@@ -793,12 +830,38 @@ namespace Forma
                         if (spaces == 0 || line.Size.X >= options.MaxWidth) continue;
                         var extra = (options.MaxWidth - line.Size.X) / spaces;
                         var offset = 0f;
+                        var lineOffsets = xOffsets[lineIndex];
                         for (var index = line.Start; index <= line.Start + line.Length; index++)
                         {
-                            xOffsets[index] = offset;
+                            lineOffsets[index - line.Start] = offset;
                             if (index < line.Start + line.Length && index >= justificationStart && layout.Text[index] == ' ') offset += extra;
                         }
                         adjustedWidths[lineIndex] = options.MaxWidth;
+                    }
+                }
+            }
+            if (letterSpacing != 0)
+            {
+                var boundaries = UnicodeGraphemeSegmenter.GetUtf16Boundaries(layout.Text);
+                for (var lineIndex = 0; lineIndex < layout.Lines.Count; lineIndex++)
+                {
+                    var line = layout.Lines[lineIndex];
+                    var lineEnd = line.Start + line.Length;
+                    var lineOffsets = xOffsets[lineIndex];
+                    var clusterCount = 0;
+                    for (var boundaryIndex = 0; boundaryIndex + 1 < boundaries.Length; boundaryIndex++)
+                    {
+                        var start = boundaries[boundaryIndex];
+                        var end = boundaries[boundaryIndex + 1];
+                        if (start < line.Start || start >= lineEnd) continue;
+                        var offset = clusterCount * letterSpacing;
+                        for (var index = start; index < Math.Min(end, lineEnd); index++) lineOffsets[index - line.Start] += offset;
+                        clusterCount++;
+                    }
+                    if (clusterCount > 0)
+                    {
+                        lineOffsets[line.Length] += (clusterCount - 1) * letterSpacing;
+                        adjustedWidths[lineIndex] = MathF.Max(0, adjustedWidths[lineIndex] + (clusterCount - 1) * letterSpacing);
                     }
                 }
             }
@@ -807,7 +870,8 @@ namespace Forma
             for (var lineIndex = 0; lineIndex < layout.Lines.Count; lineIndex++)
             {
                 var line = layout.Lines[lineIndex];
-                for (var index = line.Start; index <= line.Start + line.Length; index++) carets[index] = layout.GetCaretPosition(index) + new Vector2(xOffsets[index], yOffsets[lineIndex]);
+                var lineOffsets = xOffsets[lineIndex];
+                for (var index = line.Start; index <= line.Start + line.Length; index++) carets[index] = layout.GetCaretPosition(index) + new Vector2(lineOffsets[index - line.Start], yOffsets[lineIndex]);
             }
             var lines = new List<TextLayoutLine>(layout.Lines.Count);
             for (var lineIndex = 0; lineIndex < layout.Lines.Count; lineIndex++)
@@ -819,25 +883,38 @@ namespace Forma
             foreach (var run in layout.Runs)
             {
                 var lineIndex = FindLine(layout.Lines, run.Start);
+                var line = layout.Lines[lineIndex];
+                var lineOffsets = xOffsets[lineIndex];
                 var runCarets = new Vector2[run.Length + 1];
-                Array.Copy(carets, run.Start, runCarets, 0, runCarets.Length);
+                for (var index = 0; index < runCarets.Length; index++)
+                {
+                    var offsetIndex = Math.Clamp(run.Start + index - line.Start, 0, lineOffsets.Length - 1);
+                    runCarets[index] = run.GetCaretPosition(index) + new Vector2(lineOffsets[offsetIndex], yOffsets[lineIndex]);
+                }
                 var glyphs = new List<TextLayoutGlyph>(run.Glyphs.Count);
                 foreach (var glyph in run.Glyphs)
                 {
-                    var shift = new Vector2(xOffsets[Math.Min(glyph.Utf16Cluster, xOffsets.Length - 1)], yOffsets[lineIndex]);
+                    var offsetIndex = Math.Clamp(glyph.Utf16Cluster - line.Start, 0, lineOffsets.Length - 1);
+                    var shift = new Vector2(lineOffsets[offsetIndex], yOffsets[lineIndex]);
                     glyphs.Add(new TextLayoutGlyph(glyph.GlyphId, glyph.Utf16Cluster, glyph.Position + shift, glyph.Advance, glyph.Offset, new RectangleF(glyph.Bounds.X + shift.X, glyph.Bounds.Y + shift.Y, glyph.Bounds.Width, glyph.Bounds.Height), glyph.IsSynthetic));
                 }
                 var runWidth = runCarets.Length == 0 ? run.Bounds.Width : MathF.Abs(runCarets[^1].X - runCarets[0].X);
-                runs.Add(new TextLayoutRun(run.Start, run.Length, run.Font, run.Direction, run.BidiLevel, glyphs, runCarets, new RectangleF(run.Bounds.X + xOffsets[run.Start], run.Bounds.Y + yOffsets[lineIndex], runWidth, run.Bounds.Height)));
+                var runOffsetIndex = Math.Clamp(run.Start - line.Start, 0, lineOffsets.Length - 1);
+                runs.Add(new TextLayoutRun(run.Start, run.Length, run.Font, run.Direction, run.BidiLevel, glyphs, runCarets, new RectangleF(run.Bounds.X + lineOffsets[runOffsetIndex], run.Bounds.Y + yOffsets[lineIndex], runWidth, run.Bounds.Height)));
             }
             var height = layout.Size.Y + Math.Max(0, paragraphs.Count - 1) * options.ParagraphSpacing;
             var width = adjustedWidths.Length == 0 ? 0 : adjustedWidths.Max();
-            return new TextLayout(layout.Text, layout.Font, options, lines, runs, carets, new Vector2(width, height), new List<TextLayoutRange>(layout.VisibleRanges));
+            return new TextLayout(layout.Text, layout.Font, options, lines, runs, carets, new Vector2(width, height), new List<TextLayoutRange>(layout.VisibleRanges), letterSpacing);
         }
 
         private static int FindLine(IReadOnlyList<TextLayoutLine> lines, int index)
         {
-            for (var line = 0; line < lines.Count; line++) if (index >= lines[line].Start && index <= lines[line].Start + lines[line].Length) return line;
+            for (var line = 0; line < lines.Count; line++)
+            {
+                var candidate = lines[line];
+                if ((candidate.Length == 0 && index == candidate.Start) ||
+                    (index >= candidate.Start && index < candidate.Start + candidate.Length)) return line;
+            }
             return Math.Max(0, lines.Count - 1);
         }
     }
@@ -914,15 +991,16 @@ namespace Forma
         private static readonly ConditionalWeakTable<SpriteFont, SpriteFontIdentity> Identities = new ConditionalWeakTable<SpriteFont, SpriteFontIdentity>();
         private static long _nextIdentity;
 
-        public SpriteFontAdapter(SpriteFont spriteFont, float? size = null)
-            : base(GetIdentity(spriteFont), size ?? spriteFont?.LineSpacing ?? throw new ArgumentNullException(nameof(spriteFont)))
+        public SpriteFontAdapter(SpriteFont spriteFont, float? size = null, UIFontWeight weight = UIFontWeight.Normal,
+            UIFontStyle style = UIFontStyle.Normal, UIFontStretch stretch = UIFontStretch.Normal)
+            : base(GetIdentity(spriteFont), size ?? spriteFont?.LineSpacing ?? throw new ArgumentNullException(nameof(spriteFont)), null, weight, style, stretch)
         {
             SpriteFont = spriteFont;
         }
 
         public SpriteFont SpriteFont { get; }
         public float Scale => Size / SpriteFont.LineSpacing;
-        internal override UIFont Resize(float size) => new SpriteFontAdapter(SpriteFont, size);
+        internal override UIFont Resize(float size) => new SpriteFontAdapter(SpriteFont, size, Weight, Style, Stretch);
 
         internal override TextLayout CreateLayout(string text, TextLayoutOptions options)
         {
@@ -957,6 +1035,15 @@ namespace Forma
 
         internal override void Draw(UIRenderContext context, TextLayout layout, Vector2 position, Color color)
         {
+            if (layout.LetterSpacing != 0)
+            {
+                foreach (var cluster in layout.VisualClusters)
+                {
+                    if (cluster.Start >= layout.VisibleRange.End || cluster.Length == 0) continue;
+                    context.DrawSpriteFont(SpriteFont, layout.Text.Substring(cluster.Start, cluster.Length), position + layout.GetCaretPosition(cluster.Start), color, Scale);
+                }
+                return;
+            }
             foreach (var line in layout.Lines)
             {
                 if (line.Length == 0) continue;
@@ -1156,20 +1243,23 @@ namespace Forma
         public SpriteFont SpriteFont { get; private set; }
         public UIFont UIFont { get; private set; }
         public UIFont Effective { get; private set; }
-        public UIFont Resolve(Theme theme)
+        public UIFont Resolve(Theme theme, UIFontFamily fontFamily = null, float fontSize = 0,
+            UIFontWeight weight = UIFontWeight.Normal, UIFontStyle style = UIFontStyle.Normal, UIFontStretch stretch = UIFontStretch.Normal)
         {
-            if (Effective != null) return Effective;
-            var font = theme?.FontFamily?.Primary;
+            var family = fontFamily ?? theme?.FontFamily;
+            var localFont = Effective;
+            var font = localFont ?? family?.Match(weight, style, stretch);
             if (font == null) return null;
-            var size = theme.FontSize > 0 ? theme.FontSize : font.Size;
-            var features = theme.FontOpenTypeFeatures;
-            if (ReferenceEquals(theme, _resolvedTheme) && ReferenceEquals(font, _resolvedThemeFont) && size == _resolvedThemeSize && theme.FontHinting == _resolvedThemeHinting && ReferenceEquals(features, _resolvedThemeFeatures)) return _resolved;
+            var size = fontSize > 0 ? fontSize : localFont != null ? font.Size : theme?.FontSize > 0 ? theme.FontSize : font.Size;
+            var features = localFont?.DefaultOpenTypeFeatures ?? theme?.FontOpenTypeFeatures ?? Array.Empty<UIFontOpenTypeFeature>();
+            var hinting = localFont?.RasterHinting ?? theme?.FontHinting ?? UIFontHinting.Default;
+            if (ReferenceEquals(theme, _resolvedTheme) && ReferenceEquals(font, _resolvedThemeFont) && size == _resolvedThemeSize && hinting == _resolvedThemeHinting && ReferenceEquals(features, _resolvedThemeFeatures)) return _resolved;
             _resolvedTheme = theme;
             _resolvedThemeFont = font;
             _resolvedThemeSize = size;
-            _resolvedThemeHinting = theme.FontHinting;
+            _resolvedThemeHinting = hinting;
             _resolvedThemeFeatures = features;
-            _resolved = font.ApplyThemeDefaults(size, theme.FontHinting, features);
+            _resolved = font.HasThemeDefaults(size, hinting, features) ? font : font.ApplyThemeDefaults(size, hinting, features);
             return _resolved;
         }
 

@@ -11,6 +11,7 @@
         <Label Text="FORMA" CustomMinimumSize="178,36" VerticalAlignment="Center" />
         <Label x:Name="CatalogSubtitle" Text="Component Catalog" FontColor="#FF8F99AA" HorizontalSizeFlags="Fill, Expand" VerticalAlignment="Center" />
         <CheckBox x:Name="dynamicTextMode" Classes="catalog-action" Text="Dynamic text" ButtonPressed="{Binding DynamicTextEnabled, Mode=TwoWay}" CustomMinimumSize="148,36" />
+        <Label x:Name="HotReloadStatus" Text="{Binding HotReloadStatus}" FontColor="#FF8F99AA" CustomMinimumSize="150,36" VerticalAlignment="Center" />
         <Label x:Name="BackendStatus" Text="LIVE" FontColor="#FFF6B949" CustomMinimumSize="132,36" VerticalAlignment="Center" />
     </HBoxContainer>
     <HBoxContainer Separation="0" VerticalSizeFlags="Fill, Expand">
@@ -28,12 +29,20 @@
             <VBoxContainer Separation="4" Margins="24,18,24,12" CustomMinimumSize="0,106">
                 <Label x:Name="StoryCategory" Text="{Binding StoryCategory}" Uppercase="True" FontColor="#FF30B9A4" CustomMinimumSize="0,20" />
                 <Label x:Name="StoryTitle" Text="{Binding StoryTitle}" CustomMinimumSize="0,30" />
-                <RichTextLabel x:Name="Description" Text="{Binding Description}" FitContent="False" AutowrapMode="Word" ScrollActive="False" FontColor="#FFAEB8C8" CustomMinimumSize="0,42" />
+                <RichTextLabel x:Name="Description" Text="{Binding Description}" FitContent="False" AutowrapMode="Word" ScrollActive="False" LetterSpacing="0.25" FontColor="#FFAEB8C8" CustomMinimumSize="0,42" />
             </VBoxContainer>
             <HSeparator />
             <MarginContainer ThemeOverrides="24" VerticalSizeFlags="Fill, Expand">
                 <PanelContainer x:Name="PreviewPanel">
-                    <local:CatalogPreviewContainer x:Name="Preview" />
+                    <ScrollContainer x:Name="PreviewScroll"
+                                     HorizontalScrollMode="Never"
+                                     FollowFocus="True"
+                                     HorizontalSizeFlags="Fill, Expand"
+                                     VerticalSizeFlags="Fill, Expand">
+                        <local:CatalogPreviewContainer x:Name="Preview"
+                                                       HorizontalSizeFlags="Fill, Expand"
+                                                       VerticalSizeFlags="Fill, Expand" />
+                    </ScrollContainer>
                 </PanelContainer>
             </MarginContainer>
         </VBoxContainer>

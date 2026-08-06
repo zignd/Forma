@@ -14,6 +14,9 @@ namespace Forma
     public enum MouseFilter { Stop, Pass, Ignore }
     /// <summary>Specifies whether a control can receive keyboard focus.</summary>
     public enum FocusMode { None, Click, All }
+    public enum Visibility { Visible, Hidden, Collapsed }
+    public enum PixelSnapping { Inherited, Enabled, Disabled }
+    public enum Cursor { Inherited, Arrow, IBeam, Hand, Crosshair, Wait, SizeHorizontal, SizeVertical, SizeDiagonalNorthwestSoutheast, SizeDiagonalNortheastSouthwest }
     /// <summary>Physical pointer buttons using Godot's <c>MouseButton</c> numeric values. Wheel directions are routed through <see cref="Control.PointerWheel"/> instead.</summary>
     public enum PointerButton { None = 0, Left = 1, Right = 2, Middle = 3, XButton1 = 8, XButton2 = 9 }
     /// <summary>Godot-style button mouse mask flags for controls that activate from pointer buttons.</summary>
@@ -63,8 +66,8 @@ namespace Forma
     }
 
     /// <summary>
-    /// Describes a non-owning atlas region rendered at a stable logical size. The resource cache that
-    /// created <see cref="Texture"/> owns and disposes it; copying or discarding this value never does.
+    /// Describes a non-owning bitmap atlas region or compiled vector rendered at a stable logical size.
+    /// The resource cache owns any texture; copying or discarding this value never disposes resources.
     /// </summary>
     public readonly struct ThemeIcon : IEquatable<ThemeIcon>
     {
@@ -79,13 +82,51 @@ namespace Forma
             Density = density;
         }
 
+        public ThemeIcon(DrawingImage vectorSource, Point logicalSize, int density = 1)
+        {
+            VectorSource = vectorSource ?? throw new ArgumentNullException(nameof(vectorSource));
+            if (logicalSize.X <= 0 || logicalSize.Y <= 0) throw new ArgumentOutOfRangeException(nameof(logicalSize));
+            if (density <= 0) throw new ArgumentOutOfRangeException(nameof(density));
+            Texture = null;
+            SourceRectangle = Rectangle.Empty;
+            LogicalSize = logicalSize;
+            Density = density;
+        }
+
+        public ThemeIcon(ScalableImageSource scalableSource, Point logicalSize, int density = 1)
+        {
+            ScalableSource = scalableSource ?? throw new ArgumentNullException(nameof(scalableSource));
+            if (logicalSize.X <= 0 || logicalSize.Y <= 0) throw new ArgumentOutOfRangeException(nameof(logicalSize));
+            if (density <= 0) throw new ArgumentOutOfRangeException(nameof(density));
+            Texture = null;
+            VectorSource = null;
+            SourceRectangle = Rectangle.Empty;
+            LogicalSize = logicalSize;
+            Density = density;
+        }
+
+        public ThemeIcon(ScalableImageSource scalableSource, Texture2D fallbackTexture, Rectangle fallbackSourceRectangle, Point logicalSize, int density = 1)
+        {
+            ScalableSource = scalableSource ?? throw new ArgumentNullException(nameof(scalableSource));
+            Texture = fallbackTexture ?? throw new ArgumentNullException(nameof(fallbackTexture));
+            if (fallbackSourceRectangle.Width <= 0 || fallbackSourceRectangle.Height <= 0) throw new ArgumentOutOfRangeException(nameof(fallbackSourceRectangle));
+            if (logicalSize.X <= 0 || logicalSize.Y <= 0) throw new ArgumentOutOfRangeException(nameof(logicalSize));
+            if (density <= 0) throw new ArgumentOutOfRangeException(nameof(density));
+            VectorSource = null;
+            SourceRectangle = fallbackSourceRectangle;
+            LogicalSize = logicalSize;
+            Density = density;
+        }
+
         public Texture2D Texture { get; }
+        public DrawingImage VectorSource { get; }
+        public ScalableImageSource ScalableSource { get; }
         public Rectangle SourceRectangle { get; }
         public Point LogicalSize { get; }
         public int Density { get; }
-        public bool Equals(ThemeIcon other) => ReferenceEquals(Texture, other.Texture) && SourceRectangle == other.SourceRectangle && LogicalSize == other.LogicalSize && Density == other.Density;
+        public bool Equals(ThemeIcon other) => ReferenceEquals(Texture, other.Texture) && ReferenceEquals(VectorSource, other.VectorSource) && ReferenceEquals(ScalableSource, other.ScalableSource) && SourceRectangle == other.SourceRectangle && LogicalSize == other.LogicalSize && Density == other.Density;
         public override bool Equals(object obj) => obj is ThemeIcon other && Equals(other);
-        public override int GetHashCode() => HashCode.Combine(Texture, SourceRectangle, LogicalSize, Density);
+        public override int GetHashCode() => HashCode.Combine(Texture, VectorSource, ScalableSource, SourceRectangle, LogicalSize, Density);
         public static bool operator ==(ThemeIcon left, ThemeIcon right) => left.Equals(right);
         public static bool operator !=(ThemeIcon left, ThemeIcon right) => !left.Equals(right);
     }
@@ -95,6 +136,7 @@ namespace Forma
     {
         private readonly Dictionary<string, StyleBox> _styleBoxes = new Dictionary<string, StyleBox>(StringComparer.Ordinal);
         private readonly Dictionary<string, ThemeIcon?> _icons = new Dictionary<string, ThemeIcon?>(StringComparer.Ordinal);
+        private readonly Dictionary<Type, ControlTemplate> _controlTemplates = new Dictionary<Type, ControlTemplate>();
         private Color? _panelColor, _panelBorderColor, _textColor, _disabledTextColor, _accentColor, _hoverColor, _pressedColor, _focusColor, _backgroundColor, _connectionActivityColor;
         private float? _separation, _borderWidth;
         private UIFontFamily _fontFamily;
@@ -103,6 +145,7 @@ namespace Forma
         private UIFontHinting? _fontHinting;
         private Theme _parent;
         public event EventHandler Changed;
+        public long Version { get; private set; }
 
         /// <summary>Optional parent. Unspecified colors, constants and style items resolve through it.</summary>
         public Theme Parent
@@ -110,19 +153,19 @@ namespace Forma
             get => _parent;
             set => SetParent(value, true);
         }
-        public Color PanelColor { get => _panelColor ?? Parent?.PanelColor ?? new Color(52, 58, 70); set => _panelColor = value; }
-        public Color PanelBorderColor { get => _panelBorderColor ?? Parent?.PanelBorderColor ?? new Color(92, 101, 119); set => _panelBorderColor = value; }
-        public Color TextColor { get => _textColor ?? Parent?.TextColor ?? Color.White; set => _textColor = value; }
-        public Color DisabledTextColor { get => _disabledTextColor ?? Parent?.DisabledTextColor ?? new Color(160, 166, 178); set => _disabledTextColor = value; }
-        public Color AccentColor { get => _accentColor ?? Parent?.AccentColor ?? new Color(70, 145, 235); set => _accentColor = value; }
-        public Color HoverColor { get => _hoverColor ?? Parent?.HoverColor ?? new Color(73, 82, 99); set => _hoverColor = value; }
-        public Color PressedColor { get => _pressedColor ?? Parent?.PressedColor ?? new Color(42, 48, 58); set => _pressedColor = value; }
-        public Color FocusColor { get => _focusColor ?? Parent?.FocusColor ?? new Color(112, 178, 255); set => _focusColor = value; }
-        public Color BackgroundColor { get => _backgroundColor ?? Parent?.BackgroundColor ?? new Color(35, 39, 47); set => _backgroundColor = value; }
+        public Color PanelColor { get => _panelColor ?? Parent?.PanelColor ?? new Color(52, 58, 70); set => SetThemeValue(ref _panelColor, value); }
+        public Color PanelBorderColor { get => _panelBorderColor ?? Parent?.PanelBorderColor ?? new Color(92, 101, 119); set => SetThemeValue(ref _panelBorderColor, value); }
+        public Color TextColor { get => _textColor ?? Parent?.TextColor ?? Color.White; set => SetThemeValue(ref _textColor, value); }
+        public Color DisabledTextColor { get => _disabledTextColor ?? Parent?.DisabledTextColor ?? new Color(160, 166, 178); set => SetThemeValue(ref _disabledTextColor, value); }
+        public Color AccentColor { get => _accentColor ?? Parent?.AccentColor ?? new Color(70, 145, 235); set => SetThemeValue(ref _accentColor, value); }
+        public Color HoverColor { get => _hoverColor ?? Parent?.HoverColor ?? new Color(73, 82, 99); set => SetThemeValue(ref _hoverColor, value); }
+        public Color PressedColor { get => _pressedColor ?? Parent?.PressedColor ?? new Color(42, 48, 58); set => SetThemeValue(ref _pressedColor, value); }
+        public Color FocusColor { get => _focusColor ?? Parent?.FocusColor ?? new Color(112, 178, 255); set => SetThemeValue(ref _focusColor, value); }
+        public Color BackgroundColor { get => _backgroundColor ?? Parent?.BackgroundColor ?? new Color(35, 39, 47); set => SetThemeValue(ref _backgroundColor, value); }
         /// <summary>Godot-style GraphEdit activity tint applied to active connection lines.</summary>
-        public Color ConnectionActivityColor { get => _connectionActivityColor ?? Parent?.ConnectionActivityColor ?? new Color(255, 190, 86); set => _connectionActivityColor = value; }
-        public float Separation { get => _separation ?? Parent?.Separation ?? 4; set => _separation = value; }
-        public float BorderWidth { get => _borderWidth ?? Parent?.BorderWidth ?? 1; set => _borderWidth = value; }
+        public Color ConnectionActivityColor { get => _connectionActivityColor ?? Parent?.ConnectionActivityColor ?? new Color(255, 190, 86); set => SetThemeValue(ref _connectionActivityColor, value); }
+        public float Separation { get => _separation ?? Parent?.Separation ?? 4; set => SetThemeValue(ref _separation, value); }
+        public float BorderWidth { get => _borderWidth ?? Parent?.BorderWidth ?? 1; set => SetThemeValue(ref _borderWidth, value); }
         /// <summary>Inherited default font family used by text controls without a local font override.</summary>
         public UIFontFamily FontFamily { get => _fontFamily ?? Parent?.FontFamily; set { if (ReferenceEquals(_fontFamily, value)) return; _fontFamily = value; OnChanged(); } }
         /// <summary>Inherited logical font size. Zero keeps the selected family's primary font size.</summary>
@@ -144,13 +187,57 @@ namespace Forma
             if (notify) OnChanged();
         }
         private void ParentChanged(object sender, EventArgs args) => OnChanged();
-        private void OnChanged() => Changed?.Invoke(this, EventArgs.Empty);
+        private void OnChanged()
+        {
+            Version++;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+        private void SetThemeValue<T>(ref T field, T value)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            OnChanged();
+        }
+        public void SetControlTemplate(Type controlType, ControlTemplate template)
+        {
+            ValidateTemplatedControlType(controlType);
+            if (template == null) throw new ArgumentNullException(nameof(template));
+            if (!template.TargetType.IsAssignableFrom(controlType))
+                throw new ArgumentException($"Template target type {template.TargetType.FullName} cannot be applied to {controlType.FullName}.", nameof(template));
+            if (_controlTemplates.TryGetValue(controlType, out var current) && ReferenceEquals(current, template)) return;
+            _controlTemplates[controlType] = template;
+            OnChanged();
+        }
+        public void SetControlTemplate<TControl>(ControlTemplate template) where TControl : TemplatedControl =>
+            SetControlTemplate(typeof(TControl), template);
+        public bool RemoveControlTemplate(Type controlType)
+        {
+            ValidateTemplatedControlType(controlType);
+            if (!_controlTemplates.Remove(controlType)) return false;
+            OnChanged();
+            return true;
+        }
+        public ControlTemplate GetControlTemplate(Type controlType)
+        {
+            ValidateTemplatedControlType(controlType);
+            for (var current = controlType; current != null && typeof(TemplatedControl).IsAssignableFrom(current); current = current.BaseType)
+                if (_controlTemplates.TryGetValue(current, out var template)) return template;
+            return Parent?.GetControlTemplate(controlType);
+        }
         /// <summary>Assigns a style item, optionally scoped to a control type name.</summary>
         public void SetStyleBox(string itemName, StyleBox styleBox, string typeName = null)
         {
             if (string.IsNullOrWhiteSpace(itemName)) throw new ArgumentException("A theme item name is required.", nameof(itemName));
             var key = MakeStyleKey(typeName, itemName);
-            if (styleBox == null) _styleBoxes.Remove(key); else _styleBoxes[key] = styleBox;
+            if (styleBox == null)
+            {
+                if (_styleBoxes.Remove(key)) OnChanged();
+            }
+            else if (!_styleBoxes.TryGetValue(key, out var current) || !ReferenceEquals(current, styleBox))
+            {
+                _styleBoxes[key] = styleBox;
+                OnChanged();
+            }
         }
         /// <summary>Gets a style item, first considering the requested control type then the shared item.</summary>
         public StyleBox GetStyleBox(string itemName, string typeName = null)
@@ -173,18 +260,24 @@ namespace Forma
         public void SetIcon(string itemName, ThemeIcon icon, string typeName = null)
         {
             ValidateItemName(itemName);
-            _icons[MakeStyleKey(typeName, itemName)] = icon;
+            var key = MakeStyleKey(typeName, itemName);
+            if (_icons.TryGetValue(key, out var current) && current == icon) return;
+            _icons[key] = icon;
+            OnChanged();
         }
         /// <summary>Removes a local icon entry so parent and default themes become visible again.</summary>
         public void RemoveIcon(string itemName, string typeName = null)
         {
-            if (itemName != null) _icons.Remove(MakeStyleKey(typeName, itemName));
+            if (itemName != null && _icons.Remove(MakeStyleKey(typeName, itemName))) OnChanged();
         }
         /// <summary>Suppresses an inherited icon without supplying a replacement.</summary>
         public void SuppressIcon(string itemName, string typeName = null)
         {
             ValidateItemName(itemName);
-            _icons[MakeStyleKey(typeName, itemName)] = null;
+            var key = MakeStyleKey(typeName, itemName);
+            if (_icons.TryGetValue(key, out var current) && current == null) return;
+            _icons[key] = null;
+            OnChanged();
         }
         /// <summary>Gets a typed or shared icon, including parent-theme inheritance.</summary>
         public ThemeIcon? GetIcon(string itemName, string typeName = null)
@@ -207,6 +300,12 @@ namespace Forma
         private static void ValidateItemName(string itemName)
         {
             if (string.IsNullOrWhiteSpace(itemName)) throw new ArgumentException("A theme item name is required.", nameof(itemName));
+        }
+        private static void ValidateTemplatedControlType(Type controlType)
+        {
+            if (controlType == null) throw new ArgumentNullException(nameof(controlType));
+            if (!typeof(TemplatedControl).IsAssignableFrom(controlType))
+                throw new ArgumentException("Control templates can only be resolved for TemplatedControl types.", nameof(controlType));
         }
         private static string MakeStyleKey(string typeName, string itemName) => (typeName ?? string.Empty) + ":" + itemName;
     }

@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Purpose: Publish and execute isolated trim-only and NativeAOT package consumers on macOS arm64.
 # Usage: `make nativeaot`, optionally selecting NATIVEAOT_RUNTIME=MonoGame|FNA,
-# NATIVEAOT_PROFILE=core|media|spritefont|dynamic, or NATIVEAOT_MODE=trimmed|aot.
+# NATIVEAOT_PROFILE=core|media|spritefont|dynamic|svg, or NATIVEAOT_MODE=trimmed|aot.
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 artifact_root="$repository_root/Artifacts/nativeaot"
@@ -19,8 +19,8 @@ case "$runtime_selection" in
   *) printf 'NATIVEAOT_RUNTIME must be MonoGame or FNA.\n' >&2; exit 2 ;;
 esac
 case "$profile_selection" in
-  ""|core|media|spritefont|dynamic) ;;
-  *) printf 'NATIVEAOT_PROFILE must be core, media, spritefont, or dynamic.\n' >&2; exit 2 ;;
+  ""|core|media|spritefont|dynamic|svg) ;;
+  *) printf 'NATIVEAOT_PROFILE must be core, media, spritefont, dynamic, or svg.\n' >&2; exit 2 ;;
 esac
 case "$mode_selection" in
   ""|trimmed|aot) ;;
@@ -28,7 +28,7 @@ case "$mode_selection" in
 esac
 
 runtimes=(MonoGame FNA)
-profiles=(core media spritefont dynamic)
+profiles=(core media spritefont dynamic svg)
 publish_modes=(trimmed aot)
 if [[ -n "$runtime_selection" ]]; then runtimes=("$runtime_selection"); fi
 if [[ -n "$profile_selection" ]]; then profiles=("$profile_selection"); fi
@@ -53,6 +53,8 @@ for runtime in "${runtimes[@]}"; do
     --configuration Release -p:FormaRuntime="$runtime" --output "$runtime_packages" --nologo
   dotnet pack "$repository_root/src/Forma.Media/Forma.Media.csproj" \
     --configuration Release -p:FormaRuntime="$runtime" --output "$runtime_packages" --nologo
+  dotnet pack "$repository_root/src/Forma.Svg/Forma.Svg.csproj" \
+    --configuration Release -p:FormaRuntime="$runtime" --output "$runtime_packages" --nologo
   dotnet pack "$repository_root/src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" \
     --configuration Release -p:FormaRuntime="$runtime" --output "$runtime_packages" --nologo
 done
@@ -67,6 +69,22 @@ assert_no_xaml_development_artifacts() {
     -iname 'Forma.Xaml.Compiler*' -o \
     -iname 'Forma.Xaml.HotReload*' \) -print -quit | grep -q .; then
     printf 'Trimmed/AOT output contains a Forma XAML development artifact: %s\n' "$output_dir" >&2
+    exit 1
+  fi
+}
+
+assert_no_dynamic_text_artifacts() {
+  local output_dir="$1"
+  if find "$output_dir" -type f -iname 'Forma.DynamicText*' -print -quit | grep -q .; then
+    printf 'Native-free output contains a Forma.DynamicText artifact: %s\n' "$output_dir" >&2
+    exit 1
+  fi
+}
+
+assert_no_svg_artifacts() {
+  local output_dir="$1"
+  if find "$output_dir" -type f \( -iname 'Forma.Svg*' -o -iname '*SkiaSharp*' -o -iname 'Svg.Skia*' -o -iname 'ShimSkiaSharp*' \) -print -quit | grep -q .; then
+    printf 'Native-free output contains an SVG backend artifact: %s\n' "$output_dir" >&2
     exit 1
   fi
 }
@@ -90,9 +108,9 @@ ALIASES
 validate_warnings() {
   local log_file="$1"
   local warning_line
-  if grep -Eq 'Forma(\.DynamicText|\.Media)?\.dll : warning IL[0-9]+' "$log_file"; then
+  if grep -Eq 'Forma(\.DynamicText|\.Media|\.Svg)?\.dll : warning IL[0-9]+' "$log_file"; then
     printf 'Forma-owned trim/AOT warning in %s:\n' "$log_file" >&2
-    grep -E 'Forma(\.DynamicText|\.Media)?\.dll : warning IL[0-9]+' "$log_file" >&2
+    grep -E 'Forma(\.DynamicText|\.Media|\.Svg)?\.dll : warning IL[0-9]+' "$log_file" >&2
     exit 1
   fi
   while IFS= read -r warning_line; do
@@ -131,6 +149,33 @@ validate_missing_native_font_failure() {
   grep -Fq 'A native font dependency is unavailable or incompatible.' "$failure_log"
 }
 
+validate_missing_native_svg_failure() {
+  local output_dir="$1"
+  local runtime="$2"
+  local probe_dir="$artifact_root/.missing-svg-native-$runtime"
+  local failure_log="$artifact_root/diagnostics/$runtime-svg-aot-missing-native.txt"
+  local removed_libraries
+  local exit_code
+  rm -rf "$probe_dir"
+  mkdir -p "$probe_dir" "$(dirname "$failure_log")"
+  cp -R "$output_dir/." "$probe_dir/"
+  removed_libraries="$(find "$probe_dir" \( -type f -o -type l \) -iname '*skiasharp*' -print -delete)"
+  if [[ -z "$removed_libraries" ]]; then
+    printf 'SVG AOT failure probe found no SkiaSharp library in %s.\n' "$output_dir" >&2
+    exit 1
+  fi
+  set +e
+  "$probe_dir/Forma.PackageConsumer" >"$failure_log" 2>&1
+  exit_code=$?
+  set -e
+  rm -rf "$probe_dir"
+  if [[ "$exit_code" -eq 0 ]]; then
+    printf 'SVG AOT consumer unexpectedly started without packaged SkiaSharp for %s.\n' "$runtime" >&2
+    exit 1
+  fi
+  grep -Eq 'SkiaSharp|SVG backend|Svg.Skia' "$failure_log"
+}
+
 for runtime in "${runtimes[@]}"; do
   for profile in "${profiles[@]}"; do
     case "$profile" in
@@ -145,6 +190,9 @@ for runtime in "${runtimes[@]}"; do
         ;;
       dynamic)
         profile_args=(-p:IncludeFormaMedia=false -p:IncludeDynamicText=true -p:ExerciseSpriteFont=true)
+        ;;
+      svg)
+        profile_args=(-p:IncludeFormaMedia=false -p:IncludeDynamicText=false -p:IncludeFormaSvg=true -p:ExerciseSpriteFont=false)
         ;;
     esac
     for publish_mode in "${publish_modes[@]}"; do
@@ -205,14 +253,23 @@ for runtime in "${runtimes[@]}"; do
       if [[ "$profile" == "dynamic" && "$publish_mode" == "aot" ]]; then
         validate_missing_native_font_failure "$output_dir" "$runtime"
       fi
+      if [[ "$profile" == "svg" && "$publish_mode" == "aot" ]]; then
+        validate_missing_native_svg_failure "$output_dir" "$runtime"
+      fi
 
       if [[ "$profile" != "dynamic" ]]; then
+        assert_no_dynamic_text_artifacts "$output_dir"
+      fi
+      if [[ "$profile" != "dynamic" && "$profile" != "svg" ]]; then
         if find "$output_dir" -type f \( -iname '*freetype*' -o -iname '*harfbuzz*' \) -print -quit | grep -q .; then
           printf 'Native-free %s/%s/%s output contains a dynamic-text native library.\n' \
             "$runtime" "$profile" "$publish_mode" >&2
           exit 1
         fi
         bash "$repository_root/scripts/inspect-native-imports.sh" "$output_dir"
+      fi
+      if [[ "$profile" != "svg" ]]; then
+        assert_no_svg_artifacts "$output_dir"
       fi
       printf 'Passed %s / %s / %s.\n' "$runtime" "$profile" "$publish_mode"
     done

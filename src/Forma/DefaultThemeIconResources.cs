@@ -14,22 +14,33 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Forma
 {
+    public enum ThemeIconRenderingPolicy
+    {
+        BitmapAtlas,
+        RuntimeSvg,
+        Auto,
+    }
+
     /// <summary>Reports the active default icon-atlas selection and resource usage.</summary>
     public readonly struct ThemeIconDiagnostics
     {
-        internal ThemeIconDiagnostics(int density, int atlasCount, long textureBytes, int generation, int missingIconCount)
+        internal ThemeIconDiagnostics(int density, int atlasCount, long textureBytes, int generation, int missingIconCount, int runtimeSvgIconCount, int bitmapFallbackCount)
         {
             ActiveDensity = density;
             AtlasCount = atlasCount;
             TextureBytes = textureBytes;
             Generation = generation;
             MissingIconCount = missingIconCount;
+            RuntimeSvgIconCount = runtimeSvgIconCount;
+            BitmapFallbackCount = bitmapFallbackCount;
         }
         public int ActiveDensity { get; }
         public int AtlasCount { get; }
         public long TextureBytes { get; }
         public int Generation { get; }
         public int MissingIconCount { get; }
+        public int RuntimeSvgIconCount { get; }
+        public int BitmapFallbackCount { get; }
     }
 
     internal sealed class DefaultThemeIconResources : IDisposable
@@ -39,6 +50,9 @@ namespace Forma
         private readonly HashSet<string> _missingNames = new HashSet<string>(StringComparer.Ordinal);
         private readonly DeviceCache _cache;
         private int _density;
+        private ThemeIconRenderingPolicy _policy;
+        private int _runtimeSvgIconCount;
+        private int _bitmapFallbackCount;
         private bool _disposed;
 
         internal DefaultThemeIconResources(GraphicsDevice graphicsDevice)
@@ -50,19 +64,29 @@ namespace Forma
 
         internal GraphicsDevice GraphicsDevice { get; }
         internal Theme Theme { get; } = new Theme();
-        internal ThemeIconDiagnostics Diagnostics => new ThemeIconDiagnostics(_density, _cache.AtlasCount, _cache.TextureBytes, _cache.Generation, _missingNames.Count);
+        internal ThemeIconDiagnostics Diagnostics => new ThemeIconDiagnostics(_density, _cache.AtlasCount, _cache.TextureBytes, _cache.Generation, _missingNames.Count, _runtimeSvgIconCount, _bitmapFallbackCount);
         internal static int ManifestIconCount => Manifest.Icons.Count / 2;
+        internal static IReadOnlyList<ThemeIconManifestEntry> ManifestEntries => Manifest.Icons;
 
-        internal void Ensure(float displayScale)
+        internal bool Ensure(float displayScale, ThemeIconRenderingPolicy policy)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(DefaultThemeIconResources));
             var density = SelectDensity(displayScale);
             var texture = _cache.GetTexture(GraphicsDevice, density);
-            if (_density == density && Theme.GetIcon("arrow", "OptionButton")?.Texture == texture) return;
+            if (_density == density && _policy == policy && Theme.GetIcon("arrow", "OptionButton")?.Texture == texture) return false;
             _density = density;
+            _policy = policy;
+            _runtimeSvgIconCount = 0;
+            var useSvg = policy != ThemeIconRenderingPolicy.BitmapAtlas && DefaultThemeSvgProviderRegistry.IsAvailable && SvgRuntime.Health.IsAvailable;
             foreach (var entry in Manifest.Icons.Where(icon => icon.Density == density))
             {
-                var icon = new ThemeIcon(texture, new Rectangle(entry.X, entry.Y, entry.Width, entry.Height), new Point(entry.LogicalWidth, entry.LogicalHeight), density);
+                var sourceRectangle = new Rectangle(entry.X, entry.Y, entry.Width, entry.Height);
+                var logicalSize = new Point(entry.LogicalWidth, entry.LogicalHeight);
+                var scalableSource = useSvg ? TryGetSvgSource(entry.Name) : null;
+                var icon = scalableSource != null
+                    ? new ThemeIcon(scalableSource, texture, sourceRectangle, logicalSize, density)
+                    : new ThemeIcon(texture, sourceRectangle, logicalSize, density);
+                if (scalableSource != null) _runtimeSvgIconCount++;
                 foreach (var binding in entry.Bindings)
                 {
                     var separator = binding.IndexOf(':');
@@ -70,12 +94,34 @@ namespace Forma
                     Theme.SetIcon(binding.Substring(separator + 1), icon, binding.Substring(0, separator));
                 }
             }
+            return true;
+        }
+
+        private SvgImageSource TryGetSvgSource(string name)
+            => TryGetSvgSource(() => DefaultThemeSvgProviderRegistry.GetSource(name), RecordSvgFallback);
+
+        internal static SvgImageSource TryGetSvgSource(Func<SvgImageSource> sourceFactory, Action recordFallback)
+        {
+            if (sourceFactory == null) throw new ArgumentNullException(nameof(sourceFactory));
+            if (recordFallback == null) throw new ArgumentNullException(nameof(recordFallback));
+            try
+            {
+                return sourceFactory();
+            }
+            catch (Exception exception) when (exception is SvgLoadException || exception is InvalidOperationException ||
+                exception is IOException || exception is UnauthorizedAccessException || exception is NotSupportedException)
+            {
+                recordFallback();
+                return null;
+            }
         }
 
         internal void RecordMissing(string itemName)
         {
             if (!string.IsNullOrWhiteSpace(itemName)) _missingNames.Add(itemName);
         }
+
+        internal void RecordSvgFallback() => _bitmapFallbackCount++;
 
         internal static int SelectDensity(float displayScale) => float.IsFinite(displayScale) && displayScale >= 1.5f ? 2 : 1;
 
@@ -135,6 +181,8 @@ namespace Forma
 
     internal sealed class ThemeIconManifestEntry
     {
+        public string Name { get; set; } = string.Empty;
+        public string Source { get; set; } = string.Empty;
         public int Density { get; set; }
         public int X { get; set; }
         public int Y { get; set; }

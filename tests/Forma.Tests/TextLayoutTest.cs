@@ -93,6 +93,98 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void TextLayoutAdjuster_AppliesLetterSpacingBetweenGraphemeClusters()
+        {
+            var natural = new TextLayoutEngine().Layout(new SpriteFontAdapter(CreateTestFont()), "ABC");
+            var spaced = TextLayoutAdjuster.Apply(natural, 3);
+
+            Assert.That(spaced.Size.X, Is.EqualTo(natural.Size.X + 6));
+            Assert.That(spaced.GetCaretPosition(3).X, Is.EqualTo(natural.GetCaretPosition(3).X + 6));
+            Assert.That(spaced.GetCaretPosition(1).X, Is.EqualTo(natural.GetCaretPosition(1).X + 3));
+        }
+
+        [Test]
+        public void TextLayoutAdjuster_ResetsLetterSpacingAtSoftWrappedLines()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var font = new DynamicUIFont(face, 16, UIFontHinting.Light);
+            var maxWidth = TextMetrics.Measure(font, "alpha beta g").X;
+            var natural = new TextLayoutEngine().Layout(font, "alpha beta gamma", new TextLayoutOptions(maxWidth, TextWrapping.Word));
+            var spaced = TextLayoutAdjuster.Apply(natural, .25f);
+            var secondLineStart = natural.Lines[1].Start;
+            var naturalGlyph = natural.Runs.SelectMany(run => run.Glyphs).Single(glyph => glyph.Utf16Cluster == secondLineStart);
+            var spacedGlyph = spaced.Runs.SelectMany(run => run.Glyphs).Single(glyph => glyph.Utf16Cluster == secondLineStart);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(natural.Text.Substring(secondLineStart), Is.EqualTo("gamma"));
+                Assert.That(spaced.GetCaretPosition(secondLineStart).X, Is.EqualTo(natural.GetCaretPosition(secondLineStart).X).Within(.0001f));
+                Assert.That(spacedGlyph.Position.X, Is.EqualTo(naturalGlyph.Position.X).Within(.0001f));
+            });
+        }
+
+        [Test]
+        public void TextBlock_AppliesAbsoluteLineHeightToPlainAndInlineContent()
+        {
+            var font = new SpriteFontAdapter(CreateTestFont());
+            var plain = new TextBlock { UIFont = font, Text = "A\nB", LineHeight = 14, Padding = new Thickness() };
+            var inline = new TextBlock { UIFont = font, LineHeight = 14, Padding = new Thickness() };
+            inline.Inlines.Add(new Run("A"));
+            inline.Inlines.Add(new LineBreak());
+            inline.Inlines.Add(new Run("B"));
+
+            Assert.That(plain.GetMinimumSize().Y, Is.EqualTo(28));
+            Assert.That(inline.GetMinimumSize().Y, Is.EqualTo(28));
+            Assert.Throws<ArgumentOutOfRangeException>(() => plain.LineHeight = -1);
+        }
+
+        [Test]
+        public void TextBlock_AppliesLetterSpacingToPlainMeasurementAndCharacterBounds()
+        {
+            var font = new SpriteFontAdapter(CreateTestFont());
+            var natural = new TextBlock { UIFont = font, Text = "ABC", Padding = new Thickness() };
+            var spaced = new TextBlock { UIFont = font, Text = "ABC", LetterSpacing = 4, Padding = new Thickness(), Size = new Vector2(64, 16) };
+
+            Assert.That(spaced.GetMinimumSize().X, Is.EqualTo(natural.GetMinimumSize().X + 8));
+            Assert.That(spaced.GetCharacterBounds(1).X, Is.EqualTo(natural.GetCharacterBounds(1).X + 4));
+            Assert.That(spaced.GetCharacterBounds(2).X, Is.EqualTo(natural.GetCharacterBounds(2).X + 8));
+        }
+
+        [Test]
+        public void TextBlock_SelectsTypedFamilyFaceAndFontSize()
+        {
+            var normal = new SpriteFontAdapter(CreateTestFont(), 16, UIFontWeight.Normal);
+            var semibold = new SpriteFontAdapter(CreateTestFont(), 16, UIFontWeight.SemiBold);
+            var text = new TextBlock
+            {
+                FontFamily = new UIFontFamily(new UIFont[] { normal, semibold }),
+                FontWeight = UIFontWeight.SemiBold,
+                FontSize = 24,
+                Text = "A",
+            };
+
+            Assert.That(text.EffectiveUIFont.Weight, Is.EqualTo(UIFontWeight.SemiBold));
+            Assert.That(text.EffectiveUIFont.Size, Is.EqualTo(24));
+            Assert.That(text.FontStyle, Is.EqualTo(UIFontStyle.Normal));
+            Assert.That(text.FontStretch, Is.EqualTo(UIFontStretch.Normal));
+        }
+
+        [Test]
+        public void TextBlock_InlineCharacterBoundsMatchVisibleBoxes()
+        {
+            var text = new TextBlock { UIFont = new SpriteFontAdapter(CreateTestFont()), Padding = new Thickness(), Size = new Vector2(64, 32), MaxLinesVisible = 1 };
+            text.Inlines.Add(new Run("A"));
+            text.Inlines.Add(new InlineImage { Size = new Vector2(12, 7) });
+            text.Inlines.Add(new LineBreak());
+            text.Inlines.Add(new Run("B"));
+
+            Assert.That(text.GetCharacterBounds(0), Is.Not.EqualTo(Rectangle.Empty));
+            Assert.That(text.GetCharacterBounds(1), Is.EqualTo(new Rectangle(8, 4, 12, 7)));
+            Assert.That(text.GetCharacterBounds(2), Is.EqualTo(Rectangle.Empty), "Line-break source positions have no visual box.");
+            Assert.That(text.GetCharacterBounds(3), Is.EqualTo(Rectangle.Empty), "Rows hidden by MaxLinesVisible must not remain hittable.");
+        }
+
+        [Test]
         public void TextLayoutEngine_CachesByValueIdentity()
         {
             var spriteFont = CreateTestFont();

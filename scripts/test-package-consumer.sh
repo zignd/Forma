@@ -41,6 +41,8 @@ for runtime in MonoGame FNA; do
     --configuration Release -p:FormaRuntime="$runtime" --nologo
   dotnet pack "$repository_root/src/Forma.Media/Forma.Media.csproj" \
     --configuration Release -p:FormaRuntime="$runtime" --nologo
+  dotnet pack "$repository_root/src/Forma.Svg/Forma.Svg.csproj" \
+    --configuration Release -p:FormaRuntime="$runtime" --nologo
   dotnet pack "$repository_root/src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" \
     --configuration Release -p:FormaRuntime="$runtime" --nologo
 done
@@ -73,6 +75,8 @@ inspect_package() {
       exit 1
     fi
     grep -Fxq "licenses/theme-icons/LICENSE.Godot.txt" <<<"$entries"
+    grep -Fxq "lib/net10.0/Clipper2Lib.dll" <<<"$entries"
+    grep -Fxq "licenses/geometry/Clipper2.LICENSE.txt" <<<"$entries"
     strings_output="$(unzip -p "$package_path" "lib/net10.0/$assembly_name.dll" | strings)"
     for resource_name in theme-icons-1x.png theme-icons-2x.png theme-icons.json; do
       grep -Fq "Forma.ThemeIcons.$resource_name" <<<"$strings_output"
@@ -125,6 +129,40 @@ inspect_dynamic_package() {
 inspect_dynamic_package MonoGame FNA
 inspect_dynamic_package FNA MonoGame
 
+inspect_svg_package() {
+  local runtime="$1"
+  local opposite_runtime="$2"
+  local package_id="Forma.Svg.$runtime"
+  local package_path="$package_root/$runtime/$package_id.$version.nupkg"
+  local symbol_path="$package_root/$runtime/$package_id.$version.snupkg"
+  local entries
+  local manifest
+
+  entries="$(unzip -Z1 "$package_path")"
+  for required_entry in lib/net10.0/Forma.Svg.dll lib/net10.0/Forma.Svg.xml "buildTransitive/$package_id.targets" buildTransitive/Forma.Svg.PackageInitializer.cs.txt LICENSE NOTICE.md README.md THIRD-PARTY-NOTICES.md; do
+    grep -Fxq "$required_entry" <<<"$entries"
+  done
+  assembly_bytes="$(unzip -p "$package_path" lib/net10.0/Forma.Svg.dll | wc -c | tr -d ' ')"
+  if (( assembly_bytes > 256 * 1024 )); then
+    printf '%s exceeds the 256 KiB SVG managed assembly budget (%s bytes).\n' "$package_id" "$assembly_bytes" >&2
+    exit 1
+  fi
+  unzip -p "$symbol_path" lib/net10.0/Forma.Svg.pdb |
+    strings |
+    grep -F "raw.githubusercontent.com/zignd/Forma/$commit_sha" >/dev/null
+  manifest="$(unzip -p "$package_path" "$package_id.nuspec")"
+  for dependency in "Forma.$runtime" Svg.Skia SkiaSharp.NativeAssets.Linux.NoDependencies; do
+    grep -Fq "dependency id=\"$dependency\"" <<<"$manifest"
+  done
+  if grep -Fq "dependency id=\"Forma.$opposite_runtime\"" <<<"$manifest"; then
+    printf '%s must not depend on Forma.%s.\n' "$package_id" "$opposite_runtime" >&2
+    exit 1
+  fi
+}
+
+inspect_svg_package MonoGame FNA
+inspect_svg_package FNA MonoGame
+
 inspect_xaml_build_package() {
   local runtime="$1"
   local opposite_runtime="$2"
@@ -166,7 +204,7 @@ inspect_xaml_build_package FNA MonoGame.Framework
 for runtime in MonoGame FNA; do
   dotnet "$assembly_inspector" forbid-references \
     "$repository_root/src/Forma/bin/$runtime/Release/net10.0/Forma.dll" \
-    FreeTypeSharp HarfBuzzSharp
+    FreeTypeSharp HarfBuzzSharp Svg.Skia SkiaSharp ShimSkiaSharp Forma.Svg
 done
 
 package_fingerprint() {
@@ -198,12 +236,17 @@ for runtime in MonoGame FNA; do
     -p:FormaRuntime="$runtime" \
     -p:PackageOutputPath="$repro_root/$runtime" \
     --nologo
+  dotnet pack "$repository_root/src/Forma.Svg/Forma.Svg.csproj" \
+    --configuration Release \
+    -p:FormaRuntime="$runtime" \
+    -p:PackageOutputPath="$repro_root/$runtime" \
+    --nologo
   dotnet pack "$repository_root/src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" \
     --configuration Release \
     -p:FormaRuntime="$runtime" \
     -p:PackageOutputPath="$repro_root/$runtime" \
     --nologo
-  for package_id in "Forma.$runtime" "Forma.DynamicText.$runtime" "Forma.Media.$runtime"; do
+  for package_id in "Forma.$runtime" "Forma.DynamicText.$runtime" "Forma.Media.$runtime" "Forma.Svg.$runtime"; do
     for extension in nupkg snupkg; do
       printf 'Comparing deterministic contents: %s.%s\n' "$package_id" "$extension"
       diff \
@@ -252,6 +295,22 @@ assert_no_xaml_development_artifacts() {
   fi
 }
 
+assert_official_nuget_package() {
+  local cache_dir="$1"
+  local package_id="$2"
+  local package_directory
+  local metadata_path
+
+  package_directory="$(find "$cache_dir/$package_id" -mindepth 1 -maxdepth 1 -type d -print -quit)"
+  metadata_path="$package_directory/.nupkg.metadata"
+  if [[ -z "$package_directory" || ! -f "$metadata_path" ]] ||
+    ! grep -Fq '"source": "https://api.nuget.org/v3/index.json"' "$metadata_path" ||
+    ! grep -Eq '"contentHash": "[^"]+"' "$metadata_path"; then
+    printf 'SVG dependency %s was not restored with official NuGet provenance.\n' "$package_id" >&2
+    exit 1
+  fi
+}
+
 for runtime in MonoGame FNA; do
   consumer_cache="$package_root/.consumer-packages/$runtime"
   rm -rf "$consumer_cache" "$repository_root/tests/Forma.PackageConsumer/bin" "$repository_root/tests/Forma.PackageConsumer/obj"
@@ -267,17 +326,48 @@ for runtime in MonoGame FNA; do
     --no-restore \
     --nologo
   assert_no_xaml_development_artifacts "$repository_root/tests/Forma.PackageConsumer/bin/$runtime/Release/net10.0"
-  for forbidden_package in freetypesharp harfbuzzsharp harfbuzzsharp.nativeassets.linux; do
+  for forbidden_package in freetypesharp harfbuzzsharp harfbuzzsharp.nativeassets.linux svg.skia skiasharp skiasharp.nativeassets.linux.nodependencies shimskiasharp; do
     if [[ -d "$consumer_cache/$forbidden_package" ]]; then
       printf 'Core-only %s consumer unexpectedly resolved %s.\n' "$runtime" "$forbidden_package" >&2
       exit 1
     fi
   done
   if find "$repository_root/tests/Forma.PackageConsumer/bin" -type f \
-    \( -iname '*freetype*' -o -iname '*harfbuzz*' \) -print -quit | grep -q .; then
-    printf 'Core-only %s consumer unexpectedly copied FreeType/HarfBuzz assets.\n' "$runtime" >&2
+    \( -iname '*freetype*' -o -iname '*harfbuzz*' -o -iname '*skia*' -o -iname 'Forma.Svg*' \) -print -quit | grep -q .; then
+    printf 'Core-only %s consumer unexpectedly copied optional native assets.\n' "$runtime" >&2
     exit 1
   fi
+done
+
+for runtime in MonoGame FNA; do
+  consumer_cache="$package_root/.svg-consumer-packages/$runtime"
+  rm -rf "$consumer_cache" "$repository_root/tests/Forma.PackageConsumer/bin" "$repository_root/tests/Forma.PackageConsumer/obj"
+  NUGET_PACKAGES="$consumer_cache" dotnet restore "$consumer_project" \
+    -p:FormaRuntime="$runtime" \
+    -p:IncludeFormaMedia=false \
+    -p:IncludeFormaSvg=true \
+    -p:ExerciseSpriteFont=true \
+    -p:FormaPackageSource="$package_root/$runtime" \
+    -p:RestoreNoCache=true \
+    --nologo
+  NUGET_PACKAGES="$consumer_cache" run_consumer "$runtime" dotnet run --project "$consumer_project" \
+    --configuration Release \
+    -p:FormaRuntime="$runtime" \
+    -p:IncludeFormaMedia=false \
+    -p:IncludeFormaSvg=true \
+    -p:ExerciseSpriteFont=true \
+    -p:FormaPackageSource="$package_root/$runtime" \
+    --no-restore \
+    --nologo
+  for required_package in svg.skia skiasharp; do
+    if [[ ! -d "$consumer_cache/$required_package" ]]; then
+      printf 'SVG %s consumer did not resolve %s.\n' "$runtime" "$required_package" >&2
+      exit 1
+    fi
+  done
+  for official_package in svg.skia skiasharp skiasharp.nativeassets.linux.nodependencies shimskiasharp; do
+    assert_official_nuget_package "$consumer_cache" "$official_package"
+  done
 done
 
 for runtime in MonoGame FNA; do
@@ -398,14 +488,14 @@ validate_core_rid() {
     -p:PublishDir="$publish_dir" \
     --no-restore \
     --nologo
-  for forbidden_package in freetypesharp harfbuzzsharp harfbuzzsharp.nativeassets.linux; do
+  for forbidden_package in freetypesharp harfbuzzsharp harfbuzzsharp.nativeassets.linux svg.skia skiasharp skiasharp.nativeassets.linux.nodependencies shimskiasharp; do
     if [[ -d "$consumer_cache/$forbidden_package" ]]; then
       printf 'Core-only %s/%s consumer unexpectedly resolved %s.\n' "$runtime" "$rid" "$forbidden_package" >&2
       exit 1
     fi
   done
-  if find "$publish_dir" -type f \( -iname '*freetype*' -o -iname '*harfbuzz*' \) -print -quit | grep -q .; then
-    printf 'Core-only %s/%s consumer unexpectedly copied FreeType/HarfBuzz assets.\n' "$runtime" "$rid" >&2
+  if find "$publish_dir" -type f \( -iname '*freetype*' -o -iname '*harfbuzz*' -o -iname '*skia*' -o -iname 'Forma.Svg*' \) -print -quit | grep -q .; then
+    printf 'Core-only %s/%s consumer unexpectedly copied optional native assets.\n' "$runtime" "$rid" >&2
     exit 1
   fi
   bash "$repository_root/scripts/inspect-native-imports.sh" "$publish_dir"
@@ -456,6 +546,48 @@ validate_dynamic_rid() {
   done
 }
 
+validate_svg_rid() {
+  local runtime="$1"
+  local rid="$2"
+  local consumer_cache="$package_root/.svg-consumer-packages/$runtime/$rid"
+  local publish_dir="$package_root/.svg-consumer-publish/$runtime/$rid"
+  local skia_asset
+
+  case "$rid" in
+    win-*) skia_asset='libSkiaSharp.dll' ;;
+    linux-*) skia_asset='libSkiaSharp.so' ;;
+    osx-*) skia_asset='libSkiaSharp.dylib' ;;
+    *) printf 'No SVG native asset mapping for %s.\n' "$rid" >&2; exit 2 ;;
+  esac
+
+  rm -rf "$consumer_cache" "$publish_dir" \
+    "$repository_root/tests/Forma.PackageConsumer/bin" \
+    "$repository_root/tests/Forma.PackageConsumer/obj"
+  NUGET_PACKAGES="$consumer_cache" dotnet restore "$consumer_project" \
+    -r "$rid" \
+    -p:FormaRuntime="$runtime" \
+    -p:IncludeFormaMedia=false \
+    -p:IncludeFormaSvg=true \
+    -p:FormaPackageSource="$package_root/$runtime" \
+    -p:RestoreNoCache=true \
+    --nologo
+  NUGET_PACKAGES="$consumer_cache" dotnet publish "$consumer_project" \
+    --configuration Release \
+    -r "$rid" \
+    --self-contained false \
+    -p:FormaRuntime="$runtime" \
+    -p:IncludeFormaMedia=false \
+    -p:IncludeFormaSvg=true \
+    -p:FormaPackageSource="$package_root/$runtime" \
+    -p:PublishDir="$publish_dir" \
+    --no-restore \
+    --nologo
+  if [[ ! -f "$publish_dir/$skia_asset" ]]; then
+    printf 'SVG %s/%s consumer did not publish %s.\n' "$runtime" "$rid" "$skia_asset" >&2
+    exit 1
+  fi
+}
+
 for rid in win-x64 win-arm64 linux-x64 linux-arm64 osx-x64 osx-arm64; do
   validate_core_rid MonoGame "$rid"
 done
@@ -467,6 +599,12 @@ for rid in win-x64 win-arm64 linux-x64 osx-x64 osx-arm64; do
 done
 for rid in win-x64 linux-x64 osx-x64 osx-arm64; do
   validate_dynamic_rid FNA "$rid"
+done
+for rid in win-x64 win-arm64 linux-x64 linux-arm64 osx-x64 osx-arm64; do
+  validate_svg_rid MonoGame "$rid"
+done
+for rid in win-x64 linux-x64 linux-arm64 osx-x64 osx-arm64; do
+  validate_svg_rid FNA "$rid"
 done
 
 mixed_output="$(dotnet build "$consumer_project" \
@@ -481,4 +619,18 @@ mixed_output="$(dotnet build "$consumer_project" \
 }
 grep -Eq 'cannot be referenced by the same project|cannot be combined with' <<<"$mixed_output"
 
-printf 'Validated eight peer packages, 11 native-free core publishes, nine native-complete dynamic publishes, compiled XAML consumers, and mixed-variant rejection.\n'
+mixed_svg_output="$(dotnet build "$consumer_project" \
+  --configuration Release \
+  -p:FormaRuntime=MonoGame \
+  -p:IncludeFormaMedia=false \
+  -p:IncludeFormaSvg=true \
+  -p:FormaSvgRuntime=FNA \
+  -p:FormaPackageSource="$package_root/MonoGame" \
+  -p:FormaAdditionalPackageSource="$package_root/FNA" \
+  --nologo 2>&1)" && {
+    printf 'Mixed Forma SVG runtime variants unexpectedly built successfully.\n' >&2
+    exit 1
+}
+grep -Eq 'cannot be referenced by the same project|cannot be combined with' <<<"$mixed_svg_output"
+
+printf 'Validated ten peer packages, 11 native-free core publishes, nine dynamic publishes, 11 SVG publishes, compiled XAML consumers, and mixed-variant rejection.\n'

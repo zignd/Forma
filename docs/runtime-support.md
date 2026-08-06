@@ -16,11 +16,11 @@ declared supported.
 
 | Runtime / host | Windows x64 | Linux x64 | macOS arm64 | macOS x64 |
 | --- | --- | --- | --- | --- |
-| MonoGame DesktopGL | CI gate | CI gate | CI gate | Manual gate |
-| MonoGame WindowsDX | CI gate | N/A | N/A | N/A |
-| MonoGame Native Vulkan | N/A | CI gate | N/A | N/A |
+| MonoGame DesktopGL | CI gate | Validated + CI gate | Validated + CI gate | Manual gate |
+| MonoGame WindowsDX | Validated + CI gate | N/A | N/A | N/A |
+| MonoGame Native Vulkan | N/A | Validated + CI gate | N/A | N/A |
 | MonoGame Native Metal | N/A | N/A | Validated + CI gate | Manual gate |
-| FNA selected backend | CI gate | CI gate | Validated Metal + CI gate | Manual gate |
+| FNA selected backend | Validated D3D11 + CI gate | Validated OpenGL + CI gate | Validated Metal + CI gate | Manual gate |
 
 Every automated cell builds the selected core, media, tests, render tests, and catalog host. It runs
 the shared unit/catalog inventory suite and a bounded three-frame catalog smoke. Windows and Linux
@@ -41,6 +41,25 @@ bash scripts/check-catalog-render-parity.sh
 bash scripts/check-fna-video-smoke.sh
 bash scripts/test-package-consumer.sh
 ```
+
+## SVG Companion Matrix
+
+The `Forma.Svg.MonoGame` and `Forma.Svg.FNA` companions inherit the graphics matrix above. An SVG
+companion is only useful with its matching core runtime; the platform validation scope for SVG is
+therefore the same as for the core cell on each host.
+
+| SVG companion | Package/native-size budget | Known validated host |
+| --- | --- | --- |
+| `Forma.Svg.MonoGame` | Forma companion assembly ≤ 256 KiB and package ≤ 8 MiB; Svg.Skia/SkiaSharp dependencies and RID-selected Skia native assets must match the isolated package manifest | Windows x64 / WindowsDX; Linux x64 / OpenGL and Vulkan; macOS arm64 / OpenGL and Metal |
+| `Forma.Svg.FNA` | Forma companion assembly ≤ 256 KiB and package ≤ 8 MiB; Svg.Skia/SkiaSharp dependencies and RID-selected Skia native assets must match the isolated package manifest | Windows x64 / D3D11; Linux x64 / OpenGL; macOS arm64 / Metal |
+
+The complete hosted SVG matrix passed in
+[CI run 31110056321](https://github.com/zignd/Forma/actions/runs/31110056321) at exact implementation
+snapshot `cd94582436e3ad8065262d8f5c9507ea03d98abe`. It executed the Windows Direct3D, Linux
+OpenGL/Vulkan, and macOS OpenGL/Metal lifecycle gates for their selected peers. Package consumers in
+the same run verified official NuGet provenance, RID-native selection, and the absence of Svg.Skia
+from core-only graphs. See [docs/runtime-svg.md — Validation Gates](runtime-svg.md#validation-gates)
+for the per-host commands.
 
 ## Content and Effects
 
@@ -106,14 +125,26 @@ not impose a transitive MonoGame backend.
 | `Forma.Media.FNA` capability smoke | `osx-arm64` | Yes | Trim + AOT | Yes | No codec claim |
 | `Forma.DynamicText.MonoGame` | `osx-arm64` | Yes | Trim + AOT | Multilingual atlas | macOS arm64 / OpenGL |
 | `Forma.DynamicText.FNA` | `osx-arm64` | Yes | Trim + AOT | Multilingual atlas | macOS arm64 / Metal |
+| `Forma.Svg.MonoGame` companion | `osx-arm64` | Yes | Trim + AOT | Svg.Skia verify + missing-native | macOS arm64 / OpenGL |
+| `Forma.Svg.FNA` companion | `osx-arm64` | Yes | Trim + AOT | Svg.Skia verify + missing-native | macOS arm64 / Metal |
 
 No other RID or platform has a public NativeAOT support claim. "Platform-validated" here means the
 named public desktop host/backend only; it does not imply a restricted or console target.
 
 Forma targets `net10.0`. Trim-only and NativeAOT packed consumers are validated on macOS arm64 for
-`Forma.MonoGame`, `Forma.FNA`, and their matching `Forma.Media` and `Forma.DynamicText` packages.
-The gate covers native-free core, optional media, packed-XNB `SpriteFont`, and dynamic-text graphical
-profiles for both peers. It
+`Forma.MonoGame`, `Forma.FNA`, and their matching `Forma.Media`, `Forma.DynamicText`, and
+`Forma.Svg` packages. The gate covers native-free core, optional media, packed-XNB `SpriteFont`,
+dynamic-text graphical, and bounded SVG companion profiles for both peers. The SVG profile publishes
+with and without native Skia assets; the without-native probe requires the bounded failure diagnostic
+(`SkiaSharp native initialization failed`). With native assets, `SvgBackendDefaults.Verify()`
+completes a 2×2 rasterize sanity check. SVG NativeAOT and graphical trim-only profiles report one
+upstream `IL2104` summary from the runtime peer (MonoGame.Framework or FNA.NET); this does not hide
+any Forma-owned diagnostic.
+
+Core consumers execute compiled primitives, brushes, attached layout,
+selectors, adaptive conditions, keyed templates, relative sources, observable deltas,
+virtualization, selection, flat/hierarchical data grids, accessibility peers, and control-template
+application without DynamicText or dynamic code. It
 publishes from empty package caches, executes every output, rejects Forma-owned `IL2xxx`/`IL3xxx`
 warnings, verifies native-free imports, and proves packaged FreeType/HarfBuzz loading:
 
@@ -121,13 +152,15 @@ warnings, verifies native-free imports, and proves packaged FreeType/HarfBuzz lo
 make nativeaot
 make nativeaot NATIVEAOT_RUNTIME=MonoGame NATIVEAOT_PROFILE=media NATIVEAOT_MODE=aot
 make nativeaot NATIVEAOT_RUNTIME=FNA NATIVEAOT_PROFILE=dynamic NATIVEAOT_MODE=trimmed
+make nativeaot NATIVEAOT_RUNTIME=MonoGame NATIVEAOT_PROFILE=svg NATIVEAOT_MODE=aot
+make nativeaot NATIVEAOT_RUNTIME=FNA NATIVEAOT_PROFILE=svg NATIVEAOT_MODE=trimmed
 make aot-analyzers
 make native-font-failures
 ```
 
 Run on macOS arm64 with .NET SDK 10.0.x, Xcode command-line tools, recursive submodules, and network
-access for the first restore. Valid profiles are `core`, `media`, `spritefont`, and `dynamic`; valid
-modes are `trimmed` and `aot`. The gate packs all selected Forma packages, restores each consumer
+access for the first restore. Valid profiles are `core`, `media`, `spritefont`, `dynamic`, and `svg`;
+valid modes are `trimmed` and `aot`. The gate packs all selected Forma packages, restores each consumer
 from an empty cache, publishes self-contained `osx-arm64` output, executes it, and records logs,
 native manifests, binaries, and multilingual render/layout diagnostics under `Artifacts/nativeaot`.
 The fast `aot-analyzers` target builds warning-as-error source-linked consumers for both peers.
@@ -208,13 +241,21 @@ Namespaces and control names remain `Forma`; application source changes are not 
 Package build guards reject duplicate core variants, duplicate media variants, and mismatched
 core/media pairs before reference resolution.
 
+Applications adopting template-first controls must also account for changed visual ancestry and
+replace custom-drawn widget chrome or C# row factories. See
+[xaml-templates-migration.md](xaml-templates-migration.md). `Forma.Xaml.Build` is a private build
+dependency. `Forma.Xaml.HotReload` is Debug-only and must be absent from Release, trim, and
+NativeAOT outputs. `Forma.DynamicText` remains an independent opt-in companion; core template,
+items, data-grid, and virtualization features do not require it.
+
 ## Release Gate
 
 The manual Release workflow builds both runtimes, checks API/reference parity, validates all six
 packages and isolated consumers, validates licenses and native redistribution notices, and uploads
-reviewable artifacts from one commit and version. Its independent macOS arm64 job executes all 16
-trim/AOT cells and retains their binaries, manifests, logs, and diagnostics. It does not publish.
-Adding any package push path requires separate explicit user approval.
+reviewable artifacts from one commit and version. Its independent macOS arm64 job executes all 20
+trim/AOT cells (adding four SVG companion cells) and retains their binaries, manifests, logs, and
+diagnostics. It does not publish. Adding any package push path requires separate explicit user
+approval.
 
 Authorized targets use the [authorized host checklist](authorized-host-checklist.md). Completing it
 requires private SDK, toolchain, deployment, and hardware evidence; this public repository records

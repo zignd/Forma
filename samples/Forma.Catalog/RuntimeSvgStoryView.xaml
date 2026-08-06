@@ -1,0 +1,76 @@
+<BoxContainer xmlns="https://forma.dev/xaml"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:local="clr-namespace:Forma.Catalog"
+              x:Class="Forma.Catalog.RuntimeSvgStoryView"
+              HorizontalSizeFlags="Fill, Expand"
+              VerticalSizeFlags="Fill, Expand">
+  <ScrollContainer x:Name="runtimeSvgScroll"
+                   HorizontalScrollMode="Never"
+                   HorizontalSizeFlags="Fill, Expand"
+                   VerticalSizeFlags="Fill, Expand">
+    <BoxContainer x:Name="runtimeSvgContent" Separation="10" CustomMinimumSize="320,0">
+    <!-- Cache / backend / policy diagnostics -->
+    <Label x:Name="svgStatus" CustomMinimumSize="320,124" AutowrapMode="Word" />
+    <!-- Policy controls -->
+    <HFlowContainer Separation="8">
+        <Button x:Name="runtimePolicy" Text="Runtime SVG" CustomMinimumSize="120,34" />
+        <Button x:Name="bitmapPolicy" Text="PNG atlas" CustomMinimumSize="110,34" />
+        <Button x:Name="autoPolicy" Text="Auto" CustomMinimumSize="90,34" />
+        <Button x:Name="ltr" Text="LTR" CustomMinimumSize="70,34" />
+        <Button x:Name="rtl" Text="RTL" CustomMinimumSize="70,34" />
+    </HFlowContainer>
+    <!-- Tree/DataGrid hierarchy arrows directly under policy controls -->
+    <HFlowContainer Separation="16">
+        <VBoxContainer Separation="3">
+            <Label Text="Tree hierarchy arrow" />
+            <Tree x:Name="svgTree" CustomMinimumSize="180,112" />
+        </VBoxContainer>
+        <VBoxContainer Separation="3">
+            <Label Text="DataGrid hierarchy arrow" />
+            <DataGrid x:Name="svgGrid" Mode="Hierarchical" CustomMinimumSize="240,92">
+                <DataGrid.Columns>
+                    <local:CatalogTreeNameColumn Header="Name" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </VBoxContainer>
+    </HFlowContainer>
+    <!-- Stretch mode controls -->
+    <HFlowContainer Separation="8">
+        <Button x:Name="stretchContain" Text="Contain" CustomMinimumSize="100,34" />
+        <Button x:Name="stretchCover" Text="Cover" CustomMinimumSize="100,34" />
+        <Button x:Name="stretchFill" Text="Fill" CustomMinimumSize="100,34" />
+    </HFlowContainer>
+    <!-- Side-by-side: gradient·clip·transform SVG / file SVG / DrawingImage / default arrow -->
+    <HFlowContainer Separation="12">
+        <VBoxContainer Separation="3">
+            <Label Text="Compiled · gradient·clip·xform" />
+            <Image x:Name="compiledSvg" ScalableSource="Assets/runtime-catalog.svg" Tint="#ffffff" Stretch="Contain" ExpandMode="IgnoreSize" CustomMinimumSize="126,72" />
+        </VBoxContainer>
+        <VBoxContainer Separation="3">
+            <Label Text="File · cover · tinted" />
+            <Image x:Name="fileSvg" Tint="#9fd8ff" Stretch="Cover" ExpandMode="IgnoreSize" CustomMinimumSize="126,72" />
+        </VBoxContainer>
+        <VBoxContainer Separation="3">
+            <Label Text="DrawingImage · gradient" />
+            <Image x:Name="drawingImage" Stretch="Fill" ExpandMode="IgnoreSize" CustomMinimumSize="126,72" />
+        </VBoxContainer>
+        <VBoxContainer Separation="3">
+            <Label Text="Default arrow (policy)" />
+            <OptionButton x:Name="themeArrow" CustomMinimumSize="140,34" />
+        </VBoxContainer>
+    </HFlowContainer>
+    <!-- Scale controls + atlas page diagnostic inline -->
+    <HFlowContainer Separation="8">
+        <Button x:Name="scale100" Text="1x" CustomMinimumSize="60,34" />
+        <Button x:Name="scale125" Text="1.25x" CustomMinimumSize="80,34" />
+        <Button x:Name="scale150" Text="1.5x" CustomMinimumSize="80,34" />
+        <Button x:Name="scale175" Text="1.75x" CustomMinimumSize="80,34" />
+        <Button x:Name="scale200" Text="2x" CustomMinimumSize="70,34" />
+        <Button x:Name="scale250" Text="2.5x" CustomMinimumSize="80,34" />
+        <local:SvgAtlasPreview x:Name="atlasPreview" CustomMinimumSize="80,34" />
+    </HFlowContainer>
+    <!-- Unsupported input + missing-backend behavior (live API) -->
+            <Label x:Name="invalidStatus" CustomMinimumSize="320,62" AutowrapMode="Word" />
+        </BoxContainer>
+    </ScrollContainer>
+</BoxContainer>

@@ -11,11 +11,27 @@
 
   <UsingTask TaskName="Forma.Xaml.Build.DiscoverFormaXaml" AssemblyFile="$(FormaXamlBuildAssembly)" />
   <UsingTask TaskName="Forma.Xaml.Build.CompileFormaXaml" AssemblyFile="$(FormaXamlBuildAssembly)" />
+  <UsingTask TaskName="Forma.Xaml.Build.ValidateFormaSvg" AssemblyFile="$(FormaXamlBuildAssembly)" />
 
   <ItemGroup Condition="'$(EnableDefaultItems)' == 'true' and '$(EnableDefaultNoneItems)' == 'true'">
     <FormaXaml Include="**/*.xaml" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <FormaSvg Include="**/*.svg" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
     <None Remove="@(FormaXaml)" />
+    <None Remove="@(FormaSvg)" />
   </ItemGroup>
+
+  <Target Name="FormaXamlValidateSvgAssets"
+      BeforeTargets="AssignTargetPaths"
+          Condition="'@(FormaSvg)' != ''">
+    <ValidateFormaSvg SvgFiles="@(FormaSvg)"
+                      AssemblyName="$(AssemblyName)"
+                      ProjectDirectory="$(MSBuildProjectDirectory)">
+      <Output TaskParameter="ValidatedSvgFiles" ItemName="_FormaValidatedSvg" />
+    </ValidateFormaSvg>
+    <ItemGroup>
+      <EmbeddedResource Include="@(_FormaValidatedSvg)" LogicalName="%(_FormaValidatedSvg.LogicalName)" />
+    </ItemGroup>
+  </Target>
 
   <Target Name="FormaXamlDiscover"
           BeforeTargets="CoreCompile"
@@ -45,6 +61,7 @@
           Outputs="$(FormaXamlIntermediateDirectory)/compile.stamp">
     <CompileFormaXaml XamlFiles="@(FormaXaml)"
                   TargetAssembly="@(IntermediateAssembly)"
+                  ProjectDirectory="$(MSBuildProjectDirectory)"
                   TargetPdb="$(IntermediateOutputPath)$(TargetName).pdb"
                       References="@(ReferencePath)"
                       RequireCompiledBindings="$(FormaXamlRequireCompiledBindings)"
@@ -68,6 +85,10 @@
     <Copy SourceFiles="@(FormaXaml)"
           DestinationFiles="@(FormaXaml->'$(FormaXamlDevelopmentOutputDirectory)/%(Identity)')"
           SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(FormaSvg)"
+            DestinationFiles="@(FormaSvg->'$(FormaXamlDevelopmentOutputDirectory)/%(Identity)')"
+            SkipUnchangedFiles="true"
+            Condition="'@(FormaSvg)' != ''" />
   </Target>
 
   <Target Name="FormaXamlClean" AfterTargets="Clean">

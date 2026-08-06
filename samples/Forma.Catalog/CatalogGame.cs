@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -67,7 +68,14 @@ public sealed class CatalogGame : Game
             PreferredBackBufferHeight = _metricsOptions?.ViewportHeight ?? 900,
         };
         EnableHighDpiIfSupported(_graphics);
-        _ui = new UIContext { Theme = CreateTheme() };
+        _ui = new UIContext
+        {
+            Theme = CreateTheme(),
+            ThemeIconRenderingPolicy = _metricsOptions?.ThemeIconPolicy ?? (SvgRuntime.Health.IsAvailable
+                ? ThemeIconRenderingPolicy.RuntimeSvg
+                : ThemeIconRenderingPolicy.BitmapAtlas),
+        };
+        if (_metricsOptions != null) _ui.TooltipDelay = TimeSpan.MaxValue;
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         Window.AllowUserResizing = true;
@@ -98,6 +106,7 @@ public sealed class CatalogGame : Game
         var stories = StoryCatalog.Create(_catalogTexture, SetInteractiveDisplayScale, CreateDynamicFont);
         _storyCount = stories.Count;
         _catalog = new CatalogShell(stories, defaultFont, CreateDynamicFont("Inter", 15, null), _font, enabled => _dynamicTextEnabled = enabled);
+        if (_metricsOptions?.LayoutDirection != null) _catalog.LayoutDirection = _metricsOptions.LayoutDirection.Value;
         _ui.Add(_catalog);
         _liveResize = LiveResizeAdapter.TryCreate(this);
     #if FORMA_XAML_HOT_RELOAD
@@ -116,7 +125,7 @@ public sealed class CatalogGame : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
+        if (_metricsOptions == null && Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
         var viewport = GraphicsDevice.Viewport;
         var liveViewport = default(Vector2);
         var hasLiveViewport = _metricsOptions == null && _liveResize?.TryGetLogicalViewport(out liveViewport) == true;
@@ -124,8 +133,35 @@ public sealed class CatalogGame : Game
         _ui.DisplayScale = _displayScale;
         _ui.ViewportSize = _interactiveLogicalViewport ?? (hasLiveViewport ? liveViewport : new Vector2(viewport.Width / _displayScale, viewport.Height / _displayScale));
         if (_catalog != null) _catalog.Size = _ui.ViewportSize;
-        _ui.Update(gameTime);
+        if (_metricsOptions == null)
+        {
+            var mouse = Mouse.GetState();
+            var keyboard = Keyboard.GetState();
+            var target = _ui.HitTest(new Point(mouse.X, mouse.Y));
+            try
+            {
+                _ui.Update(gameTime, mouse, keyboard);
+            }
+            catch (Exception exception)
+            {
+                throw CreateInteractionException(_catalog?.ActiveStory, target, exception);
+            }
+        }
+        else _ui.Update(gameTime, default, default);
         base.Update(gameTime);
+    }
+
+    internal static InvalidOperationException CreateInteractionException(ComponentStory story, Control target, Exception innerException)
+    {
+        if (innerException == null) throw new ArgumentNullException(nameof(innerException));
+        var storyName = story == null ? "<no active story>" : $"{story.Category} / {story.Name}";
+        var path = new List<string>();
+        for (var control = target; control != null && path.Count < 8; control = control.VisualParent)
+            path.Add(string.IsNullOrWhiteSpace(control.Name) ? control.GetType().Name : $"{control.GetType().Name}#{control.Name}");
+        var controlPath = path.Count == 0 ? "<no hit control>" : string.Join(" -> ", path);
+        return new InvalidOperationException(
+            $"Catalog interaction failed in '{storyName}' at {controlPath}: {innerException.Message}",
+            innerException);
     }
 
     protected override void Draw(GameTime gameTime)
@@ -208,6 +244,7 @@ public sealed class CatalogGame : Game
         _xamlHotReload.DiagnosticsChanged += diagnostics =>
         {
             foreach (var diagnostic in diagnostics) Console.Error.WriteLine(diagnostic);
+            _catalog.ReportHotReloadDiagnostics(diagnostics.Count, diagnostics.FirstOrDefault()?.ToString());
         };
         _xamlHotReloadRegistration = _xamlHotReload.Register<Control>("CatalogShell.xaml", () => _catalog, (_, replacement) =>
         {
@@ -289,6 +326,15 @@ public sealed class CatalogGame : Game
             themeIconTextureBytes = iconDiagnostics.TextureBytes,
             themeIconGeneration = iconDiagnostics.Generation,
             themeIconMissingCount = iconDiagnostics.MissingIconCount,
+            themeIconPolicy = _ui.ThemeIconRenderingPolicy.ToString(),
+            layoutDirection = _catalog.LayoutDirection.ToString(),
+            themeIconRuntimeSvgCount = iconDiagnostics.RuntimeSvgIconCount,
+            themeIconBitmapFallbackCount = iconDiagnostics.BitmapFallbackCount,
+            svgBackendName = SvgRuntime.Health.Name,
+            svgBackendVersion = SvgRuntime.Health.Version,
+            svgBackendAvailable = SvgRuntime.Health.IsAvailable,
+            svgRasterEntries = _ui.SvgRasterDiagnostics.EntryCount,
+            svgRasterBytes = _ui.SvgRasterDiagnostics.Bytes,
             dynamicGlyphPageCount = glyphDiagnostics.PageCount,
             dynamicGlyphCount = glyphDiagnostics.GlyphCount,
             dynamicGlyphBytes = glyphDiagnostics.Bytes,
@@ -342,6 +388,8 @@ public sealed class CatalogGame : Game
         ulong greenTotal = 0;
         ulong blueTotal = 0;
         ulong alphaTotal = 0;
+        long edgeTransitions = 0;
+        ulong edgeStrength = 0;
         foreach (var pixel in pixels)
         {
             hash = (hash ^ pixel.PackedValue) * 1099511628211UL;
@@ -350,6 +398,13 @@ public sealed class CatalogGame : Game
             greenTotal += pixel.G;
             blueTotal += pixel.B;
             alphaTotal += pixel.A;
+        }
+        for (var y = 0; y < height; y++)
+        for (var x = 0; x < width; x++)
+        {
+            var pixel = pixels[y * width + x];
+            if (x + 1 < width) AccumulateEdge(pixel, pixels[y * width + x + 1], ref edgeTransitions, ref edgeStrength);
+            if (y + 1 < height) AccumulateEdge(pixel, pixels[(y + 1) * width + x], ref edgeTransitions, ref edgeStrength);
         }
         var report = new
         {
@@ -362,6 +417,8 @@ public sealed class CatalogGame : Game
             greenTotal,
             blueTotal,
             alphaTotal,
+            edgeTransitions,
+            edgeStrength,
         };
         var outputPath = Path.GetFullPath(_metricsOptions.RenderOutputPath);
         Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
@@ -369,6 +426,14 @@ public sealed class CatalogGame : Game
         {
             WriteIndented = true,
         }));
+    }
+
+    private static void AccumulateEdge(Color first, Color second, ref long transitions, ref ulong strength)
+    {
+        var difference = Math.Abs(first.R - second.R) + Math.Abs(first.G - second.G) +
+            Math.Abs(first.B - second.B) + Math.Abs(first.A - second.A);
+        strength += (uint)difference;
+        if (difference >= 64) transitions++;
     }
 
     private void WriteScreenshot()
@@ -425,6 +490,8 @@ public sealed class CatalogMetricsOptions
     public string StoryName { get; }
     public int? ViewportWidth { get; }
     public int? ViewportHeight { get; }
+    public ThemeIconRenderingPolicy? ThemeIconPolicy { get; }
+    public LayoutDirection? LayoutDirection { get; }
 
     private CatalogMetricsOptions(
         string outputPath,
@@ -435,7 +502,9 @@ public sealed class CatalogMetricsOptions
         float? displayScale,
         string storyName,
         int? viewportWidth,
-        int? viewportHeight)
+        int? viewportHeight,
+        ThemeIconRenderingPolicy? themeIconPolicy,
+        LayoutDirection? layoutDirection)
     {
         OutputPath = outputPath;
         RenderOutputPath = renderOutputPath;
@@ -446,6 +515,8 @@ public sealed class CatalogMetricsOptions
         StoryName = storyName;
         ViewportWidth = viewportWidth;
         ViewportHeight = viewportHeight;
+        ThemeIconPolicy = themeIconPolicy;
+        LayoutDirection = layoutDirection;
     }
 
     public static CatalogMetricsOptions Parse(string[] args)
@@ -458,6 +529,8 @@ public sealed class CatalogMetricsOptions
         string storyName = null;
         int? viewportWidth = null;
         int? viewportHeight = null;
+        ThemeIconRenderingPolicy? themeIconPolicy = null;
+        LayoutDirection? layoutDirection = null;
         var frameCount = 120;
         for (var index = 0; index < args.Length; index++)
         {
@@ -492,6 +565,17 @@ public sealed class CatalogMetricsOptions
                 case "--viewport-height" when index + 1 < args.Length && int.TryParse(args[++index], out var parsedHeight) && parsedHeight >= 240:
                     viewportHeight = parsedHeight;
                     break;
+                case "--theme-icon-policy" when index + 1 < args.Length && Enum.TryParse<ThemeIconRenderingPolicy>(args[++index], true, out var parsedPolicy):
+                    themeIconPolicy = parsedPolicy;
+                    break;
+                case "--layout-direction" when index + 1 < args.Length:
+                    layoutDirection = args[++index].ToLowerInvariant() switch
+                    {
+                        "ltr" => Forma.LayoutDirection.LeftToRight,
+                        "rtl" => Forma.LayoutDirection.RightToLeft,
+                        _ => throw new ArgumentException("Catalog layout direction must be LTR or RTL."),
+                    };
+                    break;
                 default:
                     throw new ArgumentException($"Unknown or invalid catalog argument: {args[index]}");
             }
@@ -499,8 +583,8 @@ public sealed class CatalogMetricsOptions
 
         if (watchedEffectPath != null && !File.Exists(watchedEffectPath))
             throw new ArgumentException($"The watched effect does not exist: {watchedEffectPath}");
-        return outputPath == null && renderOutputPath == null && screenshotPath == null && watchedEffectPath == null && displayScale == null && storyName == null && viewportWidth == null && viewportHeight == null
+        return outputPath == null && renderOutputPath == null && screenshotPath == null && watchedEffectPath == null && displayScale == null && storyName == null && viewportWidth == null && viewportHeight == null && themeIconPolicy == null && layoutDirection == null
             ? null
-            : new CatalogMetricsOptions(outputPath, renderOutputPath, screenshotPath, frameCount, watchedEffectPath, displayScale, storyName, viewportWidth, viewportHeight);
+            : new CatalogMetricsOptions(outputPath, renderOutputPath, screenshotPath, frameCount, watchedEffectPath, displayScale, storyName, viewportWidth, viewportHeight, themeIconPolicy, layoutDirection);
     }
 }

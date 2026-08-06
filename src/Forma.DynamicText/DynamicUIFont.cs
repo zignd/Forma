@@ -54,6 +54,8 @@ namespace Forma
         public IReadOnlyList<UIFontFace> FallbackFaces => _fallbackFaces;
         public IReadOnlyList<UIFontVariationCoordinate> VariationCoordinates => _variationCoordinates;
         internal override UIFont Resize(float size) => new DynamicUIFont(Face, size, Hinting, VariationCoordinates, DefaultOpenTypeFeatures, new List<UIFontFace>(FallbackFaces).ToArray());
+        internal override bool HasThemeDefaults(float size, UIFontHinting hinting, IReadOnlyList<UIFontOpenTypeFeature> features) =>
+            Math.Abs(size - Size) < .0001f && hinting == Hinting && DefaultOpenTypeFeatures.SequenceEqual(features);
         internal override UIFont ApplyThemeDefaults(float size, UIFontHinting hinting, IReadOnlyList<UIFontOpenTypeFeature> features) =>
             new DynamicUIFont(Face, size, hinting, VariationCoordinates, features, new List<UIFontFace>(FallbackFaces).ToArray());
         internal override UIFontHinting RasterHinting => Hinting;

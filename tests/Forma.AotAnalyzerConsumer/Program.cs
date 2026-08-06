@@ -11,4 +11,5 @@ Control[] controls =
 ];
 
 var nativeDiagnostics = DynamicTextNativeDiagnostics.Current;
-Console.WriteLine($"{controls.Length} controls; {VideoStreamPlayer.RuntimeCapabilities}; {nativeDiagnostics.RuntimeIdentifier}");
+var svgHealth = SvgBackendDefaults.Verify();
+Console.WriteLine($"{controls.Length} controls; {VideoStreamPlayer.RuntimeCapabilities}; {nativeDiagnostics.RuntimeIdentifier}; {svgHealth.Name} {svgHealth.Version}");

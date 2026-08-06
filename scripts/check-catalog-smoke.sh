@@ -70,6 +70,15 @@ if ! jq -e --arg backend "$expected_backend" '.backend == $backend' "$actual" >/
   exit 1
 fi
 
+if ! jq -e '
+  .svgBackendAvailable == true and
+  .svgBackendName == "Svg.Skia" and
+  (.svgBackendVersion | startswith("5.2.0+"))
+' "$actual" >/dev/null; then
+  printf 'Catalog metrics did not report the expected healthy Svg.Skia 5.2.0 backend.\n' >&2
+  exit 1
+fi
+
 for story_name in "Complete icon inventory" "Override and suppression" "Atlas diagnostics"; do
   story_actual="$stage_directory/$(tr ' ' '-' <<<"$story_name").json"
   dotnet run --project "$project" \
@@ -86,7 +95,7 @@ for story_name in "Complete icon inventory" "Override and suppression" "Atlas di
     "$story_actual" >/dev/null
 done
 
-for story_name in "Dynamic Sizes" "Display Density" "Fallback Chain" "Shaping and Features" "Bidirectional Text" "Wrapping and Selection" "SpriteFont Compatibility" "Atlas Inspector" "Failure States"; do
+for story_name in "Dynamic Sizes" "Letter Spacing" "Display Density" "Fallback Chain" "Shaping and Features" "Bidirectional Text" "Wrapping and Selection" "SpriteFont Compatibility" "Atlas Inspector" "Failure States"; do
   story_actual="$stage_directory/$(tr ' ' '-' <<<"$story_name").json"
   dotnet run --project "$project" \
     --configuration Release \
@@ -107,7 +116,7 @@ for story_name in "Dynamic Sizes" "Display Density" "Fallback Chain" "Shaping an
   ' "$story_actual" >/dev/null
 done
 
-for story_name in "Selector Styles" "Storyboards and Triggers" "Compiled Data Binding"; do
+for story_name in "Selector Styles" "Template Systems" "Storyboards and Triggers" "Compiled Data Binding" "Flat Data Grid" "Hierarchical Data Grid"; do
   story_actual="$stage_directory/$(tr ' ' '-' <<<"$story_name").json"
   dotnet run --project "$project" \
     --configuration Release \
@@ -136,8 +145,8 @@ dotnet run --project "$project" \
 jq -e '(.themeIconDensity == 1) and (.themeIconAtlasCount == 1) and (.themeIconTextureBytes > 0) and (.themeIconMissingCount == 0)' \
   "$inventory_1x" >/dev/null
 
-jq -S 'del(.backend, .physicalViewportWidth, .physicalViewportHeight, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$baseline" > "$stable_baseline"
-jq -S 'del(.backend, .physicalViewportWidth, .physicalViewportHeight, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$actual" > "$stable_actual"
+jq -S 'del(.backend, .physicalViewportWidth, .physicalViewportHeight, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .svgBackendVersion, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$baseline" > "$stable_baseline"
+jq -S 'del(.backend, .physicalViewportWidth, .physicalViewportHeight, .logicalViewportWidth, .logicalViewportHeight, .startupMilliseconds, .steadyStateMeasuredFrames, .steadyStateAllocatedBytes, .steadyStateAllocatedBytesPerFrame, .fontXnbBytes, .spriteFontTextureBytes, .steadyStateTextureBytes, .svgBackendVersion, .dynamicGlyphPageCount, .dynamicGlyphCount, .dynamicGlyphBytes, .dynamicGlyphPendingUploads, .dynamicGlyphFailures, .dynamicGlyphLastFailure)' "$actual" > "$stable_actual"
 if ! cmp -s "$stable_baseline" "$stable_actual"; then
   printf 'Catalog metrics differ from the approved 2x baseline.\n' >&2
   diff -u "$stable_baseline" "$stable_actual" || true

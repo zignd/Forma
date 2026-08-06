@@ -88,7 +88,7 @@ internal sealed class MacLiveResizeAdapter : ILiveResizeAdapter
             const bool usesSdl3 = false;
 #endif
             var adapter = new MacLiveResizeAdapter(game, usesSdl3);
-            if (adapter._windowId != 0 && adapter._nativeWindow != IntPtr.Zero) return adapter;
+            if (adapter._windowId != 0) return adapter;
             adapter.Dispose();
             return null;
         }
@@ -176,6 +176,9 @@ internal sealed class MacLiveResizeAdapter : ILiveResizeAdapter
     {
         viewport = default;
         if (_disposed) return false;
+#if FORMA_CATALOG_FNA
+        SynchronizeGraphicsDevice();
+#endif
 
         int width;
         int height;

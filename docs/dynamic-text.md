@@ -123,7 +123,9 @@ then script and emoji faces. Unsupported input reaches glyph 0 (`.notdef`) after
 exhausted; it is not replaced with `?` and does not throw.
 
 Use `UIFontHinting.Light` for small grayscale UI text that needs vertical pixel alignment while
-preserving fractional horizontal advances and inter-glyph spacing.
+preserving fractional horizontal advances and inter-glyph spacing. Dynamic glyphs rasterize at a
+minimum 2x density and downsample linearly on 1x displays, avoiding low-resolution spacing artifacts
+without changing HarfBuzz layout metrics.
 
 ## Layout and Display Density
 

@@ -53,9 +53,61 @@ corresponding Godot license is distributed as `assets/theme-icons/LICENSE.Godot.
 
 ## Svg.Skia
 
-The build-only `Forma.IconPipeline` tool uses Svg.Skia 3.2.0 and its pinned SkiaSharp dependency to
-rasterize imported SVG sources into canonical PNG atlases. Svg.Skia is MIT licensed. Neither
-Svg.Skia nor SkiaSharp is a runtime dependency of Forma packages.
+The build-only `Forma.IconPipeline` tool and optional `Forma.Svg.MonoGame` / `Forma.Svg.FNA`
+companions use Svg.Skia 5.2.0 and SkiaSharp 4.148.0. The tool rasterizes imported sources into
+canonical PNG atlases; the companions provide bounded runtime SVG parsing and rasterization.
+Core Forma packages do not depend on either library.
+
+Source: https://github.com/wieslawsoltes/Svg.Skia
+
+Copyright (c) 2019 Wiesław Šoltés
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## SkiaSharp
+
+Svg.Skia and the Forma.Svg companions use SkiaSharp 4.148.0 as their rasterization runtime.
+
+Source: https://github.com/mono/SkiaSharp
+
+Copyright (c) 2015-2016 Xamarin, Inc.
+Portions copyright (c) 2017-present Microsoft Corporation.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## Clipper2
+
+Forma core packages include Clipper2 2.0.0 for deterministic polygon boolean operations and
+triangulation. Clipper2 is distributed under the Boost Software License 1.0. Its complete license
+is included in each core package at `licenses/geometry/Clipper2.LICENSE.txt`.
+
+Copyright (c) 2010-2025 Angus Johnson
 
 ## ok_color
 

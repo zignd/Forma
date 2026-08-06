@@ -41,7 +41,7 @@ ValidateBoundedEffects(graphicsDevice);
 using var imageBrushSource = ValidateImageBrush(graphicsDevice);
 ValidateFoundationalImages(graphicsDevice, imageBrushSource);
 ValidateAlpha8AndReset(graphicsDevice, face);
-ValidateDynamicTextTracking(graphicsDevice, face);
+ValidateDynamicTextTracking(graphicsDevice, face, deviceLifetimeResources);
 ValidateSvgRasterCache(graphicsDevice);
 ValidateSvgImageStretchModes(graphicsDevice, deviceLifetimeResources);
 Console.WriteLine(RunSvgPerformanceBenchmarks());
@@ -53,13 +53,13 @@ Console.WriteLine(RunPerformanceBenchmarks(graphicsDevice, warmDraw));
 ValidateIndependentDeviceOwnership(graphicsDevice, face);
 Console.WriteLine($"Dynamic render smoke passed on {graphicsDevice.Adapter.Description} ({graphicsDevice.GraphicsProfile}).");
 
-static void ValidateDynamicTextTracking(GraphicsDevice graphicsDevice, UIFontFace face)
+static void ValidateDynamicTextTracking(GraphicsDevice graphicsDevice, UIFontFace face, List<object> deviceLifetimeResources)
 {
     var font = new DynamicUIFont(face, 16, UIFontHinting.Light);
-    var natural1x = RenderTrackedText(graphicsDevice, font, 1, 0);
-    var tracked1x = RenderTrackedText(graphicsDevice, font, 1, .25f);
-    var natural2x = RenderTrackedText(graphicsDevice, font, 2, 0);
-    var tracked2x = RenderTrackedText(graphicsDevice, font, 2, .25f);
+    var natural1x = RenderTrackedText(graphicsDevice, font, 1, 0, deviceLifetimeResources);
+    var tracked1x = RenderTrackedText(graphicsDevice, font, 1, .25f, deviceLifetimeResources);
+    var natural2x = RenderTrackedText(graphicsDevice, font, 2, 0, deviceLifetimeResources);
+    var tracked2x = RenderTrackedText(graphicsDevice, font, 2, .25f, deviceLifetimeResources);
     var naturalBounds1x = GetInkBounds(natural1x.Pixels, natural1x.Width, natural1x.Height);
     var trackedBounds1x = GetInkBounds(tracked1x.Pixels, tracked1x.Width, tracked1x.Height);
     var naturalBounds2x = GetInkBounds(natural2x.Pixels, natural2x.Width, natural2x.Height);
@@ -71,13 +71,20 @@ static void ValidateDynamicTextTracking(GraphicsDevice graphicsDevice, UIFontFac
     Require(MathF.Abs(trackedBounds1x.Right - trackedBounds2x.Right / 2f) <= 1f, "Tracked text must retain its logical right edge across display scales.");
 }
 
-static (Color[] Pixels, int Width, int Height) RenderTrackedText(GraphicsDevice graphicsDevice, DynamicUIFont font, float displayScale, float letterSpacing)
+static (Color[] Pixels, int Width, int Height) RenderTrackedText(
+    GraphicsDevice graphicsDevice,
+    DynamicUIFont font,
+    float displayScale,
+    float letterSpacing,
+    List<object> deviceLifetimeResources)
 {
     var logicalSize = new Vector2(96, 32);
     var physicalWidth = (int)(logicalSize.X * displayScale);
     var physicalHeight = (int)(logicalSize.Y * displayScale);
-    using var target = new RenderTarget2D(graphicsDevice, physicalWidth, physicalHeight, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
-    using var context = new UIContext { DisplayScale = displayScale, ViewportSize = logicalSize };
+    var target = new RenderTarget2D(graphicsDevice, physicalWidth, physicalHeight, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+    var context = new UIContext { DisplayScale = displayScale, ViewportSize = logicalSize };
+    deviceLifetimeResources.Add(target);
+    deviceLifetimeResources.Add(context);
     context.Add(new RichTextLabel
     {
         UIFont = font,

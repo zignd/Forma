@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using Microsoft.Xna.Framework;
 
 namespace Forma.Xaml
@@ -108,6 +109,22 @@ namespace Forma.Xaml
             from.Bottom + (to.Bottom - from.Bottom) * progress);
     }
 
+    public static class CompiledTimeline
+    {
+        public static Timeline<T> Create<T>(string timelineTypeName, string targetName, XamlProperty<T> property)
+        {
+            if (timelineTypeName == "FloatTimeline" && typeof(T) == typeof(float))
+                return (Timeline<T>)(object)new FloatTimeline(targetName, (XamlProperty<float>)(object)property);
+            if (timelineTypeName == "ColorTimeline" && typeof(T) == typeof(Color))
+                return (Timeline<T>)(object)new ColorTimeline(targetName, (XamlProperty<Color>)(object)property);
+            if (timelineTypeName == "Vector2Timeline" && typeof(T) == typeof(Vector2))
+                return (Timeline<T>)(object)new Vector2Timeline(targetName, (XamlProperty<Vector2>)(object)property);
+            if (timelineTypeName == "ThicknessTimeline" && typeof(T) == typeof(Thickness))
+                return (Timeline<T>)(object)new ThicknessTimeline(targetName, (XamlProperty<Thickness>)(object)property);
+            throw new InvalidOperationException($"Timeline '{timelineTypeName}' cannot animate '{typeof(T).FullName}'.");
+        }
+    }
+
     public interface IActiveTimeline : IDisposable
     {
         void Apply(TimeSpan time);
@@ -179,11 +196,21 @@ namespace Forma.Xaml
         public StoryboardClock Begin(Control root)
         {
             var scope = NameScope.GetNameScope(root) ?? throw new InvalidOperationException("The storyboard root has no namescope.");
+            var clocks = _clocks.GetOrCreateValue(root);
+            foreach (var existing in clocks.ToArray()) existing.Stop();
             var clock = new StoryboardClock(this, scope, root);
-            _clocks.GetOrCreateValue(root).Add(clock);
-            XamlAttachment.RegisterDisposable(root, clock);
-            XamlAttachment.RegisterUpdateParticipant(root, clock);
-            return clock;
+            try
+            {
+                clocks.Add(clock);
+                XamlAttachment.RegisterActivationDisposable(root, clock);
+                XamlAttachment.RegisterUpdateParticipant(root, clock);
+                return clock;
+            }
+            catch
+            {
+                clock.Dispose();
+                throw;
+            }
         }
 
         public void Stop(Control root)
@@ -212,12 +239,20 @@ namespace Forma.Xaml
         {
             _storyboard = storyboard;
             _root = root;
-            foreach (var timeline in storyboard.Timelines)
+            try
             {
-                _timelines.Add(timeline.Activate(scope));
-                if (timeline.Duration > _duration) _duration = timeline.Duration;
+                foreach (var timeline in storyboard.Timelines)
+                {
+                    _timelines.Add(timeline.Activate(scope));
+                    if (timeline.Duration > _duration) _duration = timeline.Duration;
+                }
+                Apply(TimeSpan.Zero);
             }
-            Apply(TimeSpan.Zero);
+            catch
+            {
+                DisposeTimelines();
+                throw;
+            }
         }
 
         public bool IsRunning { get; private set; } = true;
@@ -252,14 +287,23 @@ namespace Forma.Xaml
         {
             if (_disposed) return;
             IsRunning = false;
-            DisposeTimelines();
+            ExceptionDispatchInfo failure = null;
+            try { DisposeTimelines(); }
+            catch (Exception exception) { failure = ExceptionDispatchInfo.Capture(exception); }
             _storyboard.Unregister(_root, this);
+            XamlAttachment.UnregisterActivation(_root, this, this);
+            failure?.Throw();
         }
 
         private void Complete()
         {
             IsRunning = false;
-            if (_storyboard.FillBehavior == FillBehavior.Stop) DisposeTimelines();
+            if (_storyboard.FillBehavior == FillBehavior.Stop)
+            {
+                Dispose();
+                return;
+            }
+            XamlAttachment.UnregisterActivation(_root, null, this);
         }
 
         private void Apply(TimeSpan time)
@@ -269,8 +313,14 @@ namespace Forma.Xaml
 
         private void DisposeTimelines()
         {
-            foreach (var timeline in _timelines) timeline.Dispose();
+            ExceptionDispatchInfo failure = null;
+            foreach (var timeline in _timelines)
+            {
+                try { timeline.Dispose(); }
+                catch (Exception exception) { failure ??= ExceptionDispatchInfo.Capture(exception); }
+            }
             _timelines.Clear();
+            failure?.Throw();
         }
 
         public void Dispose()
@@ -278,8 +328,12 @@ namespace Forma.Xaml
             if (_disposed) return;
             _disposed = true;
             IsRunning = false;
-            DisposeTimelines();
+            ExceptionDispatchInfo failure = null;
+            try { DisposeTimelines(); }
+            catch (Exception exception) { failure = ExceptionDispatchInfo.Capture(exception); }
             _storyboard.Unregister(_root, this);
+            XamlAttachment.UnregisterActivation(_root, this, this);
+            failure?.Throw();
         }
     }
 
@@ -290,93 +344,121 @@ namespace Forma.Xaml
         public static IDisposable AttachEvent<THandler>(Control root, Action<THandler> add, Action<THandler> remove, Func<Action, THandler> createHandler, Storyboard storyboard)
             where THandler : Delegate
         {
-            StoryboardClock clock = null;
-            var subscription = BindingSubscriptions.Event(add, remove, createHandler(() =>
+            return XamlAttachment.RegisterReactivatable(root, () =>
             {
-                clock?.Stop();
-                clock = storyboard.Begin(root);
-            }));
-            var lifetime = BindingSubscriptions.Combine(subscription, new ActionDisposable(() => clock?.Stop()));
-            XamlAttachment.RegisterDisposable(root, lifetime);
-            return lifetime;
+                StoryboardClock clock = null;
+                var subscription = BindingSubscriptions.Event(add, remove, createHandler(() =>
+                {
+                    clock?.Stop();
+                    clock = storyboard.Begin(root);
+                }));
+                return BindingSubscriptions.Combine(subscription, new ActionDisposable(() => clock?.Stop()));
+            });
         }
 
         public static IDisposable AttachProperty<TSource, TValue>(Control root, CompiledBindingPath<TSource, TValue> path, TSource source, TValue expected, Storyboard storyboard)
             where TSource : class
         {
-            StoryboardClock clock = null;
-            Action update = () =>
+            return XamlAttachment.RegisterReactivatable(root, () =>
             {
-                var current = path.Read(source);
-                var matches = current.HasValue && EqualityComparer<TValue>.Default.Equals(current.Value, expected);
-                if (matches && clock == null) clock = storyboard.Begin(root);
-                else if (!matches && clock != null) { clock.Stop(); clock = null; }
-            };
-            var subscription = path.Subscribe?.Invoke(source, update);
-            update();
-            var lifetime = BindingSubscriptions.Combine(subscription, new ActionDisposable(() => clock?.Stop()));
-            XamlAttachment.RegisterDisposable(root, lifetime);
-            return lifetime;
+                StoryboardClock clock = null;
+                Action update = () =>
+                {
+                    var current = path.Read(source);
+                    var matches = current.HasValue && EqualityComparer<TValue>.Default.Equals(current.Value, expected);
+                    if (matches && clock == null) clock = storyboard.Begin(root);
+                    else if (!matches && clock != null) { clock.Stop(); clock = null; }
+                };
+                var subscription = path.Subscribe?.Invoke(source, update);
+                try
+                {
+                    update();
+                    return BindingSubscriptions.Combine(subscription, new ActionDisposable(() => clock?.Stop()));
+                }
+                catch
+                {
+                    try { subscription?.Dispose(); }
+                    catch { }
+                    try { clock?.Stop(); }
+                    catch { }
+                    throw;
+                }
+            });
         }
 
         public static IDisposable AttachPseudoState(Control root, Control target, PseudoState state, Storyboard storyboard)
         {
-            StoryboardClock clock = null;
-            var hovered = false;
-            var focused = false;
-            Func<bool> matches = state switch
+            return XamlAttachment.RegisterReactivatable(root, () =>
             {
-                PseudoState.Hover => () => hovered,
-                PseudoState.Focus => () => focused,
-                PseudoState.Disabled => () => !target.Enabled,
-                PseudoState.Pressed when target is BaseButton button => () => button.IsVisuallyPressed,
-                PseudoState.Checked when target is BaseButton button => () => button.ButtonPressed,
-                PseudoState.Pressed or PseudoState.Checked => throw new InvalidOperationException($"Pseudo state '{state}' requires a BaseButton target."),
-                _ => throw new ArgumentOutOfRangeException(nameof(state)),
-            };
-            Action update = () =>
-            {
-                if (matches() && clock == null) clock = storyboard.Begin(root);
-                else if (!matches() && clock != null) { clock.Stop(); clock = null; }
-            };
-            EventHandler entered = (_, _) => { hovered = true; update(); };
-            EventHandler exited = (_, _) => { hovered = false; update(); };
-            EventHandler focusedHandler = (_, _) => { focused = true; update(); };
-            EventHandler unfocused = (_, _) => { focused = false; update(); };
-            EventHandler changed = (_, _) => update();
-            target.MouseEntered += entered;
-            target.MouseExited += exited;
-            target.FocusEntered += focusedHandler;
-            target.FocusExited += unfocused;
-            target.EnabledChanged += changed;
-            IDisposable buttonSubscription = null;
-            if (target is BaseButton targetButton)
-            {
-                Action<BaseButton, bool> toggled = (_, _) => update();
-                targetButton.ButtonDown += changed;
-                targetButton.ButtonUp += changed;
-                targetButton.Toggled += toggled;
-                buttonSubscription = new ActionDisposable(() =>
+                StoryboardClock clock = null;
+                var hovered = false;
+                var focused = false;
+                Func<bool> matches = state switch
                 {
-                    targetButton.ButtonDown -= changed;
-                    targetButton.ButtonUp -= changed;
-                    targetButton.Toggled -= toggled;
-                });
-            }
-            var lifetime = BindingSubscriptions.Combine(
-                new ActionDisposable(() =>
+                    PseudoState.Hover => () => hovered,
+                    PseudoState.Focus => () => focused,
+                    PseudoState.Disabled => () => !target.Enabled,
+                    PseudoState.Pressed when target is BaseButton button => () => button.IsVisuallyPressed,
+                    PseudoState.Checked when target is BaseButton button => () => button.ButtonPressed,
+                    PseudoState.Pressed or PseudoState.Checked => throw new InvalidOperationException($"Pseudo state '{state}' requires a BaseButton target."),
+                    _ => throw new ArgumentOutOfRangeException(nameof(state)),
+                };
+                Action update = () =>
+                {
+                    if (matches() && clock == null) clock = storyboard.Begin(root);
+                    else if (!matches() && clock != null) { clock.Stop(); clock = null; }
+                };
+                EventHandler entered = (_, _) => { hovered = true; update(); };
+                EventHandler exited = (_, _) => { hovered = false; update(); };
+                EventHandler focusedHandler = (_, _) => { focused = true; update(); };
+                EventHandler unfocused = (_, _) => { focused = false; update(); };
+                EventHandler changed = (_, _) => update();
+                target.MouseEntered += entered;
+                target.MouseExited += exited;
+                target.FocusEntered += focusedHandler;
+                target.FocusExited += unfocused;
+                target.EnabledChanged += changed;
+                IDisposable buttonSubscription = null;
+                if (target is BaseButton targetButton)
+                {
+                    Action<BaseButton, bool> toggled = (_, _) => update();
+                    targetButton.ButtonDown += changed;
+                    targetButton.ButtonUp += changed;
+                    targetButton.Toggled += toggled;
+                    buttonSubscription = new ActionDisposable(() =>
+                    {
+                        targetButton.ButtonDown -= changed;
+                        targetButton.ButtonUp -= changed;
+                        targetButton.Toggled -= toggled;
+                    });
+                }
+                var targetSubscription = new ActionDisposable(() =>
                 {
                     target.MouseEntered -= entered;
                     target.MouseExited -= exited;
                     target.FocusEntered -= focusedHandler;
                     target.FocusExited -= unfocused;
                     target.EnabledChanged -= changed;
-                }),
-                buttonSubscription,
-                new ActionDisposable(() => clock?.Stop()));
-            update();
-            XamlAttachment.RegisterDisposable(root, lifetime);
-            return lifetime;
+                });
+                try
+                {
+                    update();
+                    return BindingSubscriptions.Combine(
+                        targetSubscription,
+                        buttonSubscription,
+                        new ActionDisposable(() => clock?.Stop()));
+                }
+                catch
+                {
+                    try { buttonSubscription?.Dispose(); }
+                    catch { }
+                    try { targetSubscription.Dispose(); }
+                    catch { }
+                    try { clock?.Stop(); }
+                    catch { }
+                    throw;
+                }
+            });
         }
 
         private sealed class ActionDisposable : IDisposable
@@ -418,9 +500,8 @@ namespace Forma.Xaml
             Storyboard storyboard)
             where TSource : class
         {
-            var attachment = new CompiledPropertyStoryboardTrigger<TSource, TValue>(root, read, propertyName, expected, storyboard);
-            XamlAttachment.RegisterDisposable(root, attachment);
-            return attachment;
+            return XamlAttachment.RegisterReactivatable(root, () =>
+                new CompiledPropertyStoryboardTrigger<TSource, TValue>(root, read, propertyName, expected, storyboard));
         }
 
         public static IDisposable AttachStopEvent<TTarget, THandler>(
@@ -434,12 +515,10 @@ namespace Forma.Xaml
             where THandler : Delegate
         {
             if (target == null) throw new ArgumentNullException(nameof(target));
-            var subscription = BindingSubscriptions.Event(
+            return XamlAttachment.RegisterReactivatable(root, () => BindingSubscriptions.Event(
                 handler => add(target, handler),
                 handler => remove(target, handler),
-                createHandler(() => storyboard.Stop(root)));
-            XamlAttachment.RegisterDisposable(root, subscription);
-            return subscription;
+                createHandler(() => storyboard.Stop(root))));
         }
     }
 
@@ -462,8 +541,16 @@ namespace Forma.Xaml
             _propertyName = string.IsNullOrWhiteSpace(propertyName) ? throw new ArgumentException("A source property is required.", nameof(propertyName)) : propertyName;
             _expected = expected;
             _storyboard = storyboard ?? throw new ArgumentNullException(nameof(storyboard));
-            root.DataContextChanged += DataContextChanged;
-            AttachSource(root.DataContext as TSource);
+            try
+            {
+                root.DataContextChanged += DataContextChanged;
+                AttachSource(root.DataContext as TSource);
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
         }
 
         private void DataContextChanged(object sender, DataContextChangedEventArgs args) => AttachSource(args.CurrentValue as TSource);

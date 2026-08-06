@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 using System;
+using System.Runtime.ExceptionServices;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Forma.Xaml
 {
@@ -113,6 +115,20 @@ namespace Forma.Xaml
                 handler => ((OptionButton)target).ItemSelected += handler,
                 handler => ((OptionButton)target).ItemSelected -= handler,
                 (_, _) => update()));
+
+        public static readonly BindingTargetAdapter<int> ListBoxSelectedIndex = new BindingTargetAdapter<int>(
+            new XamlProperty<int>(nameof(ListBox.SelectedIndex), target => ((ListBox)target).SelectedIndex, (target, value) => ((ListBox)target).SelectedIndex = value),
+            (target, update) => BindingSubscriptions.Event<EventHandler<ListBoxSelectionChangedEventArgs>>(
+                handler => ((ListBox)target).SelectionChanged += handler,
+                handler => ((ListBox)target).SelectionChanged -= handler,
+                (_, _) => update()));
+
+        public static readonly BindingTargetAdapter<object> ListBoxSelectedItem = new BindingTargetAdapter<object>(
+            new XamlProperty<object>(nameof(ListBox.SelectedItem), target => ((ListBox)target).SelectedItem, (target, value) => ((ListBox)target).SelectedItem = value),
+            (target, update) => BindingSubscriptions.Event<EventHandler<ListBoxSelectionChangedEventArgs>>(
+                handler => ((ListBox)target).SelectionChanged += handler,
+                handler => ((ListBox)target).SelectionChanged -= handler,
+                (_, _) => update()));
     }
 
     public static class CompiledBinding
@@ -134,6 +150,65 @@ namespace Forma.Xaml
                     : null);
             var property = new XamlProperty<TValue>(sourcePropertyName, getTarget, setTarget);
             return Attach(root, target, path, new BindingTargetAdapter<TValue>(property), value => value);
+        }
+
+        public static IDisposable AttachOneWay<TSource, TValue>(
+            Control root,
+            object target,
+            Func<Control, TSource> resolveSource,
+            Func<TSource, TValue> read,
+            string sourcePropertyName,
+            Func<object, TValue> getTarget,
+            Action<object, TValue> setTarget)
+            where TSource : class
+        {
+            if (read == null) throw new ArgumentNullException(nameof(read));
+            var path = new CompiledBindingPath<TSource, TValue>(
+                source => BindingValue<TValue>.FromValue(read(source)),
+                (source, update) => source is INotifyPropertyChanged notifications
+                    ? BindingSubscriptions.PropertyChanged(notifications, sourcePropertyName, update)
+                    : null);
+            var property = new XamlProperty<TValue>(sourcePropertyName, getTarget, setTarget);
+            return Attach(root, target, resolveSource, path, new BindingTargetAdapter<TValue>(property), value => value);
+        }
+
+        public static IDisposable AttachOneTime<TSource, TValue>(
+            Control root,
+            object target,
+            Func<TSource, TValue> read,
+            string sourcePropertyName,
+            Func<object, TValue> getTarget,
+            Action<object, TValue> setTarget)
+            where TSource : class =>
+            AttachOneTime(root, target, _ => root.DataContext as TSource, read, sourcePropertyName, getTarget, setTarget, false);
+
+        public static IDisposable AttachOneTime<TSource, TValue>(
+            Control root,
+            object target,
+            Func<Control, TSource> resolveSource,
+            Func<TSource, TValue> read,
+            string sourcePropertyName,
+            Func<object, TValue> getTarget,
+            Action<object, TValue> setTarget)
+            where TSource : class =>
+            AttachOneTime(root, target, resolveSource, read, sourcePropertyName, getTarget, setTarget, true);
+
+        private static IDisposable AttachOneTime<TSource, TValue>(
+            Control root,
+            object target,
+            Func<Control, TSource> resolveSource,
+            Func<TSource, TValue> read,
+            string sourcePropertyName,
+            Func<object, TValue> getTarget,
+            Action<object, TValue> setTarget,
+            bool observeAncestry)
+            where TSource : class
+        {
+            if (read == null) throw new ArgumentNullException(nameof(read));
+            var path = new CompiledBindingPath<TSource, TValue>(source => BindingValue<TValue>.FromValue(read(source)));
+            var property = new XamlProperty<TValue>(sourcePropertyName, getTarget, setTarget);
+            return Attach(root, target, resolveSource, path, new BindingTargetAdapter<TValue>(property), value => value, null,
+                new BindingOptions<TValue> { Mode = BindingMode.OneTime }, observeAncestry);
         }
 
         public static IDisposable AttachTwoWay<TSource, TValue>(
@@ -161,6 +236,32 @@ namespace Forma.Xaml
             });
         }
 
+        public static IDisposable AttachTwoWay<TSource, TValue>(
+            Control root,
+            object target,
+            Func<Control, TSource> resolveSource,
+            Func<TSource, TValue> read,
+            Action<TSource, TValue> write,
+            string sourcePropertyName,
+            BindingTargetAdapter<TValue> targetAdapter,
+            UpdateSourceTrigger updateSourceTrigger = UpdateSourceTrigger.Default)
+            where TSource : class
+        {
+            if (read == null) throw new ArgumentNullException(nameof(read));
+            if (write == null) throw new ArgumentNullException(nameof(write));
+            var path = new CompiledBindingPath<TSource, TValue>(
+                source => BindingValue<TValue>.FromValue(read(source)),
+                (source, update) => source is INotifyPropertyChanged notifications
+                    ? BindingSubscriptions.PropertyChanged(notifications, sourcePropertyName, update)
+                    : null,
+                write);
+            return Attach(root, target, resolveSource, path, targetAdapter, value => value, value => value, new BindingOptions<TValue>
+            {
+                Mode = BindingMode.TwoWay,
+                UpdateSourceTrigger = updateSourceTrigger,
+            });
+        }
+
         public static IDisposable Attach<TSource, TSourceValue, TTargetValue>(
             Control root,
             object target,
@@ -171,17 +272,87 @@ namespace Forma.Xaml
             BindingOptions<TTargetValue> options = null)
             where TSource : class
         {
+            return Attach(root, target, _ => root.DataContext as TSource, path, targetAdapter, convert, convertBack, options, false);
+        }
+
+        public static IDisposable Attach<TSource, TSourceValue, TTargetValue>(
+            Control root,
+            object target,
+            Func<Control, TSource> resolveSource,
+            CompiledBindingPath<TSource, TSourceValue> path,
+            BindingTargetAdapter<TTargetValue> targetAdapter,
+            Func<TSourceValue, TTargetValue> convert,
+            Func<TTargetValue, TSourceValue> convertBack = null,
+            BindingOptions<TTargetValue> options = null)
+            where TSource : class
+        {
+            return Attach(root, target, resolveSource, path, targetAdapter, convert, convertBack, options, true);
+        }
+
+        private static IDisposable Attach<TSource, TSourceValue, TTargetValue>(
+            Control root,
+            object target,
+            Func<Control, TSource> resolveSource,
+            CompiledBindingPath<TSource, TSourceValue> path,
+            BindingTargetAdapter<TTargetValue> targetAdapter,
+            Func<TSourceValue, TTargetValue> convert,
+            Func<TTargetValue, TSourceValue> convertBack,
+            BindingOptions<TTargetValue> options,
+            bool observeAncestry)
+            where TSource : class
+        {
             if (root == null) throw new ArgumentNullException(nameof(root));
-            var expression = new CompiledBindingExpression<TSource, TSourceValue, TTargetValue>(
-                root,
-                target ?? throw new ArgumentNullException(nameof(target)),
-                path ?? throw new ArgumentNullException(nameof(path)),
-                targetAdapter ?? throw new ArgumentNullException(nameof(targetAdapter)),
-                convert ?? throw new ArgumentNullException(nameof(convert)),
-                convertBack,
-                options ?? new BindingOptions<TTargetValue>());
-            XamlAttachment.RegisterDisposable(root, expression);
-            return expression;
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (path == null) throw new ArgumentNullException(nameof(path));
+            if (resolveSource == null) throw new ArgumentNullException(nameof(resolveSource));
+            if (targetAdapter == null) throw new ArgumentNullException(nameof(targetAdapter));
+            if (convert == null) throw new ArgumentNullException(nameof(convert));
+            options ??= new BindingOptions<TTargetValue>();
+            return XamlAttachment.RegisterReactivatable(root, () =>
+                new CompiledBindingExpression<TSource, TSourceValue, TTargetValue>(
+                    root,
+                    target,
+                    resolveSource,
+                    path,
+                    targetAdapter,
+                    convert,
+                    convertBack,
+                    options,
+                    observeAncestry));
+        }
+    }
+
+    public static class CompiledBindingSource
+    {
+        private static readonly ConditionalWeakTable<Control, TemplatedControl> TemplatedParents = new ConditionalWeakTable<Control, TemplatedControl>();
+
+        internal static void SetTemplatedParent(Control root, TemplatedControl templatedParent)
+        {
+            TemplatedParents.Remove(root);
+            if (templatedParent != null) TemplatedParents.Add(root, templatedParent);
+        }
+
+        internal static void ClearTemplatedParent(Control root) => TemplatedParents.Remove(root);
+
+        public static TSource Self<TSource>(Control target) where TSource : class =>
+            target as TSource;
+
+        public static TSource TemplatedParent<TSource>(Control target) where TSource : class
+        {
+            for (var current = target; current != null; current = current.VisualParent)
+                if (TemplatedParents.TryGetValue(current, out var templatedParent) && templatedParent is TSource source) return source;
+            return null;
+        }
+
+        public static TSource FindAncestor<TSource>(Control target, int ancestorLevel = 1) where TSource : class
+        {
+            if (ancestorLevel < 1) throw new ArgumentOutOfRangeException(nameof(ancestorLevel));
+            for (var ancestor = target?.VisualParent; ancestor != null; ancestor = ancestor.VisualParent)
+            {
+                if (ancestor is not TSource source) continue;
+                if (--ancestorLevel == 0) return source;
+            }
+            return null;
         }
     }
 
@@ -189,42 +360,64 @@ namespace Forma.Xaml
         where TSource : class
     {
         private readonly Control _root;
+        private readonly Control _sourceAnchor;
         private readonly object _target;
+        private readonly Func<Control, TSource> _resolveSource;
         private readonly CompiledBindingPath<TSource, TSourceValue> _path;
         private readonly BindingTargetAdapter<TTargetValue> _targetAdapter;
         private readonly Func<TSourceValue, TTargetValue> _convert;
         private readonly Func<TTargetValue, TSourceValue> _convertBack;
         private readonly BindingOptions<TTargetValue> _options;
-        private readonly XamlValueContribution<TTargetValue> _targetValue;
+        private readonly bool _observeAncestry;
+        private XamlValueContribution<TTargetValue> _targetValue;
         private IDisposable _sourceSubscription;
         private IDisposable _targetSubscription;
         private IDisposable _commitSubscription;
         private TSource _source;
         private bool _updatingTarget;
         private bool _pendingTargetUpdate;
+        private bool _ancestrySubscribed;
         private bool _disposed;
 
         public CompiledBindingExpression(
             Control root,
             object target,
+            Func<Control, TSource> resolveSource,
             CompiledBindingPath<TSource, TSourceValue> path,
             BindingTargetAdapter<TTargetValue> targetAdapter,
             Func<TSourceValue, TTargetValue> convert,
             Func<TTargetValue, TSourceValue> convertBack,
-            BindingOptions<TTargetValue> options)
+            BindingOptions<TTargetValue> options,
+            bool observeAncestry)
         {
             _root = root;
             _target = target;
+            _sourceAnchor = observeAncestry && target is Control targetControl ? targetControl : root;
+            _resolveSource = resolveSource;
             _path = path;
             _targetAdapter = targetAdapter;
             _convert = convert;
             _convertBack = convertBack;
             _options = options;
+            _observeAncestry = observeAncestry;
             Validate();
-            _targetValue = XamlValues.Set(target, targetAdapter.Property, XamlValueLayer.Local, targetAdapter.Property.GetValue(target));
-            if (_options.Mode != BindingMode.OneTime) _root.DataContextChanged += DataContextChanged;
-            BindSource();
-            BindTarget();
+            try
+            {
+                _targetValue = XamlValues.Set(target, targetAdapter.Property, XamlValueLayer.Local, targetAdapter.Property.GetValue(target));
+                if (_options.Mode != BindingMode.OneTime) _root.DataContextChanged += DataContextChanged;
+                if (_observeAncestry)
+                {
+                    _sourceAnchor.ParentChanged += ParentChanged;
+                    _ancestrySubscribed = true;
+                }
+                BindSource();
+                if (!_disposed) BindTarget();
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
         }
 
         private void Validate()
@@ -242,16 +435,37 @@ namespace Forma.Xaml
             ? _targetAdapter.DefaultTrigger
             : _options.UpdateSourceTrigger;
 
-        private void DataContextChanged(object sender, DataContextChangedEventArgs args) => BindSource();
+        private void DataContextChanged(object sender, DataContextChangedEventArgs args)
+        {
+            if (!_disposed) BindSource();
+        }
+
+        private void ParentChanged(object sender, ControlParentChangedEventArgs args)
+        {
+            if (!_disposed) BindSource();
+        }
 
         private void BindSource()
         {
+            if (_disposed) return;
             _sourceSubscription?.Dispose();
             _sourceSubscription = null;
-            _source = _root.DataContext as TSource;
+            var source = _resolveSource(_sourceAnchor);
+            if (!ReferenceEquals(_source, source)) _pendingTargetUpdate = false;
+            _source = source;
             UpdateTarget();
+            if (_disposed) return;
+            if (_options.Mode == BindingMode.OneTime && _source != null && _ancestrySubscribed)
+            {
+                _sourceAnchor.ParentChanged -= ParentChanged;
+                _ancestrySubscribed = false;
+            }
             if (_options.Mode != BindingMode.OneTime && _source != null && _path.Subscribe != null)
-                _sourceSubscription = _path.Subscribe(_source, UpdateTarget);
+            {
+                var subscription = _path.Subscribe(_source, UpdateTarget);
+                if (_disposed) subscription?.Dispose();
+                else _sourceSubscription = subscription;
+            }
         }
 
         private void BindTarget()
@@ -264,6 +478,7 @@ namespace Forma.Xaml
 
         private void UpdateTarget()
         {
+            if (_disposed) return;
             TTargetValue value;
             try
             {
@@ -299,7 +514,7 @@ namespace Forma.Xaml
 
         private void TargetChanged()
         {
-            if (_updatingTarget || _source == null) return;
+            if (_disposed || _updatingTarget || _source == null) return;
             if (EffectiveTrigger == UpdateSourceTrigger.LostFocus)
             {
                 _pendingTargetUpdate = true;
@@ -310,14 +525,14 @@ namespace Forma.Xaml
 
         private void CommitPendingTarget()
         {
-            if (!_pendingTargetUpdate) return;
+            if (_disposed || !_pendingTargetUpdate) return;
             _pendingTargetUpdate = false;
             WriteSource();
         }
 
         private void WriteSource()
         {
-            if (_source == null) return;
+            if (_disposed || _source == null) return;
             var value = _targetAdapter.Property.GetValue(_target);
             _path.Write(_source, _convertBack(value));
         }
@@ -326,11 +541,26 @@ namespace Forma.Xaml
         {
             if (_disposed) return;
             _disposed = true;
+            ExceptionDispatchInfo failure = null;
             if (_options.Mode != BindingMode.OneTime) _root.DataContextChanged -= DataContextChanged;
-            _sourceSubscription?.Dispose();
-            _targetSubscription?.Dispose();
-            _commitSubscription?.Dispose();
-            _targetValue.Dispose();
+            if (_ancestrySubscribed)
+            {
+                _sourceAnchor.ParentChanged -= ParentChanged;
+                _ancestrySubscribed = false;
+            }
+            try { _sourceSubscription?.Dispose(); }
+            catch (Exception exception) { failure ??= ExceptionDispatchInfo.Capture(exception); }
+            try { _targetSubscription?.Dispose(); }
+            catch (Exception exception) { failure ??= ExceptionDispatchInfo.Capture(exception); }
+            try { _commitSubscription?.Dispose(); }
+            catch (Exception exception) { failure ??= ExceptionDispatchInfo.Capture(exception); }
+            try { _targetValue?.Dispose(); }
+            catch (Exception exception) { failure ??= ExceptionDispatchInfo.Capture(exception); }
+            _sourceSubscription = null;
+            _targetSubscription = null;
+            _commitSubscription = null;
+            _targetValue = null;
+            failure?.Throw();
         }
     }
 
@@ -351,7 +581,13 @@ namespace Forma.Xaml
 
         public static IDisposable Event<THandler>(Action<THandler> add, Action<THandler> remove, THandler handler) where THandler : Delegate
         {
-            add(handler);
+            try { add(handler); }
+            catch
+            {
+                try { remove(handler); }
+                catch { }
+                throw;
+            }
             return new ActionDisposable(() => remove(handler));
         }
 
@@ -363,7 +599,13 @@ namespace Forma.Xaml
             {
                 var subscriptions = _subscriptions;
                 _subscriptions = Array.Empty<IDisposable>();
-                for (var index = subscriptions.Length - 1; index >= 0; index--) subscriptions[index]?.Dispose();
+                ExceptionDispatchInfo failure = null;
+                for (var index = subscriptions.Length - 1; index >= 0; index--)
+                {
+                    try { subscriptions[index]?.Dispose(); }
+                    catch (Exception exception) { failure ??= ExceptionDispatchInfo.Capture(exception); }
+                }
+                failure?.Throw();
             }
         }
 

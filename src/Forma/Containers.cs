@@ -13,7 +13,7 @@ namespace Forma
     public class Container : Control
     {
         /// <summary>Sizes and positions a child within a rectangle honoring its size flags, matching Godot's Container::fit_child_in_rect. A non-Fill axis sizes the child to its own minimum and aligns it within the span; horizontal (X) alignment flips under RTL, vertical (Y) never does, matching Godot exactly. This port has no desired-size/maximum-size layer, so a non-Fill axis always resolves to the child's plain minimum size.</summary>
-        protected static void FitChildInRect(Control child, Vector2 rectPosition, Vector2 rectSize, bool rtl)
+        protected internal static void FitChildInRect(Control child, Vector2 rectPosition, Vector2 rectSize, bool rtl)
         {
             var min = child.GetMinimumSize();
             var position = rectPosition;
@@ -64,7 +64,7 @@ namespace Forma
         {
             var size = CustomMinimumSize;
             var count = 0;
-            foreach (var child in Children)
+            foreach (var child in VisualChildren)
             {
                 if (!child.Visible) continue;
                 var childSize = child.GetMinimumSize() + new Vector2(child.Margins.Horizontal, child.Margins.Vertical);
@@ -82,7 +82,7 @@ namespace Forma
         protected override void ArrangeChildren()
         {
             var children = new List<Control>();
-            foreach (var child in Children) if (child.Visible) children.Add(child);
+            foreach (var child in VisualChildren) if (child.Visible) children.Add(child);
             var reverseOrder = ReverseSort ^ (Orientation == Orientation.Horizontal && IsLayoutRtl());
             if (reverseOrder) children.Reverse();
             var count = children.Count;
@@ -197,7 +197,7 @@ namespace Forma
         public override Vector2 GetMinimumSize()
         {
             var size = CustomMinimumSize;
-            foreach (var child in Children) if (child.Visible) size = Vector2.Max(size, child.GetMinimumSize() + new Vector2(ThemeOverrides.Horizontal, ThemeOverrides.Vertical));
+            foreach (var child in VisualChildren) if (child.Visible) size = Vector2.Max(size, child.GetMinimumSize() + new Vector2(ThemeOverrides.Horizontal, ThemeOverrides.Vertical));
             return size;
         }
         protected override void ArrangeChildren()
@@ -205,7 +205,7 @@ namespace Forma
             var rtl = IsLayoutRtl();
             var rectPosition = new Vector2(ThemeOverrides.Left, ThemeOverrides.Top);
             var rectSize = Vector2.Max(Vector2.Zero, Size - new Vector2(ThemeOverrides.Horizontal, ThemeOverrides.Vertical));
-            foreach (var child in Children)
+            foreach (var child in VisualChildren)
                 FitChildInRect(child, rectPosition, rectSize, rtl);
         }
     }

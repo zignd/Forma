@@ -532,8 +532,12 @@ namespace Forma
     }
 
     /// <summary>Hierarchical, column-oriented selection control modeled after Godot's Tree.</summary>
-    public sealed class Tree : Control
+    [TemplatePart(TreePresenterPartName, typeof(Container))]
+    public sealed class Tree : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Tree;
+        public const string TreePresenterPartName = "PART_TreePresenter";
+        private TreePresenter _treePresenter;
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private sealed class TreeRangeEditorLineEdit : LineEdit
         {
@@ -543,6 +547,19 @@ namespace Forma
                 if (key == Keys.Escape) { CancelRequested?.Invoke(); return; }
                 base.KeyPressed(key);
             }
+        }
+
+        protected override void OnTemplateApplied()
+        {
+            var presenter = GetTemplateChild(TreePresenterPartName) as TreePresenter;
+            if (!ReferenceEquals(_treePresenter, presenter)) _treePresenter?.Deactivate();
+            _treePresenter = presenter;
+            if (presenter != null)
+            {
+                presenter.Owner = this;
+                presenter.Activate();
+            }
+            base.OnTemplateApplied();
         }
         private sealed class TreeStringEditorTextEdit : TextEdit
         {
@@ -1600,7 +1617,7 @@ namespace Forma
             base.ArrangeChildren();
             SynchronizeScrollBars();
         }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawTreeContent(UIRenderContext context)
         {
             SynchronizeScrollBars();
             context.Fill(Bounds, context.Theme.BackgroundColor); context.Border(Bounds, context.Theme.PanelBorderColor);
@@ -1748,7 +1765,6 @@ namespace Forma
             }
             finally { context.PopClip(); }
             DrawScrollHints(context);
-            base.Draw(context);
         }
         private int RowOriginY => Bounds.Y + 1 + (ColumnTitlesVisible ? (int)ItemHeight : 0);
         private int VerticalScrollBarWidth => _verticalScrollBar.Visible ? Math.Max(1, (int)MathF.Ceiling(_verticalScrollBar.GetMinimumSize().X)) : 0;

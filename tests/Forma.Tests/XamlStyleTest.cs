@@ -36,6 +36,27 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void Resources_FollowLogicalOwnerThroughVisualProjection()
+        {
+            using var context = new UIContext();
+            var root = new Control();
+            var owner = new Control();
+            var host = new Control();
+            var child = new Control { TooltipText = "base" };
+            owner.Resources["accent"] = "owner";
+            owner.AddChild(child);
+            root.AddChild(owner);
+            root.AddChild(host);
+            DynamicResource.Attach(root, child, TooltipProperty, "accent");
+            context.Add(root);
+
+            host.ProjectVisualChild(child);
+            Assert.That(child.TooltipText, Is.EqualTo("owner"));
+            owner.Resources["accent"] = "changed";
+            Assert.That(child.TooltipText, Is.EqualTo("changed"));
+        }
+
+        [Test]
         public void Styles_ResolveSpecificityOrderAndLocalPrecedence()
         {
             var button = new Button { Name = "Action", TooltipText = "base" };
@@ -76,10 +97,201 @@ namespace Forma.Tests
         }
 
         [Test]
-        public void Selectors_RejectCombinatorsAndUnknownPseudoStates()
+        public void Styles_TrackTemplateVisualChildren()
         {
-            Assert.Throws<FormatException>(() => StyleSelector.Parse("Panel Button"));
-            Assert.Throws<FormatException>(() => StyleSelector.Parse("Button:unknown"));
+            var control = new TemplateStyleProbe();
+            StyleEngine.Attach(control, new[] { CreateStyle("TemplateStyleProbe >> Button", "template") });
+            var part = new Button { TooltipText = "base" };
+
+            control.Template = new ControlTemplate(typeof(TemplateStyleProbe), _ => part);
+            Assert.That(part.TooltipText, Is.EqualTo("template"));
+
+            control.Template = null;
+            Assert.That(part.TooltipText, Is.EqualTo("base"));
+        }
+
+        [Test]
+        public void Selectors_DoNotCrossTemplateBoundariesWithoutTemplateCombinator()
+        {
+            var control = new TemplateStyleProbe();
+            using var attachment = StyleEngine.Attach(control, new[] { CreateStyle("Button", "unexpected") });
+            var part = new Button { TooltipText = "base" };
+
+            control.Template = new ControlTemplate(typeof(TemplateStyleProbe), _ => part);
+
+            Assert.That(part.TooltipText, Is.EqualTo("base"));
+        }
+
+        [Test]
+        public void Selectors_RejectMalformedCombinators()
+        {
+            Assert.Throws<FormatException>(() => StyleSelector.Parse("Panel > > Button"));
+        }
+
+        [Test]
+        public void Selectors_InvalidateDescendantsWhenAncestorTermsChange()
+        {
+            var root = new Control();
+            var wrapper = new Control();
+            var button = new Button { TooltipText = "base" };
+            root.AddChild(wrapper);
+            wrapper.AddChild(button);
+            using var attachment = StyleEngine.Attach(root, new[] { CreateStyle("Control.scope Button", "matched") });
+
+            Assert.That(button.TooltipText, Is.EqualTo("base"));
+            root.Classes.Add("scope");
+            Assert.That(button.TooltipText, Is.EqualTo("matched"));
+            root.Classes.Remove("scope");
+            Assert.That(button.TooltipText, Is.EqualTo("base"));
+        }
+
+        [Test]
+        public void Selectors_FilterUnrelatedAncestorDependencies()
+        {
+            var root = new Control();
+            var button = new Button { TooltipText = "base" };
+            var probe = new CountingSelectorProbe();
+            root.AddChild(button);
+            root.AddChild(probe);
+            using var attachment = StyleEngine.Attach(root, new[]
+            {
+                CreateStyle("Control.scope Button", "matched"),
+                CreateStyle("Control.other CountingSelectorProbe:watched", "unrelated"),
+            });
+            probe.PseudoStateQueryCount = 0;
+
+            root.Classes.Add("scope");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(button.TooltipText, Is.EqualTo("matched"));
+                Assert.That(probe.PseudoStateQueryCount, Is.Zero);
+            });
+        }
+
+        [Test]
+        public void Selectors_CrossOneControlTemplateBoundaryPerTemplateCombinator()
+        {
+            var outer = new OuterTemplateProbe();
+            var inner = new InnerTemplateProbe();
+            var part = new Border { TooltipText = "base" };
+            using var attachment = StyleEngine.Attach(outer, new[]
+            {
+                CreateStyle("OuterTemplateProbe >> InnerTemplateProbe >> Border", "nested"),
+            });
+
+            outer.Template = new ControlTemplate(typeof(OuterTemplateProbe), _ => inner);
+            inner.Template = new ControlTemplate(typeof(InnerTemplateProbe), _ => part);
+
+            Assert.That(part.TooltipText, Is.EqualTo("nested"));
+        }
+
+        [Test]
+        public void SelectorListsUseTheMostSpecificMatchingArm()
+        {
+            var button = new Button { Name = "Action", TooltipText = "base" };
+            button.Classes.Add("primary");
+            var listStyle = CreateStyle("Button, #Action", "list");
+            var classStyle = CreateStyle("Button.primary", "class");
+            using var attachment = StyleEngine.Attach(button, new[] { listStyle, classStyle });
+
+            Assert.That(button.TooltipText, Is.EqualTo("list"));
+            button.Name = "Other";
+            Assert.That(button.TooltipText, Is.EqualTo("class"));
+        }
+
+        [Test]
+        public void Selectors_UseExtensiblePseudoStateProvider()
+        {
+            var control = new SelectorStateProbe { TooltipText = "base" };
+            using var attachment = StyleEngine.Attach(control, new[] { CreateStyle("SelectorStateProbe:selected", "selected") });
+
+            Assert.That(control.TooltipText, Is.EqualTo("base"));
+            control.SetSelected(true);
+            Assert.That(control.TooltipText, Is.EqualTo("selected"));
+            control.SetSelected(false);
+            Assert.That(control.TooltipText, Is.EqualTo("base"));
+        }
+
+        [Test]
+        public void Selectors_TrackEffectiveDisabledAndFocusWithinStates()
+        {
+            using var context = new UIContext();
+            var root = new Control { Name = "Root", TooltipText = "base" };
+            var button = new Button { FocusMode = FocusMode.All, TooltipText = "base" };
+            root.AddChild(button);
+            using var attachment = StyleEngine.Attach(root, new[]
+            {
+                CreateStyle("#Root:focus-within", "focused"),
+                CreateStyle("Button:disabled", "disabled"),
+            });
+            context.Add(root);
+
+            context.SetFocus(button);
+            Assert.That(root.TooltipText, Is.EqualTo("focused"));
+            root.Enabled = false;
+            Assert.That(button.TooltipText, Is.EqualTo("disabled"));
+            root.Enabled = true;
+            Assert.That(button.TooltipText, Is.EqualTo("base"));
+            context.SetFocus(null);
+            Assert.That(root.TooltipText, Is.EqualTo("base"));
+        }
+
+        [Test]
+        public void Styles_TrackTypedAdaptiveConditionsFromContextEvents()
+        {
+            using var context = new UIContext
+            {
+                ViewportSize = new Vector2(900, 600),
+                DisplayScale = 1,
+                ThemeVariant = ThemeVariant.Light,
+                InputModality = InputModality.Pointer,
+            };
+            var control = new Button { TooltipText = "base" };
+            var style = CreateStyle("Button", "adaptive");
+            style.Condition = new AdaptiveCondition
+            {
+                MaxViewportWidth = 720,
+                DisplayScale = 2,
+                ThemeVariant = ThemeVariant.Dark,
+                InputModality = InputModality.Touch,
+            };
+            using var attachment = StyleEngine.Attach(control, new[] { style });
+            context.Add(control);
+
+            Assert.That(control.TooltipText, Is.EqualTo("base"));
+            context.ViewportSize = new Vector2(720, 600);
+            context.DisplayScale = 2;
+            context.ThemeVariant = ThemeVariant.Dark;
+            context.InputModality = InputModality.Touch;
+            Assert.That(control.TooltipText, Is.EqualTo("adaptive"));
+            context.ViewportSize = new Vector2(721, 600);
+            Assert.That(control.TooltipText, Is.EqualTo("base"));
+        }
+
+        [Test]
+        public void Selectors_MatchDirectVisualChildrenAndCompoundNegation()
+        {
+            var root = new Control();
+            root.Classes.Add("scope");
+            var direct = new Button { TooltipText = "base" };
+            var excluded = new Button { TooltipText = "base" };
+            excluded.Classes.Add("overflow");
+            var wrapper = new Control();
+            var nested = new Button { TooltipText = "base" };
+            root.AddChild(direct);
+            root.AddChild(excluded);
+            root.AddChild(wrapper);
+            wrapper.AddChild(nested);
+
+            using var attachment = StyleEngine.Attach(root, new[] { CreateStyle("Control.scope > Button:not(.overflow)", "matched") });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(direct.TooltipText, Is.EqualTo("matched"));
+                Assert.That(excluded.TooltipText, Is.EqualTo("base"));
+                Assert.That(nested.TooltipText, Is.EqualTo("base"));
+            });
         }
 
         private static Style CreateStyle(string selector, string value)
@@ -87,6 +299,23 @@ namespace Forma.Tests
             var style = new Style(selector);
             style.Setters.Add(new StyleSetter<string>(TooltipProperty, value));
             return style;
+        }
+
+        private sealed class TemplateStyleProbe : TemplatedControl { }
+        private sealed class OuterTemplateProbe : TemplatedControl { }
+        private sealed class InnerTemplateProbe : TemplatedControl { }
+        private sealed class CountingSelectorProbe : Control
+        {
+            public int PseudoStateQueryCount { get; set; }
+            public override bool IsPseudoStateActive(string state)
+            {
+                PseudoStateQueryCount++;
+                return base.IsPseudoStateActive(state);
+            }
+        }
+        private sealed class SelectorStateProbe : Control
+        {
+            public void SetSelected(bool selected) => SetPseudoState("selected", selected);
         }
     }
 }

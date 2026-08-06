@@ -2,8 +2,16 @@
 
 ## Status and Scope
 
-This document defines the Forma XAML v1 source language. It is the contract used by the runtime,
-compiler, MSBuild integration, command-line validator, language server, tests, and samples.
+This document defines the Forma XAML source language for the template-first breaking release. It is
+the contract used by the runtime, compiler, MSBuild integration, command-line validator, language
+server, tests, and samples. It supersedes the earlier v1 exclusions for templates, relative
+sources, selector combinators, items controls, and virtualization.
+
+Contracted syntax is not evidence that a rollout phase is complete. Implementation status and
+canonical fixture delivery are tracked in `plans/xaml-templates-items-and-virtualization-plan.md`;
+the runtime, compiler, tooling, tests, Catalog, and Signal Run must land a capability together
+before release. Unsupported contracted syntax is a diagnostic during development, never a runtime
+reflection fallback.
 
 Forma XAML is a Forma-native declarative language built on XML and selected XAML 2006 concepts. It
 does not promise source compatibility with WPF, Avalonia, MAUI, UWP, WinUI, or any other XAML
@@ -63,6 +71,12 @@ MSBuild targets and compiler tools:
 Replace both `.MonoGame` suffixes with `.FNA` for FNA. Do not mix peers. The package imports the
 compiler automatically and includes every project `.xaml` file as `@(FormaXaml)`.
 
+Debug hosts that use live XAML replacement also reference the matching
+`Forma.Xaml.HotReload.MonoGame` or `Forma.Xaml.HotReload.FNA` package and set
+`FormaXamlHotReload=true`. Do not add that package to core-only Release, trimmed, or NativeAOT
+profiles. `Forma.DynamicText` is independently optional; templates, selectors, items, `DataGrid`,
+virtualization, and `SpriteFontAdapter` text require only the core peer.
+
 MSBuild properties:
 
 - `FormaXamlRequireCompiledBindings` requires inherited `x:DataType`; it defaults to `true` in
@@ -114,7 +128,9 @@ are not a public API.
 
 `x:Name` assigns `Control.Name` when applicable and registers the object in the nearest XAML
 namescope. Names must be unique within that scope and use identifier syntax. A compiled view root
-creates a namescope. V1 has no templates, so ordinary descendants remain in the view root's scope.
+creates a namescope. Every `ControlTemplate` and `DataTemplate` instance creates a separate local
+namescope. `ItemsPanelTemplate` creates a fresh panel in its owning items-presenter scope. Names in
+one template instance are not visible from another instance or from the containing view.
 
 Names do not generate fields. Code-behind resolves short-lived references through the namescope
 API. Storyboard targets and trigger source names resolve in the same local namescope. A name from
@@ -177,8 +193,27 @@ Supported binding behavior:
 - `UpdateSourceTrigger` is `Default`, `PropertyChanged`, or `LostFocus`. The target adapter defines
   `Default`; an unsupported trigger is a diagnostic.
 
-Explicit source, element-name binding, relative-source binding, multibinding, priority binding,
-commands, indexers, methods, dynamic objects, and untyped reflection fallback are outside v1.
+Bindings use inherited `DataContext` by default and may select one statically typed relative
+source:
+
+```xml
+Text="{Binding Content,
+               RelativeSource={RelativeSource TemplatedParent}}"
+Width="{Binding Height, RelativeSource={RelativeSource Self}}"
+IsEnabled="{Binding CanSelect,
+                    RelativeSource={RelativeSource FindAncestor,
+                                                   AncestorType=ListBox,
+                                                   AncestorLevel=1}}"
+```
+
+`Self` has the target element type. `TemplatedParent` is legal only inside a `ControlTemplate` and
+has that template's `TargetType`. `FindAncestor` requires `AncestorType`; `AncestorLevel` is
+optional, one-based, and defaults to `1`. It walks `VisualParent`, rebinds after visual reparenting,
+and cannot cross a data-template or compiled-view boundary. Paths, modes, conversion, and two-way
+writes are validated against the selected source type at compile time.
+
+Arbitrary object sources, element-name binding, multibinding, priority binding, commands, indexers,
+methods, dynamic objects, and untyped reflection fallback are outside this release.
 
 ## Literals, Conversion, and Markup Extensions
 
@@ -189,6 +224,8 @@ strings, booleans, numeric types, enums and flag enums, nullable values, named a
 V1 markup extensions are:
 
 - `{Binding ...}` for typed data binding.
+- `{RelativeSource Self}`, `{RelativeSource TemplatedParent}`, and typed
+  `{RelativeSource FindAncestor, ...}` nested in a binding.
 - `{StaticResource Key}` for one-time lexical resource resolution.
 - `{DynamicResource Key}` for observable resource resolution.
 
@@ -218,20 +255,33 @@ Shared mutable UI controls are otherwise rejected.
 `Classes` is a whitespace-separated set of case-sensitive class names. Duplicate names collapse to
 one entry. Runtime class changes notify the style engine.
 
-V1 selectors contain one optional type, one optional `#name`, zero or more `.class` terms, and zero
-or more pseudo states. Supported examples are:
+Selectors are Forma-owned and Avalonia-inspired; they do not promise CSS or Avalonia source
+compatibility. A selector list contains comma-separated complex selectors. A complex selector
+contains compound selectors joined by descendant (` `), direct visual-child (`>`), or explicit
+control-template-boundary (`>>`) combinators. A compound may contain one type or `*`, one `#name`,
+and any number of `.class`, pseudo-state, and single-compound `:not(...)` terms. Examples are:
 
 ```text
-Button
-.primary
 Button.primary
 #PauseButton
-Button.primary:hover
-#PauseButton:disabled
+Dialog .command
+ToolBar > Button:not(.overflow)
+Button.primary, MenuButton.primary
+ListBoxItem:selected >> Border.selection
 ```
 
-Supported pseudo states are `:hover`, `:focus`, `:disabled`, `:pressed`, and `:checked`. Descendant,
-child, sibling, universal, attribute, negation, and selector-list syntax are outside v1.
+Selectors match right to left and setters target the rightmost compound. Child and descendant
+matching follows `VisualParent` only within the current style boundary. `>>` crosses exactly one
+`ControlTemplate` boundary from the templated owner on its left; it never crosses a
+`DataTemplate`, an arbitrary compiled-view boundary, or more than one nested template. A second
+template crossing requires another `>>`. Style candidates remain restricted to the attachment
+scope of the style resource.
+
+Standard pseudo-states are `:hover`, `:focus`, `:focus-within`, `:disabled`, `:pressed`, `:checked`,
+`:selected`, and `:current`. Referenced assemblies may declare additional typed pseudo-states in
+compiler-readable metadata. Matching is event-driven; state, class, name, visual parent, scope, or
+template-instance changes invalidate only indexed candidates whose compiled dependencies mention
+the change. Warm frames do not poll states or scan the full visual tree.
 
 Styles declare typed setters with compiler-validated property names and values:
 
@@ -242,9 +292,14 @@ Styles declare typed setters with compiler-validated property names and values:
 ```
 
 Specificity is compared lexicographically as name count, class plus pseudo-state count, then type
-count. Declaration order breaks equal specificity, with the later style winning. A setter property
-path and converted value are validated against the selected control type. When a selector stops
-matching, the previous winning style or underlying value is restored.
+count. `*` and combinators add zero; `:not(...)` contributes its argument specificity. Each list
+arm is ranked independently. Declaration order breaks equal specificity, with the later style
+winning. The compiler infers every rightmost subject type and validates each setter against all
+arms. When a selector stops matching, the previous winning style or underlying value is restored.
+
+Sibling combinators, attribute/property selectors, `:is`, `:where`, `:has`, structural-position
+selectors, arbitrary data predicates, cascade layers, CSS namespaces, and CSS text stylesheets are
+unsupported diagnostics.
 
 ## XAML Value Precedence
 
@@ -260,6 +315,160 @@ Later values do not destroy lower layers. Removing a class, ending a trigger, st
 animation, or detaching a binding reveals the next applicable value. A plain C# setter remains
 valid, but code that needs immediate reconciliation while a property is styled or animated uses
 the documented XAML value API.
+
+## Visual Architecture and Templates
+
+`Control` is the universal styleable visual and layout node. Foundational elements render, lay out,
+or project content directly and never resolve a `ControlTemplate`: visual primitives (`Border`,
+text, image, and shape elements), layout panels (`CanvasPanel`, `OverlayPanel`, `StackPanel`,
+`WrapPanel`, `FlexPanel`, `GridPanel`, and `Viewbox`), and presenters (`ContentPresenter`,
+`ItemsPresenter`, and `ScrollPresenter`). Value resources such as brushes, geometry, transforms,
+drawings, effects, and text inlines are not visual-tree nodes. A specialized presenter is allowed
+only for indivisible rendering/input behavior such as text editing; its semantic owner remains
+templated.
+
+`TemplatedControl : Control` is the boundary for semantic widgets. Buttons, editors, selectors,
+menus, dialogs, sliders, `ItemsControl`, and `ListBox` own behavior but obtain all replaceable
+chrome from a `ControlTemplate`. A semantic widget may use a documented specialized part but may
+not retain an unconditional outer-chrome draw path. Foundational elements cannot have control
+templates.
+
+`ControlTemplate` requires one control root and a `TargetType`. Applying it creates a fresh
+`TemplateInstance`, local namescope, binding/style/resource/trigger lifetime, and typed
+`TemplatedParent`; reapplication disposes the old instance. Explicit `TemplatedControl.Template`
+wins over the nearest type-hierarchical theme template and then the packaged typed default.
+Template factories are closed generated delegates and never use reflection, assembly scanning, or
+a runtime XAML reader.
+
+### Foundational Visual and Compositing Model
+
+`Border` supplies background, per-edge border thickness, padding, and bounded corner radii.
+`TextBlock` and typed inlines provide package-independent text projection; image, nine-slice,
+theme-icon, shape, geometry, path, drawing, transform, clip, mask, shadow, and bounded effect values
+compose without introducing semantic widgets. Brushes include solid, linear/radial gradient,
+image, and drawing forms. Dynamic font loading and shaping remain an optional companion concern,
+not a template or compiler dependency.
+
+Margin participates outside a control's arranged box; border and padding consume space inside it;
+content alignment then positions the child in the remaining content box. Layout, drawing, hit
+testing, focus/accessibility bounds, clipping, masking, opacity, and transforms consume the same
+composed state. Effects and shadows expand render bounds only within documented finite limits and
+use bounded, device-loss-safe caches. Percentage layout cycles and over-budget compositing fall
+back deterministically rather than allocating unbounded intermediate surfaces.
+
+`CanvasPanel` performs anchored absolute placement, `OverlayPanel` layers children, stack and wrap
+panels provide intrinsic flow, `FlexPanel` provides declared flex/wrap behavior, and `GridPanel`
+uses explicit typed tracks and attached row/column placement. `Viewbox` scales one child under a
+declared constraint. These panels remain direct layout foundations and never resolve templates.
+
+`DataTemplate` requires one control root and requires `x:DataType` when it contains bindings. It is
+selected explicitly through `ItemTemplate`, an inline template property, or a keyed resource;
+there is no implicit closest-item-type lookup or runtime `DataTemplateSelector`.
+`ItemsPanelTemplate` creates one fresh compatible panel per `ItemsPresenter`; mutable panel or
+template instances cannot be shared. Template roots may not contain nested `x:Class`. Event
+attributes are forbidden directly inside a `DataTemplate`; an eventful row is an ordinary separate
+compiled `x:Class` view referenced by the template, and its handlers belong only to that row.
+
+## Items, Selection, and Virtualization
+
+`ItemsControl` consumes an observable `ItemsSource`, requires an explicit `ItemTemplate` for data
+items, and generates one logical slot per source occurrence. Duplicate object references remain
+distinct slots. Add/remove preserve unaffected slots, move preserves slot identity, replace creates
+a new slot, and reset rebuilds. Attached collection notifications must occur on the UI thread.
+`ItemsPresenter` connects the owner generator to its `ItemsPanelTemplate`; ordinary panels realize
+all slots, while virtualizing panels request bounded ranges.
+
+`ListBox : ItemsControl` supports `Single`, `Multi`, and `Toggle` selection. `SelectedIndex` is the
+canonical writable identity; `SelectedItem` is a lossy convenience when duplicate references
+exist. `SelectedIndices` and `SelectedItems` are read-only source-occurrence projections in multi
+selection, and ambiguous two-way collection binding is rejected. Current navigation and selection
+are independent and expose `:current` and `:selected` on generated containers. Collection moves
+preserve slot selection; replacement does not inherit the replaced slot's identity.
+
+`VirtualizingStackPanel` supports vertical/horizontal variable-size realization and
+`VirtualizingGridPanel` supports uniform two-dimensional realization. Realized controls are
+bounded by viewport, overscan, and explicitly pinned focus/capture/edit interactions, independent
+of source count. Unreliable extents use a positive estimate and are corrected incrementally without
+enumerating the full source. Recycling is keyed by compatible container/template/theme versions;
+stale or non-poolable instances are disposed under bounded pools. Warm recycled scrolling compiles
+no templates, performs no reflection or full-source enumeration, and allocates no new realized
+controls. Accessibility exposes logical offscreen item peers without retaining visual containers.
+
+`ListBox` intentionally differs from legacy `ItemList` mutation quirks. Its current and selected
+occurrences follow stable slots when items are inserted, removed before them, or moved across
+them. Replacement creates a new unselected slot; removal, reset, and source replacement discard
+only identities that no longer exist. Each user gesture or destructive collection delta publishes
+property updates followed by one `SelectionChanged` event containing atomic old/new index and item
+snapshots. Index-only reprojection after insert or move does not report a semantic selection change.
+
+Each `ItemsControl` owns a pool for its current `UIContext`; `RecyclePoolCapacity` defaults to 64,
+and eviction disposes the oldest retained container. Compatibility includes concrete container
+type, control-template factory version, data-template factory version, item-container style
+generation, owner, and context theme generation. Replacing any template or style, changing context,
+or advancing the theme generation drains obsolete entries before they can be reused.
+
+Pooling deactivates template bindings, resources, triggers, transitions, and clocks before detach,
+then rebinds the item and activates the same template instance on reuse. The context clears focus,
+pointer capture, drag, hover, pressed, and tooltip state for the recycled subtree. Built-in
+foundational roots participate automatically; semantic widget roots require explicit reset logic.
+An application-defined row control is non-poolable unless it implements
+`IDataTemplateRecyclingState` to reset row-local validation, local values, and
+code-behind state. A custom generated container likewise opts in through
+`IRecyclableItemContainer`. `RealizedCount`, `RecycledCount`, and `PinnedCount` expose the current
+bounds for diagnostics; pinning policy is defined with interaction anchoring below.
+
+The first visible source-occurrence token and its intra-item pixel offset form the scroll anchor.
+Indexed add, remove, and move notifications transform that anchor without scanning the source;
+replacement or removal of the anchor itself falls back to the current raw offset. For reset or
+source replacement, applications may set `ItemsControl.ItemKeySelector`; the first new occurrence
+with the same key becomes the anchor. Without a configured key, or when that key no longer exists,
+the raw offset is clamped to the new finite extent.
+
+Pointer-captured, actively dragged, and explicitly edited containers remain realized outside the
+overscan range. Editable descendants expose `IVirtualizationPinState`; multiple pins are independent
+and are recycled on the first layout after their interaction ends. When focus alone scrolls out,
+the owning items control becomes a temporary focus proxy and records the slot token, template-local
+visual path, realization generation, data-template version, and theme generation. Focus returns only
+when that same slot is realized while focus is still on the proxy. User focus movement, item removal,
+disabled or missing descendants, item-template replacement, and theme/pool generation changes cancel
+restoration.
+
+## DataGrid
+
+`DataGrid : ListBox` is the typed template-first table and tree-table control. `Mode="Flat"` maps
+source occurrences directly; `Mode="Hierarchical"` uses one `DataGridExpanderColumn` with compiled
+`Children` and optional `HasChildren`/two-way `IsExpanded` bindings. Hierarchical identities are
+immutable occurrence-based `IndexPath` values, cycles are rejected, and collection notifications
+are observed independently for expanded levels.
+
+Columns are explicit: `DataGridTextColumn`, `DataGridCheckBoxColumn`,
+`DataGridTemplateColumn`, and `DataGridExpanderColumn`. Header/cell templates, pixel/auto/star
+widths, bounds, display order, visibility, alignment, and resize/sort policy are typed. Forma does
+not auto-generate columns or reflect item properties. Rows are virtualized; columns are not, so no
+more than `DataGrid.MaximumSupportedVisibleColumns` (256) columns may be visible. The deterministic
+cell bound is realized rows multiplied by visible columns.
+
+Header sorting cycles none/ascending/descending and requires a compiled `SortBinding` or typed
+comparer. Stable multi-column descriptions are supported programmatically. Filtering uses a typed
+`DataGridSource<T>` predicate or an application-owned filtered source and changes only when
+`RefreshFilter` runs. `IncludeAncestorsOfMatches` preserves hierarchical paths to matching rows and
+may inspect the full tree during that explicit refresh; warm frames do no sorting or filtering.
+
+`SelectionUnit="Row"` reuses source-slot single/multi selection and exposes selected paths.
+`SelectionUnit="Cell"` uses immutable `CellIndex` values, current cell, rectangular ranges, and
+atomic old/new selection snapshots. Sorting, filtering, expansion/collapse, source deltas, and
+template replacement preserve surviving paths, selection/current state, expansion state, and
+scroll anchors. Row and cell containers expose selected/current and expansion/sort pseudo-states
+to the ordinary visual selector engine.
+
+## Adaptive Styles
+
+`Style.Condition` accepts a typed `AdaptiveCondition` with minimum/maximum viewport width or
+height, display scale, theme variant, and input modality. Values on one condition are ANDed;
+separate conditional styles compose through normal specificity and declaration order. Condition
+changes invalidate only their attached style scope and use the ordinary value layer, so losing a
+condition restores the next applicable value. Arbitrary expression conditions and per-frame
+predicate polling are not supported.
 
 ## Events, Triggers, and Storyboards
 
@@ -364,17 +573,25 @@ not contain source XAML, watchers, SRE, XamlX, Cecil, or Forma compiler/hot-relo
 | `x:Class`, `x:Name`, `x:Key`, `x:DataType` | Supported | `x:Name` uses namescope lookup, not generated fields |
 | Properties, property elements, content, events | Supported | Only public CLR members and Forma content contracts |
 | Resources and merged dictionaries | Supported | Forma lookup and precedence rules apply |
-| Type/class/name/pseudo selectors | Supported | Avalonia-like subset; no combinators or selector lists |
+| Visual selectors and lists | Supported | Forma grammar with ` `, `>`, `>>`, `:not`, and typed pseudo-states |
 | Typed `OneTime`/`OneWay`/`TwoWay` binding | Supported | Requires `x:DataType` in Release; no reflection fallback |
+| `RelativeSource` | Supported | Typed `Self`, `TemplatedParent`, and `FindAncestor` only |
 | Static/dynamic resources | Supported | Forma value layers restore underlying values |
 | Property/event triggers and storyboards | Supported | Deterministic `UIContext.Update` clocks |
-| Templates, control themes, data templates | Not in v1 | Author reusable controls or C# factories |
-| Commands, relative/element sources, multibinding | Not in v1 | Use typed view models and code-behind events |
+| Control/data/items-panel templates | Supported | Explicit typed factories and local namescopes |
+| `ItemsControl`, `ListBox`, virtualization | Supported | Explicit item templates and source-occurrence identity |
+| `DataGrid` flat/hierarchical modes | Supported | Explicit typed columns; row virtualization; bounded non-virtualized columns |
+| Adaptive style conditions | Supported | Typed viewport, scale, theme, and input conditions |
+| Core-only text | Supported | Explicit `SpriteFontAdapter`; no DynamicText dependency |
+| Optional DynamicText | Companion package | Adds shaping/rasterization without changing XAML factories |
+| Commands, element sources, multibinding | Not supported | Use typed view models and row-owned code-behind events |
 | WPF/Avalonia namespace/source compatibility | Not promised | Forma XAML is its own dialect |
 
 ## Canonical Syntax Fixtures
 
-The UI composition, resources and selector styles, typed data binding, and trigger/storyboard
-examples in the declarative Forma XAML implementation plan are canonical v1 fixtures. They must be
-copied into compiler golden tests and kept compiling. The `Attached` event shown there is the
-public `Control.Attached` event defined by this contract.
+The examples under **Proposed Capability Showcase** in
+`plans/xaml-templates-items-and-virtualization-plan.md` are canonical fixtures for this contract.
+Each must be copied into compiler golden tests, Catalog, and packed-consumer fixtures as its phase
+lands and then kept compiling. Syntax may change only when this contract, the plan fixture, and its
+typed behavior change together. The earlier declarative-XAML composition, resource, binding,
+trigger, and storyboard examples remain canonical where they do not conflict with this contract.

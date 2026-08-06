@@ -26,6 +26,7 @@ DOTNET_ARGS := --configuration "$(CONFIGURATION)" --nologo
 	test test-unit test-unit-monogame test-unit-fna \
 	test-xaml test-xaml-monogame test-xaml-fna xaml-build-fixtures \
 	test-render test-render-monogame test-render-fna \
+	performance performance-graphics \
 	catalog-monogame catalog-monogame-local catalog-fna catalog-fna-local \
 	xaml-game-monogame xaml-game-fna smoke smoke-monogame smoke-fna render-parity video-smoke \
 	text-spike text-spike-local text-baseline xaml-spike \
@@ -90,6 +91,12 @@ test-render-monogame: ## Run MonoGame render tests.
 
 test-render-fna: ## Run FNA render tests.
 	$(DOTNET) test $(RENDER_TESTS) $(DOTNET_ARGS) -p:FormaRuntime=FNA
+
+performance: ## Run deterministic template, collection, selector, and virtualization invariants.
+	bash scripts/check-xaml-performance-invariants.sh
+
+performance-graphics: ## Run bounded compositor/effect and warm graphics-cache invariants.
+	bash scripts/test-dynamic-render-smoke.sh
 
 catalog-monogame: ## Launch the interactive MonoGame catalog.
 	$(DOTNET) run --project $(MONOGAME_CATALOG) --configuration "$(CONFIGURATION)" -p:FormaRuntime=MonoGame $(CATALOG_ARGS)
@@ -180,9 +187,9 @@ unicode: ## Regenerate canonical Unicode 17 managed tables and conformance cases
 unicode-verify: ## Download pinned Unicode sources and byte-compare generated outputs.
 	$(DOTNET) run --project tools/Forma.UnicodePipeline/Forma.UnicodePipeline.csproj -- verify
 
-check: compliance icons-verify unicode-verify parity test-xaml aot-analyzers native-font-failures ## Run the portable CI validation gates.
+check: compliance icons-verify unicode-verify parity test-xaml performance aot-analyzers native-font-failures ## Run the portable CI validation gates.
 
-check-all: check backend-references smoke render-parity video-smoke packages nativeaot ## Run every validation, including graphical, package, and NativeAOT checks.
+check-all: check backend-references smoke performance-graphics render-parity video-smoke packages nativeaot ## Run every validation, including graphical, package, and NativeAOT checks.
 
 track: ## Show plan progress; override PLAN and TRACK_ARGS as needed.
 	bash scripts/track-plan.sh $(TRACK_ARGS) "$(PLAN)"

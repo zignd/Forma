@@ -1,1 +1,1 @@
-<Control xmlns="https://forma.dev/xaml"><Style Selector="Control .broken" /></Control>
+<Control xmlns="https://forma.dev/xaml"><Style Selector="Control + Control" /></Control>

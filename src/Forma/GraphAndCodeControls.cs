@@ -13,8 +13,13 @@ using Microsoft.Xna.Framework.Input;
 namespace Forma
 {
     /// <summary>Base movable graph element, corresponding to Godot's GraphElement.</summary>
-    public class GraphElement : Container
+    public class GraphElement : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Group;
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions |
+            (Selectable ? AccessibilityActions.Select : AccessibilityActions.None);
+        public override AccessibilityStates AccessibilityStates => base.AccessibilityStates |
+            (Selected ? AccessibilityStates.Selected : AccessibilityStates.None);
         private bool _dragging;
         private Vector2 _dragOffset;
         private Vector2 _positionOffset;
@@ -162,6 +167,8 @@ namespace Forma
                 context.Fill(new Rectangle(bounds.Right - 2, bounds.Bottom - offset, 2, Math.Min(offset, 2)), color);
             }
         }
+        internal virtual void DrawGraphElementChrome(UIRenderContext context) => DrawResizeHandle(context);
+        protected static void FitChildInRect(Control child, Vector2 position, Vector2 size, bool rtl) => Container.FitChildInRect(child, position, size, rtl);
         private Vector2 GetPointerGraphPosition(Point position)
         {
             if (Parent is GraphEdit graph) return graph.ScreenToGraph(new Vector2(position.X, position.Y) - graph.GlobalPosition);
@@ -357,6 +364,7 @@ namespace Forma
         }
         protected override void ArrangeChildren()
         {
+            base.ArrangeChildren();
             _slotCenterCache.Clear();
             _slotBoundsCache.Clear();
             var layouts = new List<SlotLayout>();
@@ -432,7 +440,7 @@ namespace Forma
             }
             SlotSizesChanged?.Invoke(this);
         }
-        internal override void Draw(UIRenderContext context)
+        internal override void DrawGraphElementChrome(UIRenderContext context)
         {
             context.Fill(Bounds, Selected ? context.Theme.HoverColor : context.Theme.PanelColor);
             context.Border(Bounds, Selected ? context.Theme.FocusColor : context.Theme.PanelBorderColor, Selected ? 2 : 1);
@@ -442,7 +450,6 @@ namespace Forma
             DrawSlotStyleBoxes(context);
             DrawPorts(context, _inputPorts, false); DrawPorts(context, _outputPorts, true);
             DrawResizeHandle(context);
-            base.Draw(context);
         }
         internal Vector2 GetInputPortScreenPosition(int port) => new Vector2(Bounds.X, Bounds.Y) + GetInputPortPosition(port);
         internal Vector2 GetOutputPortScreenPosition(int port) => new Vector2(Bounds.X, Bounds.Y) + GetOutputPortPosition(port);
@@ -642,7 +649,7 @@ namespace Forma
         public bool IsTintColorEnabled() => TintColorEnabled;
         public void SetTintColor(Color color) { if (_tintColor == color) return; _tintColor = color; QueueLayout(); }
         public Color GetTintColor() => TintColor;
-        internal override void Draw(UIRenderContext context)
+        internal override void DrawGraphElementChrome(UIRenderContext context)
         {
             context.Fill(Bounds, TintColorEnabled ? TintColor : context.Theme.PanelColor.WithAlpha(128));
             context.Border(Bounds, context.Theme.PanelBorderColor);
@@ -652,6 +659,7 @@ namespace Forma
         }
         protected override void ArrangeChildren()
         {
+            base.ArrangeChildren();
             var titlebarMargin = GetThemeStyleBox("titlebar")?.ContentMargin ?? new Thickness();
             var panelMargin = GetThemeStyleBox("panel")?.ContentMargin ?? new Thickness();
             var titlebarSize = GetTitlebarSize();
@@ -795,8 +803,11 @@ namespace Forma
     }
 
     /// <summary>Editor graph canvas with selection, node movement, zoom state and explicit connection management.</summary>
-    public sealed class GraphEdit : Container
+    [TemplatePart(GraphCanvasPartName, typeof(Container))]
+    public sealed class GraphEdit : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Canvas;
+        public const string GraphCanvasPartName = "PART_GraphCanvas";
         private readonly List<GraphConnection> _connections = new List<GraphConnection>();
         private readonly Dictionary<GraphConnection, float> _connectionActivity = new Dictionary<GraphConnection, float>();
         private readonly HashSet<(int FromType, int ToType)> _validConnectionTypes = new HashSet<(int FromType, int ToType)>();
@@ -1493,12 +1504,12 @@ namespace Forma
         }
         private bool OwnsKeyboardFocus()
         {
-            for (var focused = Context?.FocusedControl; focused != null; focused = focused.Parent)
+            for (var focused = Context?.FocusedControl; focused != null; focused = focused.VisualParent)
                 if (ReferenceEquals(focused, this)) return true;
             return false;
         }
         internal override bool PointerWheel(int delta) { Panner.ApplyWheel(delta, false, false, Size * .5f); return true; }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawGraphCanvas(UIRenderContext context)
         {
             context.Fill(Bounds, context.Theme.BackgroundColor);
             if (ShowGrid)
@@ -1517,7 +1528,7 @@ namespace Forma
             try
             {
                 // Frames are backgrounds. Drawing them first keeps both connections and nodes readable.
-                foreach (var child in GetChildrenInDrawOrder()) if (child is GraphFrame && child.Visible) child.DrawTree(context);
+                foreach (var child in GetGraphChildrenInDrawOrder()) if (child is GraphFrame && child.Visible) child.DrawTree(context);
                 foreach (var connection in _connections)
                 {
                     var from = FindNode(connection.FromNode); var to = FindNode(connection.ToNode);
@@ -1540,22 +1551,36 @@ namespace Forma
                         DrawConnection(context, GetConnectionLinePoints(destination, origin), fromColor, _connectionSource.GetInputPortColor(_connectionSourcePort), ConnectionLinesThickness);
                     }
                 }
-                foreach (var child in GetChildrenInDrawOrder()) if (child is GraphElement and not GraphFrame && child.Visible) child.DrawTree(context);
+                foreach (var child in GetGraphChildrenInDrawOrder()) if (child is GraphElement and not GraphFrame && child.Visible) child.DrawTree(context);
                 if (_boxSelecting)
                 {
                     var rectangle = GetBoxSelectionRectangle();
                     context.Fill(rectangle, new Color(80, 140, 255, 40));
                     context.Border(rectangle, new Color(80, 140, 255, 180));
                 }
-                foreach (var child in GetChildrenInDrawOrder()) if (child is not GraphElement && child.Visible) child.DrawTree(context);
+                foreach (var child in GetGraphChildrenInDrawOrder()) if (child is not GraphElement && child.Visible) child.DrawTree(context);
             }
             finally { if (ClipContents) context.PopClip(); }
         }
         protected override void ArrangeChildren()
         {
+            base.ArrangeChildren();
             foreach (var child in Children) if (child is GraphElement element) element.ApplyViewportTransform(Zoom, ScrollOffset);
             Minimap.Position = Vector2.Max(new Vector2(10, 10), Size - Minimap.Size - new Vector2(10, 10));
             Toolbar.Position = new Vector2(10, 10); Toolbar.Size = Toolbar.GetMinimumSize();
+        }
+        private List<Control> GetGraphChildrenInDrawOrder()
+        {
+            var ordered = new List<(Control Child, int Index)>(Children.Count);
+            for (var index = 0; index < Children.Count; index++) ordered.Add((Children[index], index));
+            ordered.Sort((left, right) =>
+            {
+                var zOrder = left.Child.ZIndex.CompareTo(right.Child.ZIndex);
+                return zOrder != 0 ? zOrder : left.Index.CompareTo(right.Index);
+            });
+            var result = new List<Control>(ordered.Count);
+            foreach (var entry in ordered) result.Add(entry.Child);
+            return result;
         }
         internal void NotifyNodesArranged() { QueueLayout(); NodesArranged?.Invoke(this); }
         private void ElementMoved(GraphElement element)
@@ -2380,9 +2405,9 @@ namespace Forma
             var firstRow = Math.Max(0, targetRow - GetVisibleLineCount() / 2);
             SetLineAsFirstVisible(GetLineAtVisibleRow(firstRow), GetLineWrapIndexAtVisibleRow(firstRow));
         }
-        internal override void Draw(UIRenderContext context)
+        internal override void DrawEditor(UIRenderContext context)
         {
-            base.Draw(context);
+            base.DrawEditor(context);
             DrawLineLengthGuidelines(context);
             var gutterWidth = (int)MathF.Ceiling(GetGutterWidth());
             var gutterLeft = Bounds.X + (int)MathF.Ceiling(base.TextContentLeftInset);

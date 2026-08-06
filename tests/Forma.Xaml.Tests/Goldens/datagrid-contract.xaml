@@ -1,0 +1,8 @@
+<DataGrid xmlns="https://forma.dev/xaml" Mode="Hierarchical">
+  <DataGrid.Columns>
+    <Label />
+    <DataGridTextColumn Header="Name" />
+    <DataGridExpanderColumn CanUserSort="False" />
+    <DataGridExpanderColumn CanUserSort="False" />
+  </DataGrid.Columns>
+</DataGrid>

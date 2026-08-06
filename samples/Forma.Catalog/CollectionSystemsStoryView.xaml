@@ -1,0 +1,54 @@
+<BoxContainer xmlns="https://forma.dev/xaml"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:local="clr-namespace:Forma.Catalog"
+              x:Class="Forma.Catalog.CollectionSystemsStoryView"
+              x:DataType="local:CatalogCollectionStoryViewModel"
+              x:Name="CollectionSystemsRoot"
+              Separation="10"
+              CustomMinimumSize="720,920">
+    <BoxContainer.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="CollectionItemTemplate" x:DataType="local:CatalogCollectionItem">
+                <Border Padding="7,4" Background="#FF25313C" CornerRadius="3" CustomMinimumSize="124,30">
+                    <TextBlock Text="{Binding Name}" />
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="EventfulRowTemplate" x:DataType="local:CatalogCollectionItem">
+                <local:CatalogEventfulRow />
+            </DataTemplate>
+            <ItemsPanelTemplate x:Key="VerticalVirtualPanel">
+                <VirtualizingStackPanel EstimatedItemExtent="34" Gap="4" OverscanBefore="1" OverscanAfter="1" />
+            </ItemsPanelTemplate>
+            <ItemsPanelTemplate x:Key="HorizontalVirtualPanel">
+                <VirtualizingStackPanel Orientation="Horizontal" EstimatedItemExtent="132" Gap="6" OverscanBefore="1" OverscanAfter="1" />
+            </ItemsPanelTemplate>
+            <ItemsPanelTemplate x:Key="GridVirtualPanel">
+                <VirtualizingGridPanel CellWidth="132" EstimatedCellHeight="36" ColumnGap="6" RowGap="6" OverscanRows="1" />
+            </ItemsPanelTemplate>
+        </ResourceDictionary>
+    </BoxContainer.Resources>
+
+    <Label Text="Collection systems" FontColor="#FF30B9A4" Uppercase="True" CustomMinimumSize="0,28" />
+    <FlexPanel Gap="8" Wrap="Wrap" CustomMinimumSize="680,46">
+        <Button x:Name="AddItem" Text="Add" Pressed="OnAddItem" />
+        <Button x:Name="RemoveItem" Text="Remove" Pressed="OnRemoveItem" />
+        <Button x:Name="MoveItem" Text="Move" Pressed="OnMoveItem" />
+        <Button x:Name="ReplaceItem" Text="Replace" Pressed="OnReplaceItem" />
+        <Button x:Name="ResetItems" Text="Reset" Pressed="OnResetItems" />
+        <Label x:Name="MutationStatus" Text="{Binding LastMutation}" CustomMinimumSize="180,34" />
+    </FlexPanel>
+
+    <FlexPanel Gap="10" Wrap="Wrap" CustomMinimumSize="680,140">
+        <ListBox x:Name="SingleSelection" SelectionMode="Single" ItemsSource="{Binding MutableItems}" ItemTemplate="{StaticResource CollectionItemTemplate}" CustomMinimumSize="210,130" />
+        <ListBox x:Name="MultiSelection" SelectionMode="Multi" ItemsSource="{Binding MutableItems}" ItemTemplate="{StaticResource CollectionItemTemplate}" CustomMinimumSize="210,130" />
+        <ListBox x:Name="ToggleSelection" SelectionMode="Toggle" ItemsSource="{Binding MutableItems}" ItemTemplate="{StaticResource CollectionItemTemplate}" CustomMinimumSize="210,130" />
+    </FlexPanel>
+
+    <Label Text="Eventful row x:Class" FontColor="#FF8F99AA" />
+    <ListBox x:Name="EventRows" ItemsSource="{Binding MutableItems}" ItemTemplate="{StaticResource EventfulRowTemplate}" CustomMinimumSize="680,90" />
+
+    <Label Text="Vertical / horizontal / grid virtualization" FontColor="#FF8F99AA" />
+    <ListBox x:Name="VerticalVirtualList" ItemsSource="{Binding LargeItems}" ItemTemplate="{StaticResource CollectionItemTemplate}" ItemsPanel="{StaticResource VerticalVirtualPanel}" CustomMinimumSize="680,130" />
+    <ListBox x:Name="HorizontalVirtualList" ItemsSource="{Binding LargeItems}" ItemTemplate="{StaticResource CollectionItemTemplate}" ItemsPanel="{StaticResource HorizontalVirtualPanel}" CustomMinimumSize="680,100" />
+    <ListBox x:Name="GridVirtualList" ItemsSource="{Binding LargeItems}" ItemTemplate="{StaticResource CollectionItemTemplate}" ItemsPanel="{StaticResource GridVirtualPanel}" CustomMinimumSize="680,150" />
+</BoxContainer>

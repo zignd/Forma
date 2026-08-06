@@ -93,12 +93,45 @@ public sealed class LanguageServerTest
     }
 
     [Test]
+    public void SemanticWorkspace_IsolatesTemplateLocalNamesForReferencesAndRename()
+    {
+        const string uri = "file:///Views/Templates.xaml";
+        const string source = """
+            <Control xmlns="https://forma.dev/xaml" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                <ControlTemplate x:Key="First" TargetType="Button">
+                    <Border x:Name="PART_Content">
+                        <Vector2Timeline TargetName="PART_Content" Property="Position" />
+                    </Border>
+                </ControlTemplate>
+                <ControlTemplate x:Key="Second" TargetType="Button">
+                    <Border x:Name="PART_Content">
+                        <Vector2Timeline TargetName="PART_Content" Property="Position" />
+                    </Border>
+                </ControlTemplate>
+            </Control>
+            """;
+        using var workspace = new FormaLanguageWorkspace();
+        workspace.Update(uri, source);
+
+        var references = workspace.References(At(uri, source, "TargetName=\"PART_Content\"", "PART_Content"));
+        var rename = workspace.Rename(At(uri, source, "TargetName=\"PART_Content\"", "PART_Content", "PART_PrimaryContent"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(references.AsArray(), Has.Count.EqualTo(2));
+            Assert.That(rename!["changes"]![uri]!.AsArray(), Has.Count.EqualTo(2));
+            Assert.That(rename["changes"]![uri]!.AsArray().All(edit =>
+                edit!["newText"]!.GetValue<string>() == "PART_PrimaryContent"), Is.True);
+        });
+    }
+
+    [Test]
     public void Completion_UsesFormaSchemaAndRoslynProjectSymbols()
     {
         File.WriteAllText(Path.Combine(_directory, "Game.csproj"), """
             <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>
             """);
-        File.WriteAllText(Path.Combine(_directory, "ViewModel.cs"), "namespace Game; public sealed class ViewModel { public string Score { get; set; } = string.Empty; }");
+        File.WriteAllText(Path.Combine(_directory, "ViewModel.cs"), "namespace Game; public sealed class ViewModel { public string Score { get; set; } = string.Empty; } public sealed class RowModel { public string Title { get; set; } = string.Empty; }");
         using var workspace = new FormaLanguageWorkspace();
         workspace.SetRoot(_directory);
         const string uri = "file:///Views/Hud.xaml";
@@ -122,17 +155,46 @@ public sealed class LanguageServerTest
         workspace.Update(uri, bindingSource);
         var bindings = Labels(workspace.Completion(AtEnd(uri, bindingSource)));
         var definition = workspace.Definition(At(uri, bindingSource, "Game.ViewModel", "ViewModel"));
+        const string targetTypeSource = "<ControlTemplate xmlns='https://forma.dev/xaml' TargetType='";
+        workspace.Update(uri, targetTypeSource);
+        var targetTypes = Labels(workspace.Completion(AtEnd(uri, targetTypeSource)));
+        const string partSource = "<ControlTemplate xmlns='https://forma.dev/xaml' TargetType='ListBox'><ItemsPresenter x:Name='";
+        workspace.Update(uri, partSource);
+        var parts = Labels(workspace.Completion(AtEnd(uri, partSource)));
+        const string selectorSource = "<Style xmlns='https://forma.dev/xaml' Selector='DataGridRow:";
+        workspace.Update(uri, selectorSource);
+        var pseudoStates = Labels(workspace.Completion(AtEnd(uri, selectorSource)));
+        const string relativeSource = "<TextBlock xmlns='https://forma.dev/xaml' Text='{Binding Text, RelativeSource=";
+        workspace.Update(uri, relativeSource);
+        var relativeSources = Labels(workspace.Completion(AtEnd(uri, relativeSource)));
+        const string scopedBindingSource = "<Control xmlns='https://forma.dev/xaml' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' x:DataType='Game.ViewModel'><DataTemplate x:DataType='Game.RowModel'><TextBlock Text='{Binding ";
+        workspace.Update(uri, scopedBindingSource);
+        var scopedBindings = Labels(workspace.Completion(AtEnd(uri, scopedBindingSource)));
 
         Assert.Multiple(() =>
         {
             Assert.That(elements, Does.Contain("Button"));
+            Assert.That(elements, Does.Contain("SolidColorBrush"));
+            Assert.That(elements, Does.Contain("ItemsPresenter"));
+            Assert.That(elements, Does.Contain("DataGridTextColumn"));
             Assert.That(members, Does.Contain("Text"));
             Assert.That(members, Does.Contain("Pressed"));
+            Assert.That(members, Does.Contain("GridPanel.Row"));
             Assert.That(enumValues, Does.Contain("Fill"));
             Assert.That(resources, Does.Contain("Accent"));
             Assert.That(classes, Does.Contain("hud"));
             Assert.That(bindings, Does.Contain("Score"));
             Assert.That(bindings, Does.Contain("Mode="));
+            Assert.That(targetTypes, Does.Contain("Button"));
+            Assert.That(targetTypes, Does.Not.Contain("Border"));
+            Assert.That(parts, Does.Contain("PART_ItemsPresenter"));
+            Assert.That(parts, Does.Contain("PART_ScrollPresenter"));
+            Assert.That(pseudoStates, Does.Contain(":selected"));
+            Assert.That(pseudoStates, Does.Contain(":ascending"));
+            Assert.That(relativeSources, Does.Contain("TemplatedParent"));
+            Assert.That(relativeSources, Does.Contain("FindAncestor"));
+            Assert.That(scopedBindings, Does.Contain("Title"));
+            Assert.That(scopedBindings, Does.Not.Contain("Score"));
             Assert.That(definition.AsArray(), Has.Count.EqualTo(1));
             Assert.That(definition[0]!["uri"]!.GetValue<string>(), Does.EndWith("ViewModel.cs"));
         });

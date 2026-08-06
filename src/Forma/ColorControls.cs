@@ -17,8 +17,11 @@ namespace Forma
     public enum ColorPickerShape { HsvRectangle, HsvWheel, VhsCircle, OkHslCircle, None, OkHsRectangle, OkHlRectangle }
 
     /// <summary>HSV color editor with deterministic pointer and keyboard adjustment.</summary>
-    public sealed class ColorPicker : Control
+    [TemplatePart(ColorFieldPartName, typeof(Control))]
+    public sealed class ColorPicker : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.ColorPicker;
+        public const string ColorFieldPartName = "PART_ColorField";
         private Color _color = Color.White;
         private Color _oldColor = Color.White;
         private static readonly Dictionary<string, Color> NamedColors = CreateNamedColors();
@@ -339,7 +342,7 @@ namespace Forma
             else if (PickerShape == ColorPickerShape.OkHslCircle)
                 SetOkHsl(hue, MathHelper.Clamp(distance / radius, 0, 1), GetOkHsl().Z, alpha);
         }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawColorField(UIRenderContext context)
         {
             if (PickerShape != ColorPickerShape.None) DrawPickerShape(context);
             if (DisplayOldColor)
@@ -352,7 +355,6 @@ namespace Forma
                 context.Border(newSwatch, context.Theme.PanelBorderColor);
             }
             context.Border(Bounds, context.Theme.PanelBorderColor);
-            base.Draw(context);
         }
         private Rectangle GetMainSurface() => PickerShape == ColorPickerShape.HsvWheel ? Bounds : new Rectangle(Bounds.X, Bounds.Y, Math.Max(0, Bounds.Width - 14), Bounds.Height);
         private void DrawPickerShape(UIRenderContext context)
@@ -640,6 +642,7 @@ namespace Forma
         public override Vector2 GetMinimumSize() => Vector2.Max(CustomMinimumSize, Picker.GetMinimumSize());
         protected override void ArrangeChildren()
         {
+            base.ArrangeChildren();
             Picker.Position = Vector2.Zero;
             Picker.Size = Size;
         }
@@ -698,11 +701,6 @@ namespace Forma
             if (_popup.Context != Context) Context.Add(_popup);
             _popup.PopupAt(new Vector2(Bounds.Left, Bounds.Bottom));
         }
-        internal override void Draw(UIRenderContext context)
-        {
-            base.Draw(context);
-            context.Fill(new Rectangle(Bounds.X + 5, Bounds.Y + 5, Math.Max(0, Bounds.Width - 10), Math.Max(0, Bounds.Height - 10)), Color);
-        }
     }
 
     /// <summary>Popup color chooser with an accept/cancel lifecycle.</summary>
@@ -718,6 +716,7 @@ namespace Forma
         public event Action<ColorPickerDialog, Color> ColorSelected;
         protected override void ArrangeChildren()
         {
+            base.ArrangeChildren();
             Picker.Position = new Vector2(6, 24);
             Picker.Size = Vector2.Max(Vector2.Zero, Size - new Vector2(12, 30));
         }

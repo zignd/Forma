@@ -8,11 +8,20 @@
                Separation="8"
                Margins="24,20"
                CustomMinimumSize="260,174">
+    <VBoxContainer.Resources>
+        <ResourceDictionary>
+            <ControlTemplate x:Key="HudActionTemplate" TargetType="Button">
+                <Border Background="#FF173E48" BorderBrush="#FF30B9A4" BorderThickness="2" Padding="10,6" CornerRadius="4">
+                    <ContentPresenter x:Name="PART_ContentPresenter" Content="{Binding Content, RelativeSource=TemplatedParent}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                </Border>
+            </ControlTemplate>
+        </ResourceDictionary>
+    </VBoxContainer.Resources>
     <Label Text="SIGNAL RUN" FontColor="#FFF2F5F7" CustomMinimumSize="0,32" />
     <HBoxContainer Separation="18">
         <Label x:Name="ScoreText" Text="{Binding ScoreText}" Classes="metric" CustomMinimumSize="112,28" />
         <Label x:Name="RemainingText" Text="{Binding RemainingText}" Classes="timer" CustomMinimumSize="96,28" />
     </HBoxContainer>
     <Label x:Name="StatusText" Text="{Binding StatusText}" Classes="status" CustomMinimumSize="220,26" />
-    <Button x:Name="PauseButton" Text="Pause / settings" Classes="action" CustomMinimumSize="190,38" />
+    <Button x:Name="PauseButton" Template="{StaticResource HudActionTemplate}" Text="Pause / settings" Classes="action" CustomMinimumSize="190,38" />
 </VBoxContainer>

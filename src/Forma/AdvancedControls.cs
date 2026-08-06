@@ -324,8 +324,17 @@ namespace Forma
     }
 
     /// <summary>Single-line editable text. Call <see cref="InsertText"/> from the host window's text-input callback for IME-safe text entry.</summary>
-    public class LineEdit : Control
+    [TemplatePart(EditorPresenterPartName, typeof(LineEditPresenter))]
+    public class LineEdit : TemplatedControl
     {
+        public const string EditorPresenterPartName = "PART_EditorPresenter";
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.TextBox;
+        public override string AccessibilityName => string.IsNullOrEmpty(base.AccessibilityName) ? Text ?? string.Empty : base.AccessibilityName;
+        public override string AccessibilityValue => Text ?? string.Empty;
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions |
+            (Editable ? AccessibilityActions.SetValue : AccessibilityActions.None);
+        public override AccessibilityStates AccessibilityStates => base.AccessibilityStates |
+            (!Editable ? AccessibilityStates.ReadOnly : AccessibilityStates.None);
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private string _text = string.Empty;
         private int _selectionAnchor = -1;
@@ -380,6 +389,11 @@ namespace Forma
                 TextChanged?.Invoke(this, _text);
             }
         }
+        protected override void OnTemplateApplied()
+        {
+            if (GetTemplateChild(EditorPresenterPartName) is LineEditPresenter presenter) presenter.Owner = this;
+            base.OnTemplateApplied();
+        }
         public string PlaceholderText { get; set; } = string.Empty;
         public string SecretCharacter { get; set; } = string.Empty;
         public bool Editable { get; set; } = true;
@@ -416,7 +430,6 @@ namespace Forma
         public bool UndoEnabled { get; set; } = true;
         public int UndoStackMaxSize { get; set; } = 50;
         public TextDirection TextDirection { get; private set; } = TextDirection.Auto;
-        public string Language { get; private set; } = string.Empty;
         public bool DrawControlCharacters { get; private set; }
         public StructuredTextParser StructuredTextBidiOverride { get; private set; } = StructuredTextParser.Default;
         /// <summary>Zero-based caret index in the underlying string.</summary>
@@ -900,7 +913,7 @@ namespace Forma
             if (_contextMenu.Context != Context) Context.Add(_contextMenu);
             _contextMenu.PopupAt(new Vector2(position.X, position.Y), null);
         }
-        internal override void Draw(UIRenderContext context)
+        internal virtual void DrawEditor(UIRenderContext context)
         {
             context.Fill(Bounds, context.Theme.BackgroundColor); context.Border(Bounds, Context?.FocusedControl == this ? context.Theme.FocusColor : context.Theme.PanelBorderColor);
             if (EffectiveUIFont != null)
@@ -945,7 +958,11 @@ namespace Forma
                 var y = Bounds.Y + clear.Center.Y - clearIcon.Value.LogicalSize.Y / 2;
                 context.Icon(clearIcon.Value, new Vector2(x, y), Enabled ? Color.White : context.Theme.DisabledTextColor);
             }
-            DrawChildControls(context);
+        }
+        internal Vector2 GetEditorMinimumSize()
+        {
+            var lineHeight = EffectiveUIFont == null ? 16 : TextMetrics.LineHeight(EffectiveUIFont);
+            return Vector2.Max(CustomMinimumSize, new Vector2(64, Math.Max(24, lineHeight + 8)));
         }
         internal TextLayout GetEditingLayout(string text = null)
         {
@@ -976,7 +993,6 @@ namespace Forma
             else if (caretX > _scrollOffset + viewportWidth - 1) _scrollOffset = caretX - viewportWidth + 1;
             _scrollOffset = MathHelper.Clamp(_scrollOffset, 0, Math.Max(0, layout.Size.X - viewportWidth + 1));
         }
-        protected void DrawChildControls(UIRenderContext context) => base.Draw(context);
     }
 
     public class TextEdit : LineEdit
@@ -1692,7 +1708,7 @@ namespace Forma
             else base.KeyPressed(key);
         }
         internal override void TextInput(char character) => InsertText(character.ToString());
-        internal override void Draw(UIRenderContext context)
+        internal override void DrawEditor(UIRenderContext context)
         {
             context.Fill(Bounds, context.Theme.BackgroundColor);
             context.Border(Bounds, Context?.FocusedControl == this ? context.Theme.FocusColor : context.Theme.PanelBorderColor);
@@ -1736,7 +1752,6 @@ namespace Forma
                     }
                 }
             }
-            DrawChildControls(context);
         }
         private void DrawControlCharacterIcons(UIRenderContext context, string source, int start, int length, Vector2 position)
         {
@@ -2459,8 +2474,11 @@ namespace Forma
         }
     }
 
+    [TemplatePart(EditorPartName, typeof(ContentPresenter))]
     public sealed class SpinBox : Range
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.SpinButton;
+        public const string EditorPartName = "PART_Editor";
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private HorizontalAlignment _horizontalAlignment;
         private bool _updateOnTextChanged;
@@ -2568,19 +2586,13 @@ namespace Forma
             ProcessHeldArrowRepeat(gameTime);
             base.Process(gameTime);
         }
-        protected override void ArrangeChildren()
-        {
-            LineEdit.Position = Vector2.Zero;
-            LineEdit.Size = new Vector2(Math.Max(0, Size.X - 16), Size.Y);
-        }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawSpinBoxChrome(UIRenderContext context)
         {
             context.Fill(Bounds, context.Theme.BackgroundColor); context.Border(Bounds, context.Theme.PanelBorderColor);
             context.Fill(new Rectangle(Bounds.Right - 16, Bounds.Top, 16, Math.Max(1, Bounds.Height / 2)), context.Theme.HoverColor);
             context.Fill(new Rectangle(Bounds.Right - 16, Bounds.Center.Y, 16, Math.Max(1, Bounds.Height - Bounds.Height / 2)), context.Theme.HoverColor);
             DrawArrow(context, true);
             DrawArrow(context, false);
-            base.Draw(context);
         }
         private void DrawArrow(UIRenderContext context, bool up)
         {
@@ -2670,6 +2682,7 @@ namespace Forma
 
     public sealed class OptionButton : BaseButton
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.ComboBox;
         private readonly List<OptionButtonItem> _items = new List<OptionButtonItem>();
         public OptionButton()
         {
@@ -2841,24 +2854,6 @@ namespace Forma
             }
             return result;
         }
-        internal override void Draw(UIRenderContext context)
-        {
-            var arrow = GetThemeIcon("arrow");
-            var originalPadding = Padding;
-            if (arrow.HasValue)
-            {
-                var reserve = arrow.Value.LogicalSize.X + IconSeparation;
-                Padding = IsLayoutRtl()
-                    ? new Thickness(originalPadding.Left + reserve, originalPadding.Top, originalPadding.Right, originalPadding.Bottom)
-                    : new Thickness(originalPadding.Left, originalPadding.Top, originalPadding.Right + reserve, originalPadding.Bottom);
-            }
-            base.Draw(context);
-            Padding = originalPadding;
-            if (!arrow.HasValue) return;
-            var x = IsLayoutRtl() ? Bounds.X + (int)originalPadding.Left : Bounds.Right - (int)originalPadding.Right - arrow.Value.LogicalSize.X;
-            var y = Bounds.Center.Y - arrow.Value.LogicalSize.Y / 2;
-            context.Icon(arrow.Value, new Vector2(x, y), Enabled ? Color.White : context.Theme.DisabledTextColor);
-        }
         private int AddItemCore(string text, Texture2D icon, int id, bool separator)
         {
             // Godot's add_item/add_icon_item check !has_selectable_items() BEFORE adding, not whether
@@ -2892,8 +2887,9 @@ namespace Forma
         private void ValidateIndex(int index) { if (index < 0 || index >= _items.Count) throw new ArgumentOutOfRangeException(nameof(index)); }
     }
 
-    public sealed class TabContainer : Container
+    public sealed class TabContainer : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.TabPanel;
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private sealed class TabPageState
         {
@@ -3051,6 +3047,7 @@ namespace Forma
         }
         protected override void ArrangeChildren()
         {
+            base.ArrangeChildren();
             UpdateVisibility();
             foreach (var child in Children) { child.Position = new Vector2(0, TabHeight); child.Size = new Vector2(Size.X, Math.Max(0, Size.Y - TabHeight)); }
         }
@@ -3092,7 +3089,7 @@ namespace Forma
         internal override void PointerEntered() { UpdateHoveredTab(Context?.PointerPosition ?? Point.Zero); base.PointerEntered(); }
         internal override void PointerExited() { _hoveredTab = -1; base.PointerExited(); }
         internal override void PointerReleased(Point point, bool isInside) { _draggedTab = -1; }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawTabContainerChrome(UIRenderContext context)
         {
             context.Fill(new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, (int)TabHeight), context.Theme.BackgroundColor);
             var strip = GetTabStripRectangle();
@@ -3126,7 +3123,6 @@ namespace Forma
                 var menu = GetThemeIcon(hovered ? "menu_highlight" : "menu");
                 if (menu.HasValue) context.Icon(menu.Value, new Vector2(button.Center.X - menu.Value.LogicalSize.X / 2, button.Center.Y - menu.Value.LogicalSize.Y / 2), Color.White);
             }
-            base.Draw(context);
         }
         private TabPageState GetState(int tab)
         {
@@ -3206,50 +3202,97 @@ namespace Forma
     /// <summary>Visual overflow hint placement, corresponding to Godot's <c>ScrollContainer.ScrollHintMode</c>.</summary>
     public enum ScrollContainerScrollHintMode { Disabled, All, TopAndLeft, BottomAndRight }
 
-    public sealed class ScrollContainer : Container
+    [TemplatePart(ScrollPresenterPartName, typeof(ScrollPresenter))]
+    public sealed class ScrollContainer : TemplatedControl, IScrollViewportOwner
     {
-        private Vector2 _scrollOffset;
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.ScrollView;
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions | AccessibilityActions.Scroll;
+        public const string ScrollPresenterPartName = "PART_ScrollPresenter";
+        private readonly ScrollViewportController _viewportController = new ScrollViewportController();
         private Vector2 _viewportSize;
         private readonly HScrollBar _horizontalScrollBar;
         private readonly VScrollBar _verticalScrollBar;
+        private Control _content;
+        private ScrollPresenter _scrollPresenter;
         private ScrollBarVisibility _horizontalScrollMode = ScrollBarVisibility.Auto;
         private ScrollBarVisibility _verticalScrollMode = ScrollBarVisibility.Auto;
         private Control _followedFocus;
-        private const float DragDeceleration = 1000;
-        private bool _dragTouching;
-        private bool _dragDecelerating;
-        private bool _beyondDeadzone;
-        private Vector2 _dragSpeed;
-        private Vector2 _dragAccum;
-        private Vector2 _lastDragAccum;
-        private Vector2 _dragFrom;
-        private float _timeSinceDragMotion;
         private Vector2 _focusScrollDiff;
+
         public ScrollContainer()
         {
             ClipContents = true;
             _horizontalScrollBar = new HScrollBar { ZIndex = 1, Visible = false };
             _verticalScrollBar = new VScrollBar { ZIndex = 1, Visible = false };
-            _horizontalScrollBar.ValueChanged += (_, value) => ScrollOffset = new Vector2(value, _scrollOffset.Y);
-            _verticalScrollBar.ValueChanged += (_, value) => ScrollOffset = new Vector2(_scrollOffset.X, value);
-            AddChild(_horizontalScrollBar);
-            AddChild(_verticalScrollBar);
+            _horizontalScrollBar.ValueChanged += (_, value) => ScrollOffset = new Vector2(value, ScrollOffset.Y);
+            _verticalScrollBar.ValueChanged += (_, value) => ScrollOffset = new Vector2(ScrollOffset.X, value);
+            _viewportController.ScrollStarted += (_, _) => ScrollStarted?.Invoke(this, EventArgs.Empty);
+            _viewportController.ScrollEnded += (_, _) => ScrollEnded?.Invoke(this, EventArgs.Empty);
+            _viewportController.MetricsChanged += OnViewportMetricsChanged;
+            base.AddChild(_horizontalScrollBar);
+            base.AddChild(_verticalScrollBar);
+            ApplyTemplate();
+        }
+
+        public Control Content
+        {
+            get => _content;
+            set
+            {
+                if (ReferenceEquals(_content, value)) return;
+                if (value == _horizontalScrollBar || value == _verticalScrollBar)
+                    throw new InvalidOperationException("ScrollContainer scrollbar chrome cannot be assigned as content.");
+                if (value != null && value.Parent != null && value.Parent != this)
+                    throw new InvalidOperationException("Scroll content is already owned by another control.");
+                var previous = _content;
+                if (value != null && value.Parent == null) base.AddChild(value);
+                try
+                {
+                    if (_scrollPresenter != null) _scrollPresenter.Content = value;
+                    _content = value;
+                    if (previous?.Parent == this) base.RemoveChild(previous);
+                    OnPropertyChanged(nameof(Content));
+                    QueueLayout();
+                }
+                catch
+                {
+                    if (value?.Parent == this) base.RemoveChild(value);
+                    if (previous != null && previous.Parent == null) base.AddChild(previous);
+                    if (_scrollPresenter != null) _scrollPresenter.Content = previous;
+                    throw;
+                }
+            }
+        }
+
+        public override void AddChild(Control child)
+        {
+            if (child == null) throw new ArgumentNullException(nameof(child));
+            if (child == _horizontalScrollBar || child == _verticalScrollBar)
+            {
+                base.AddChild(child);
+                return;
+            }
+            if (_content != null && !ReferenceEquals(_content, child))
+                throw new InvalidOperationException("ScrollContainer accepts one content control.");
+            Content = child;
         }
         public Vector2 ScrollOffset
         {
-            get => _scrollOffset;
+            get => _viewportController.Offset;
             set
             {
-                _scrollOffset = ClampOffset(value);
-                _horizontalScrollBar.SetValueNoSignal(_scrollOffset.X);
-                _verticalScrollBar.SetValueNoSignal(_scrollOffset.Y);
+                UpdateControllerMetrics();
+                _viewportController.Offset = value;
+                _horizontalScrollBar.SetValueNoSignal(ScrollOffset.X);
+                _verticalScrollBar.SetValueNoSignal(ScrollOffset.Y);
+                _scrollPresenter?.QueueLayout();
                 QueueLayout();
             }
         }
         /// <summary>Horizontal scroll position, corresponding to Godot's h_scroll property.</summary>
-        public int HorizontalScroll { get => (int)_scrollOffset.X; set { ScrollOffset = new Vector2(value, _scrollOffset.Y); CancelTouchDragScroll(); } }
+        public int HorizontalScroll { get => (int)ScrollOffset.X; set { ScrollOffset = new Vector2(value, ScrollOffset.Y); CancelTouchDragScroll(); } }
         /// <summary>Vertical scroll position, corresponding to Godot's v_scroll property.</summary>
-        public int VerticalScroll { get => (int)_scrollOffset.Y; set { ScrollOffset = new Vector2(_scrollOffset.X, value); CancelTouchDragScroll(); } }
+        public int VerticalScroll { get => (int)ScrollOffset.Y; set { ScrollOffset = new Vector2(ScrollOffset.X, value); CancelTouchDragScroll(); } }
         /// <summary>Forwards to the underlying scrollbar's own CustomStep, matching Godot's
         /// set_horizontal_custom_step/set_vertical_custom_step, which themselves just forward to
         /// h_scroll/v_scroll's set_custom_step - this has no effect on mouse-wheel scroll amount,
@@ -3263,7 +3306,7 @@ namespace Forma
         public int DragHoverScrollBorder { get; set; } = 20;
         public float DragHoverScrollSpeed { get; set; } = 12;
         /// <summary>Retained touch-drag deadzone state, corresponding to Godot's scroll_deadzone property.</summary>
-        public int ScrollDeadzone { get; set; }
+        public int ScrollDeadzone { get => _viewportController.ScrollDeadzone; set => _viewportController.ScrollDeadzone = value; }
         /// <summary>Retained overflow hint mode.</summary>
         public ScrollContainerScrollHintMode ScrollHintMode { get; private set; }
         /// <summary>Retains Godot's texture tiling policy for themed scroll hints.</summary>
@@ -3272,20 +3315,23 @@ namespace Forma
         public bool DrawFocusBorder { get; set; }
         /// <summary>Retained default wheel-axis policy. Touch/trackpad gesture parity remains platform-dependent.</summary>
         public bool ScrollHorizontalByDefault { get; set; }
-        public ScrollBarVisibility HorizontalScrollMode { get => _horizontalScrollMode; set { _horizontalScrollMode = value; QueueLayout(); } }
-        public ScrollBarVisibility VerticalScrollMode { get => _verticalScrollMode; set { _verticalScrollMode = value; QueueLayout(); } }
+        public ScrollBarVisibility HorizontalScrollMode { get => _horizontalScrollMode; set { _horizontalScrollMode = value; UpdateControllerAxes(); QueueLayout(); } }
+        public ScrollBarVisibility VerticalScrollMode { get => _verticalScrollMode; set { _verticalScrollMode = value; UpdateControllerAxes(); QueueLayout(); } }
         public HScrollBar HorizontalScrollBar => _horizontalScrollBar;
         public VScrollBar VerticalScrollBar => _verticalScrollBar;
         public Vector2 MaxScrollOffset
         {
             get
             {
-                var max = Vector2.Max(Vector2.Zero, ContentSize - _viewportSize);
-                if (HorizontalScrollMode == ScrollBarVisibility.Disabled) max.X = 0;
-                if (VerticalScrollMode == ScrollBarVisibility.Disabled) max.Y = 0;
-                return max;
+                UpdateControllerMetrics();
+                return _viewportController.MaxOffset;
             }
         }
+        public Vector2 Viewport => _viewportController.Viewport;
+        public Vector2 Extent => _viewportController.Extent;
+        internal Vector2 ScrollPresenterPosition => IsLayoutRtl() && _verticalScrollBar.Visible ? new Vector2(_verticalScrollBar.Size.X, 0) : Vector2.Zero;
+        internal Vector2 ScrollPresenterSize => _viewportSize;
+        public ScrollAnchor? ScrollAnchor => _viewportController.Anchor;
         // Matches Godot's set_h_scroll/set_v_scroll, which both call _cancel_drag() after applying the
         // value - unlike the shared internal ScrollOffset mutator, which the wheel/touch-drag machinery
         // itself routes through and must NOT self-cancel on every frame.
@@ -3322,65 +3368,36 @@ namespace Forma
         public event EventHandler ScrollStarted;
         /// <summary>Raised when a touch drag that crossed the deadzone ends, matching Godot's scroll_ended signal.</summary>
         public event EventHandler ScrollEnded;
-        public bool IsTouchDragging => _dragTouching;
-        public bool IsTouchDragDecelerating => _dragDecelerating;
-        public bool IsBeyondScrollDeadzone => _beyondDeadzone;
-        public Vector2 TouchDragSpeed => _dragSpeed;
+        public event EventHandler ScrollOffsetChanged;
+        public event EventHandler ViewportChanged;
+        public event EventHandler ScrollExtentChanged;
+        public event EventHandler<ScrollViewportMetricsChangedEventArgs> ScrollMetricsChanged;
+        public bool IsTouchDragging => _viewportController.IsTouchDragging;
+        public bool IsTouchDragDecelerating => _viewportController.IsTouchDragDecelerating;
+        public bool IsBeyondScrollDeadzone => _viewportController.IsBeyondScrollDeadzone;
+        public Vector2 TouchDragSpeed => _viewportController.TouchDragSpeed;
         /// <summary>Begins a retained touch drag, mirroring Godot's touchscreen mouse-press handling in ScrollContainer::gui_input.</summary>
         public void BeginTouchDragScroll()
         {
-            if (_dragTouching) CancelTouchDragScroll();
-            _dragSpeed = Vector2.Zero;
-            _dragAccum = Vector2.Zero;
-            _lastDragAccum = Vector2.Zero;
-            _dragFrom = new Vector2(HorizontalScroll, VerticalScroll);
-            _dragTouching = true;
-            _dragDecelerating = false;
-            _beyondDeadzone = false;
-            _timeSinceDragMotion = 0;
+            UpdateControllerMetrics();
+            _viewportController.BeginTouchDrag();
         }
         /// <summary>Applies relative touch motion, gating on <see cref="ScrollDeadzone"/> exactly like Godot's gui_input drag accumulation.</summary>
         public void TouchDragScrollBy(Vector2 relativeMotion)
         {
-            if (!_dragTouching || _dragDecelerating) return;
-            _dragAccum -= relativeMotion;
-            var horizontalEnabled = HorizontalScrollMode != ScrollBarVisibility.Disabled;
-            var verticalEnabled = VerticalScrollMode != ScrollBarVisibility.Disabled;
-            if (!_beyondDeadzone && !(horizontalEnabled && Math.Abs(_dragAccum.X) > ScrollDeadzone) && !(verticalEnabled && Math.Abs(_dragAccum.Y) > ScrollDeadzone)) return;
-            if (!_beyondDeadzone)
-            {
-                _beyondDeadzone = true;
-                ScrollStarted?.Invoke(this, EventArgs.Empty);
-                _dragAccum = -relativeMotion;
-            }
-            var diff = _dragFrom + _dragAccum;
-            var next = ScrollOffset;
-            if (horizontalEnabled) next.X = diff.X; else _dragAccum.X = 0;
-            if (verticalEnabled) next.Y = diff.Y; else _dragAccum.Y = 0;
-            ScrollOffset = next;
-            _timeSinceDragMotion = 0;
+            UpdateControllerMetrics();
+            _viewportController.TouchDragBy(relativeMotion);
+            SynchronizeControllerOffset();
         }
         /// <summary>Ends a retained touch drag, entering inertial deceleration when speed is nonzero like Godot's release handling.</summary>
         public void EndTouchDragScroll()
         {
-            if (!_dragTouching) return;
-            if (_dragSpeed == Vector2.Zero) CancelTouchDragScroll();
-            else _dragDecelerating = true;
+            _viewportController.EndTouchDrag();
         }
         /// <summary>Cancels an in-progress touch drag immediately, mirroring Godot's ScrollContainer::_cancel_drag.</summary>
         public void CancelTouchDragScroll()
         {
-            _dragTouching = false;
-            _dragDecelerating = false;
-            _dragSpeed = Vector2.Zero;
-            _dragAccum = Vector2.Zero;
-            _lastDragAccum = Vector2.Zero;
-            _dragFrom = Vector2.Zero;
-            if (_beyondDeadzone)
-            {
-                ScrollEnded?.Invoke(this, EventArgs.Empty);
-                _beyondDeadzone = false;
-            }
+            _viewportController.CancelTouchDrag();
         }
         protected override void OnContextChanged(UIContext previous, UIContext current)
         {
@@ -3412,7 +3429,7 @@ namespace Forma
         }
         private bool IsTouchScrollTarget(Control target)
         {
-            for (var control = target; control != null; control = control.Parent)
+            for (var control = target; control != null; control = control.VisualParent)
             {
                 if (control == _horizontalScrollBar || control == _verticalScrollBar) return false;
                 if (control == this) return true;
@@ -3428,7 +3445,7 @@ namespace Forma
             if (control == this) return;
             var viewport = GetVisibleViewportRectangle();
             var target = control.Bounds;
-            for (var ancestor = control.Parent; ancestor != null && ancestor != this; ancestor = ancestor.Parent)
+            for (var ancestor = control.VisualParent; ancestor != null && ancestor != this; ancestor = ancestor.VisualParent)
             {
                 if (!(ancestor is ScrollContainer inner)) continue;
                 target.Offset(-(int)MathF.Round(inner._focusScrollDiff.X), -(int)MathF.Round(inner._focusScrollDiff.Y));
@@ -3436,24 +3453,49 @@ namespace Forma
                 if (target.Width <= 0 || target.Height <= 0) return;
             }
             var before = ScrollOffset;
-            var desired = before + new Vector2(
-                GetVisibilityScrollDelta(viewport.Left, viewport.Width, target.Left, target.Width),
-                GetVisibilityScrollDelta(viewport.Top, viewport.Height, target.Top, target.Height));
-            ScrollOffset = desired;
+            _viewportController.BringIntoView(viewport, target);
+            SynchronizeControllerOffset();
             _focusScrollDiff = ScrollOffset - before;
-            CancelTouchDragScroll();
+        }
+
+        public bool BringIndexIntoView(int index)
+        {
+            if (index < 0) throw new ArgumentOutOfRangeException(nameof(index));
+            if (_content is not IScrollIndexProvider provider || !provider.TryGetIndexBounds(index, out var bounds)) return false;
+            var viewport = new Rectangle((int)MathF.Round(ScrollOffset.X), (int)MathF.Round(ScrollOffset.Y), (int)_viewportSize.X, (int)_viewportSize.Y);
+            _viewportController.BringIntoView(viewport, bounds);
+            SynchronizeControllerOffset();
+            return true;
+        }
+
+        public ScrollAnchor CaptureScrollAnchor(object token, Vector2 contentPosition) =>
+            _viewportController.CaptureAnchor(token, contentPosition);
+
+        public bool RestoreScrollAnchor(object token, Vector2 contentPosition)
+        {
+            var restored = _viewportController.RestoreAnchor(token, contentPosition);
+            if (restored) SynchronizeControllerOffset();
+            return restored;
+        }
+
+        public void ClearScrollAnchor() => _viewportController.ClearAnchor();
+
+        void IScrollViewportOwner.OnScrollMetricsChanged(ScrollPresenter presenter, ScrollMetrics metrics)
+        {
+            if (!ReferenceEquals(presenter, _scrollPresenter)) return;
+            _viewportSize = metrics.Viewport;
+            _viewportController.UpdateMetrics(metrics.Viewport, metrics.Extent);
+            SynchronizeControllerOffset();
+        }
+
+        void IScrollViewportOwner.BringIntoView(ScrollPresenter presenter, Control target, Rectangle targetBounds)
+        {
+            if (ReferenceEquals(presenter, _scrollPresenter) && target != null) EnsureControlVisible(target);
         }
         private Rectangle GetVisibleViewportRectangle()
         {
             var x = Bounds.X + (IsLayoutRtl() && _verticalScrollBar.Visible ? _verticalScrollBar.Bounds.Width : 0);
             return new Rectangle(x, Bounds.Y, (int)_viewportSize.X, (int)_viewportSize.Y);
-        }
-        private static float GetVisibilityScrollDelta(float visibleStart, float visibleSize, float targetStart, float targetSize)
-        {
-            var begin = targetStart - visibleStart;
-            var end = targetStart + targetSize - visibleStart - visibleSize;
-            if (visibleSize > targetSize) return begin <= 0 ? begin : end <= 0 ? 0 : end;
-            return begin >= 0 ? begin : end >= 0 ? 0 : end;
         }
         public override Vector2 GetMinimumSize()
         {
@@ -3480,10 +3522,10 @@ namespace Forma
             var result = new List<Rectangle>();
             if (ScrollHintMode == ScrollContainerScrollHintMode.Disabled) return result;
             var max = MaxScrollOffset;
-            var showTop = _scrollOffset.Y > 1;
-            var showBottom = _scrollOffset.Y < max.Y - 1;
-            var showLeft = _scrollOffset.X > 1;
-            var showRight = _scrollOffset.X < max.X - 1;
+            var showTop = ScrollOffset.Y > 1;
+            var showBottom = ScrollOffset.Y < max.Y - 1;
+            var showLeft = ScrollOffset.X > 1;
+            var showRight = ScrollOffset.X < max.X - 1;
             var showVerticalHints = showTop || showBottom;
             var showHorizontalHints = showLeft || showRight;
             const int hintThickness = 4;
@@ -3512,25 +3554,6 @@ namespace Forma
             return result;
         }
         internal bool IsFocusBorderVisible => DrawFocusBorder && (Context?.FocusedControl == this || ContainsDescendant(Context?.FocusedControl));
-        internal override void Draw(UIRenderContext context)
-        {
-            var panel = context.Theme.GetStyleBox("panel", "ScrollContainer");
-            if (panel != null) panel.Draw(context, Bounds); else context.Fill(Bounds, context.Theme.BackgroundColor);
-            base.Draw(context);
-            var hintColor = context.Theme.FocusColor;
-            hintColor.A = 96;
-            foreach (var rectangle in GetVisibleScrollHintRectangles())
-            {
-                var icon = GetThemeIcon(rectangle.Width >= rectangle.Height ? "scroll_hint_horizontal" : "scroll_hint_vertical");
-                if (icon.HasValue) context.Icon(icon.Value, rectangle, hintColor);
-                else context.Fill(rectangle, hintColor);
-            }
-            if (IsFocusBorderVisible)
-            {
-                var focus = context.Theme.GetStyleBox("focus", "ScrollContainer");
-                if (focus != null) focus.Draw(context, Bounds); else context.Border(Bounds, context.Theme.FocusColor, 2);
-            }
-        }
         /// <summary>Matches Godot's ScrollContainer::gui_input WHEEL_UP/WHEEL_DOWN handling: the scroll
         /// amount is always the relevant scrollbar's page / ScrollBar::PAGE_DIVISOR (8), Shift held swaps
         /// to the horizontal axis (scroll_horizontal_by_default flips which axis is the "default" one),
@@ -3544,17 +3567,16 @@ namespace Forma
             var horizontalEnabled = HorizontalScrollMode != ScrollBarVisibility.Disabled;
             var verticalEnabled = VerticalScrollMode != ScrollBarVisibility.Disabled;
             var verticalHidden = !_verticalScrollBar.Visible && VerticalScrollMode != ScrollBarVisibility.Never;
-            var before = ScrollOffset;
-            var direction = -Math.Sign(delta);
+            UpdateControllerMetrics();
             if ((horizontalEnabled && swapAxes) || verticalHidden)
             {
-                if (horizontalEnabled) ScrollOffset = new Vector2(ScrollOffset.X + direction * _horizontalScrollBar.Page / 8f, ScrollOffset.Y);
+                if (horizontalEnabled) _viewportController.ScrollWheel(delta, true, _horizontalScrollBar.Page, _verticalScrollBar.Page);
             }
             else if (verticalEnabled)
             {
-                ScrollOffset = new Vector2(ScrollOffset.X, ScrollOffset.Y + direction * _verticalScrollBar.Page / 8f);
+                _viewportController.ScrollWheel(delta, false, _horizontalScrollBar.Page, _verticalScrollBar.Page);
             }
-            return before != ScrollOffset;
+            return SynchronizeControllerOffset();
         }
         private bool HasShiftModifier()
         {
@@ -3582,7 +3604,7 @@ namespace Forma
         }
         private void EnsureNestedFocusFollowers(Control focused)
         {
-            for (var ancestor = focused.Parent; ancestor != null && ancestor != this; ancestor = ancestor.Parent)
+            for (var ancestor = focused.VisualParent; ancestor != null && ancestor != this; ancestor = ancestor.VisualParent)
             {
                 if (!(ancestor is ScrollContainer nested) || !nested.FollowFocus) continue;
                 nested._followedFocus = focused;
@@ -3611,47 +3633,14 @@ namespace Forma
         }
         private void ProcessTouchDrag(GameTime gameTime)
         {
-            if (!_dragTouching) return;
             var delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (delta <= 0) return;
-            if (_dragDecelerating)
-            {
-                var pos = ScrollOffset + _dragSpeed * delta;
-                var max = MaxScrollOffset;
-                var turnoffH = false; var turnoffV = false;
-                if (pos.X < 0) { pos.X = 0; turnoffH = true; }
-                if (pos.X > max.X) { pos.X = max.X; turnoffH = true; }
-                if (pos.Y < 0) { pos.Y = 0; turnoffV = true; }
-                if (pos.Y > max.Y) { pos.Y = max.Y; turnoffV = true; }
-                var next = ScrollOffset;
-                if (HorizontalScrollMode != ScrollBarVisibility.Disabled) next.X = pos.X;
-                if (VerticalScrollMode != ScrollBarVisibility.Disabled) next.Y = pos.Y;
-                ScrollOffset = next;
-                var speedX = Decelerate(_dragSpeed.X, delta, out var stoppedX); turnoffH |= stoppedX;
-                var speedY = Decelerate(_dragSpeed.Y, delta, out var stoppedY); turnoffV |= stoppedY;
-                _dragSpeed = new Vector2(speedX, speedY);
-                // Matches Godot's ScrollContainer::_notification literally: both axes must report
-                // stopped before the drag ends, not either axis independently.
-                if (turnoffH && turnoffV) CancelTouchDragScroll();
-                return;
-            }
-            if (_timeSinceDragMotion == 0 || _timeSinceDragMotion > 0.1f)
-            {
-                var diff = _dragAccum - _lastDragAccum;
-                _lastDragAccum = _dragAccum;
-                _dragSpeed = diff / delta;
-            }
-            _timeSinceDragMotion += delta;
-        }
-        private static float Decelerate(float speed, float delta, out bool stopped)
-        {
-            var sign = speed < 0 ? -1 : 1;
-            var value = MathF.Abs(speed) - DragDeceleration * delta;
-            stopped = value < 0;
-            return sign * value;
+            UpdateControllerMetrics();
+            _viewportController.Process(delta);
+            SynchronizeControllerOffset();
         }
         protected override void ArrangeChildren()
         {
+            base.ArrangeChildren();
             var content = ContentSize;
             var barWidth = _verticalScrollBar.GetMinimumSize().X;
             var barHeight = _horizontalScrollBar.GetMinimumSize().Y;
@@ -3670,50 +3659,94 @@ namespace Forma
             _horizontalScrollBar.Visible = showHorizontal;
             _verticalScrollBar.Visible = showVertical;
             _viewportSize = Vector2.Max(Vector2.Zero, Size - new Vector2(reserveVertical ? barWidth : 0, reserveHorizontal ? barHeight : 0));
-            _scrollOffset = ClampOffset(_scrollOffset);
+            UpdateControllerMetrics();
             var contentOrigin = IsLayoutRtl() && reserveVertical ? new Vector2(barWidth, 0) : Vector2.Zero;
-            foreach (var child in Children)
+            if (TemplateRoot != null)
             {
-                if (IsScrollBar(child)) continue;
-                var minSize = child.GetMinimumSize();
-                // Godot's _reposition_children only stretches an axis to the viewport size when the
-                // child has SIZE_EXPAND set on it; without that flag the child keeps its own minimum
-                // size, matching Control::fit_child_in_rect's non-Fill/non-Expand shrink-to-content path.
-                var width = (child.HorizontalSizeFlags & SizeFlags.Expand) != 0 ? Math.Max(_viewportSize.X, minSize.X) : minSize.X;
-                var height = (child.VerticalSizeFlags & SizeFlags.Expand) != 0 ? Math.Max(_viewportSize.Y, minSize.Y) : minSize.Y;
-                child.Position = contentOrigin - ScrollOffset;
-                child.Size = new Vector2(width, height);
+                TemplateRoot.Position = TemplateRoot == _scrollPresenter ? contentOrigin : Vector2.Zero;
+                TemplateRoot.Size = TemplateRoot == _scrollPresenter ? _viewportSize : Size;
             }
             var max = MaxScrollOffset;
             _horizontalScrollBar.Position = new Vector2(0, _viewportSize.Y);
             _horizontalScrollBar.Size = new Vector2(_viewportSize.X, barHeight);
             // Range's maximum includes its visible page; retain MaxScrollOffset as the public
             // content-relative maximum while configuring the scrollbar with the full content span.
-            _horizontalScrollBar.MinValue = 0; _horizontalScrollBar.MaxValue = Math.Max(0, max.X + _viewportSize.X); _horizontalScrollBar.Page = _viewportSize.X; _horizontalScrollBar.Value = _scrollOffset.X;
+            _horizontalScrollBar.MinValue = 0; _horizontalScrollBar.MaxValue = Math.Max(0, max.X + _viewportSize.X); _horizontalScrollBar.Page = _viewportSize.X; _horizontalScrollBar.Value = ScrollOffset.X;
             _verticalScrollBar.Position = new Vector2(IsLayoutRtl() ? 0 : _viewportSize.X, 0);
             _verticalScrollBar.Size = new Vector2(barWidth, _viewportSize.Y);
-            _verticalScrollBar.MinValue = 0; _verticalScrollBar.MaxValue = Math.Max(0, max.Y + _viewportSize.Y); _verticalScrollBar.Page = _viewportSize.Y; _verticalScrollBar.Value = _scrollOffset.Y;
+            _verticalScrollBar.MinValue = 0; _verticalScrollBar.MaxValue = Math.Max(0, max.Y + _viewportSize.Y); _verticalScrollBar.Page = _viewportSize.Y; _verticalScrollBar.Value = ScrollOffset.Y;
             _focusScrollDiff = Vector2.Zero;
+            TemplateRoot?.QueueLayout();
         }
         private Vector2 ContentSize
         {
             get
             {
-                var content = Vector2.Zero;
-                foreach (var child in Children)
-                    if (!IsScrollBar(child)) content = Vector2.Max(content, Vector2.Max(child.GetMinimumSize(), child.Size));
-                return content;
+                return _content == null ? Vector2.Zero : Vector2.Max(_content.GetMinimumSize(), _content.Size);
             }
         }
         private bool IsScrollBar(Control control) => control == _horizontalScrollBar || control == _verticalScrollBar;
+
+        protected override void OnTemplateApplied()
+        {
+            var presenter = GetTemplateChild(ScrollPresenterPartName) as ScrollPresenter;
+            if (presenter == null)
+                throw new InvalidOperationException($"ScrollContainer templates must provide a {nameof(ScrollPresenter)} named '{ScrollPresenterPartName}'.");
+            if (_scrollPresenter != null && !ReferenceEquals(_scrollPresenter, presenter))
+            {
+                _scrollPresenter.Content = null;
+                _scrollPresenter.Owner = null;
+            }
+            _scrollPresenter = presenter;
+            presenter.Owner = this;
+            presenter.Content = _content;
+            base.OnTemplateApplied();
+        }
         private bool ContainsDescendant(Control control)
         {
-            for (var current = control.Parent; current != null; current = current.Parent) if (current == this) return true;
+            for (var current = control.VisualParent; current != null; current = current.VisualParent) if (current == this) return true;
             return false;
         }
-        private Vector2 ClampOffset(Vector2 offset)
+        private void UpdateControllerAxes()
         {
-            return Vector2.Min(Vector2.Max(Vector2.Zero, offset), MaxScrollOffset);
+            _viewportController.HorizontalEnabled = HorizontalScrollMode != ScrollBarVisibility.Disabled;
+            _viewportController.VerticalEnabled = VerticalScrollMode != ScrollBarVisibility.Disabled;
+        }
+        private void UpdateControllerMetrics()
+        {
+            UpdateControllerAxes();
+            _viewportController.UpdateMetrics(_viewportSize, ContentSize);
+        }
+        private bool SynchronizeControllerOffset()
+        {
+            var before = new Vector2(_horizontalScrollBar.Value, _verticalScrollBar.Value);
+            _horizontalScrollBar.SetValueNoSignal(ScrollOffset.X);
+            _verticalScrollBar.SetValueNoSignal(ScrollOffset.Y);
+            _scrollPresenter?.QueueLayout();
+            QueueLayout();
+            return before != ScrollOffset;
+        }
+
+        private void OnViewportMetricsChanged(object sender, ScrollViewportMetricsChangedEventArgs args)
+        {
+            if (args.OffsetChanged)
+            {
+                OnPropertyChanged(nameof(ScrollOffset));
+                OnPropertyChanged(nameof(HorizontalScroll));
+                OnPropertyChanged(nameof(VerticalScroll));
+                ScrollOffsetChanged?.Invoke(this, EventArgs.Empty);
+            }
+            if (args.ViewportChanged)
+            {
+                OnPropertyChanged(nameof(Viewport));
+                ViewportChanged?.Invoke(this, EventArgs.Empty);
+            }
+            if (args.ExtentChanged)
+            {
+                OnPropertyChanged(nameof(Extent));
+                ScrollExtentChanged?.Invoke(this, EventArgs.Empty);
+            }
+            ScrollMetricsChanged?.Invoke(this, args);
         }
         private static bool ShouldShow(ScrollBarVisibility mode, float content, float available)
         {
@@ -3729,10 +3762,15 @@ namespace Forma
     /// A top-level transient panel. Modal popups gate pointer/focus input to their subtree and can
     /// optionally dismiss themselves when the user presses outside their bounds.
     /// </summary>
-    public class Popup : Panel
+    public class Popup : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Window;
+        public override AccessibilityStates AccessibilityStates => base.AccessibilityStates | AccessibilityStates.Modal;
         private Control _focusBeforePopup;
         public Popup() { FocusMode = FocusMode.All; Modal = true; HideOnOutsideClick = true; }
+        public Color? BackgroundColor { get; set; }
+        public Color? BorderColor { get; set; }
+        public int BorderWidth { get; set; } = 1;
         public bool Modal { get; set; }
         /// <summary>Prevents an outside pointer press from dismissing this modal popup.</summary>
         public bool Exclusive { get; set; }
@@ -3765,7 +3803,7 @@ namespace Forma
         }
         internal bool IsAncestorOf(Control descendant)
         {
-            for (var control = descendant; control != null; control = control.Parent)
+            for (var control = descendant; control != null; control = control.VisualParent)
                 if (ReferenceEquals(control, this)) return true;
             return false;
         }

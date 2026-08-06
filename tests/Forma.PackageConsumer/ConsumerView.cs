@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 using System.ComponentModel;
+using System.Collections;
+using System.Collections.ObjectModel;
 using Forma.Xaml;
 
 namespace Forma.PackageConsumer;
@@ -48,7 +50,24 @@ public sealed class ConsumerViewModel : INotifyPropertyChanged
     private string _message = string.Empty;
     private bool _isActive;
 
+    public ConsumerViewModel()
+    {
+        GridRows = new[] { new ConsumerGridRow("Beta", 2), new ConsumerGridRow("Alpha", 1) };
+        TreeRows = new ObservableCollection<ConsumerTreeRow>
+        {
+            new ConsumerTreeRow
+            {
+                Name = "Root",
+                IsExpanded = true,
+                Children = { new ConsumerTreeRow { Name = "Child" } },
+            },
+        };
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public ConsumerGridRow[] GridRows { get; }
+    public ObservableCollection<ConsumerTreeRow> TreeRows { get; }
 
     public string Message
     {
@@ -70,5 +89,44 @@ public sealed class ConsumerViewModel : INotifyPropertyChanged
             _isActive = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsActive)));
         }
+    }
+}
+
+public sealed record ConsumerGridRow(string Name, int Order);
+
+public sealed class ConsumerGridNameColumn : DataGridTextColumn
+{
+    public ConsumerGridNameColumn()
+    {
+        Binding = DataGridBinding<string>.Create<ConsumerGridRow>(row => row.Name);
+        SortBinding = DataGridSortBinding.Create<ConsumerGridRow, string>(row => row.Name);
+    }
+}
+
+public sealed class ConsumerGridOrderColumn : DataGridTextColumn
+{
+    public ConsumerGridOrderColumn()
+    {
+        Binding = DataGridBinding<string>.Create<ConsumerGridRow>(row => row.Order.ToString());
+        SortBinding = DataGridSortBinding.Create<ConsumerGridRow, int>(row => row.Order);
+    }
+}
+
+public sealed class ConsumerTreeRow
+{
+    public string Name { get; init; } = string.Empty;
+    public bool IsExpanded { get; set; }
+    public ObservableCollection<ConsumerTreeRow> Children { get; } = new();
+}
+
+public sealed class ConsumerTreeColumn : DataGridExpanderColumn
+{
+    public ConsumerTreeColumn()
+    {
+        Children = DataGridBinding<IEnumerable>.Create<ConsumerTreeRow>(row => row.Children);
+        HasChildren = DataGridBinding<bool>.Create<ConsumerTreeRow>(row => row.Children.Count != 0);
+        IsExpanded = DataGridBinding<bool>.Create<ConsumerTreeRow>(row => row.IsExpanded, write: (row, value) => row.IsExpanded = value);
+        Column = new DataGridTextColumn { Binding = DataGridBinding<string>.Create<ConsumerTreeRow>(row => row.Name) };
+        SortBinding = DataGridSortBinding.Create<ConsumerTreeRow, string>(row => row.Name);
     }
 }

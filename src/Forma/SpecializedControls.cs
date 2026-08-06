@@ -13,8 +13,9 @@ using Microsoft.Xna.Framework.Input;
 namespace Forma
 {
     /// <summary>Texture-backed presentation surface for a render target or externally rendered subviewport.</summary>
-    public sealed class SubViewportContainer : Container, IDisposable
+    public sealed class SubViewportContainer : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Viewport;
         private int _stretchShrink = 1;
         private Texture2D _viewportTexture;
         private RenderTarget2D _hostRenderTarget;
@@ -110,6 +111,7 @@ namespace Forma
             _hostKeyboard = new KeyboardState();
             base.FocusLost();
         }
+        internal override bool HitTestBeforeChildren(Point point) => ContainsPoint(point);
         internal override void Process(GameTime gameTime)
         {
             var viewportSize = GetViewportSize();
@@ -127,7 +129,7 @@ namespace Forma
             ViewportContext.Update(gameTime, mouse, _hostKeyboard);
             base.Process(gameTime);
         }
-        internal override void Draw(UIRenderContext context)
+        internal void RenderViewport(UIRenderContext context)
         {
             var texture = ViewportTexture;
             if (ViewportContext.Roots.Count > 0)
@@ -146,13 +148,13 @@ namespace Forma
                 if (!Stretch) { destination.Width = texture.Width; destination.Height = texture.Height; }
                 context.SpriteBatch.Draw(texture, destination, Color.White);
             }
-            base.Draw(context);
         }
-        public void Dispose()
+        public override void Dispose()
         {
             _hostRenderTarget?.Dispose();
             _hostRenderTarget = null;
             ViewportContext.Dispose();
+            base.Dispose();
         }
         private void EnsureHostRenderTarget(GraphicsDevice graphicsDevice, int width, int height)
         {
@@ -174,8 +176,11 @@ namespace Forma
     }
 
     /// <summary>On-screen analog joystick with normalized vector output and pointer capture.</summary>
-    public sealed class VirtualJoystick : Control
+    public sealed class VirtualJoystick : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Joystick;
+        public override string AccessibilityValue => $"{Value.X.ToString(System.Globalization.CultureInfo.InvariantCulture)},{Value.Y.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions | AccessibilityActions.SetValue;
         private bool _active;
         private Vector2 _value;
         public VirtualJoystick() { FocusMode = FocusMode.All; CustomMinimumSize = new Vector2(80, 80); }
@@ -199,6 +204,7 @@ namespace Forma
             if (!_active) return;
             _active = false; Value = Vector2.Zero; Released?.Invoke(this, EventArgs.Empty);
         }
+        internal override bool HitTestBeforeChildren(Point point) => ContainsPoint(point);
         private void SetFromPoint(Point point)
         {
             var center = GlobalPosition + Size / 2;
@@ -206,15 +212,6 @@ namespace Forma
             var result = (new Vector2(point.X, point.Y) - center) / radius;
             if (result.LengthSquared() > 1) result.Normalize();
             Value = result.Length() < DeadZone ? Vector2.Zero : result;
-        }
-        internal override void Draw(UIRenderContext context)
-        {
-            var rect = Bounds;
-            context.Fill(rect, (BackgroundColor ?? context.Theme.PanelColor).WithAlpha(150)); context.Border(rect, BorderColor ?? context.Theme.PanelBorderColor);
-            var radius = Math.Max(4, Math.Min(rect.Width, rect.Height) / 5);
-            var center = new Vector2(rect.Center.X, rect.Center.Y) + Value * (Math.Min(rect.Width, rect.Height) / 2 - radius);
-            context.Fill(new Rectangle((int)center.X - radius, (int)center.Y - radius, radius * 2, radius * 2), KnobColor ?? context.Theme.AccentColor);
-            base.Draw(context);
         }
     }
 

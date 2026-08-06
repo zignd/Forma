@@ -69,12 +69,55 @@ internal static class Program
     private static int Schema(string[] args)
     {
         if (args.Length != 0 && args is not ["--json"]) return Usage();
+        var exportedTypes = typeof(Control).Assembly.GetExportedTypes()
+            .Where(type => type.Namespace?.StartsWith("Forma", StringComparison.Ordinal) == true)
+            .OrderBy(type => type.Name, StringComparer.Ordinal)
+            .ToArray();
+        var controlTypes = exportedTypes.Where(type => type.IsClass && !type.IsAbstract && typeof(Control).IsAssignableFrom(type)).ToArray();
         var schema = new
         {
             namespaceUri = Forma.Xaml.XamlNamespaces.Forma,
             directives = new[] { "x:Class", "x:Name", "x:Key", "x:DataType" },
             markupExtensions = new[] { "Binding", "StaticResource", "DynamicResource" },
-            selectors = new[] { "type", ".class", "Type.class", "#name", ":hover", ":focus", ":disabled", ":pressed", ":checked" },
+            typeClassifications = new
+            {
+                foundational = controlTypes.Where(type => !typeof(TemplatedControl).IsAssignableFrom(type)).Select(type => type.Name).ToArray(),
+                templated = controlTypes.Where(type => typeof(TemplatedControl).IsAssignableFrom(type)).Select(type => type.Name).ToArray(),
+                presenters = controlTypes.Where(type => type.Name.EndsWith("Presenter", StringComparison.Ordinal)).Select(type => type.Name).ToArray(),
+            },
+            contentModels = new Dictionary<string, string[]>
+            {
+                ["Container"] = ["Control"],
+                ["ContentControl"] = ["Content"],
+                ["ResourceDictionary"] = ["keyed resource", "merged dictionary"],
+                ["ControlTemplate"] = ["one foundational visual root"],
+                ["DataTemplate"] = ["one visual root"],
+                ["ItemsPanelTemplate"] = ["one Container root"],
+                ["DataGrid"] = ["DataGridColumn"],
+            },
+            brushes = exportedTypes.Where(type => type.IsClass && !type.IsAbstract && typeof(Brush).IsAssignableFrom(type)).Select(type => type.Name).ToArray(),
+            geometry = exportedTypes.Where(type => type.IsClass && !type.IsAbstract && typeof(Geometry).IsAssignableFrom(type)).Select(type => type.Name).ToArray(),
+            attachedProperties = exportedTypes.SelectMany(owner => owner.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+                .Where(method => method.Name.StartsWith("Set", StringComparison.Ordinal) && method.GetParameters().Length == 2 && typeof(Control).IsAssignableFrom(method.GetParameters()[0].ParameterType))
+                .Select(method => $"{owner.Name}.{method.Name[3..]}"))
+                .Distinct(StringComparer.Ordinal).OrderBy(name => name, StringComparer.Ordinal).ToArray(),
+            adaptiveConditions = exportedTypes.Where(type => type.IsClass && !type.IsAbstract && type.Name.EndsWith("Condition", StringComparison.Ordinal)).Select(type => type.Name).ToArray(),
+            templates = new[] { "ControlTemplate", "DataTemplate", "ItemsPanelTemplate", "ItemsPresenter", "ContentPresenter", "ScrollPresenter" },
+            templateProperties = new[] { "Template", "ItemTemplate", "ItemsPanel", "TargetType", "RelativeSource=TemplatedParent" },
+            bindingSources = new[] { "DataContext", "Self", "TemplatedParent", "FindAncestor" },
+            selectors = new[] { "type", "*", ".class", "Type.class", "#name", "descendant", "> child", ", union", ":not(...)" },
+            selectorBoundaries = new[] { "ordinary visual tree", "template-local visual tree", "projected logical content" },
+            pseudoStates = new[] { "hover", "focus", "focus-within", "disabled", "pressed", "checked", "selected", "current", "expanded", "collapsed", "ascending", "descending" },
+            templateParts = controlTypes.Where(type => typeof(TemplatedControl).IsAssignableFrom(type))
+                .Select(type => new
+                {
+                    type = type.Name,
+                    parts = type.GetCustomAttributes(typeof(TemplatePartAttribute), true).Cast<TemplatePartAttribute>()
+                        .Select(part => new { part.Name, partType = part.PartType.Name, part.IsRequired }).ToArray(),
+                }).Where(entry => entry.parts.Length != 0).ToArray(),
+            dataGridColumns = exportedTypes.Where(type => type.IsClass && !type.IsAbstract && typeof(DataGridColumn).IsAssignableFrom(type)).Select(type => type.Name).ToArray(),
+            dataGridBindings = new[] { "Binding", "SortBinding", "Children", "HasChildren", "IsExpanded" },
+            dataGridSelection = new[] { "Row", "Cell", "Single", "Multi" },
             timelines = new[] { "FloatTimeline", "ColorTimeline", "Vector2Timeline", "ThicknessTimeline" },
             triggers = new[] { "PropertyTrigger", "EventTrigger" },
         };

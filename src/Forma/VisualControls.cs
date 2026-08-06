@@ -167,7 +167,7 @@ namespace Forma
     }
 
     /// <summary>Displays a non-owning theme icon at its stable logical size.</summary>
-    public sealed class ThemeIconRect : Control
+    public class ThemeIconRect : Control
     {
         private ThemeIcon? _icon;
         public ThemeIcon? Icon
@@ -189,18 +189,17 @@ namespace Forma
             }
             base.Draw(context);
         }
-        private ThemeIcon? ResolveIcon()
+        protected ThemeIcon? ResolveIcon()
         {
             if (Icon is ThemeIcon icon) return icon;
-            return !string.IsNullOrWhiteSpace(ThemeItemName) && !string.IsNullOrWhiteSpace(ThemeTypeName) &&
-                Context?.TryGetDefaultThemeIcon(ThemeItemName, new[] { ThemeTypeName }, out var themed) == true ? themed : null;
+            return string.IsNullOrWhiteSpace(ThemeItemName) ? null : GetThemeIcon(ThemeItemName, ThemeTypeName);
         }
     }
 
     /// <summary>Controls whether a NinePatchRect axis scales, repeats, or repeats with fitted tiles.</summary>
     public enum NinePatchAxisStretchMode { Stretch, Tile, TileFit }
 
-    public sealed class NinePatchRect : TextureRect
+    public class NinePatchRect : TextureRect
     {
         // Godot's NinePatchRect() constructor calls set_mouse_filter(MOUSE_FILTER_IGNORE) - fully
         // click-through by default, unlike the Pass this inherits from TextureRect's own constructor.
@@ -212,6 +211,7 @@ namespace Forma
         /// <summary>Optional source region. An empty region uses the entire texture.</summary>
         public Rectangle RegionRect { get; set; }
         public bool DrawCenter { get; set; } = true;
+        public ImageSamplingMode SamplingMode { get; set; } = ImageSamplingMode.Linear;
         public NinePatchAxisStretchMode HorizontalAxisStretchMode { get; set; }
         public NinePatchAxisStretchMode VerticalAxisStretchMode { get; set; }
         public void SetPatchMargin(Side side, float value)
@@ -276,7 +276,13 @@ namespace Forma
             var verticalSegments = GetSegments(source.Y, source.Height, destination.Y, destination.Height, vertical);
             foreach (var x in horizontalSegments)
                 foreach (var y in verticalSegments)
-                    context.SpriteBatch.Draw(Texture, new Rectangle(x.DestinationStart, y.DestinationStart, x.DestinationLength, y.DestinationLength), new Rectangle(x.SourceStart, y.SourceStart, x.SourceLength, y.SourceLength), Modulate);
+                    context.Drawing.DrawImage(
+                        Texture,
+                        new Rectangle(x.SourceStart, y.SourceStart, x.SourceLength, y.SourceLength),
+                        new Rectangle(0, 0, x.DestinationLength, y.DestinationLength),
+                        Matrix.CreateTranslation(x.DestinationStart, y.DestinationStart, 0),
+                        Modulate,
+                        SamplingMode);
         }
         private static List<NinePatchSegment> GetSegments(int sourceStart, int sourceLength, int destinationStart, int destinationLength, NinePatchAxisStretchMode mode)
         {
@@ -406,8 +412,9 @@ namespace Forma
 
     public enum SplitContainerDraggerVisibility { Visible, Hidden, HiddenCollapsed }
 
-    public class SplitContainer : Container
+    public class SplitContainer : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Group;
         private readonly List<float> _splitOffsets = new List<float> { 0 };
         private readonly List<float> _defaultDraggerPositions = new List<float>();
         private readonly List<float> _resolvedDraggerPositions = new List<float>();
@@ -423,7 +430,13 @@ namespace Forma
         private bool _touchDraggerEnabled;
         private float _touchDraggerSize = 24;
         private SplitContainerDraggerVisibility _draggerVisibility = SplitContainerDraggerVisibility.Visible;
-        public SplitContainer(Orientation orientation) { Orientation = orientation; FocusMode = FocusMode.All; }
+        public SplitContainer(Orientation orientation)
+        {
+            Orientation = orientation;
+            FocusMode = FocusMode.All;
+            ChildAdded += OnLogicalChildrenChanged;
+            ChildRemoved += OnLogicalChildrenChanged;
+        }
         public Orientation Orientation { get; }
         /// <summary>Offset from the default half-way split, matching Godot's persisted split_offset.</summary>
         public float SplitOffset { get => GetSplitOffset(); set => SetSplitOffset(value); }
@@ -479,6 +492,11 @@ namespace Forma
             }
             return Vector2.Max(CustomMinimumSize, Orientation == Orientation.Horizontal ? new Vector2(main, cross) : new Vector2(cross, main));
         }
+        protected override void ArrangeChildren()
+        {
+            base.ArrangeChildren();
+            TemplateRoot?.QueueLayout();
+        }
         /// <summary>Clamps the saved offset so both visible children retain their minimum main-axis size.</summary>
         public void ClampSplitOffset(int index = 0)
         {
@@ -489,20 +507,20 @@ namespace Forma
             _splitOffsets[index] = _resolvedDraggerPositions[index] - _defaultDraggerPositions[index];
             QueueLayout();
         }
-        protected override void ArrangeChildren()
+        internal void ArrangePresentedChildren(IReadOnlyList<ContentPresenter> presenters, Vector2 availableSize)
         {
-            if (Children.Count == 0) return;
+            if (presenters.Count == 0) return;
             if (Children.Count == 1)
             {
-                Children[0].Position = Vector2.Zero;
-                Children[0].Size = Size;
+                presenters[0].Position = Vector2.Zero;
+                presenters[0].Size = availableSize;
                 _defaultDraggerPositions.Clear();
                 _resolvedDraggerPositions.Clear();
                 return;
             }
             EnsureDraggerState();
             ResolveDraggerPositions();
-            var total = GetMainSize(Size);
+            var total = GetMainSize(availableSize);
             var rtl = Orientation == Orientation.Horizontal && IsLayoutRtl();
             for (var index = 0; index < Children.Count; index++)
             {
@@ -512,13 +530,13 @@ namespace Forma
                 if (rtl) start = total - end;
                 if (Orientation == Orientation.Horizontal)
                 {
-                    Children[index].Position = new Vector2(start, 0);
-                    Children[index].Size = new Vector2(length, Size.Y);
+                    presenters[index].Position = new Vector2(start, 0);
+                    presenters[index].Size = new Vector2(length, availableSize.Y);
                 }
                 else
                 {
-                    Children[index].Position = new Vector2(0, start);
-                    Children[index].Size = new Vector2(Size.X, length);
+                    presenters[index].Position = new Vector2(0, start);
+                    presenters[index].Size = new Vector2(availableSize.X, length);
                 }
             }
         }
@@ -535,9 +553,12 @@ namespace Forma
         }
         internal override bool HitTestBeforeChildren(Point point)
         {
-            if (!TouchDraggerEnabled || !DraggingEnabled || Collapsed || DraggerVisibility != SplitContainerDraggerVisibility.Visible) return false;
+            if (!DraggingEnabled || Collapsed || DraggerVisibility != SplitContainerDraggerVisibility.Visible) return false;
             for (var index = 0; index < _resolvedDraggerPositions.Count; index++)
-                if (GetTouchDraggerBounds(index).Contains(point)) return true;
+            {
+                var bounds = TouchDraggerEnabled ? GetTouchDraggerBounds(index) : GetDividerBounds(index);
+                if (bounds.Contains(point)) return true;
+            }
             return false;
         }
         internal override void PointerMoved(Point point)
@@ -571,23 +592,7 @@ namespace Forma
             if (key == incrementKey) { SetSplitOffset(GetSplitOffset(_selectedDraggerIndex) + extent * 0.1f, _selectedDraggerIndex); ClampSplitOffset(_selectedDraggerIndex); return; }
             base.KeyPressed(key);
         }
-        internal override void Draw(UIRenderContext context)
-        {
-            if (DraggerVisibility == SplitContainerDraggerVisibility.Visible || (!Collapsed && DraggerVisibility != SplitContainerDraggerVisibility.Hidden))
-                for (var index = 0; index < _resolvedDraggerPositions.Count; index++)
-                {
-                    var bounds = TouchDraggerEnabled ? GetTouchDraggerBounds(index) : GetDividerBounds(index);
-                    var name = Orientation == Orientation.Horizontal ? TouchDraggerEnabled ? "h_touch_dragger" : "h_grabber" : TouchDraggerEnabled ? "v_touch_dragger" : "v_grabber";
-                    var grabber = GetThemeIcon(name);
-                    if (grabber.HasValue) context.Icon(grabber.Value, new Vector2(bounds.Center.X - grabber.Value.LogicalSize.X / 2, bounds.Center.Y - grabber.Value.LogicalSize.Y / 2), Color.White);
-                    else
-                    {
-                        context.Fill(GetDividerBounds(index), context.Theme.PanelBorderColor);
-                        if (TouchDraggerEnabled) context.Fill(GetTouchDraggerBounds(index), context.Theme.AccentColor);
-                    }
-                }
-            base.Draw(context);
-        }
+        internal int ResolvedDraggerCount => _resolvedDraggerPositions.Count;
         private void EnsureDraggerState()
         {
             var required = Math.Max(1, Children.Count - 1);
@@ -668,7 +673,7 @@ namespace Forma
                 for (var index = control.Children.Count - 1; index >= 0; index--) pending.Push(control.Children[index]);
             }
         }
-        private Rectangle GetDividerBounds(int index)
+        internal Rectangle GetDividerBounds(int index)
         {
             var total = GetMainSize(Size);
             var offset = _resolvedDraggerPositions[index];
@@ -677,12 +682,18 @@ namespace Forma
                 ? new Rectangle(Bounds.X + (int)offset, Bounds.Y, (int)DragAreaSize, Bounds.Height)
                 : new Rectangle(Bounds.X, Bounds.Y + (int)offset, Bounds.Width, (int)DragAreaSize);
         }
-            private Rectangle GetTouchDraggerBounds(int index)
-            {
-                var divider = GetDividerBounds(index);
-                var size = (int)Math.Ceiling(Math.Max(DragAreaSize, TouchDraggerSize));
-                return new Rectangle(divider.Center.X - size / 2, divider.Center.Y - size / 2, size, size);
-            }
+        internal Rectangle GetTouchDraggerBounds(int index)
+        {
+            var divider = GetDividerBounds(index);
+            var size = (int)Math.Ceiling(Math.Max(DragAreaSize, TouchDraggerSize));
+            return new Rectangle(divider.Center.X - size / 2, divider.Center.Y - size / 2, size, size);
+        }
+        private void OnLogicalChildrenChanged(Control owner, Control child)
+        {
+            if (TemplateRoot is SplitContainerPresenter presenter) presenter.SyncChildren();
+            else if (child.VisualParent == this) RemoveVisualChild(child);
+            QueueLayout();
+        }
     }
     public sealed class HSplitContainer : SplitContainer { public HSplitContainer() : base(Orientation.Horizontal) { } }
     public sealed class VSplitContainer : SplitContainer { public VSplitContainer() : base(Orientation.Vertical) { } }

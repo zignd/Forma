@@ -124,8 +124,11 @@ namespace Forma
     }
 
     /// <summary>A keyboard-focusable command popup with normal, check, radio and separator entries.</summary>
+    [TemplatePart(ItemsPartName, typeof(PopupMenuItems))]
     public sealed class PopupMenu : Popup
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Menu;
+        public const string ItemsPartName = "PART_Items";
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private readonly List<PopupMenuItem> _items = new List<PopupMenuItem>();
         private int _highlighted = -1;
@@ -621,6 +624,7 @@ namespace Forma
         }
         protected override void ArrangeChildren()
         {
+            base.ArrangeChildren();
             ItemsControl.Position = Vector2.Zero;
             ItemsControl.Size = Size;
         }
@@ -991,9 +995,8 @@ namespace Forma
             }
             return true;
         }
-        internal override void Draw(UIRenderContext context)
+        internal void DrawMenuContent(UIRenderContext context)
         {
-            base.Draw(context);
             var y = Bounds.Y + 1;
             if (IsSearchBarVisible)
             {
@@ -1131,9 +1134,23 @@ namespace Forma
     }
 
     /// <summary>Simple horizontal menu strip that owns menu buttons and opens one popup at a time.</summary>
-    public sealed class MenuBar : BoxContainer
+    public sealed class MenuBar : TemplatedControl
     {
-        public MenuBar() : base(Orientation.Horizontal) { Separation = 0; }
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.MenuBar;
+        private BoxAlignment _alignment;
+        private bool _reverseSort;
+        public MenuBar() { Separation = 0; }
+        public Orientation Orientation => Orientation.Horizontal;
+        public float Separation { get; set; }
+        public BoxAlignment Alignment { get => _alignment; set { _alignment = value; QueueLayout(); } }
+        public bool ReverseSort { get => _reverseSort; set { _reverseSort = value; QueueLayout(); } }
+        public Control AddSpacer(bool begin = false)
+        {
+            var spacer = new Control { MouseFilter = MouseFilter.Pass, HorizontalSizeFlags = SizeFlags.Expand | SizeFlags.Fill };
+            AddChild(spacer);
+            if (begin) MoveChild(spacer, 0);
+            return spacer;
+        }
         /// <summary>Gates the bar's own accelerator/shortcut activation across every child menu, matching Godot's MenuBar.disable_shortcuts.</summary>
         public bool DisableShortcuts { get; set; }
         /// <summary>Activates a matching item's accelerator/shortcut in any visible, enabled child menu without opening it, mirroring Godot's MenuBar::shortcut_input. Unlike PopupMenu's own routing, this fires even while every menu is closed.</summary>
@@ -1190,8 +1207,16 @@ namespace Forma
     }
 
     /// <summary>Popup dialog with explicit accepted/cancelled lifecycle events.</summary>
+    [TemplatePart(TitlePresenterPartName, typeof(Label))]
+    [TemplatePart(ContentControl.ContentPresenterPartName, typeof(Label))]
+    [TemplatePart(AcceptButtonPartName, typeof(BaseButton))]
+    [TemplatePart(CancelButtonPartName, typeof(BaseButton), false)]
     public class AcceptDialog : PopupPanel
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Dialog;
+        public const string TitlePresenterPartName = "PART_TitlePresenter";
+        public const string AcceptButtonPartName = "PART_AcceptButton";
+        public const string CancelButtonPartName = "PART_CancelButton";
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private sealed class DialogButtonEntry
         {
@@ -1202,6 +1227,10 @@ namespace Forma
         }
 
         private readonly List<DialogButtonEntry> _dialogButtons = new List<DialogButtonEntry>();
+        private Label _templateTitlePresenter;
+        private Label _templateContentPresenter;
+        private BaseButton _templateAcceptButton;
+        private BaseButton _templateCancelButton;
         public string Title { get; set; } = string.Empty;
         public string DialogText { get; set; } = string.Empty;
         private string _customOkText = string.Empty;
@@ -1286,6 +1315,7 @@ namespace Forma
         protected override void ArrangeChildren()
         {
             base.ArrangeChildren();
+            SynchronizeTemplateParts();
             var y = Math.Max(0, Size.Y - ButtonHeight - 8);
             var left = 8f;
             foreach (var entry in _dialogButtons)
@@ -1310,6 +1340,19 @@ namespace Forma
                 right -= 8;
             }
         }
+        protected override void OnTemplateApplied()
+        {
+            if (_templateAcceptButton != null) _templateAcceptButton.Pressed -= HandleTemplateAcceptPressed;
+            if (_templateCancelButton != null) _templateCancelButton.Pressed -= HandleTemplateCancelPressed;
+            _templateTitlePresenter = GetTemplateChild(TitlePresenterPartName) as Label;
+            _templateContentPresenter = GetTemplateChild(ContentControl.ContentPresenterPartName) as Label;
+            _templateAcceptButton = GetTemplateChild(AcceptButtonPartName) as BaseButton;
+            _templateCancelButton = GetTemplateChild(CancelButtonPartName) as BaseButton;
+            if (_templateAcceptButton != null) _templateAcceptButton.Pressed += HandleTemplateAcceptPressed;
+            if (_templateCancelButton != null) _templateCancelButton.Pressed += HandleTemplateCancelPressed;
+            SynchronizeTemplateParts();
+            base.OnTemplateApplied();
+        }
         internal override void PointerReleased(Point point, bool isInside)
         {
             if (!isInside) return;
@@ -1325,32 +1368,49 @@ namespace Forma
             }
             else base.KeyPressed(key);
         }
-        internal override void Draw(UIRenderContext context)
-        {
-            base.Draw(context);
-            var titleHeight = Math.Min(28, Bounds.Height);
-            context.Fill(new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, titleHeight), context.Theme.AccentColor);
-            if (EffectiveUIFont != null)
-            {
-                context.Text(EffectiveUIFont, Title, new Vector2(Bounds.X + 8, Bounds.Y + Math.Max(2, (titleHeight - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.TextColor);
-                if (!string.IsNullOrEmpty(DialogText)) context.Text(EffectiveUIFont, DialogText, new Vector2(Bounds.X + 10, Bounds.Y + titleHeight + 10), context.Theme.TextColor);
-            }
-            DrawAction(context, OkButtonBounds, OkText);
-            if (HasCancelButton) DrawAction(context, CancelButtonBounds, CancelLabelText);
-        }
+        internal virtual void DrawDialogBody(UIRenderContext context) { }
+        internal bool DialogHasCancelButton => HasCancelButton;
+        internal string DialogCancelLabelText => CancelLabelText;
+        internal Rectangle DialogOkButtonBounds => OkButtonBounds;
+        internal Rectangle DialogCancelButtonBounds => CancelButtonBounds;
         protected virtual bool HasCancelButton => false;
         protected virtual string CancelLabelText => string.Empty;
         protected virtual Rectangle OkButtonBounds => new Rectangle(Bounds.Right - 70, Bounds.Bottom - (int)ButtonHeight - 8, 60, (int)ButtonHeight);
         protected virtual Rectangle CancelButtonBounds => Rectangle.Empty;
+        private void HandleTemplateAcceptPressed(object sender, EventArgs args)
+        {
+            if (!OkButtonDisabled) Confirm();
+        }
+        private void HandleTemplateCancelPressed(object sender, EventArgs args) => Cancel();
+        private void SynchronizeTemplateParts()
+        {
+            if (_templateTitlePresenter != null)
+            {
+                _templateTitlePresenter.Text = Title;
+                _templateTitlePresenter.Font = Font;
+                _templateTitlePresenter.UIFont = UIFont;
+            }
+            if (_templateContentPresenter != null)
+            {
+                _templateContentPresenter.Text = DialogText;
+                _templateContentPresenter.Font = Font;
+                _templateContentPresenter.UIFont = UIFont;
+            }
+            if (_templateAcceptButton != null)
+            {
+                _templateAcceptButton.Text = OkText;
+                _templateAcceptButton.Enabled = !OkButtonDisabled;
+            }
+            if (_templateCancelButton != null)
+            {
+                _templateCancelButton.Text = DialogCancelLabelText;
+                _templateCancelButton.Visible = DialogHasCancelButton;
+            }
+        }
         private int GetDialogButtonWidth(Button button)
         {
             var textWidth = EffectiveUIFont == null ? (button.Text?.Length ?? 0) * 8 : (int)MathF.Ceiling(TextMetrics.Measure(EffectiveUIFont, button.Text ?? string.Empty).X);
             return Math.Max(60, textWidth + 16);
-        }
-        private void DrawAction(UIRenderContext context, Rectangle bounds, string text)
-        {
-            context.Fill(bounds, context.Theme.HoverColor); context.Border(bounds, context.Theme.PanelBorderColor);
-            if (EffectiveUIFont != null) context.Text(EffectiveUIFont, text, new Vector2(bounds.X + 8, bounds.Y + Math.Max(2, (bounds.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.TextColor);
         }
     }
 
@@ -1719,9 +1779,8 @@ namespace Forma
             var index = (int)((point.Y - EntriesBounds.Top) / EntryHeight);
             if (EntriesBounds.Contains(point) && index >= 0 && index < _entries.Count) SelectEntry(index, FileMode == FileDialogMode.OpenFiles);
         }
-        internal override void Draw(UIRenderContext context)
+        internal override void DrawDialogBody(UIRenderContext context)
         {
-            base.Draw(context);
             var pathBounds = new Rectangle(Bounds.X + 8, Bounds.Y + 32, Math.Max(0, Bounds.Width - 16), 20);
             context.Fill(pathBounds, context.Theme.BackgroundColor);
             context.Border(pathBounds, context.Theme.PanelBorderColor);

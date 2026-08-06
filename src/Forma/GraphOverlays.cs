@@ -30,11 +30,10 @@ namespace Forma
         private bool _panning;
         private bool _resizing;
         private Point _lastPointerPosition;
+        public GraphEditMinimap() => Opacity = .65f;
         public GraphEdit Graph { get; set; }
         public Color NodeColor { get; set; } = new Color(112, 178, 255);
         public Color ViewportColor { get; set; } = new Color(255, 255, 255, 120);
-        /// <summary>Opacity applied to the minimap overlay, equivalent to GraphEdit's minimap_opacity.</summary>
-        public float Opacity { get; set; } = .65f;
         /// <summary>Screen-space bounds of Godot's top-left minimap resize handle.</summary>
         public Rectangle GetResizeHandleBounds() => new Rectangle(Bounds.X, Bounds.Y, ResizeHandleSize, ResizeHandleSize);
         public override Vector2 GetMinimumSize() => Vector2.Max(CustomMinimumSize, new Vector2(120, 80));
@@ -93,9 +92,8 @@ namespace Forma
         internal override void PointerReleased(Point position, bool isInside) { _panning = false; _resizing = false; }
         internal override void Draw(UIRenderContext context)
         {
-            var alpha = (byte)MathHelper.Clamp(Opacity * 255, 0, 255);
-            context.Fill(Bounds, context.Theme.BackgroundColor.WithAlpha(alpha));
-            context.Border(Bounds, context.Theme.PanelBorderColor.WithAlpha(alpha));
+            context.Fill(Bounds, context.Theme.BackgroundColor);
+            context.Border(Bounds, context.Theme.PanelBorderColor);
             if (Graph != null)
             {
                 foreach (var connection in Graph.Connections)
@@ -103,14 +101,14 @@ namespace Forma
                     var points = GetConnectionLinePoints(connection);
                     if (points.Count < 2) continue;
                     var colors = GetConnectionLineColors(connection, context.Theme);
-                    DrawConnection(context, points, colors.From.WithAlpha(alpha), colors.To.WithAlpha(alpha));
+                    DrawConnection(context, points, colors.From, colors.To);
                 }
                 foreach (var child in Graph.Children)
-                    if (child is GraphNode node && node.Visible) context.Fill(GetNodeBounds(node), NodeColor.WithAlpha(alpha));
-                context.Border(GetCameraBounds(), ViewportColor.WithAlpha(alpha));
+                    if (child is GraphNode node && node.Visible) context.Fill(GetNodeBounds(node), NodeColor);
+                context.Border(GetCameraBounds(), ViewportColor);
             }
             var resizeHandle = GetResizeHandleBounds();
-            var resizeColor = context.Theme.PanelBorderColor.WithAlpha(alpha);
+            var resizeColor = context.Theme.PanelBorderColor;
             for (var offset = 3; offset <= 9; offset += 3)
                 context.Fill(new Rectangle(resizeHandle.X + offset - 1, resizeHandle.Y, 1, 12 - offset), resizeColor);
             base.Draw(context);

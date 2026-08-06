@@ -13,6 +13,7 @@ public sealed class CatalogShellViewModel : INotifyPropertyChanged
     private string _storyCategory = string.Empty;
     private string _description = string.Empty;
     private string _countText = string.Empty;
+    private string _hotReloadStatus = "XAML compiled";
     private bool _dynamicTextEnabled;
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -21,6 +22,7 @@ public sealed class CatalogShellViewModel : INotifyPropertyChanged
     public string StoryCategory { get => _storyCategory; set => Set(ref _storyCategory, value); }
     public string Description { get => _description; set => Set(ref _description, value); }
     public string CountText { get => _countText; set => Set(ref _countText, value); }
+    public string HotReloadStatus { get => _hotReloadStatus; set => Set(ref _hotReloadStatus, value); }
     public bool DynamicTextEnabled { get => _dynamicTextEnabled; set => Set(ref _dynamicTextEnabled, value); }
 
     private void Set<T>(ref T field, T value, [CallerMemberName] string name = null)

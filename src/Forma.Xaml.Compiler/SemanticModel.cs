@@ -3,6 +3,14 @@
 
 namespace Forma.Xaml.Compiler;
 
+public enum FormaXamlTemplateKind
+{
+    None,
+    Data,
+    Control,
+    ItemsPanel,
+}
+
 public sealed record FormaXamlMember(
     string Namespace,
     string Name,
@@ -10,7 +18,7 @@ public sealed record FormaXamlMember(
     FormaSourceLocation Location,
     bool IsDirective);
 
-public sealed class FormaXamlObject
+public class FormaXamlObject
 {
     public FormaXamlObject(string xmlNamespace, string typeName, FormaSourceLocation location)
     {
@@ -23,6 +31,9 @@ public sealed class FormaXamlObject
     public string TypeName { get; }
     public FormaSourceLocation Location { get; }
     public FormaXamlObject? Parent { get; internal set; }
+    public int ScopeId { get; internal set; }
+    public virtual FormaXamlTemplateKind TemplateKind => FormaXamlTemplateKind.None;
+    public bool IsPropertyElement => TypeName.Contains('.', StringComparison.Ordinal);
     public List<FormaXamlMember> Members { get; } = [];
     public List<FormaXamlObject> Children { get; } = [];
 
@@ -31,6 +42,23 @@ public sealed class FormaXamlObject
 
     public string? FindMember(string name) =>
         Members.FirstOrDefault(member => !member.IsDirective && member.Name == name)?.Value;
+}
+
+public sealed class FormaXamlTemplateObject : FormaXamlObject
+{
+    public FormaXamlTemplateObject(
+        string xmlNamespace,
+        string typeName,
+        FormaSourceLocation location,
+        FormaXamlTemplateKind templateKind)
+        : base(xmlNamespace, typeName, location)
+    {
+        if (templateKind == FormaXamlTemplateKind.None) throw new ArgumentOutOfRangeException(nameof(templateKind));
+        TemplateKind = templateKind;
+    }
+
+    public override FormaXamlTemplateKind TemplateKind { get; }
+    public IEnumerable<FormaXamlObject> ContentRoots => Children.Where(child => !child.IsPropertyElement);
 }
 
 public sealed class FormaXamlDocument
@@ -47,6 +75,7 @@ public sealed class FormaXamlDocument
     public IReadOnlyDictionary<string, string> Namespaces { get; }
     public string? RootClass => Root.FindDirective("Class");
     public string? DataType => Root.FindDirective("DataType");
+    public IEnumerable<FormaXamlTemplateObject> Templates => DescendantsAndSelf().OfType<FormaXamlTemplateObject>();
     public IEnumerable<FormaXamlObject> DescendantsAndSelf()
     {
         var stack = new Stack<FormaXamlObject>();
@@ -63,6 +92,7 @@ public sealed class FormaXamlDocument
 public sealed class FormaXamlParseOptions
 {
     public bool RequireCompiledBindings { get; init; }
+    public Func<string, string, Type?>? TypeResolver { get; init; }
 }
 
 public sealed class FormaXamlParseResult

@@ -4,6 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 valid_project="$repo_root/tests/Forma.Xaml.Build.Integration/Forma.Xaml.Build.Integration.csproj"
 invalid_project="$repo_root/tests/Forma.Xaml.Build.Invalid/Forma.Xaml.Build.Invalid.csproj"
+template_invalid_project="$repo_root/tests/Forma.Xaml.Build.TemplateInvalid/Forma.Xaml.Build.TemplateInvalid.csproj"
 temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/forma-xaml-build.XXXXXX")"
 trap 'rm -rf "$temporary_directory"' EXIT
 
@@ -35,7 +36,18 @@ for runtime in MonoGame FNA; do
     echo "Invalid Forma XAML fixture unexpectedly built for $runtime" >&2
     exit 1
   fi
-  grep -Eq 'InvalidView\.xaml\([0-9]+,[0-9]+\).*FXAML1003' "$temporary_directory/$runtime.invalid.log"
+  grep -Eq 'InvalidView\.xaml\([0-9]+,[0-9]+(,[0-9]+,[0-9]+)?\).*FXAML1003' "$temporary_directory/$runtime.invalid.log"
+
+  if MSBUILDDISABLENODEREUSE=1 dotnet build "$template_invalid_project" --configuration Debug --nologo -p:FormaRuntime="$runtime" > "$temporary_directory/$runtime.template-invalid.log" 2>&1; then
+    echo "Invalid Forma XAML template fixture unexpectedly built for $runtime" >&2
+    exit 1
+  fi
+  test "$(grep -Ec 'TemplateInvalidView\.xaml\([0-9]+,[0-9]+(,[0-9]+,[0-9]+)?\).*FXAML2501' "$temporary_directory/$runtime.template-invalid.log")" -ge 4
+  grep -Eq 'TemplateInvalidView\.xaml\([0-9]+,[0-9]+(,[0-9]+,[0-9]+)?\).*FXAML4001' "$temporary_directory/$runtime.template-invalid.log"
+  if grep -q 'FXAML7001' "$temporary_directory/$runtime.template-invalid.log"; then
+    echo "Invalid Forma XAML template fixture degraded to FXAML7001 for $runtime" >&2
+    exit 1
+  fi
 done
 
 echo "Forma XAML build fixtures: PASS"

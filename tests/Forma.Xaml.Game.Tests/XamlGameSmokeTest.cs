@@ -121,37 +121,128 @@ public sealed class XamlGameSmokeTest
     }
 
     [Test]
-    public async Task HotReloadKeepsCurrentGameViewModel()
+    public void GameScreenPreservesHudSettingsAndResultWorkflowsWithTemplatedControls()
+    {
+        using var screen = new GameScreen();
+        using var context = new UIContext { ViewportSize = new Vector2(960, 540) };
+        screen.Arrange(context.ViewportSize);
+        context.Add(screen);
+        context.Layout();
+        var hudScope = NameScope.GetNameScope(screen.HudView);
+        var settingsScope = NameScope.GetNameScope(screen.SettingsView);
+        var resultScope = NameScope.GetNameScope(screen.ResultView);
+        var pause = hudScope.Find<Button>("PauseButton");
+        var resume = settingsScope.Find<Button>("ResumeButton");
+        var playAgain = resultScope.Find<Button>("PlayAgainButton");
+        var sound = settingsScope.Find<CheckBox>("SoundEnabled");
+        var volume = settingsScope.Find<HSlider>("Volume");
+
+        screen.Update(TimeSpan.Zero, new GameInput(Vector2.UnitX, true, false, false));
+        Click(context, pause);
+        context.Layout();
+        sound.ButtonPressed = false;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(screen.Presenter.Session.Phase, Is.EqualTo(GamePhase.Paused));
+            Assert.That(screen.SettingsView.Visible, Is.True);
+            Assert.That(screen.ResultView.Visible, Is.False);
+            Assert.That(volume.Enabled, Is.False);
+            Assert.That(pause.TemplateRoot, Is.TypeOf<Border>());
+            Assert.That(pause.GetTemplateChild(ContentControl.ContentPresenterPartName), Is.TypeOf<ContentPresenter>());
+            Assert.That(resume.TemplateRoot, Is.TypeOf<Border>());
+            Assert.That(resume.GetTemplateChild(ContentControl.ContentPresenterPartName), Is.TypeOf<ContentPresenter>());
+            Assert.That(playAgain.TemplateRoot, Is.TypeOf<Border>());
+            Assert.That(playAgain.GetTemplateChild(ContentControl.ContentPresenterPartName), Is.TypeOf<ContentPresenter>());
+            Assert.That(sound.TemplateRoot, Is.Not.Null);
+            Assert.That(settingsScope.Find<LineEdit>("PlayerName").TemplateRoot, Is.Not.Null);
+        });
+
+        Click(context, resume);
+        screen.Update(GameSession.RoundDuration + TimeSpan.FromSeconds(1), default);
+        context.Layout();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(screen.Presenter.Session.Phase, Is.EqualTo(GamePhase.Result));
+            Assert.That(screen.SettingsView.Visible, Is.False);
+            Assert.That(screen.ResultView.Visible, Is.True);
+            Assert.That(resultScope.Find<Label>("ResultText").Text, Does.Contain("scored"));
+        });
+
+        Click(context, playAgain);
+        Assert.Multiple(() =>
+        {
+            Assert.That(screen.Presenter.Session.Phase, Is.EqualTo(GamePhase.Playing));
+            Assert.That(screen.Presenter.Session.Score, Is.Zero);
+            Assert.That(screen.ResultView.Visible, Is.False);
+        });
+    }
+
+    private static void Click(UIContext context, Control control)
+    {
+        var point = control.VisualBounds.Center;
+        var pressed = new MouseState(point.X, point.Y, 0, ButtonState.Pressed, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released);
+        var released = new MouseState(point.X, point.Y, 0, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released);
+        context.Update(new GameTime(), pressed, new KeyboardState());
+        context.Update(new GameTime(), released, new KeyboardState());
+    }
+
+    [Test]
+    public async Task HotReloadKeepsCurrentGameViewModelsSessionAndSettings()
     {
         var sourceRoot = typeof(GameHudView).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
             .SingleOrDefault(metadata => metadata.Key == "FormaXamlGameSourceRoot")?.Value;
         if (sourceRoot == null) Assert.Ignore("Game XAML source metadata is intentionally Debug-only.");
         var temporaryRoot = Path.Combine(Path.GetTempPath(), $"forma-xaml-game-{Guid.NewGuid():N}");
         Directory.CreateDirectory(temporaryRoot);
-        File.Copy(Path.Combine(sourceRoot, "GameHudView.xaml"), Path.Combine(temporaryRoot, "GameHudView.xaml"));
+        var viewSources = new[] { "GameHudView.xaml", "GameSettingsView.xaml", "GameResultView.xaml" };
+        foreach (var viewSource in viewSources)
+            File.Copy(Path.Combine(sourceRoot, viewSource), Path.Combine(temporaryRoot, viewSource));
         try
         {
             using var context = new UIContext();
-            var viewModel = new GameHudViewModel { ScoreText = "Score 9", RemainingText = "3.2 s" };
-            Control current = new GameHudView(viewModel);
-            context.Add(current);
+            using var screen = new GameScreen();
+            context.Add(screen);
+            var session = screen.Presenter.Session;
+            var movement = session.TargetPosition - session.PlayerPosition;
+            var travelTime = TimeSpan.FromSeconds(movement.Length() / 260f);
+            screen.Update(travelTime, new GameInput(movement, true, false, false));
+            Assert.That(session.Score, Is.EqualTo(1));
+            screen.Presenter.Settings.PlayerName = "Retained Pilot";
+            screen.Presenter.Settings.Difficulty = "Expert";
+            screen.Presenter.Settings.SoundEnabled = false;
+            screen.Presenter.Settings.Volume = 23;
+            var remaining = session.Remaining;
+            var hudModel = screen.Presenter.Hud;
+            var settingsModel = screen.Presenter.Settings;
+            var resultModel = screen.Presenter.Result;
+            var oldHud = screen.HudView;
+            var oldSettings = screen.SettingsView;
+            var oldResult = screen.ResultView;
             using var service = new FormaXamlHotReloadService(context, temporaryRoot, watchFiles: false);
-            using var registration = service.Register("GameHudView.xaml", () => current, (oldView, replacement) =>
-            {
-                context.Remove(oldView);
-                context.Add(replacement);
-                current = replacement;
-            });
+            var enableHotReload = typeof(GameScreen).GetMethod("EnableHotReload");
+            if (enableHotReload == null) Assert.Ignore("Signal Run hot-reload registration is intentionally Debug-only.");
+            enableHotReload.Invoke(screen, new object[] { service });
 
-            await service.RequestReloadAsync("GameHudView.xaml");
+            foreach (var viewSource in viewSources) await service.RequestReloadAsync(viewSource);
             context.Update(new GameTime(), new MouseState(), new KeyboardState());
 
             Assert.Multiple(() =>
             {
-                Assert.That(current, Is.Not.TypeOf<GameHudView>());
-                Assert.That(current.DataContext, Is.SameAs(viewModel));
-                Assert.That(((GameHudViewModel)current.DataContext).ScoreText, Is.EqualTo("Score 9"));
-                Assert.That(((GameHudViewModel)current.DataContext).RemainingText, Is.EqualTo("3.2 s"));
+                Assert.That(screen.HudView, Is.Not.SameAs(oldHud));
+                Assert.That(screen.SettingsView, Is.Not.SameAs(oldSettings));
+                Assert.That(screen.ResultView, Is.Not.SameAs(oldResult));
+                Assert.That(screen.HudView.DataContext, Is.SameAs(hudModel));
+                Assert.That(screen.SettingsView.DataContext, Is.SameAs(settingsModel));
+                Assert.That(screen.ResultView.DataContext, Is.SameAs(resultModel));
+                Assert.That(screen.Presenter.Session, Is.SameAs(session));
+                Assert.That(session.Score, Is.EqualTo(1));
+                Assert.That(session.Remaining, Is.EqualTo(remaining));
+                Assert.That(settingsModel.PlayerName, Is.EqualTo("Retained Pilot"));
+                Assert.That(settingsModel.Difficulty, Is.EqualTo("Expert"));
+                Assert.That(settingsModel.SoundEnabled, Is.False);
+                Assert.That(settingsModel.Volume, Is.EqualTo(23));
             });
         }
         finally

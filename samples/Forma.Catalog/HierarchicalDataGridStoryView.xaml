@@ -1,0 +1,28 @@
+<BoxContainer xmlns="https://forma.dev/xaml"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:local="clr-namespace:Forma.Catalog"
+              x:Class="Forma.Catalog.HierarchicalDataGridStoryView"
+              x:DataType="local:CatalogTreeStoryViewModel"
+              Separation="10"
+              VerticalSizeFlags="Fill, Expand"
+              CustomMinimumSize="760,0">
+  <HBoxContainer Separation="8">
+    <LineEdit x:Name="TreeFilter" PlaceholderText="Filter tree" TextChanged="OnFilterChanged" CustomMinimumSize="220,36" />
+    <Button Text="Expand all" Pressed="OnExpandAll" CustomMinimumSize="110,36" />
+    <Button Text="Collapse all" Pressed="OnCollapseAll" CustomMinimumSize="110,36" />
+    <Button x:Name="AddChild" Text="Add child" Pressed="OnAddChild" CustomMinimumSize="110,36" />
+  </HBoxContainer>
+  <DataGrid x:Name="TreeGrid"
+            ItemsSource="{Binding Roots}"
+            Mode="Hierarchical"
+            SelectionUnit="Row"
+            SelectionMode="Multi"
+            HorizontalSizeFlags="Fill, Expand"
+            VerticalSizeFlags="Fill, Expand"
+            CustomMinimumSize="740,0">
+    <DataGrid.Columns>
+      <local:CatalogTreeNameColumn Header="Name" Width="3*" />
+      <local:CatalogTreeKindColumn Header="Kind" Width="*" />
+    </DataGrid.Columns>
+  </DataGrid>
+</BoxContainer>

@@ -39,6 +39,7 @@ fi
 jq -e 'all(.Icons[]; .License == "Godot-MIT" and (.Source | startswith("scene/theme/icons/")) and (.Sha256 | test("^[0-9a-f]{64}$")))' \
   "$repository_root/assets/theme-icons/imports.json" >/dev/null
 grep -Fq 'Svg.Skia' "$repository_root/THIRD-PARTY-NOTICES.md"
+grep -Fq 'Clipper2 2.0.0' "$repository_root/THIRD-PARTY-NOTICES.md"
 jq -e '.unicodeVersion == "17.0.0" and (.files | length > 0) and all(.files[]; (.url | startswith("https://www.unicode.org/Public/17.0.0/")) and (.sha256 | test("^[0-9a-f]{64}$")))' \
   "$repository_root/assets/unicode/manifest.json" >/dev/null
 
@@ -47,6 +48,7 @@ for required_notice in "Godot Engine" "Bjorn Ottosson" "MonoGame" "FNA.NET" "Int
 done
 grep -Fq '<FreeTypeSharpVersion>3.1.0</FreeTypeSharpVersion>' "$repository_root/Directory.Build.props"
 grep -Fq '<HarfBuzzSharpVersion>14.2.1.1</HarfBuzzSharpVersion>' "$repository_root/Directory.Build.props"
+grep -Fq '<Clipper2Version>2.0.0</Clipper2Version>' "$repository_root/Directory.Build.props"
 grep -Fq 'FreeType 2.13.2 through FreeTypeSharp 3.1.0' "$repository_root/THIRD-PARTY-NOTICES.md"
 grep -Fq 'based in part on the work of the FreeType Team' "$repository_root/THIRD-PARTY-NOTICES.md"
 grep -Fq 'HarfBuzz 14.2.1 through HarfBuzzSharp 14.2.1.1' "$repository_root/THIRD-PARTY-NOTICES.md"

@@ -2,7 +2,7 @@
   "SchemaVersion": 1,
   "SourceRevision": "b4fb06cdb3db0c61db40c7b365bfa7adec3cb2ce",
   "Renderer": "Svg.Skia",
-  "RendererVersion": "3.2.0",
+  "RendererVersion": "5.2.0",
   "PixelFormat": "PNG RGBA8888 sRGB premultiplied alpha",
   "LogicalPadding": 2,
   "Atlases": [
@@ -11,14 +11,14 @@
       "FileName": "theme-icons-1x.png",
       "Width": 512,
       "Height": 134,
-      "Sha256": "7c1ea0c04a0a6d4151161508b9583fa2f5c4119cd2a83940e0ec922c66e15351"
+      "Sha256": "01e1cf594c993602833d50f378a20af7145a5eda6463ffab4ddfbe4a3aad1ec9"
     },
     {
       "Density": 2,
       "FileName": "theme-icons-2x.png",
       "Width": 1024,
       "Height": 268,
-      "Sha256": "ca01b9ca819db41849db7cb1ccef7c13a382f94f36a04a04eced8fc100d214a2"
+      "Sha256": "3e5f1a8259767b66ad9c00aad08a4699aa671b95e7b1ffc6614dc033549c35bb"
     }
   ],
   "Icons": [

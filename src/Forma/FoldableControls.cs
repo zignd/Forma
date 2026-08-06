@@ -54,12 +54,24 @@ namespace Forma
     }
 
     /// <summary>Collapsible vertically arranged section used by inspector-style interfaces.</summary>
-    public sealed class FoldableContainer : Container
+    public sealed class FoldableContainer : TemplatedControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Group;
+        public override string AccessibilityName => string.IsNullOrEmpty(base.AccessibilityName) ? Title ?? string.Empty : base.AccessibilityName;
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions |
+            (Folded ? AccessibilityActions.Expand : AccessibilityActions.Collapse);
+        public override AccessibilityStates AccessibilityStates => base.AccessibilityStates |
+            (Folded ? AccessibilityStates.Collapsed : AccessibilityStates.Expanded);
         private bool _folded;
         private FoldableGroup _foldableGroup;
         private bool _changingGroup;
-        public FoldableContainer() { FocusMode = FocusMode.All; HeaderHeight = 28; }
+        public FoldableContainer()
+        {
+            FocusMode = FocusMode.All;
+            HeaderHeight = 28;
+            ChildAdded += OnLogicalChildrenChanged;
+            ChildRemoved += OnLogicalChildrenChanged;
+        }
         public string Title { get; set; } = string.Empty;
         public float HeaderHeight { get; set; }
         public bool Folded
@@ -120,12 +132,18 @@ namespace Forma
         }
         protected override void ArrangeChildren()
         {
+            base.ArrangeChildren();
+            TemplateRoot?.QueueLayout();
+        }
+        internal void ArrangePresentedChildren(IReadOnlyList<ContentPresenter> presenters, Vector2 availableSize)
+        {
             var y = HeaderHeight;
-            foreach (var child in Children)
+            foreach (var presenter in presenters)
             {
-                if (!child.Visible) continue;
+                if (presenter.Content is not Control child || !child.Visible) continue;
                 var height = child.GetMinimumSize().Y;
-                child.Position = new Vector2(0, y); child.Size = new Vector2(Size.X, height);
+                presenter.Position = new Vector2(0, y);
+                presenter.Size = new Vector2(availableSize.X, height);
                 y += height;
             }
         }
@@ -140,14 +158,13 @@ namespace Forma
             if (key == Keys.Enter || key == Keys.Space) { Folded = !Folded; FoldedChanged?.Invoke(this, Folded); return; }
             base.KeyPressed(key);
         }
-        internal override void Draw(UIRenderContext context)
+        internal override bool HitTestBeforeChildren(Point point) =>
+            point.Y >= Bounds.Top && point.Y < Bounds.Top + HeaderHeight;
+        private void OnLogicalChildrenChanged(Control owner, Control child)
         {
-            context.Fill(new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, (int)HeaderHeight), context.Theme.PanelColor);
-            context.Border(new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, (int)HeaderHeight), context.Theme.PanelBorderColor);
-            var arrow = GetThemeIcon(GetArrowIconName());
-            if (arrow.HasValue) context.Icon(arrow.Value, new Vector2(Bounds.X + 6, Bounds.Y + (HeaderHeight - arrow.Value.LogicalSize.Y) / 2), Color.White);
-            else context.Fill(new Rectangle(Bounds.X + 6, Bounds.Y + (int)HeaderHeight / 2 - 3, Folded ? 6 : 3, Folded ? 3 : 6), context.Theme.AccentColor);
-            base.Draw(context);
+            if (TemplateRoot is FoldableContainerPresenter presenter) presenter.SyncChildren();
+            else if (child.VisualParent == this) RemoveVisualChild(child);
+            QueueLayout();
         }
         internal string GetArrowIconName() => Folded ? IsLayoutRtl() ? "folded_arrow_mirrored" : "folded_arrow" : IsLayoutRtl() ? "expanded_arrow_mirrored" : "expanded_arrow";
     }
@@ -156,10 +173,5 @@ namespace Forma
     public sealed class ColorPresetButton : BaseButton
     {
         public Color Color { get; set; } = Color.White;
-        internal override void Draw(UIRenderContext context)
-        {
-            base.Draw(context);
-            context.Fill(new Rectangle(Bounds.X + 4, Bounds.Y + 4, Math.Max(0, Bounds.Width - 8), Math.Max(0, Bounds.Height - 8)), Color);
-        }
     }
 }

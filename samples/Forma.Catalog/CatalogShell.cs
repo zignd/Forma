@@ -114,6 +114,13 @@ public sealed class CatalogShell : BoxContainer
         BuildInspector(replacement);
     }
 
+    public void ReportHotReloadDiagnostics(int count, string summary)
+    {
+        _viewModel.HotReloadStatus = count == 0
+            ? "XAML reload ready"
+            : $"XAML: {count} issue{(count == 1 ? string.Empty : "s")} · {summary}";
+    }
+
     private void BindVisualTree()
     {
         var scope = NameScope.GetNameScope(this) ?? throw new InvalidOperationException("CatalogShell XAML did not create a namescope.");

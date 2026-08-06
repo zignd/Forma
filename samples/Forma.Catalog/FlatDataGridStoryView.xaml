@@ -1,0 +1,36 @@
+<BoxContainer xmlns="https://forma.dev/xaml"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:local="clr-namespace:Forma.Catalog"
+              x:Class="Forma.Catalog.FlatDataGridStoryView"
+              x:DataType="local:CatalogGridStoryViewModel"
+              Separation="10"
+              VerticalSizeFlags="Fill, Expand"
+              CustomMinimumSize="760,0">
+  <HBoxContainer Separation="8">
+    <LineEdit x:Name="GridFilter"
+              PlaceholderText="Filter contributors or teams"
+              TextChanged="OnFilterChanged"
+              ClearButtonEnabled="True"
+              CustomMinimumSize="360,36" />
+    <Button Text="Clear filter" Pressed="OnClearFilter" CustomMinimumSize="120,36" />
+  </HBoxContainer>
+  <DataGrid x:Name="FlatGrid"
+            ItemsSource="{Binding Rows}"
+            SelectionUnit="Cell"
+            SelectionMode="Multi"
+            HorizontalSizeFlags="Fill, Expand"
+            VerticalSizeFlags="Fill, Expand"
+            CustomMinimumSize="740,0">
+    <DataGrid.Columns>
+      <local:CatalogGridNameColumn Header="Contributor" Width="2*">
+        <DataGridColumn.CellTemplate>
+          <DataTemplate x:DataType="local:CatalogGridRow">
+            <TextBlock Text="{Binding Name}" />
+          </DataTemplate>
+        </DataGridColumn.CellTemplate>
+      </local:CatalogGridNameColumn>
+      <local:CatalogGridTeamColumn Header="Team" Width="*" />
+      <local:CatalogGridScoreColumn Header="Score" Width="80" />
+    </DataGrid.Columns>
+  </DataGrid>
+</BoxContainer>

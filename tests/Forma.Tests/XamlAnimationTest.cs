@@ -122,6 +122,67 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void Storyboard_StopUnregistersActiveSessionEntriesAcrossRepeatedStarts()
+        {
+            var root = CreateNamedRoot(out _);
+            var storyboard = CreatePositionStoryboard(FillBehavior.Stop);
+            for (var index = 0; index < 100; index++)
+            {
+                var clock = storyboard.Begin(root);
+                clock.Stop();
+                Assert.That(XamlAttachment.GetActiveSessionCounts(root), Is.EqualTo((0, 0)));
+            }
+        }
+
+        [Test]
+        public void Storyboard_NaturalCompletionUnregistersUpdateParticipant()
+        {
+            using var context = new UIContext();
+            var root = CreateNamedRoot(out _);
+            var storyboard = CreatePositionStoryboard(FillBehavior.HoldEnd);
+            storyboard.Begin(root);
+            context.Add(root);
+
+            context.Update(Time(TimeSpan.FromSeconds(1)), new MouseState(), new KeyboardState());
+
+            Assert.That(XamlAttachment.GetActiveSessionCounts(root).Participants, Is.Zero);
+        }
+
+        [Test]
+        public void Storyboard_RepeatedNaturalCompletionKeepsOneHoldEndClock()
+        {
+            using var context = new UIContext();
+            var root = CreateNamedRoot(out _);
+            var storyboard = CreatePositionStoryboard(FillBehavior.HoldEnd);
+            context.Add(root);
+            for (var index = 0; index < 100; index++)
+            {
+                storyboard.Begin(root);
+                context.Update(Time(TimeSpan.FromSeconds(1)), new MouseState(), new KeyboardState());
+                Assert.That(XamlAttachment.GetActiveSessionCounts(root), Is.EqualTo((1, 0)));
+            }
+        }
+
+        [Test]
+        public void PropertyTrigger_FailedInitialStoryboardRollsBackSourceSubscription()
+        {
+            var root = CreateNamedRoot(out _);
+            var viewModel = new CountingTriggerViewModel { Active = true };
+            var path = new CompiledBindingPath<CountingTriggerViewModel, bool>(
+                source => BindingValue<bool>.FromValue(source.Active),
+                (source, update) => BindingSubscriptions.PropertyChanged(source, nameof(CountingTriggerViewModel.Active), update));
+            var storyboard = new Storyboard();
+            var timeline = new FloatTimeline("Missing", new XamlProperty<float>("Value", _ => 0, (_, _) => { }));
+            timeline.KeyFrames.Add(new KeyFrame<float>(TimeSpan.Zero, 0));
+            storyboard.Timelines.Add(timeline);
+
+            Assert.Throws<InvalidOperationException>(() =>
+                StoryboardTriggers.AttachProperty(root, path, viewModel, true, storyboard));
+
+            Assert.That(viewModel.SubscriberCount, Is.Zero);
+        }
+
+        [Test]
         public void TypedTimelinesInterpolateColorFloatVectorAndThickness()
         {
             var target = new TimelineTarget { Scalar = 2, Color = Color.Black, Thickness = Thickness.Zero };
@@ -169,6 +230,18 @@ namespace Forma.Tests
             private bool _active;
             public event PropertyChangedEventHandler PropertyChanged;
             public bool Active { get => _active; set { if (_active == value) return; _active = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Active))); } }
+        }
+
+        private sealed class CountingTriggerViewModel : INotifyPropertyChanged
+        {
+            private PropertyChangedEventHandler _propertyChanged;
+            public event PropertyChangedEventHandler PropertyChanged
+            {
+                add { _propertyChanged += value; SubscriberCount++; }
+                remove { _propertyChanged -= value; SubscriberCount--; }
+            }
+            public int SubscriberCount { get; private set; }
+            public bool Active { get; set; }
         }
 
         private sealed class TimelineTarget

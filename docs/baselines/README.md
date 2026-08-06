@@ -16,3 +16,8 @@ make text-baseline
 The `dynamic-text-after/` matrix captures desktop 1x, Retina 2x, narrow wrapping/selection, and RTL
 states for both runtime peers. Regenerate it with `scripts/capture-dynamic-text-states.sh`; inspect
 the PNGs before treating them as approved visual evidence.
+
+Template, items, selector, `DataGrid`, virtualization, and compositor invariants are documented
+separately in [xaml-template-performance.md](xaml-template-performance.md). That record distinguishes
+deterministic `make performance`/`make performance-graphics` bounds from host-specific benchmark
+observations.

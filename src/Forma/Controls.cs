@@ -83,7 +83,6 @@ namespace Forma
         private string _text = string.Empty;
         private LabelAutowrapMode _autowrapMode;
         private TextDirection _textDirection = TextDirection.Auto;
-        private string _language = string.Empty;
         private float[] _tabStops = Array.Empty<float>();
         private IReadOnlyList<UIFontOpenTypeFeature> _openTypeFeatures = Array.Empty<UIFontOpenTypeFeature>();
         private IReadOnlyList<object> _structuredTextBidiOverrideOptions = Array.Empty<object>();
@@ -103,10 +102,10 @@ namespace Forma
         }
         public SpriteFont Font { get => _fontSelection.SpriteFont; set { _fontSelection.SetSpriteFont(value); QueueLayout(); } }
         public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
-        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
-        public Color? FontColor { get; set; }
-        public HorizontalAlignment HorizontalAlignment { get; set; }
-        public VerticalAlignment VerticalAlignment { get; set; }
+        internal UIFont EffectiveUIFont => ResolveFont(_fontSelection, FontFamily, FontSize, FontWeight, FontStyle, FontStretch);
+        public Color? FontColor { get => Foreground; set => Foreground = value; }
+        public new HorizontalAlignment HorizontalAlignment { get; set; }
+        public new VerticalAlignment VerticalAlignment { get; set; }
         /// <summary>Legacy convenience switch; true maps to Godot's WordSmart mode.</summary>
         public bool Autowrap { get => AutowrapMode != LabelAutowrapMode.Off; set => AutowrapMode = value ? LabelAutowrapMode.WordSmart : LabelAutowrapMode.Off; }
         public LabelAutowrapMode AutowrapMode { get => _autowrapMode; set { _autowrapMode = value; QueueLayout(); } }
@@ -122,7 +121,6 @@ namespace Forma
         public string ParagraphSeparator { get; set; } = "\n";
         public float ParagraphSpacing { get; set; }
         public TextDirection TextDirection { get => _textDirection; set { if (_textDirection == value) return; _textDirection = value; QueueLayout(); } }
-        public string Language { get => _language; set { value ??= string.Empty; if (_language == value) return; _language = value; QueueLayout(); } }
         public StructuredTextParser StructuredTextBidiOverride { get; set; } = StructuredTextParser.Default;
         public LabelJustificationFlags JustificationFlags { get; set; } = LabelJustificationFlags.Kashida | LabelJustificationFlags.WordBound | LabelJustificationFlags.SkipLastLine | LabelJustificationFlags.DoNotSkipSingleLine;
         public Thickness Padding { get; set; } = new Thickness(3);
@@ -213,7 +211,7 @@ namespace Forma
             }
             return Font?.LineSpacing ?? 16;
         }
-        public Rectangle GetCharacterBounds(int position)
+        public virtual Rectangle GetCharacterBounds(int position)
         {
             var dynamicLayout = GetDynamicLayout();
             if (dynamicLayout != null) return GetDynamicCharacterBounds(dynamicLayout, position);
@@ -500,7 +498,7 @@ namespace Forma
                 wrapping,
                 HorizontalAlignment,
                 direction,
-                1,
+                GetTextLineSpacing(font),
                 4,
                 trimming,
                 maxVisibleCharacters,
@@ -511,8 +509,10 @@ namespace Forma
                 ellipsis: EllipsisCharacter,
                 paragraphSpacing: ParagraphSpacing,
                 justificationFlags: MapJustificationFlags());
-            return (Context?.TextLayoutEngine ?? DynamicLayoutEngine).Layout(font, text, options);
+            return AdjustTextLayout((Context?.TextLayoutEngine ?? DynamicLayoutEngine).Layout(font, text, options));
         }
+        protected virtual float GetTextLineSpacing(UIFont font) => 1;
+        protected virtual TextLayout AdjustTextLayout(TextLayout layout) => layout;
         private TextJustificationFlags MapJustificationFlags()
         {
             var flags = TextJustificationFlags.None;
@@ -774,8 +774,14 @@ namespace Forma
         Release,
     }
 
-    public class BaseButton : Control
+    public class BaseButton : ContentControl
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Button;
+        public override string AccessibilityName => string.IsNullOrEmpty(base.AccessibilityName) ? Text ?? string.Empty : base.AccessibilityName;
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions | AccessibilityActions.Press |
+            (ToggleMode ? AccessibilityActions.Toggle : AccessibilityActions.None);
+        public override AccessibilityStates AccessibilityStates => base.AccessibilityStates |
+            (ButtonPressed ? AccessibilityStates.Checked : AccessibilityStates.None);
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private bool _pressed;
         private bool _activationHandled;
@@ -841,6 +847,12 @@ namespace Forma
         public bool IsShortcutFeedbackActive => _shortcutFeedbackRemaining > 0;
         /// <summary>Whether the button should currently render as pressed, matching Godot's BaseButton::get_draw_mode() DRAW_PRESSED case. Unlike <see cref="IsPressing"/>/release activation, this combines with <see cref="KeepPressedOutside"/> while dragging outside the button's bounds. A keyboard-driven press is always visually pressed, matching Godot's status.pressing_inside being forced true for the accept-action path.</summary>
         public bool IsVisuallyPressed => (_pressed && (IsHovering || KeepPressedOutside || _activeKey != null)) || ButtonPressed || IsShortcutFeedbackActive;
+        public override bool IsPseudoStateActive(string state) => state switch
+        {
+            "pressed" => IsVisuallyPressed,
+            "checked" => ButtonPressed,
+            _ => base.IsPseudoStateActive(state),
+        };
         public event EventHandler Pressed;
         public event EventHandler ButtonDown;
         public event EventHandler ButtonUp;
@@ -878,7 +890,7 @@ namespace Forma
                 text.Y = VerticalIconAlignment == VerticalAlignment.Center ? Math.Max(text.Y, icon.Y) : text.Y + icon.Y;
                 text.X = IconAlignment == HorizontalAlignment.Center ? Math.Max(text.X, icon.X) : text.X + icon.X + (text.X > 0 ? IconSeparation : 0);
             }
-            return Vector2.Max(CustomMinimumSize, text + new Vector2(Padding.Horizontal, Padding.Vertical));
+            return Vector2.Max(base.GetMinimumSize(), Vector2.Max(CustomMinimumSize, text + new Vector2(Padding.Horizontal, Padding.Vertical)));
         }
         /// <summary>Calculates local text placement independent of a font renderer.</summary>
         public Vector2 GetTextPosition(Vector2 textSize)
@@ -905,8 +917,9 @@ namespace Forma
             var y = VerticalIconAlignment == VerticalAlignment.Bottom ? Size.Y - Padding.Bottom - size.Y : VerticalIconAlignment == VerticalAlignment.Center ? (Size.Y - size.Y) / 2 : Padding.Top;
             return new Rectangle((int)MathF.Round(MathF.Max(Padding.Left, x)), (int)MathF.Round(MathF.Max(Padding.Top, y)), Math.Max(0, (int)MathF.Round(size.X)), Math.Max(0, (int)MathF.Round(size.Y)));
         }
-        internal override void PointerEntered() { IsHovering = true; base.PointerEntered(); }
-        internal override void PointerExited() { IsHovering = false; base.PointerExited(); }
+        internal override bool HitTestBeforeChildren(Point point) => ContainsPoint(point);
+        internal override void PointerEntered() { IsHovering = true; base.PointerEntered(); NotifyPseudoStateChanged("pressed"); }
+        internal override void PointerExited() { IsHovering = false; base.PointerExited(); NotifyPseudoStateChanged("pressed"); }
         internal override void PointerPressed(Point position)
         {
             if (IsPointerButtonMasked(PointerButton.Left)) BeginPointerActivation(position, PointerButton.Left);
@@ -936,6 +949,7 @@ namespace Forma
             _activeKey = key;
             _pressed = true;
             ButtonDown?.Invoke(this, EventArgs.Empty);
+            NotifyPseudoStateChanged("pressed");
             // Godot's on_action_event treats the accept action like every other input kind: it honors
             // action_mode (activating immediately on press, or waiting for the matching release below).
             _activationHandled = ActionMode == ButtonActionMode.Press;
@@ -950,19 +964,26 @@ namespace Forma
             _pressed = false;
             _activationHandled = false;
             ButtonUp?.Invoke(this, EventArgs.Empty);
+            NotifyPseudoStateChanged("pressed");
             if (activate) Activate();
         }
         internal override bool ShortcutInput(Keys key, KeyboardState keyboard)
         {
             if (!Enabled || !Visible || Shortcut == null || !Shortcut.Matches(key, keyboard)) return false;
             Activate();
-            if (ShortcutFeedback) _shortcutFeedbackRemaining = Math.Max(0, ShortcutFeedbackDuration);
+            if (ShortcutFeedback)
+            {
+                _shortcutFeedbackRemaining = Math.Max(0, ShortcutFeedbackDuration);
+                NotifyPseudoStateChanged("pressed");
+            }
             return true;
         }
         internal override void Process(GameTime gameTime)
         {
+            var wasActive = IsShortcutFeedbackActive;
             if (_shortcutFeedbackRemaining > 0)
                 _shortcutFeedbackRemaining = Math.Max(0, _shortcutFeedbackRemaining - (float)gameTime.ElapsedGameTime.TotalSeconds);
+            if (wasActive != IsShortcutFeedbackActive) NotifyPseudoStateChanged("pressed");
             base.Process(gameTime);
         }
         public override string GetTooltip(Point position)
@@ -995,6 +1016,7 @@ namespace Forma
             _activePointerButton = button;
             _pressed = true;
             ButtonDown?.Invoke(this, EventArgs.Empty);
+            NotifyPseudoStateChanged("pressed");
             _activationHandled = ActionMode == ButtonActionMode.Press;
             if (_activationHandled) Activate(true);
         }
@@ -1008,6 +1030,7 @@ namespace Forma
             _activePointerButton = PointerButton.None;
             _activationHandled = false;
             if (wasPressing) ButtonUp?.Invoke(this, EventArgs.Empty);
+            if (wasPressing) NotifyPseudoStateChanged("pressed");
             if (activate) Activate(true);
         }
         private void Activate(bool fromPointer = false)
@@ -1042,42 +1065,9 @@ namespace Forma
             if (_buttonPressed == pressed) return false;
             _buttonPressed = pressed;
             if (emitSignal) Toggled?.Invoke(this, pressed);
+            NotifyPseudoStateChanged("checked");
+            NotifyPseudoStateChanged("pressed");
             return true;
-        }
-        internal override void Draw(UIRenderContext context)
-        {
-            var visuallyPressed = IsVisuallyPressed;
-            var styleName = !Enabled ? "disabled" : visuallyPressed ? "pressed" : IsHovering ? "hover" : "normal";
-            var style = GetThemeStyleBox(styleName);
-            if (style != null) style.Draw(context, Bounds);
-            else if (Flat)
-            {
-                if (Context?.FocusedControl == this) context.Border(Bounds, context.Theme.FocusColor);
-            }
-            else
-            {
-                var color = visuallyPressed ? context.Theme.PressedColor : IsHovering ? context.Theme.HoverColor : context.Theme.PanelColor;
-                context.Fill(Bounds, color);
-                context.Border(Bounds, Context?.FocusedControl == this ? context.Theme.FocusColor : context.Theme.PanelBorderColor);
-            }
-            var decorativeIcon = Icon == null ? DecorativeIconProvider?.Invoke() : null;
-            if (Icon != null)
-            {
-                var icon = GetIconRectangle(new Vector2(Icon.Width, Icon.Height));
-                if (icon.Width > 0 && icon.Height > 0) context.SpriteBatch.Draw(Icon, new Rectangle(Bounds.X + icon.X, Bounds.Y + icon.Y, icon.Width, icon.Height), Enabled ? IconModulate : context.Theme.DisabledTextColor);
-            }
-            else if (decorativeIcon.HasValue)
-            {
-                var icon = GetIconRectangle(decorativeIcon.Value.LogicalSize.ToVector2());
-                if (icon.Width > 0 && icon.Height > 0) context.Icon(decorativeIcon.Value, new Rectangle(Bounds.X + icon.X, Bounds.Y + icon.Y, icon.Width, icon.Height), Enabled ? IconModulate : context.Theme.DisabledTextColor);
-            }
-            if (EffectiveUIFont != null && !string.IsNullOrEmpty(Text) && (!decorativeIcon.HasValue || !HideTextWhenDecorativeIconAvailable))
-            {
-                var textSize = TextMetrics.Measure(EffectiveUIFont, Text);
-                var pos = GlobalPosition + GetTextPosition(textSize);
-                context.Text(EffectiveUIFont, Text, pos, Enabled ? context.Theme.TextColor : context.Theme.DisabledTextColor);
-            }
-            base.Draw(context);
         }
     }
 
@@ -1125,11 +1115,12 @@ namespace Forma
 
     public class CheckBox : BaseButton
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.CheckBox;
         public bool Checked { get => ButtonPressed; set => ButtonPressed = value; }
         public CheckBox() { ToggleMode = true; Padding = new Thickness(8, 4, 8, 4); }
         public override Vector2 GetMinimumSize()
         {
-            var icon = GetThemeIcon(GetStateIconName());
+            var icon = GetStateIcon();
             var result = base.GetMinimumSize();
             if (icon.HasValue)
             {
@@ -1138,24 +1129,7 @@ namespace Forma
             }
             return Vector2.Max(CustomMinimumSize, result);
         }
-        internal override void Draw(UIRenderContext context)
-        {
-            var icon = GetThemeIcon(GetStateIconName());
-            var originalPadding = Padding;
-            if (icon.HasValue)
-            {
-                var reserve = icon.Value.LogicalSize.X + IconSeparation;
-                Padding = IsLayoutRtl()
-                    ? new Thickness(originalPadding.Left, originalPadding.Top, originalPadding.Right + reserve, originalPadding.Bottom)
-                    : new Thickness(originalPadding.Left + reserve, originalPadding.Top, originalPadding.Right, originalPadding.Bottom);
-            }
-            base.Draw(context);
-            Padding = originalPadding;
-            if (!icon.HasValue) return;
-            var x = IsLayoutRtl() ? Bounds.Right - (int)originalPadding.Right - icon.Value.LogicalSize.X : Bounds.X + (int)originalPadding.Left;
-            var y = Bounds.Center.Y - icon.Value.LogicalSize.Y / 2;
-            context.Icon(icon.Value, new Vector2(x, y), Color.White);
-        }
+        internal ThemeIcon? GetStateIcon() => GetThemeIcon(GetStateIconName());
         private string GetStateIconName()
         {
             var name = ButtonGroup != null ? (Checked ? "radio_checked" : "radio_unchecked") : Checked ? "checked" : "unchecked";
@@ -1168,8 +1142,11 @@ namespace Forma
     /// <summary>Toggle button variant that shares check-box semantics without a box glyph.</summary>
     public sealed class CheckButton : CheckBox { }
 
-    public abstract class Range : Control
+    public abstract class Range : TemplatedControl
     {
+        public override string AccessibilityValue => Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions |
+            AccessibilityActions.Increment | AccessibilityActions.Decrement | AccessibilityActions.SetValue;
         private sealed class SharedState
         {
             public float Value, MinValue, MaxValue = 100, Step = 1, Page;
@@ -1247,6 +1224,7 @@ namespace Forma
 
     public class Slider : Range
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.Slider;
         private bool _dragging;
         private bool _hovering;
         private float _dragStartMain;
@@ -1348,26 +1326,8 @@ namespace Forma
             Value += delta > 0 ? Step : -Step;
             return true;
         }
-        internal override void Draw(UIRenderContext context)
-        {
-            var rect = Bounds;
-            var track = Orientation == Orientation.Horizontal ? new Rectangle(rect.X, rect.Center.Y - 2, rect.Width, 4) : new Rectangle(rect.Center.X - 2, rect.Y, 4, rect.Height);
-            context.Fill(track, context.Theme.PanelBorderColor);
-            var grabber = GetSliderThemeIcon(!Enabled || !Editable ? "grabber_disabled" : _hovering || _dragging ? "grabber_highlight" : "grabber");
-            if (grabber.HasValue)
-            {
-                var mainLength = Orientation == Orientation.Horizontal ? rect.Width - grabber.Value.LogicalSize.X : rect.Height - grabber.Value.LogicalSize.Y;
-                var ratio = Orientation == Orientation.Horizontal && IsLayoutRtl() ? 1 - Ratio : Orientation == Orientation.Vertical ? 1 - Ratio : Ratio;
-                var x = Orientation == Orientation.Horizontal ? rect.X + (int)MathF.Round(ratio * Math.Max(0, mainLength)) : rect.Center.X - grabber.Value.LogicalSize.X / 2;
-                var y = Orientation == Orientation.Vertical ? rect.Y + (int)MathF.Round(ratio * Math.Max(0, mainLength)) : rect.Center.Y - grabber.Value.LogicalSize.Y / 2;
-                context.Icon(grabber.Value, new Vector2(x, y), Color.White);
-            }
-            var tickIcon = GetSliderThemeIcon("tick");
-            if (tickIcon.HasValue)
-                foreach (var tick in GetTickRectangles())
-                    context.Icon(tickIcon.Value, new Vector2(rect.X + tick.Center.X - tickIcon.Value.LogicalSize.X / 2, rect.Y + tick.Center.Y - tickIcon.Value.LogicalSize.Y / 2), Color.White);
-            base.Draw(context);
-        }
+        internal override bool HitTestBeforeChildren(Point point) => ContainsPoint(point);
+        internal bool IsGrabberHighlighted => _hovering || _dragging;
 
         internal ThemeIcon? GetSliderThemeIcon(string itemName) => GetThemeIcon(itemName, Orientation == Orientation.Horizontal ? nameof(HSlider) : nameof(VSlider));
 
@@ -1394,6 +1354,9 @@ namespace Forma
 
     public sealed class ProgressBar : Range
     {
+        public override AccessibilityRole AccessibilityRole => AccessibilityRole.ProgressBar;
+        public override AccessibilityActions AccessibilityActions => base.AccessibilityActions &
+            ~(AccessibilityActions.Increment | AccessibilityActions.Decrement | AccessibilityActions.SetValue);
         private readonly UIFontSelection _fontSelection = new UIFontSelection();
         private ProgressBarFillMode _fillMode;
         private bool _indeterminate;
@@ -1461,34 +1424,6 @@ namespace Forma
                 if (IndeterminateOffset > extent + segment) IndeterminateOffset = 0;
             }
             base.Process(gameTime);
-        }
-        internal override void Draw(UIRenderContext context)
-        {
-            context.Fill(Bounds, context.Theme.BackgroundColor); context.Border(Bounds, context.Theme.PanelBorderColor);
-            if (Indeterminate)
-            {
-                var segment = Math.Max(1, (int)MathF.Round(Math.Min(Bounds.Width, Bounds.Height) * 2));
-                Rectangle fill;
-                switch (FillMode)
-                {
-                    case ProgressBarFillMode.EndToBegin: fill = new Rectangle(Bounds.Right - (int)IndeterminateOffset, Bounds.Y + 1, segment, Math.Max(0, Bounds.Height - 2)); break;
-                    case ProgressBarFillMode.TopToBottom: fill = new Rectangle(Bounds.X + 1, Bounds.Y + (int)IndeterminateOffset - segment, Math.Max(0, Bounds.Width - 2), segment); break;
-                    case ProgressBarFillMode.BottomToTop: fill = new Rectangle(Bounds.X + 1, Bounds.Bottom - (int)IndeterminateOffset, Math.Max(0, Bounds.Width - 2), segment); break;
-                    default: fill = new Rectangle(Bounds.X + (int)IndeterminateOffset - segment, Bounds.Y + 1, segment, Math.Max(0, Bounds.Height - 2)); break;
-                }
-                context.Fill(Rectangle.Intersect(Bounds, fill), context.Theme.AccentColor);
-            }
-            else
-            {
-                var fill = GetFillRectangle(Ratio);
-                context.Fill(new Rectangle(Bounds.X + fill.X, Bounds.Y + fill.Y, fill.Width, fill.Height), context.Theme.AccentColor);
-            }
-            if (!Indeterminate && ShowPercentage && EffectiveUIFont != null)
-            {
-                var text = $"{(int)(Ratio * 100)}%"; var measure = TextMetrics.Measure(EffectiveUIFont, text);
-                context.Text(EffectiveUIFont, text, GlobalPosition + (Size - measure) / 2, context.Theme.TextColor);
-            }
-            base.Draw(context);
         }
     }
 }

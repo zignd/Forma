@@ -49,6 +49,23 @@
   </EventTrigger>
   <Label x:Name="Message" Text="{Binding Message}" />
   <LineEdit x:Name="Editor" Text="{Binding Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+  <DataGrid x:Name="PackageGrid" ItemsSource="{Binding GridRows}" SelectionUnit="Cell" SelectionMode="Multi" Size="600,180">
+    <DataGrid.Columns>
+      <local:ConsumerGridNameColumn Header="Name" Width="2*">
+        <DataGridColumn.CellTemplate>
+          <DataTemplate x:DataType="local:ConsumerGridRow">
+            <TextBlock Text="{Binding Name}" />
+          </DataTemplate>
+        </DataGridColumn.CellTemplate>
+      </local:ConsumerGridNameColumn>
+      <local:ConsumerGridOrderColumn Header="Order" Width="80" />
+    </DataGrid.Columns>
+  </DataGrid>
+  <DataGrid x:Name="PackageTreeGrid" ItemsSource="{Binding TreeRows}" Mode="Hierarchical" SelectionMode="Multi" Size="600,180">
+    <DataGrid.Columns>
+      <local:ConsumerTreeColumn Header="Tree" Width="*" />
+    </DataGrid.Columns>
+  </DataGrid>
   <local:ConsumerTarget x:Name="StaticTarget" Value="{StaticResource StaticValue}" />
   <local:ConsumerTarget x:Name="DynamicTarget" Value="{DynamicResource DynamicValue}" />
   <local:ConsumerTarget x:Name="StyleTarget" Classes="styled" TooltipText="Underlying" Attached="OnStyleTargetAttached" />

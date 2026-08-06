@@ -179,6 +179,12 @@ internal sealed class StdioLanguageServer : IDisposable
 internal sealed class FormaLanguageWorkspace : IDisposable
 {
     private static readonly Regex WordPattern = new("[A-Za-z_][A-Za-z0-9_.]*", RegexOptions.CultureInvariant);
+    private static readonly string[] PseudoStates =
+    [
+        "hover", "focus", "focus-within", "disabled", "pressed", "checked", "selected", "current",
+        "expanded", "collapsed", "ascending", "descending",
+    ];
+    private static readonly string[] RelativeSources = ["Self", "TemplatedParent", "FindAncestor"];
     private static readonly Type[] FormaTypes = typeof(Control).Assembly.GetExportedTypes()
         .Where(type => type.Namespace?.StartsWith("Forma", StringComparison.Ordinal) == true && (type.IsClass || type.IsEnum))
         .OrderBy(type => type.Name, StringComparer.Ordinal).ToArray();
@@ -237,8 +243,8 @@ internal sealed class FormaLanguageWorkspace : IDisposable
         var openTag = Regex.Match(before, @"<(?<type>[A-Za-z_][\w:.]*)(?<body>[^<>]*)$");
         if (!openTag.Success || !openTag.Groups["body"].Value.Any(char.IsWhiteSpace))
         {
-            foreach (var type in FormaTypes.Where(type => type.IsClass && !type.IsAbstract && (typeof(Control).IsAssignableFrom(type) || type.Namespace == "Forma.Xaml")))
-                items[type.Name] = (7, type.FullName);
+            foreach (var type in FormaTypes.Where(IsXamlElementType))
+                items[type.Name] = (7, ClassifyElementType(type));
         }
         else
         {
@@ -246,6 +252,7 @@ internal sealed class FormaLanguageWorkspace : IDisposable
             foreach (var property in type?.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(property => property.CanWrite) ?? [])
                 items[property.Name] = (10, property.PropertyType.Name);
             foreach (var eventInfo in type?.GetEvents(BindingFlags.Public | BindingFlags.Instance) ?? []) items[eventInfo.Name] = (23, eventInfo.EventHandlerType?.Name);
+            foreach (var attached in AttachedProperties()) items[attached] = (10, "Attached layout property");
             foreach (var directive in new[] { "x:Name", "x:Class", "x:DataType", "x:Key" }) items[directive] = (10, "Forma XAML directive");
             var attribute = Regex.Match(openTag.Groups["body"].Value, """(?<name>[\w:.]+)\s*=\s*['"](?<value>[^'"]*)$""");
             if (attribute.Success)
@@ -257,10 +264,22 @@ internal sealed class FormaLanguageWorkspace : IDisposable
                 if (value.StartsWith("{Binding", StringComparison.Ordinal))
                 {
                     foreach (var option in new[] { "Mode=", "FallbackValue=", "TargetNullValue=", "StringFormat=", "Converter=", "UpdateSourceTrigger=" }) items[option] = (10, "Binding option");
-                    foreach (var member in BindingMembers(source)) items[member] = (10, "Data context member");
+                    foreach (var member in BindingMembers(source, offset)) items[member] = (10, "Data context member");
+                    if (value.Contains("RelativeSource", StringComparison.Ordinal))
+                        foreach (var relativeSource in RelativeSources) items[relativeSource] = (20, "Binding relative source");
                 }
                 if (value.Contains("Resource", StringComparison.Ordinal)) foreach (var key in Symbols(source, """x:Key\s*=\s*['"](?<value>[^'"]+)""")) items[key] = (12, "Resource key");
                 if (attribute.Groups["name"].Value is "Classes" or "Selector") foreach (var name in Symbols(source, """Classes\s*=\s*['"](?<value>[^'"]+)""" ).SelectMany(value => value.Split(' ', StringSplitOptions.RemoveEmptyEntries))) items[name] = (12, "Style class");
+                if (attribute.Groups["name"].Value == "Selector")
+                    foreach (var state in PseudoStates) items[$":{state}"] = (20, "Pseudo-state");
+                if (attribute.Groups["name"].Value == "TargetType")
+                    foreach (var targetType in FormaTypes.Where(candidate => !candidate.IsAbstract && typeof(TemplatedControl).IsAssignableFrom(candidate)))
+                        items[targetType.Name] = (7, "Templated control type");
+                if (attribute.Groups["name"].Value == "x:DataType")
+                    foreach (var dataType in _compilations.SelectMany(compilation => compilation.GlobalNamespace.GetNamespaceTypes()).Where(candidate => candidate.DeclaredAccessibility == Accessibility.Public))
+                        items[dataType.ToDisplayString()] = (7, "Compiled data type");
+                if (attribute.Groups["name"].Value == "x:Name")
+                    foreach (var part in TemplatePartNames(before)) items[part] = (12, "Template part");
             }
         }
         return new JsonObject
@@ -272,20 +291,21 @@ internal sealed class FormaLanguageWorkspace : IDisposable
 
     public JsonNode? Hover(JsonObject? parameters)
     {
-        if (!TryPosition(parameters, out _, out var source, out var offset) || WordAt(source, offset) is not { } word) return null;
+        if (!TryPosition(parameters, out var uri, out var source, out var offset) || WordAt(source, offset) is not { } word) return null;
         var type = ResolveType(word);
         if (type != null) return new JsonObject { ["contents"] = new JsonObject { ["kind"] = "markdown", ["value"] = $"`{type.FullName}`\n\nForma XAML { (type.IsEnum ? "enum" : "element") }." } };
         var owner = ElementTypeAt(source, offset);
         var member = owner?.GetMember(word, BindingFlags.Public | BindingFlags.Instance).FirstOrDefault();
         if (member != null) return new JsonObject { ["contents"] = new JsonObject { ["kind"] = "markdown", ["value"] = $"`{owner!.Name}.{member.Name}`\n\n{MemberType(member)}" } };
-        var category = ClassifySymbol(word, source);
+        var category = SemanticSymbolAt(uri, source, offset)?.Category ?? ClassifySymbol(word, source);
         return category == null ? null : new JsonObject { ["contents"] = new JsonObject { ["kind"] = "markdown", ["value"] = $"Forma XAML **{category}** `{word}`" } };
     }
 
     public JsonNode Definition(JsonObject? parameters)
     {
-        if (!TryPosition(parameters, out _, out var source, out var offset) || WordAt(source, offset) is not { } word) return new JsonArray();
-        var locations = SymbolLocations(word, ClassifySymbol(word, source));
+        if (!TryPosition(parameters, out var uri, out var source, out var offset) || WordAt(source, offset) is not { } word) return new JsonArray();
+        var semantic = SemanticSymbolAt(uri, source, offset);
+        var locations = semantic == null ? SymbolLocations(word, ClassifySymbol(word, source)) : SemanticSymbolLocations(semantic);
         if (locations.Count > 0) return locations;
         foreach (var compilation in _compilations)
         {
@@ -298,20 +318,26 @@ internal sealed class FormaLanguageWorkspace : IDisposable
 
     public JsonNode References(JsonObject? parameters)
     {
-        if (!TryPosition(parameters, out _, out var source, out var offset) || WordAt(source, offset) is not { } word) return new JsonArray();
-        return SymbolLocations(word, ClassifySymbol(word, source));
+        if (!TryPosition(parameters, out var uri, out var source, out var offset) || WordAt(source, offset) is not { } word) return new JsonArray();
+        var semantic = SemanticSymbolAt(uri, source, offset);
+        return semantic == null ? SymbolLocations(word, ClassifySymbol(word, source)) : SemanticSymbolLocations(semantic);
     }
 
     public JsonNode? Rename(JsonObject? parameters)
     {
-        if (!TryPosition(parameters, out _, out var source, out var offset) || WordAt(source, offset) is not { } word) return null;
-        var category = ClassifySymbol(word, source);
+        if (!TryPosition(parameters, out var uri, out var source, out var offset) || WordAt(source, offset) is not { } word) return null;
+        var semantic = SemanticSymbolAt(uri, source, offset);
+        var category = semantic?.Category ?? ClassifySymbol(word, source);
         var replacement = parameters?["newName"]?.GetValue<string>();
         if (category == null || string.IsNullOrWhiteSpace(replacement) || !Regex.IsMatch(replacement, "^[A-Za-z_][A-Za-z0-9_-]*$")) return null;
         var changes = new JsonObject();
         foreach (var document in _documents)
         {
-            var edits = SymbolMatches(document.Value, word, category).Select(match => (JsonNode)new JsonObject
+            var matches = semantic == null
+                ? SymbolMatches(document.Value, word, category)
+                : BuildSemanticSymbols(document.Key, document.Value).Where(candidate => candidate.HasSameIdentity(semantic))
+                    .Select(candidate => new SymbolOccurrence(candidate.Index, candidate.Length));
+            var edits = matches.Select(match => (JsonNode)new JsonObject
             {
                 ["range"] = RangeAt(document.Value, match.Index, match.Length),
                 ["newText"] = replacement,
@@ -319,6 +345,121 @@ internal sealed class FormaLanguageWorkspace : IDisposable
             if (edits.Length > 0) changes[document.Key] = new JsonArray(edits);
         }
         return new JsonObject { ["changes"] = changes };
+    }
+
+    private JsonArray SemanticSymbolLocations(SemanticSymbol symbol)
+    {
+        var result = new JsonArray();
+        foreach (var document in _documents)
+            foreach (var candidate in BuildSemanticSymbols(document.Key, document.Value).Where(candidate => candidate.HasSameIdentity(symbol)))
+                result.Add(Location(document.Key, document.Value, candidate.Index, candidate.Length));
+        return result;
+    }
+
+    private static SemanticSymbol? SemanticSymbolAt(string uri, string source, int offset) =>
+        BuildSemanticSymbols(uri, source)
+            .Where(symbol => offset >= symbol.Index && offset <= symbol.Index + symbol.Length)
+            .OrderBy(symbol => symbol.Length)
+            .FirstOrDefault();
+
+    private static IReadOnlyList<SemanticSymbol> BuildSemanticSymbols(string uri, string source)
+    {
+        XDocument document;
+        try { document = XDocument.Parse(source, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo); }
+        catch (XmlException) { return Array.Empty<SemanticSymbol>(); }
+        if (document.Root == null) return Array.Empty<SemanticSymbol>();
+        var symbols = new List<SemanticSymbol>();
+        var scopeParents = new Dictionary<string, string?>(StringComparer.Ordinal);
+        var rootScope = $"{uri}#$root";
+        scopeParents[rootScope] = null;
+        var templateOrdinal = 0;
+
+        void Add(string name, string category, string scope, int index, int length, bool isDefinition)
+        {
+            if (!string.IsNullOrWhiteSpace(name)) symbols.Add(new SemanticSymbol(name, category, scope, index, length, isDefinition));
+        }
+
+        void Visit(XElement element, string inheritedScope)
+        {
+            var isTemplate = element.Name.LocalName is "ControlTemplate" or "DataTemplate" or "ItemsPanelTemplate";
+            var scope = inheritedScope;
+            if (isTemplate)
+            {
+                scope = $"{uri}#template:{templateOrdinal++}";
+                scopeParents[scope] = inheritedScope;
+            }
+            foreach (var attribute in element.Attributes().Where(attribute => !attribute.IsNamespaceDeclaration))
+            {
+                if (!TryAttributeValueRange(source, attribute, out var valueIndex, out var valueLength)) continue;
+                var value = attribute.Value;
+                var localName = attribute.Name.LocalName;
+                var isDirective = attribute.Name.NamespaceName == XamlNamespaces.Xaml2006;
+                if (isDirective && localName == "Name") Add(value, "name", scope, valueIndex, valueLength, true);
+                else if (localName is "SourceName" or "TargetName") Add(value, "name", scope, valueIndex, valueLength, false);
+                else if (isDirective && localName == "Key") Add(value, "resource", isTemplate ? inheritedScope : scope, valueIndex, valueLength, true);
+
+                foreach (Match match in Regex.Matches(value, @"\{(?:Static|Dynamic)Resource\s+(?<symbol>[^,\s}]+)", RegexOptions.CultureInvariant))
+                {
+                    var group = match.Groups["symbol"];
+                    Add(group.Value, "resource", scope, valueIndex + group.Index, group.Length, false);
+                }
+                if (localName == "Classes")
+                    foreach (Match match in Regex.Matches(value, @"[A-Za-z_][A-Za-z0-9_-]*", RegexOptions.CultureInvariant))
+                        Add(match.Value, "class", "*", valueIndex + match.Index, match.Length, false);
+                if (localName == "Selector")
+                {
+                    foreach (Match match in Regex.Matches(value, @"\.(?<symbol>[A-Za-z_][A-Za-z0-9_-]*)", RegexOptions.CultureInvariant))
+                    {
+                        var group = match.Groups["symbol"];
+                        Add(group.Value, "class", "*", valueIndex + group.Index, group.Length, true);
+                    }
+                    foreach (Match match in Regex.Matches(value, @"#(?<symbol>[A-Za-z_][A-Za-z0-9_-]*)", RegexOptions.CultureInvariant))
+                    {
+                        var group = match.Groups["symbol"];
+                        Add(group.Value, "name", scope, valueIndex + group.Index, group.Length, false);
+                    }
+                }
+            }
+            foreach (var child in element.Elements()) Visit(child, scope);
+        }
+
+        Visit(document.Root, rootScope);
+        foreach (var reference in symbols.Where(symbol => symbol.Category == "resource" && !symbol.IsDefinition))
+        {
+            for (var scope = reference.Scope; scope != null; scope = scopeParents.GetValueOrDefault(scope))
+            {
+                var definition = symbols.FirstOrDefault(candidate => candidate.Category == "resource" && candidate.IsDefinition &&
+                    candidate.Name == reference.Name && candidate.Scope == scope);
+                if (definition == null) continue;
+                reference.Scope = definition.Scope;
+                break;
+            }
+        }
+        return symbols;
+    }
+
+    private static bool TryAttributeValueRange(string source, XAttribute attribute, out int index, out int length)
+    {
+        index = 0;
+        length = 0;
+        if (attribute is not IXmlLineInfo lineInfo || !lineInfo.HasLineInfo()) return false;
+        var lineStart = 0;
+        for (var line = 1; line < lineInfo.LineNumber; line++)
+        {
+            var newline = source.IndexOf('\n', lineStart);
+            if (newline < 0) return false;
+            lineStart = newline + 1;
+        }
+        var attributeStart = Math.Min(lineStart + Math.Max(0, lineInfo.LinePosition - 1), source.Length);
+        var equals = source.IndexOf('=', attributeStart);
+        if (equals < 0) return false;
+        var quote = source.IndexOfAny(new[] { '\'', '"' }, equals + 1);
+        if (quote < 0) return false;
+        var end = source.IndexOf(source[quote], quote + 1);
+        if (end < 0) return false;
+        index = quote + 1;
+        length = end - index;
+        return true;
     }
 
     public JsonNode Formatting(JsonObject? parameters)
@@ -364,15 +505,11 @@ internal sealed class FormaLanguageWorkspace : IDisposable
         _schemaTimer.Change(300, Timeout.Infinite);
     }
 
-    private IEnumerable<string> BindingMembers(string source)
+    private IEnumerable<string> BindingMembers(string source, int offset)
     {
         var parsed = _parser.Parse(source, "document.xaml");
-        var dataType = parsed.Document?.DataType?.Split(':').Last();
-        if (dataType == null)
-        {
-            var match = Regex.Match(source, """x:DataType\s*=\s*['"](?<type>[^'"]+)""", RegexOptions.CultureInvariant);
-            dataType = match.Success ? match.Groups["type"].Value.Split(':').Last() : null;
-        }
+        var matches = Regex.Matches(source[..Math.Min(offset, source.Length)], """x:DataType\s*=\s*['\"](?<type>[^'\"]+)""", RegexOptions.CultureInvariant);
+        var dataType = matches.LastOrDefault()?.Groups["type"].Value.Split(':').Last() ?? parsed.Document?.DataType?.Split(':').Last();
         if (dataType == null) return [];
         foreach (var compilation in _compilations)
         {
@@ -380,6 +517,42 @@ internal sealed class FormaLanguageWorkspace : IDisposable
             if (type != null) return type.GetMembers().OfType<IPropertySymbol>().Where(property => property.DeclaredAccessibility == Accessibility.Public).Select(property => property.Name);
         }
         return [];
+    }
+
+    private static bool IsXamlElementType(Type type)
+    {
+        if (!type.IsClass || type.IsAbstract || type.ContainsGenericParameters) return false;
+        if (typeof(Control).IsAssignableFrom(type) || type.Namespace == "Forma.Xaml") return true;
+        return typeof(Brush).IsAssignableFrom(type) || typeof(Geometry).IsAssignableFrom(type) ||
+            typeof(DataGridColumn).IsAssignableFrom(type) || type.Name.EndsWith("Definition", StringComparison.Ordinal) ||
+            type.Name.EndsWith("Condition", StringComparison.Ordinal);
+    }
+
+    private static string ClassifyElementType(Type type)
+    {
+        if (typeof(TemplatedControl).IsAssignableFrom(type)) return "Templated semantic control";
+        if (typeof(Control).IsAssignableFrom(type)) return "Foundational element or presenter";
+        if (typeof(Brush).IsAssignableFrom(type)) return "Brush";
+        if (typeof(Geometry).IsAssignableFrom(type)) return "Geometry";
+        if (typeof(DataGridColumn).IsAssignableFrom(type)) return "DataGrid column";
+        return type.FullName ?? type.Name;
+    }
+
+    private static IEnumerable<string> AttachedProperties() => FormaTypes
+        .SelectMany(owner => owner.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Where(method => method.Name.StartsWith("Set", StringComparison.Ordinal) && method.GetParameters().Length == 2 &&
+                typeof(Control).IsAssignableFrom(method.GetParameters()[0].ParameterType))
+            .Select(method => $"{owner.Name}.{method.Name[3..]}"))
+        .Distinct(StringComparer.Ordinal)
+        .OrderBy(name => name, StringComparer.Ordinal);
+
+    private static IEnumerable<string> TemplatePartNames(string sourceBeforeOffset)
+    {
+        var templates = Regex.Matches(sourceBeforeOffset, """<ControlTemplate\b[^>]*TargetType\s*=\s*['\"](?<type>[^'\"]+)['\"]""", RegexOptions.CultureInvariant);
+        var typeName = templates.LastOrDefault()?.Groups["type"].Value.Split(':').Last();
+        var targetType = typeName == null ? null : ResolveType(typeName);
+        return targetType?.GetCustomAttributes<TemplatePartAttribute>(true).Select(attribute => attribute.Name).Distinct(StringComparer.Ordinal)
+            ?? Enumerable.Empty<string>();
     }
 
     private JsonArray SymbolLocations(string word, string? category)
@@ -474,6 +647,27 @@ internal sealed class FormaLanguageWorkspace : IDisposable
     private static JsonObject Location(string uri, string source, int index, int length) => new() { ["uri"] = uri, ["range"] = RangeAt(source, index, length) };
     private static JsonObject Location(string uri, int line, int character, int length) => new() { ["uri"] = uri, ["range"] = Range(line, character, length) };
     private static (int Line, int Character) SourcePosition(string source, int index) { var prefix = source[..index]; var line = prefix.Count(character => character == '\n'); var newline = prefix.LastIndexOf('\n'); return (line, newline < 0 ? index : index - newline - 1); }
+    private sealed class SemanticSymbol
+    {
+        public SemanticSymbol(string name, string category, string scope, int index, int length, bool isDefinition)
+        {
+            Name = name;
+            Category = category;
+            Scope = scope;
+            Index = index;
+            Length = length;
+            IsDefinition = isDefinition;
+        }
+
+        public string Name { get; }
+        public string Category { get; }
+        public string Scope { get; set; }
+        public int Index { get; }
+        public int Length { get; }
+        public bool IsDefinition { get; }
+        public bool HasSameIdentity(SemanticSymbol other) =>
+            Name == other.Name && Category == other.Category && Scope == other.Scope;
+    }
     private readonly record struct SymbolOccurrence(int Index, int Length);
     internal static string UriToPath(string uri) => Uri.TryCreate(uri, UriKind.Absolute, out var value) && value.IsFile ? value.LocalPath : uri;
     private static string PathToUri(string path) => new Uri(Path.GetFullPath(path)).AbsoluteUri;

@@ -28,9 +28,8 @@ namespace Forma.Xaml
             XamlValueLayer layer = XamlValueLayer.Local,
             long priority = 0)
         {
-            var expression = new DynamicResourceExpression<T>(target, property, key, convert, layer, priority);
-            XamlAttachment.RegisterDisposable(root, expression);
-            return expression;
+            return XamlAttachment.RegisterReactivatable(root, () =>
+                new DynamicResourceExpression<T>(target, property, key, convert, layer, priority));
         }
     }
 
@@ -54,10 +53,19 @@ namespace Forma.Xaml
             _convert = convert ?? (value => (T)value);
             _layer = layer;
             _priority = priority;
-            target.Attached += TargetContextChanged;
-            target.Detached += TargetContextChanged;
-            Subscribe();
-            Update();
+            try
+            {
+                target.Attached += TargetContextChanged;
+                target.Detached += TargetContextChanged;
+                target.ParentChanged += TargetParentChanged;
+                Subscribe();
+                Update();
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
         }
 
         private void TargetContextChanged(object sender, EventArgs args)
@@ -66,11 +74,13 @@ namespace Forma.Xaml
             Update();
         }
 
+        private void TargetParentChanged(object sender, ControlParentChangedEventArgs args) => TargetContextChanged(sender, args);
+
         private void Subscribe()
         {
             foreach (var dictionary in _dictionaries) dictionary.Changed -= ResourceChanged;
             _dictionaries.Clear();
-            for (var control = _target; control != null; control = control.Parent)
+            for (var control = _target; control != null; control = control.InheritanceParent)
             {
                 _dictionaries.Add(control.Resources);
                 control.Resources.Changed += ResourceChanged;
@@ -105,6 +115,7 @@ namespace Forma.Xaml
             _disposed = true;
             _target.Attached -= TargetContextChanged;
             _target.Detached -= TargetContextChanged;
+            _target.ParentChanged -= TargetParentChanged;
             foreach (var dictionary in _dictionaries) dictionary.Changed -= ResourceChanged;
             _dictionaries.Clear();
             _value?.Dispose();

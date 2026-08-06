@@ -76,4 +76,35 @@ public sealed class CommandLineTest
             Assert.That(result.GetProperty("locations")[0].GetProperty("physicalLocation").GetProperty("region").GetProperty("startLine").GetInt32(), Is.EqualTo(1));
         });
     }
+
+    [Test]
+    public void SchemaDescribesTemplateFirstTypesBindingsSelectorsAndDataGrid()
+    {
+        var originalOut = Console.Out;
+        using var output = new StringWriter();
+        try
+        {
+            Console.SetOut(output);
+            Assert.That(Program.Main(new[] { "schema", "--json" }), Is.Zero);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+
+        using var document = JsonDocument.Parse(output.ToString());
+        var root = document.RootElement;
+        static string[] Values(JsonElement element) => element.EnumerateArray().Select(value => value.GetString()!).ToArray();
+        Assert.Multiple(() =>
+        {
+            Assert.That(Values(root.GetProperty("typeClassifications").GetProperty("foundational")), Does.Contain("Border"));
+            Assert.That(Values(root.GetProperty("typeClassifications").GetProperty("templated")), Does.Contain("Button"));
+            Assert.That(Values(root.GetProperty("brushes")), Does.Contain("SolidColorBrush"));
+            Assert.That(Values(root.GetProperty("attachedProperties")), Does.Contain("GridPanel.Row"));
+            Assert.That(Values(root.GetProperty("bindingSources")), Does.Contain("TemplatedParent"));
+            Assert.That(Values(root.GetProperty("pseudoStates")), Does.Contain("ascending"));
+            Assert.That(Values(root.GetProperty("dataGridColumns")), Does.Contain("DataGridExpanderColumn"));
+            Assert.That(root.GetProperty("templateParts").EnumerateArray().Any(entry => entry.GetProperty("type").GetString() == "DataGrid"), Is.True);
+        });
+    }
 }

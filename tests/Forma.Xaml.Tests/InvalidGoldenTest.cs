@@ -13,6 +13,7 @@ public sealed class InvalidGoldenTest
     [TestCase("binding-path-mode.xaml")]
     [TestCase("selector.xaml")]
     [TestCase("animation-mismatch.xaml")]
+    [TestCase("datagrid-contract.xaml")]
     [TestCase("duplicate-names-keys.xaml")]
     [TestCase("unsupported-directive.xaml")]
     public void InvalidGoldenIsRejectedWithSourceLocation(string fileName)

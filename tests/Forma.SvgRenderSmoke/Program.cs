@@ -12,7 +12,11 @@ _ = new GraphicsDeviceManager(game) { GraphicsProfile = GraphicsProfile.HiDef };
 var manager = (IGraphicsDeviceManager)game.Services.GetService(typeof(IGraphicsDeviceManager));
 manager.CreateDevice();
 var graphicsDevice = game.GraphicsDevice;
-SvgBackendDefaults.Verify();
+#if THORVG
+SvgThorvgBackendDefaults.Verify();
+#else
+SvgSkiaBackendDefaults.Verify();
+#endif
 var source = SvgImageSource.FromMemory(Encoding.UTF8.GetBytes(
     "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='14' color='#ffffff'><rect width='20' height='14' rx='3' fill='currentColor'/></svg>"));
 using var target = new RenderTarget2D(graphicsDevice, 50, 35, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
@@ -52,7 +56,7 @@ using (var reset = new UIRenderContext(graphicsDevice, new Theme()) { DisplaySca
     Require(ReadPixels(target).Any(pixel => pixel.A != 0), "SVG output must recover after device reset.");
 }
 
-Console.WriteLine($"SVG graphics lifecycle passed with hashes: {string.Join(' ', hashes)}");
+Console.WriteLine($"{SvgRuntime.Health.BackendId} SVG graphics lifecycle passed with hashes: {string.Join(' ', hashes)}");
 
 // Contain mode: a wide SVG in a square container leaves top/bottom letterbox rows transparent.
 // 40x8 SVG in 20x20 Contain box → scale=min(20/40,20/8)=0.5 → size=20x4 centered at y=8..11.

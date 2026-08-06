@@ -7,6 +7,8 @@
     <IsPackable>false</IsPackable>
     <UseAppHost>false</UseAppHost>
     <Nullable>disable</Nullable>
+    <SvgBackend Condition="'$(SvgBackend)' == ''">Skia</SvgBackend>
+    <DefineConstants Condition="'$(SvgBackend)' == 'ThorVG'">$(DefineConstants);THORVG</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +18,8 @@
     <ProjectReference Include="$(MonoGameProjectPath)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' != ''" />
     <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''" />
     <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
-    <ProjectReference Include="../../src/Forma.Svg/Forma.Svg.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.Svg/Forma.Svg.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" Condition="'$(SvgBackend)' == 'Skia'" />
+    <ProjectReference Include="../../src/Forma.Svg.ThorVG/Forma.Svg.ThorVG.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" Condition="'$(SvgBackend)' == 'ThorVG'" />
   </ItemGroup>
 
 </Project>

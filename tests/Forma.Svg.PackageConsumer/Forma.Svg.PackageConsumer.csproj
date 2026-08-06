@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <FormaRuntime Condition="'$(FormaRuntime)' == ''">MonoGame</FormaRuntime>
+    <SvgBackend Condition="'$(SvgBackend)' == ''">None</SvgBackend>
+    <FormaPackageVersion>0.1.0-alpha.1</FormaPackageVersion>
+    <RestoreSources>$(FormaPackageSource);https://api.nuget.org/v3/index.json</RestoreSources>
+    <DefineConstants Condition="'$(SvgBackend)' == 'Skia' or '$(SvgBackend)' == 'Compatibility'">$(DefineConstants);SVG_SKIA</DefineConstants>
+    <DefineConstants Condition="'$(SvgBackend)' == 'ThorVG'">$(DefineConstants);SVG_THORVG</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Forma.$(FormaRuntime)" Version="$(FormaPackageVersion)" />
+    <PackageReference Include="Forma.Svg.Skia.$(FormaRuntime)" Version="$(FormaPackageVersion)" Condition="'$(SvgBackend)' == 'Skia' or '$(IncludeMixedBackends)' == 'true'" />
+    <PackageReference Include="Forma.Svg.ThorVG.$(FormaRuntime)" Version="$(FormaPackageVersion)" Condition="'$(SvgBackend)' == 'ThorVG' or '$(IncludeMixedBackends)' == 'true'" />
+    <PackageReference Include="Forma.Svg.$(FormaRuntime)" Version="$(FormaPackageVersion)" Condition="'$(SvgBackend)' == 'Compatibility'" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5" Condition="'$(FormaRuntime)' == 'MonoGame'" />
+    <PackageReference Include="FNA.NET" Version="2.2.11.2602" Condition="'$(FormaRuntime)' == 'FNA'" />
+    <PackageReference Include="FNA.NET.NativeAssets" Version="2.1.2.2602" Condition="'$(FormaRuntime)' == 'FNA'" />
+  </ItemGroup>
+
+</Project>

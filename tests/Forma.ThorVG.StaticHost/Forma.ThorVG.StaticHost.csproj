@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.ThorVG.StaticHost</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>link</TrimMode>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=MonoGame" />
+    <ProjectReference Include="../../src/Forma.Svg.ThorVG/Forma.Svg.ThorVG.csproj" AdditionalProperties="FormaRuntime=MonoGame;FormaThorvgStaticLink=true" />
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" />
+    <Compile Include="../Forma.Svg.Conformance/SvgProfileV1Corpus.cs" Link="SvgProfileV1Corpus.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
+    <DirectPInvoke Include="forma_thorvg" />
+    <NativeLibrary Include="../../artifacts/native/thorvg/osx-arm64/output/libforma_thorvg.a" />
+    <LinkerArg Include="-lc++" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+    <DirectPInvoke Include="forma_thorvg" />
+    <NativeLibrary Include="../../artifacts/native/thorvg/linux-x64/output/libforma_thorvg.a" />
+    <LinkerArg Include="-lstdc++" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.Svg.Benchmark.Skia</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Forma.Svg.Benchmark/SvgBenchmarkProgram.cs" Link="Program.cs" />
+    <Compile Include="../Forma.Svg.Conformance/SvgProfileV1Corpus.cs" Link="SvgProfileV1Corpus.cs" />
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=MonoGame" />
+    <ProjectReference Include="../../src/Forma.Svg/Forma.Svg.csproj" AdditionalProperties="FormaRuntime=MonoGame" />
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" />
+  </ItemGroup>
+</Project>

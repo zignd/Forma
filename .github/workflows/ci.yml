@@ -260,3 +260,64 @@ jobs:
             Artifacts/nativeaot/native-manifests/*.txt
             Artifacts/nativeaot/publish/**
           if-no-files-found: warn
+
+  thorvg-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Validate Linux x64 ThorVG matrix
+        run: make thorvg-linux
+      - name: Upload ThorVG Linux evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: forma-thorvg-linux-x64-evidence
+          path: |
+            artifacts/native/thorvg/linux-x64/output/**
+            artifacts/svg-comparison/**
+            artifacts/svg-benchmarks/**
+            artifacts/thorvg-aot/**
+            artifacts/thorvg-static-host/**
+          if-no-files-found: warn
+
+  thorvg-macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Build and validate native ThorVG
+        run: |
+          make thorvg-spike
+          THORVG_SANITIZE=true THORVG_ARTIFACTS_DIR="$RUNNER_TEMP/forma-thorvg-sanitized" make thorvg-spike
+      - name: Validate managed, package, conformance, and GPU matrices
+        run: |
+          make svg-selection
+          dotnet test tests/Forma.ThorVG.Tests/Forma.ThorVG.Tests.csproj --configuration Release -p:FormaRuntime=MonoGame --nologo
+          dotnet test tests/Forma.ThorVG.Tests/Forma.ThorVG.Tests.csproj --configuration Release -p:FormaRuntime=FNA --nologo
+          make svg-packages
+          make svg-compare
+          make thorvg-render
+          make thorvg-catalog
+      - name: Validate ThorVG dynamic and static NativeAOT
+        run: |
+          make thorvg-nativeaot
+          make thorvg-static-host
+      - name: Upload ThorVG macOS evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: forma-thorvg-macos-arm64-evidence
+          path: |
+            artifacts/native/thorvg/osx-arm64/output/**
+            artifacts/svg-comparison/**
+            artifacts/svg-benchmarks/**
+            artifacts/catalog/thorvg/**
+            artifacts/thorvg-aot/**
+            artifacts/thorvg-static-host/**
+          if-no-files-found: warn

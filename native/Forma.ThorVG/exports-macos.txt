@@ -1,0 +1,9 @@
+_forma_thorvg_abi_version
+_forma_thorvg_version
+_forma_thorvg_last_error
+_forma_thorvg_initialize
+_forma_thorvg_terminate
+_forma_thorvg_document_create
+_forma_thorvg_document_destroy
+_forma_thorvg_document_size
+_forma_thorvg_document_rasterize

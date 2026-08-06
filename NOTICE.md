@@ -12,3 +12,6 @@ Complete notices are in `THIRD-PARTY-NOTICES.md`.
 Forma's build-time XAML compiler uses a Forma-maintained fork of the MIT-licensed XamlX project,
 pinned as the `external/XamlX` submodule. XamlX and Mono.Cecil are compiler/build dependencies only
 and are not runtime dependencies of compiled Forma applications.
+
+The optional ThorVG SVG backend uses the MIT-licensed ThorVG project pinned as the
+`external/ThorVG` submodule. ThorVG is not a dependency of Forma core or the Skia SVG backend.

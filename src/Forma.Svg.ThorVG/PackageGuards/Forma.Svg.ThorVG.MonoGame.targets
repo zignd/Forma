@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <FormaSvgThorvgMonoGamePackageReferenced>true</FormaSvgThorvgMonoGamePackageReferenced>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Forma.Svg.ThorVG.PackageInitializer.cs.txt" Link="obj/Forma.Svg.ThorVG.PackageInitializer.cs" Visible="false" />
+  </ItemGroup>
+  <Target Name="ValidateFormaSvgThorvgMonoGamePackageGraph" BeforeTargets="ResolveReferences">
+    <Error Condition="'$(FormaSvgThorvgFnaPackageReferenced)' == 'true'"
+           Text="Forma.Svg.ThorVG.MonoGame and Forma.Svg.ThorVG.FNA cannot be referenced by the same project." />
+    <Error Condition="'$(FormaCoreFnaPackageReferenced)' == 'true'"
+           Text="Forma.Svg.ThorVG.MonoGame cannot be combined with Forma.FNA." />
+    <Error Condition="'$(FormaSvgSkiaPackageReferenced)' == 'true'"
+           Text="ThorVG and Skia SVG backend packages cannot be referenced by the same project." />
+  </Target>
+</Project>

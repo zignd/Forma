@@ -1,0 +1,6 @@
+FORMA_THORVG_1 {
+    global:
+        forma_thorvg_*;
+    local:
+        *;
+};

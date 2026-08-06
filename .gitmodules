@@ -2,3 +2,6 @@
 	path = external/XamlX
 	url = https://github.com/zignd/XamlX.git
 	branch = forma/nativeaot-compat
+[submodule "external/ThorVG"]
+	path = external/ThorVG
+	url = https://github.com/thorvg/thorvg.git

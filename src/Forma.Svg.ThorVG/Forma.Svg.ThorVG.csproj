@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Forma.Svg.ThorVG</AssemblyName>
+    <RootNamespace>Forma</RootNamespace>
+    <PackageId>Forma.Svg.ThorVG.$(FormaRuntime)</PackageId>
+    <VersionPrefix>$(FormaVersion)</VersionPrefix>
+    <Description>Optional bounded ThorVG runtime SVG backend for Forma.$(FormaRuntime).</Description>
+    <PackageTags>forma;$(FormaRuntime);ui;svg;thorvg;graphics</PackageTags>
+    <IsPackable>true</IsPackable>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <IsAotCompatible>true</IsAotCompatible>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ThorvgNativeRoot>$(MSBuildThisFileDirectory)../../artifacts/native/thorvg</ThorvgNativeRoot>
+    <DefineConstants Condition="'$(FormaThorvgStaticLink)' == 'true'">$(DefineConstants);FORMA_THORVG_STATIC</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FormaThorvgStaticLink)' != 'true' and Exists('$(ThorvgNativeRoot)/osx-arm64/output/libforma_thorvg.dylib')">
+    <None Include="$(ThorvgNativeRoot)/osx-arm64/output/libforma_thorvg.dylib"
+          Link="libforma_thorvg.dylib"
+          CopyToOutputDirectory="PreserveNewest"
+          Pack="true"
+          PackagePath="runtimes/osx-arm64/native/" />
+  </ItemGroup>
+
+          <ItemGroup Condition="'$(FormaThorvgStaticLink)' != 'true' and Exists('$(ThorvgNativeRoot)/linux-x64/output/libforma_thorvg.so')">
+            <None Include="$(ThorvgNativeRoot)/linux-x64/output/libforma_thorvg.so"
+            Link="libforma_thorvg.so"
+            CopyToOutputDirectory="PreserveNewest"
+            Pack="true"
+            PackagePath="runtimes/linux-x64/native/" />
+          </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../NOTICE.md" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" />
+    <None Include="../../docs/runtime-svg.md" Pack="true" PackagePath="docs/" />
+    <None Include="../../docs/runtime-svg-profile-v1.md" Pack="true" PackagePath="docs/" />
+    <None Include="../../docs/svg-backend-migration.md" Pack="true" PackagePath="docs/" />
+    <None Include="../../docs/thorvg-build-and-provenance.md" Pack="true" PackagePath="docs/" />
+    <None Include="../../external/ThorVG/LICENSE" Pack="true" PackagePath="licenses/thorvg/ThorVG.LICENSE" />
+    <None Include="PackageBuild/Forma.Svg.ThorVG.PackageInitializer.cs.txt" Pack="true" PackagePath="buildTransitive/" />
+    <None Include="PackageGuards/Forma.Svg.ThorVG.$(FormaRuntime).targets" Pack="true" PackagePath="buildTransitive/$(PackageId).targets" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Forma.ThorVG.Tests" />
+    <InternalsVisibleTo Include="Forma.Svg.Benchmark.ThorVG" />
+    <InternalsVisibleTo Include="Forma.ThorVG.StaticHost" />
+  </ItemGroup>
+
+</Project>

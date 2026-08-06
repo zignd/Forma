@@ -311,7 +311,7 @@ namespace Forma
             if (!_begun) throw new InvalidOperationException("Begin must be called before compositing a clip.");
             if (_compositorDepth >= DrawingContextLimits.MaximumOffscreenNestingDepth)
                 throw new InvalidOperationException($"Offscreen nesting cannot exceed {DrawingContextLimits.MaximumOffscreenNestingDepth}.");
-            var target = CaptureToTarget(draw, bounds, out var capturedBounds);
+            if (!TryCaptureToTarget(draw, bounds, out var target, out var capturedBounds)) return;
             Drawing.DrawImageUncomposited(target, capturedBounds, clipPath, clipTransform);
         }
         internal void DrawScaled(Rectangle sourceBounds, Rectangle destinationBounds, ImageSamplingMode samplingMode, Action draw)
@@ -321,7 +321,7 @@ namespace Forma
         {
             if (draw == null) throw new ArgumentNullException(nameof(draw));
             if (sourceBounds.Width <= 0 || sourceBounds.Height <= 0 || destinationBounds.Z <= 0 || destinationBounds.W <= 0) return;
-            var target = CaptureToTarget(draw, sourceBounds, out _);
+            if (!TryCaptureToTarget(draw, sourceBounds, out var target, out _)) return;
             Drawing.DrawImageUncomposited(target, new Rectangle(0, 0, target.Width, target.Height), destinationBounds, samplingMode);
         }
         internal void DrawOpacity(float opacity, Rectangle bounds, Action draw)
@@ -329,14 +329,14 @@ namespace Forma
             if (!float.IsFinite(opacity) || opacity < 0 || opacity > 1) throw new ArgumentOutOfRangeException(nameof(opacity));
             if (draw == null) throw new ArgumentNullException(nameof(draw));
             if (opacity == 0) return;
-            var target = CaptureToTarget(draw, bounds, out var capturedBounds);
-            Drawing.DrawImage(target, null, capturedBounds, Matrix.Identity, Color.White * opacity);
+            if (!TryCaptureToTarget(draw, bounds, out var target, out var capturedBounds)) return;
+            Drawing.DrawImage(target, null, capturedBounds, Matrix.CreateTranslation(capturedBounds.X, capturedBounds.Y, 0), Color.White * opacity);
         }
         internal void DrawTransformed(Matrix transform, Rectangle bounds, Action draw)
         {
             if (draw == null) throw new ArgumentNullException(nameof(draw));
-            var target = CaptureToTarget(draw, bounds, out var capturedBounds);
-            Drawing.DrawImage(target, null, capturedBounds, transform, Color.White);
+            if (!TryCaptureToTarget(draw, bounds, out var target, out var capturedBounds)) return;
+            Drawing.DrawImage(target, null, capturedBounds, Matrix.CreateTranslation(capturedBounds.X, capturedBounds.Y, 0) * transform, Color.White);
         }
         internal void DrawEffect(VisualEffect effect, Rectangle contentBounds, Action draw)
         {
@@ -354,7 +354,7 @@ namespace Forma
                 draw();
                 return;
             }
-            var target = CaptureToTarget(draw, processingBounds, out var capturedBounds);
+            if (!TryCaptureToTarget(draw, processingBounds, out var target, out var capturedBounds)) return;
             var pixels = new Color[target.Width * target.Height];
             target.GetData(pixels);
             foreach (var child in effects)
@@ -414,7 +414,7 @@ namespace Forma
         {
             if (mask == null) throw new ArgumentNullException(nameof(mask));
             if (draw == null) throw new ArgumentNullException(nameof(draw));
-            var target = CaptureToTarget(draw, bounds, out var capturedBounds);
+            if (!TryCaptureToTarget(draw, bounds, out var target, out var capturedBounds)) return;
             var pixels = new Color[target.Width * target.Height];
             target.GetData(pixels);
             for (var y = 0; y < target.Height; y++)
@@ -433,8 +433,10 @@ namespace Forma
         {
             if (shadow == null) throw new ArgumentNullException(nameof(shadow));
             if (drawMask == null) throw new ArgumentNullException(nameof(drawMask));
-            var processingBounds = GetEffectProcessingBounds(shadow, contentBounds, GetLogicalTargetBounds());
-            var target = CaptureToTarget(drawMask, processingBounds, out var capturedBounds);
+            var processingBounds = inset
+                ? GetInsetShadowProcessingBounds(shadow, contentBounds, GetLogicalTargetBounds())
+                : GetEffectProcessingBounds(shadow, contentBounds, GetLogicalTargetBounds());
+            if (!TryCaptureToTarget(drawMask, processingBounds, out var target, out var capturedBounds)) return;
             var pixels = new Color[target.Width * target.Height];
             target.GetData(pixels);
             if (inset)
@@ -454,6 +456,16 @@ namespace Forma
             }
             else Drawing.DrawImageUncomposited(processed, capturedBounds);
             _activeTransientTextures.Add(processed);
+        }
+        private static Rectangle GetInsetShadowProcessingBounds(DropShadowEffect shadow, Rectangle contentBounds, Rectangle viewportBounds)
+        {
+            var horizontalPadding = (int)MathF.Ceiling(shadow.BlurRadius + MathF.Abs(shadow.Offset.X));
+            var verticalPadding = (int)MathF.Ceiling(shadow.BlurRadius + MathF.Abs(shadow.Offset.Y));
+            return Rectangle.Intersect(viewportBounds, new Rectangle(
+                contentBounds.X - horizontalPadding,
+                contentBounds.Y - verticalPadding,
+                contentBounds.Width + horizontalPadding * 2,
+                contentBounds.Height + verticalPadding * 2));
         }
         /// <summary>Draws a texture-clipped triangle fan while preserving the active UI clip and batch state.</summary>
         public void TexturedFan(Texture2D texture, Vector2 center, Vector2 centerUv, IReadOnlyList<Vector2> boundary, IReadOnlyList<Vector2> uvs, Color color)
@@ -690,12 +702,17 @@ namespace Forma
             DisposeTextures(_retiredTransientTextures);
         }
         private void OnGraphicsDeviceDisposing(object sender, EventArgs args) => Dispose();
-        private RenderTarget2D CaptureToTarget(Action draw, Rectangle bounds, out Rectangle capturedBounds)
+        private bool TryCaptureToTarget(Action draw, Rectangle bounds, out RenderTarget2D target, out Rectangle capturedBounds)
         {
             if (!_begun) throw new InvalidOperationException("Begin must be called before offscreen composition.");
             if (_compositorDepth >= DrawingContextLimits.MaximumOffscreenNestingDepth)
                 throw new InvalidOperationException($"Offscreen nesting cannot exceed {DrawingContextLimits.MaximumOffscreenNestingDepth}.");
             capturedBounds = Rectangle.Intersect(GetLogicalTargetBounds(), bounds);
+            if (capturedBounds.Width <= 0 || capturedBounds.Height <= 0)
+            {
+                target = null;
+                return false;
+            }
             var viewport = GraphicsDevice.Viewport;
             var physicalBounds = ToPhysicalRectangle(capturedBounds);
             var width = physicalBounds.Width;
@@ -704,7 +721,7 @@ namespace Forma
                 (long)width * height > DrawingContextLimits.MaximumRenderTargetArea)
                 throw new InvalidOperationException("The active viewport exceeds the bounded compositor limits.");
             EnsureTransientTargetBudget((long)width * height * 4);
-            var target = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+            target = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
             var previousTargets = GraphicsDevice.GetRenderTargets();
             var previousBackBufferUsage = GraphicsDevice.PresentationParameters.RenderTargetUsage;
             var previousCaptureOrigin = _captureOrigin;
@@ -734,7 +751,7 @@ namespace Forma
                 BeginBatch();
                 _activeTransientTextures.Add(target);
                 completed = true;
-                return target;
+                return true;
             }
             finally
             {

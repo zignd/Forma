@@ -18,8 +18,18 @@ var graphicsDevice = game.GraphicsDevice;
 var deviceLifetimeResources = new List<object>();
 graphicsDevice.Disposing += (_, _) => GC.KeepAlive(deviceLifetimeResources);
 using var face = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/Inter_Regular.ttf");
+
+if (args.Contains("--composition-only", StringComparer.Ordinal))
+{
+    ValidateFullyClippedComposition(graphicsDevice);
+    ValidateBorder(graphicsDevice);
+    ValidateControlComposition(graphicsDevice);
+    Console.WriteLine($"Composition render smoke passed on {graphicsDevice.Adapter.Description} ({graphicsDevice.GraphicsProfile}).");
+    return;
+}
 ValidateDrawingPath(graphicsDevice);
 ValidateFoundationalShape(graphicsDevice);
+ValidateFullyClippedComposition(graphicsDevice);
 ValidateBorder(graphicsDevice);
 ValidateVectorImage(graphicsDevice);
 ValidateViewbox(graphicsDevice);
@@ -625,6 +635,31 @@ static void ValidateBorder(GraphicsDevice graphicsDevice)
     Require(pixels[77 + 16 * target.Width].B > 200 && pixels[77 + 16 * target.Width].R < 40, "Border inset shadows must render inside the rounded box clip.");
     Require(pixels[86 + 16 * target.Width].R > 200 && pixels[86 + 16 * target.Width].G > 200, "Border inset shadows must preserve unaffected background pixels.");
 }
+
+static void ValidateFullyClippedComposition(GraphicsDevice graphicsDevice)
+{
+    using var target = new RenderTarget2D(graphicsDevice, 32, 24, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+    using var context = new UIRenderContext(graphicsDevice, new Theme());
+    var outer = new Border { Position = new Vector2(4, 2), Size = new Vector2(20, 20), CornerRadius = new CornerRadius(4) };
+    var content = new Container { Size = outer.Size };
+    content.AddChild(new ColorRect { Size = outer.Size, Color = Color.Lime });
+    var fullyClippedChild = new Border { Position = new Vector2(40, 0), Size = new Vector2(12, 12), CornerRadius = new CornerRadius(3) };
+    fullyClippedChild.AddChild(new ColorRect { Size = fullyClippedChild.Size, Color = Color.Red });
+    content.AddChild(fullyClippedChild);
+    outer.AddChild(content);
+
+    graphicsDevice.SetRenderTarget(target);
+    graphicsDevice.Clear(Color.Transparent);
+    context.Begin();
+    outer.DrawTree(context);
+    context.End();
+    graphicsDevice.SetRenderTarget(null);
+
+    var pixels = ReadPixels(target);
+    Require(pixels[14 + 12 * target.Width].G > 200, "A visible sibling must survive nested rounded composition.");
+    Require(pixels[28 + 8 * target.Width] == Color.Transparent, "A fully clipped rounded child must contribute no pixels.");
+}
+
 static void ValidateVectorImage(GraphicsDevice graphicsDevice)
 {
     using var target = new RenderTarget2D(graphicsDevice, 48, 32, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);

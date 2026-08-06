@@ -44,14 +44,19 @@ bash scripts/test-package-consumer.sh
 
 ## SVG Companion Matrix
 
-The `Forma.Svg.MonoGame` and `Forma.Svg.FNA` companions inherit the graphics matrix above. An SVG
+The explicit SVG companions inherit the graphics matrix above. An SVG
 companion is only useful with its matching core runtime; the platform validation scope for SVG is
 therefore the same as for the core cell on each host.
 
 | SVG companion | Package/native-size budget | Known validated host |
 | --- | --- | --- |
-| `Forma.Svg.MonoGame` | Forma companion assembly ≤ 256 KiB and package ≤ 8 MiB; Svg.Skia/SkiaSharp dependencies and RID-selected Skia native assets must match the isolated package manifest | Windows x64 / WindowsDX; Linux x64 / OpenGL and Vulkan; macOS arm64 / OpenGL and Metal |
-| `Forma.Svg.FNA` | Forma companion assembly ≤ 256 KiB and package ≤ 8 MiB; Svg.Skia/SkiaSharp dependencies and RID-selected Skia native assets must match the isolated package manifest | Windows x64 / D3D11; Linux x64 / OpenGL; macOS arm64 / Metal |
+| `Forma.Svg.Skia.*` | Svg.Skia/SkiaSharp dependencies and RID-selected Skia assets only | Existing Windows x64, Linux x64, and macOS arm64 reference matrix |
+| `Forma.Svg.ThorVG.*` | Forma ABI 1 native asset only; no Skia dependency | Experimental macOS arm64 and Linux x64 |
+| `Forma.Svg.*` | Compatibility dependency on explicit Skia with migration warning | Same as Skia during one migration window |
+
+ThorVG Windows x64 and every console target are currently untested. Static desktop proof is called
+console-ready architecture, not console-qualified support. Qualification requires authorized target
+evidence as defined in [the migration/support guide](svg-backend-migration.md).
 
 The complete hosted SVG matrix passed in
 [CI run 31110056321](https://github.com/zignd/Forma/actions/runs/31110056321) at exact implementation
@@ -125,10 +130,12 @@ not impose a transitive MonoGame backend.
 | `Forma.Media.FNA` capability smoke | `osx-arm64` | Yes | Trim + AOT | Yes | No codec claim |
 | `Forma.DynamicText.MonoGame` | `osx-arm64` | Yes | Trim + AOT | Multilingual atlas | macOS arm64 / OpenGL |
 | `Forma.DynamicText.FNA` | `osx-arm64` | Yes | Trim + AOT | Multilingual atlas | macOS arm64 / Metal |
-| `Forma.Svg.MonoGame` companion | `osx-arm64` | Yes | Trim + AOT | Svg.Skia verify + missing-native | macOS arm64 / OpenGL |
-| `Forma.Svg.FNA` companion | `osx-arm64` | Yes | Trim + AOT | Svg.Skia verify + missing-native | macOS arm64 / Metal |
+| `Forma.Svg.Skia.MonoGame` companion | `osx-arm64` | Yes | Trim + AOT | Svg.Skia verify + missing-native | macOS arm64 / OpenGL |
+| `Forma.Svg.Skia.FNA` companion | `osx-arm64` | Yes | Trim + AOT | Svg.Skia verify + missing-native | macOS arm64 / Metal |
+| `Forma.Svg.ThorVG.*` companion | `osx-arm64`, `linux-x64` | Yes | Dynamic source-generated interop + static `DirectPInvoke` reference host | Profile/67-icon suite, 492 comparisons, 1,000 lifetimes | Experimental |
 
-No other RID or platform has a public NativeAOT support claim. "Platform-validated" here means the
+ThorVG dynamic and static NativeAOT consumers execute for both runtime peers on macOS arm64 and
+Linux x64. No other RID or platform has a public NativeAOT support claim. "Platform-validated" here means the
 named public desktop host/backend only; it does not imply a restricted or console target.
 
 Forma targets `net10.0`. Trim-only and NativeAOT packed consumers are validated on macOS arm64 for

@@ -20,7 +20,7 @@ Use one matching package pair and one framework implementation. Never mix runtim
 | `Forma.MonoGame` | `Forma.FNA` |
 | `Forma.Xaml.Build.MonoGame` (compiled XAML) | `Forma.Xaml.Build.FNA` (compiled XAML) |
 | `Forma.DynamicText.MonoGame` (optional) | `Forma.DynamicText.FNA` (optional) |
-| `Forma.Svg.MonoGame` (optional) | `Forma.Svg.FNA` (optional) |
+| `Forma.Svg.Skia.MonoGame` or `Forma.Svg.ThorVG.MonoGame` (optional) | `Forma.Svg.Skia.FNA` or `Forma.Svg.ThorVG.FNA` (optional) |
 | `Forma.Media.MonoGame` (optional) | `Forma.Media.FNA` (optional) |
 | `MonoGame.Framework.<backend>` 3.8.5 | `FNA.NET` 2.2.11.2602 |
 | Application selects the MonoGame backend | Application supplies `FNA.NET.NativeAssets` 2.1.2.2602 |
@@ -30,8 +30,10 @@ the `Forma` namespace. Add the matching `Forma.DynamicText` companion only when 
 loading, shaping, or rasterization; `SpriteFontAdapter` consumers remain native-text-free.
 Package-owned build guards reject mixed variants with an actionable error.
 
-Add the matching `Forma.Svg` companion for bounded runtime SVG rendering. Core packages remain free
-of Svg.Skia, SkiaSharp, and native Skia assets. See [docs/runtime-svg.md](docs/runtime-svg.md) for
+Add exactly one matching explicit `Forma.Svg.Skia` or `Forma.Svg.ThorVG` companion for bounded
+runtime SVG rendering. The legacy `Forma.Svg.*` identities are warning-producing Skia compatibility
+packages for one migration window. Core packages remain free of both backends. See
+[docs/runtime-svg.md](docs/runtime-svg.md) for
 source loading, compiled XAML assets, scaling, cache diagnostics, security limits, theme policy,
 deployment, and rollback.
 

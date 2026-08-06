@@ -3,6 +3,9 @@
 - Status: Accepted
 - Date: 2026-08-06
 
+ADR 0007 supersedes this record's single-Skia package ownership decision. Its bounded source,
+validation, cache, GPU upload, and fallback decisions remain in force for every backend.
+
 ## Context
 
 Forma needs sharp application and default-theme vector images at fractional and Retina display

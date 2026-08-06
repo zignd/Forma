@@ -1,31 +1,33 @@
 # Runtime SVG
 
-Forma provides bounded runtime SVG rendering through the optional runtime-matched
-`Forma.Svg.MonoGame` or `Forma.Svg.FNA` companion. Core packages expose immutable source and cache
-contracts but do not reference Svg.Skia, SkiaSharp, or native Skia assets.
+Forma provides bounded runtime SVG rendering through one explicitly selected runtime-matched Skia
+or ThorVG companion. Core packages expose immutable source, profile, and cache contracts but do not
+reference either renderer or its native assets.
 
 ## Setup
 
-Reference the companion matching the selected Forma runtime:
+Reference exactly one backend matching the selected Forma runtime:
 
 ```xml
 <PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.1" />
-<PackageReference Include="Forma.Svg.MonoGame" Version="0.1.0-alpha.1" />
+<PackageReference Include="Forma.Svg.Skia.MonoGame" Version="0.1.0-alpha.1" />
 ```
 
-Use the `.FNA` peers together for FNA. Package builds install the backend automatically through a
-source module initializer. Source-project consumers and hosts that want an explicit startup probe
-can call:
+Replace `Skia` with `ThorVG` to select the smaller source-built backend. Use `.FNA` peers together
+for FNA. Package builds install the selected backend automatically through a source module
+initializer. Source-project consumers call the matching explicit installer:
 
 ```csharp
-var health = SvgBackendDefaults.Verify();
+var health = SvgSkiaBackendDefaults.Verify();
 if (!health.IsAvailable)
     throw new InvalidOperationException(health.Diagnostic);
 ```
 
-`SvgRuntime.Health` reports registration, native availability, backend name and version, supported
-features, and an actionable diagnostic. Drawing an application SVG without an installed backend
-throws a setup error naming the required runtime-matched companion.
+Use `SvgThorvgBackendDefaults.Verify()` for ThorVG. `SvgRuntime.Health` reports stable backend ID,
+registration, native availability/source, link mode, backend/profile versions, tested features, and
+an actionable bounded diagnostic. Drawing without a backend fails explicitly. Selection is
+process-wide and immutable after first parse; there is no cross-backend fallback. See the
+[selection and migration guide](svg-backend-migration.md).
 
 ## Sources
 
@@ -82,7 +84,7 @@ recovery, and predictable first use.
 
 ## Security and Validation Limits
 
-All preflight validation runs before Svg.Skia parses the document. Violations produce
+All preflight validation runs before the selected backend parses the document. Violations produce
 `SvgLoadException` with an `SvgLoadErrorCode`; no rejected document is forwarded to the backend or
 triggers network I/O.
 
@@ -112,6 +114,12 @@ element IDs, and cyclic local references.
 rasters and parsed documents are owned by the cache and accessed only from the render thread through
 `UIContext` surface APIs. GPU atlas textures are created and uploaded on the render thread and
 disposed with the owning graphics device.
+
+ThorVG initialization is process-wide and explicit. Each ThorVG document serializes raster access;
+Forma does not schedule SVG parse, raster, cancellation, or prewarm work in the background. The
+conditional background-race matrix is therefore not applicable in Profile v1. A future background
+pipeline must first add isolated-document concurrency and shutdown stress without moving texture
+creation or upload off the render thread.
 
 Multiple `UIContext` instances sharing a `GraphicsDevice` share one bounded `SvgRasterCache`. A
 zero-owner shared cache is retained until device disposal; immediate last-context disposal is
@@ -143,7 +151,7 @@ generations, and missing names.
 
 ## Supported Envelope
 
-The bounded MVP accepts SVG geometry, paths, groups, local `defs`/`use`, dimensions and view boxes,
+Runtime SVG Profile v1 accepts SVG geometry, paths, groups, local `defs`/`use`, dimensions and view boxes,
 presentation attributes, supported inline CSS, transforms, gradients, local clips and masks,
 opacity, strokes, fill rules, and `currentColor` used by the approved fixture set.
 
@@ -152,8 +160,11 @@ external URLs or files, external stylesheets and documents, text and external fo
 blur, blend modes, ICC `color-profile` declarations, browser layout semantics, unsupported
 compositing, and references that escape the document. Validation also enforces
 finite source-byte, XML-depth, element, attribute, text, local-reference, dimension, and pixel-area
-limits before Svg.Skia parses the document. The feature is deliberately documented as a bounded SVG
+limits before native parsing. The feature is deliberately documented as a bounded SVG
 subset, not full browser SVG support.
+
+The normative feature list, fixtures, and cross-backend tolerances are documented in
+[Runtime SVG Profile v1](runtime-svg-profile-v1.md).
 
 ## Validation Gates
 
@@ -203,10 +214,11 @@ a `DrawingImage`/`ImageDrawing` surface.
 
 ## Deployment
 
-Svg.Skia 5.2.0 and SkiaSharp 4.148.0 are pinned. The companion carries the managed backend,
-authoritative default-theme SVG sources, Linux no-dependencies native assets, licenses, symbols,
-and Source Link metadata. Clean package consumers verify core-only isolation, runtime/RID native
-selection, trimming, NativeAOT, deterministic package contents, and mixed-runtime build guards.
+Svg.Skia 5.2.0/SkiaSharp 4.148.0 and ThorVG 1.1.0/Forma ABI 1 are pinned. Explicit companions carry
+only their selected implementation; authoritative default-theme SVG sources live in core. Existing
+`Forma.Svg.*` packages are warning-producing Skia compatibility packages for one migration window.
+ThorVG provenance and reproducible build inputs are in
+[ThorVG Build, Provenance, and Host Integration](thorvg-build-and-provenance.md).
 
 The Catalog starts with a verified backend and includes the `Runtime SVG` story. It compares compiled
 and file sources, arbitrary sizes and tint, LTR/RTL placement, theme SVG/PNG policies, cache

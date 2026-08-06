@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Added explicit `Forma.Svg.Skia.*` and experimental `Forma.Svg.ThorVG.*` backend packages with one
+  immutable process-wide selection contract. Legacy `Forma.Svg.*` packages retain Skia behavior for
+  the `0.x` migration window, emit a migration warning, and are scheduled for removal in `1.0.0`.
+- Added ThorVG 1.1.0 through a nine-symbol Forma C ABI, source-generated managed interop, `SafeHandle`
+  documents, dynamic desktop assets, and a dead-stripped static reference host. macOS arm64 and
+  Linux x64 source builds pass Profile v1 and the 67-icon corpus; Windows and consoles are untested.
+- Added Runtime SVG Profile v1, process-isolated backend tests, package isolation guards, sanitizer/
+  leak checks, provenance, migration guidance, and explicit console-ready versus console-qualified
+  terminology. No console support is claimed.
+- Validated ThorVG dynamic and static NativeAOT on macOS arm64 and Linux x64. ThorVG remains opt-in;
+  see `docs/svg-backend-rollout.md` for measured tradeoffs, release gates, and rollback.
+
 - Added matching optional `Forma.Svg.MonoGame` and `Forma.Svg.FNA` companions using Svg.Skia 5.2.0
   (SkiaSharp 4.148.0) for bounded runtime SVG rendering without exposing backend-native types from
   core. Core packages remain free of Svg.Skia, SkiaSharp, and native Skia assets.

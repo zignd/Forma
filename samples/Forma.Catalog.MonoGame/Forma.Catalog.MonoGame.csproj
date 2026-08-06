@@ -9,6 +9,8 @@
     <Nullable>disable</Nullable>
     <CatalogBackend Condition="'$(CatalogBackend)' == ''">$(MonoGamePlatform)</CatalogBackend>
     <FormaNativeRuntime Condition="'$(FormaNativeRuntime)' == '' And '$(MonoGamePlatform)' == 'Native'">true</FormaNativeRuntime>
+    <SvgBackend Condition="'$(SvgBackend)' == ''">Skia</SvgBackend>
+    <DefineConstants Condition="'$(SvgBackend)' == 'ThorVG'">$(DefineConstants);THORVG</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +19,7 @@
     <ProjectReference Include="$(MonoGameProjectPath)" Condition="'$(MonoGameProjectPath)' != ''" />
     <PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="$(MonoGameVersion)" Condition="'$(FormaNativeRuntime)' == 'true' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('Linux'))" />
     <PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="$(MonoGameVersion)" Condition="'$(FormaNativeRuntime)' == 'true' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('OSX'))" />
-    <ProjectReference Include="../Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=MonoGame;CatalogBackend=$(CatalogBackend)" />
+    <ProjectReference Include="../Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=MonoGame;CatalogBackend=$(CatalogBackend);SvgBackend=$(SvgBackend)" />
     <Compile Include="../Forma.Catalog/Program.cs" Link="Program.cs" />
     <MonoGameContentReference Include="../Forma.Catalog/Content/Content.mgcb" />
     <Content Include="$(NativeRuntimePath)" Link="$([System.IO.Path]::GetFileName('$(NativeRuntimePath)'))" CopyToOutputDirectory="PreserveNewest" Condition="'$(FormaNativeRuntime)' == 'true' And '$(NativeRuntimePath)' != ''" />

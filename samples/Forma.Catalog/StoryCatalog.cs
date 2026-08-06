@@ -715,7 +715,7 @@ public static class StoryCatalog
                 var health = SvgRuntime.Health;
                 var raster = root.Context.SvgRasterDiagnostics;
                 var icons = root.Context.ThemeIconDiagnostics;
-                status.Text = $"{health.Name} {health.Version.Split('+')[0]} · {root.Context.ThemeIconRenderingPolicy}\nSVG icons {icons.RuntimeSvgIconCount} · PNG fallbacks {icons.BitmapFallbackCount}\nRasters {raster.EntryCount} · pages {raster.PageCount} · {raster.Bytes / 1024f:0.0} KB · hits {raster.Hits} · misses {raster.Misses} · {atlasPreview.Summary}";
+                status.Text = $"{health.BackendId} {health.Version.Split('+')[0]} · profile {health.ProfileVersion} · {health.LinkMode}/{health.NativeAvailability}\n{root.Context.ThemeIconRenderingPolicy} · SVG icons {icons.RuntimeSvgIconCount} · PNG fallbacks {icons.BitmapFallbackCount}\nRasters {raster.EntryCount} · pages {raster.PageCount} · {raster.Bytes / 1024f:0.0} KB · hits {raster.Hits} · misses {raster.Misses} · {atlasPreview.Summary}";
             }
             scope.Find<Button>("runtimePolicy").Pressed += (_, _) => { root.Context.ThemeIconRenderingPolicy = ThemeIconRenderingPolicy.RuntimeSvg; Refresh(); };
             scope.Find<Button>("bitmapPolicy").Pressed += (_, _) => { root.Context.ThemeIconRenderingPolicy = ThemeIconRenderingPolicy.BitmapAtlas; Refresh(); };

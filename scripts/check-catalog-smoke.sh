@@ -12,11 +12,12 @@ actual="$stage_directory/catalog.json"
 stable_baseline="$stage_directory/baseline-stable.json"
 stable_actual="$stage_directory/actual-stable.json"
 runtime="${FormaRuntime:-MonoGame}"
+svg_backend="${SvgBackend:-Skia}"
 catalog_options=()
 if [[ -n "${FormaCatalogViewportWidth:-}" && -n "${FormaCatalogViewportHeight:-}" ]]; then
   catalog_options+=(--viewport-width "$FormaCatalogViewportWidth" --viewport-height "$FormaCatalogViewportHeight")
 fi
-msbuild_options=(-p:FormaRuntime="$runtime")
+msbuild_options=(-p:FormaRuntime="$runtime" -p:SvgBackend="$svg_backend")
 for property_name in FormaNativeRuntime MonoGamePlatform CatalogBackend; do
   if [[ -n "${!property_name:-}" ]]; then
     msbuild_options+=(-p:"$property_name=${!property_name}")
@@ -70,12 +71,20 @@ if ! jq -e --arg backend "$expected_backend" '.backend == $backend' "$actual" >/
   exit 1
 fi
 
-if ! jq -e '
+if [[ "$svg_backend" == "ThorVG" ]]; then
+  expected_svg_id="thorvg"
+  expected_svg_version="1.1.0"
+else
+  expected_svg_id="skia"
+  expected_svg_version="5.2.0+"
+fi
+
+if ! jq -e --arg id "$expected_svg_id" --arg version "$expected_svg_version" '
   .svgBackendAvailable == true and
-  .svgBackendName == "Svg.Skia" and
-  (.svgBackendVersion | startswith("5.2.0+"))
+  .svgBackendId == $id and
+  (.svgBackendVersion | startswith($version))
 ' "$actual" >/dev/null; then
-  printf 'Catalog metrics did not report the expected healthy Svg.Skia 5.2.0 backend.\n' >&2
+  printf 'Catalog metrics did not report the expected healthy %s backend.\n' "$svg_backend" >&2
   exit 1
 fi
 

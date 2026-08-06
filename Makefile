@@ -31,7 +31,7 @@ DOTNET_ARGS := --configuration "$(CONFIGURATION)" --nologo
 	xaml-game-monogame xaml-game-fna smoke smoke-monogame smoke-fna render-parity video-smoke \
 	text-spike text-spike-local text-baseline xaml-spike \
 	compliance backend-references parity packages aot-analyzers native-font-failures static-font-backend nativeaot check check-all \
-	icons icons-import icons-verify unicode unicode-verify track clean
+	svg-selection svg-benchmark svg-compare svg-packages thorvg-catalog thorvg-render thorvg-spike thorvg-linux thorvg-nativeaot thorvg-static-host icons icons-import icons-verify unicode unicode-verify track clean
 
 help: ## Show available targets and configuration variables.
 	@awk 'BEGIN { FS = ":.*## "; printf "Forma development targets\n\n" } /^[a-zA-Z0-9_.-]+:.*## / { printf "  %-24s %s\n", $$1, $$2 } END { printf "\nVariables: CONFIGURATION, DOTNET, CATALOG_ARGS, MONOGAME_PROJECT, FNA_PROJECT, PLAN, TRACK_ARGS, NATIVEAOT_RUNTIME, NATIVEAOT_PROFILE, NATIVEAOT_MODE\n" }' $(MAKEFILE_LIST)
@@ -170,6 +170,36 @@ nativeaot: static-font-backend ## Validate trim-only and NativeAOT package consu
 
 xaml-spike: ## Validate XAML compiler feasibility and a compiler-free NativeAOT view.
 	bash scripts/test-xaml-spike.sh
+
+thorvg-spike: ## Build the pinned minimal ThorVG adapter and run its native smoke test.
+	bash scripts/build-thorvg-spike.sh
+
+thorvg-linux: ## Build and smoke-test the ThorVG adapter on clean Linux x64.
+	bash scripts/check-thorvg-linux.sh
+
+svg-selection: ## Validate process-isolated SVG backend selection failures.
+	bash scripts/check-svg-backend-selection.sh
+
+svg-benchmark: ## Measure both SVG backends over the 67-icon corpus.
+	bash scripts/benchmark-svg-backends.sh
+
+svg-compare: ## Compare isolated Skia and ThorVG profile/theme rasters and generate contact sheets.
+	bash scripts/compare-svg-backends.sh
+
+svg-packages: ## Pack and execute isolated SVG backend consumers.
+	bash scripts/test-svg-package-consumers.sh
+
+thorvg-render: ## Run ThorVG SVG GPU/cache/reset lifecycle smoke on MonoGame and FNA.
+	bash scripts/test-thorvg-render-smoke.sh
+
+thorvg-catalog: ## Run the bounded Runtime SVG Catalog story with ThorVG on both peers.
+	bash scripts/test-thorvg-catalog.sh
+
+thorvg-nativeaot: ## Publish and execute the ThorVG source-generated interop consumer with NativeAOT.
+	bash scripts/test-thorvg-nativeaot.sh
+
+thorvg-static-host: ## Publish and execute the NativeAOT direct-P/Invoke ThorVG static reference host.
+	bash scripts/test-thorvg-static-host.sh
 
 icons: ## Regenerate canonical 1x/2x default theme icon atlases.
 	$(DOTNET) run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- generate

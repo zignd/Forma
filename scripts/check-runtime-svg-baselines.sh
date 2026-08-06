@@ -7,6 +7,12 @@ set -euo pipefail
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 artifact_root="$repository_root/Artifacts/runtime-svg-baselines"
 image_root="$repository_root/docs/images"
+svg_backend="${SvgBackend:-Skia}"
+case "$svg_backend" in
+  Skia) backend_suffix=""; expected_svg_id="skia" ;;
+  ThorVG) backend_suffix="-thorvg"; expected_svg_id="thorvg" ;;
+  *) printf 'SvgBackend must be either Skia or ThorVG.\n' >&2; exit 2 ;;
+esac
 mkdir -p "$artifact_root" "$image_root"
 
 if ! command -v jq >/dev/null 2>&1; then
@@ -42,16 +48,16 @@ capture() {
   local project="$repository_root/samples/Forma.Catalog.$runtime_name/Forma.Catalog.$runtime_name.csproj"
   local runtime_slug
   runtime_slug="$(printf '%s' "$runtime_name" | tr '[:upper:]' '[:lower:]')"
-  local prefix="runtime-svg-$runtime_slug-$cell_name"
+  local prefix="runtime-svg-$runtime_slug-$cell_name$backend_suffix"
   if [[ "$policy" == "RuntimeSvg" ]]; then
-    dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime_name" --no-build -- \
+    dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime_name" -p:SvgBackend="$svg_backend" --no-build -- \
       --story 'Runtime SVG' --frames 20 --display-scale "$display_scale" \
       --viewport-width "$viewport_width" --viewport-height "$viewport_height" \
       --layout-direction "$layout_direction" --theme-icon-policy "$policy" \
       --render-output "$artifact_root/$prefix.${policy}.json" \
       --screenshot "$image_root/$prefix.png" --metrics "$artifact_root/$prefix.metrics.json"
   else
-    dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime_name" --no-build -- \
+    dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime_name" -p:SvgBackend="$svg_backend" --no-build -- \
       --story 'Runtime SVG' --frames 20 --display-scale "$display_scale" \
       --viewport-width "$viewport_width" --viewport-height "$viewport_height" \
       --layout-direction "$layout_direction" --theme-icon-policy "$policy" \
@@ -61,7 +67,7 @@ capture() {
 
 for runtime_name in MonoGame FNA; do
   dotnet build "$repository_root/samples/Forma.Catalog.$runtime_name/Forma.Catalog.$runtime_name.csproj" \
-    --configuration Release -p:FormaRuntime="$runtime_name" --nologo
+    --configuration Release -p:FormaRuntime="$runtime_name" -p:SvgBackend="$svg_backend" --nologo
   while IFS=: read -r cell_name display_scale viewport_width viewport_height layout_direction; do
     capture "$runtime_name" "$cell_name" "$display_scale" "$viewport_width" "$viewport_height" "$layout_direction" RuntimeSvg
     capture "$runtime_name" "$cell_name" "$display_scale" "$viewport_width" "$viewport_height" "$layout_direction" BitmapAtlas
@@ -82,29 +88,29 @@ done
 # by SvgRasterCacheTest unit tests; they are not exported to the metrics JSON.
 for runtime_name in monogame fna; do
   for cell_name in 1x 1_25x 1_5x 1_75x 2x 2_5x rtl narrow; do
-    svg_report="$artifact_root/runtime-svg-$runtime_name-$cell_name.RuntimeSvg.json"
-    png_report="$artifact_root/runtime-svg-$runtime_name-$cell_name.BitmapAtlas.json"
+    svg_report="$artifact_root/runtime-svg-$runtime_name-$cell_name$backend_suffix.RuntimeSvg.json"
+    png_report="$artifact_root/runtime-svg-$runtime_name-$cell_name$backend_suffix.BitmapAtlas.json"
     for field in nonBackgroundPixels redTotal greenTotal blueTotal edgeTransitions edgeStrength; do
       compare_metric "$svg_report" "$png_report" "$field" 0.03
     done
-    jq -e '
+    jq -e --arg id "$expected_svg_id" '
       .svgBackendAvailable == true and
-      .svgBackendName == "Svg.Skia" and
+      .svgBackendId == $id and
       .themeIconPolicy == "RuntimeSvg" and
       .themeIconRuntimeSvgCount == 67 and
       .themeIconBitmapFallbackCount == 0 and
       .svgRasterEntries > 0
-    ' "$artifact_root/runtime-svg-$runtime_name-$cell_name.metrics.json" >/dev/null
+    ' "$artifact_root/runtime-svg-$runtime_name-$cell_name$backend_suffix.metrics.json" >/dev/null
   done
 done
 
 # Cross-peer pixel parity: MonoGame and FNA RuntimeSvg output must agree within 1%.
 for cell_name in 1x 1_25x 1_5x 1_75x 2x 2_5x rtl narrow; do
-  monogame_report="$artifact_root/runtime-svg-monogame-$cell_name.RuntimeSvg.json"
-  fna_report="$artifact_root/runtime-svg-fna-$cell_name.RuntimeSvg.json"
+  monogame_report="$artifact_root/runtime-svg-monogame-$cell_name$backend_suffix.RuntimeSvg.json"
+  fna_report="$artifact_root/runtime-svg-fna-$cell_name$backend_suffix.RuntimeSvg.json"
   for field in nonBackgroundPixels redTotal greenTotal blueTotal edgeTransitions edgeStrength; do
     compare_metric "$monogame_report" "$fna_report" "$field" 0.01
   done
 done
 
-printf 'Runtime SVG baselines passed for 1x, 1.25x, 1.5x, 1.75x, 2x, 2.5x, RTL, and narrow cells on MonoGame and FNA.\n'
+printf '%s Runtime SVG baselines passed for 1x, 1.25x, 1.5x, 1.75x, 2x, 2.5x, RTL, and narrow cells on MonoGame and FNA.\n' "$svg_backend"

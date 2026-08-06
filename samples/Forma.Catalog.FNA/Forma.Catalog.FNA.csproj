@@ -8,6 +8,8 @@
     <IsPackable>false</IsPackable>
     <Nullable>disable</Nullable>
     <DefineConstants>$(DefineConstants);FORMA_CATALOG_FNA</DefineConstants>
+    <SvgBackend Condition="'$(SvgBackend)' == ''">Skia</SvgBackend>
+    <DefineConstants Condition="'$(SvgBackend)' == 'ThorVG'">$(DefineConstants);THORVG</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +17,7 @@
     <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FnaProjectPath)' == ''" />
     <PackageReference Include="FNA.NET.NativeAssets" Version="$(FnaNativeAssetsVersion)" Condition="'$(FnaProjectPath)' != ''" />
     <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FnaProjectPath)' != ''" />
-    <ProjectReference Include="../Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=FNA;CatalogBackend=FNA" />
+    <ProjectReference Include="../Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=FNA;CatalogBackend=FNA;SvgBackend=$(SvgBackend)" />
     <Compile Include="../Forma.Catalog/Program.cs" Link="Program.cs" />
     <MonoGameContentReference Include="../Forma.Catalog/Content/Content.mgcb" />
     <None Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />

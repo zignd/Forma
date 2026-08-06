@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ $# -lt 4 ]]; then
-  printf 'Usage: %s <MonoGame|FNA> <project> <local-framework-project> <configuration> [-- catalog arguments...]\n' "$0" >&2
+  printf 'Usage: %s <MonoGame|FNA> <project> <local-framework-project> <configuration> [-- dotnet arguments...] [-- catalog arguments...]\n' "$0" >&2
   exit 2
 fi
 
@@ -14,6 +14,21 @@ shift 4
 if [[ "${1:-}" == "--" ]]; then
   shift
 fi
+
+dotnet_arguments=()
+catalog_arguments=()
+catalog_argument_count=0
+parsing_catalog_arguments=false
+for argument in "$@"; do
+  if [[ "$argument" == "--" ]]; then
+    parsing_catalog_arguments=true
+  elif [[ "$parsing_catalog_arguments" == "true" ]]; then
+    catalog_arguments+=("$argument")
+    catalog_argument_count=$((catalog_argument_count + 1))
+  else
+    dotnet_arguments+=("$argument")
+  fi
+done
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 dotnet_command="${DOTNET:-dotnet}"
@@ -42,15 +57,25 @@ esac
   -p:FormaRuntime="$runtime" \
   -p:"$framework_property=$local_framework_project" \
   -p:UseAppHost=true \
+  "${dotnet_arguments[@]}" \
   --nologo
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
+  if (( catalog_argument_count == 0 )); then
+    exec "$dotnet_command" run --project "$project" \
+      --configuration "$configuration" \
+      -p:FormaRuntime="$runtime" \
+      -p:"$framework_property=$local_framework_project" \
+      "${dotnet_arguments[@]}" \
+      --no-build
+  fi
   exec "$dotnet_command" run --project "$project" \
     --configuration "$configuration" \
     -p:FormaRuntime="$runtime" \
     -p:"$framework_property=$local_framework_project" \
+    "${dotnet_arguments[@]}" \
     --no-build \
-    -- "$@"
+    -- "${catalog_arguments[@]}"
 fi
 
 output_directory="$(dirname "$project")/bin/$runtime/$configuration/net10.0"
@@ -94,4 +119,7 @@ if [[ "${FORMA_CATALOG_BUNDLE_ONLY:-0}" == "1" ]]; then
 fi
 
 cd "$application/Contents/MacOS"
-exec "$launcher" "$@"
+if (( catalog_argument_count == 0 )); then
+  exec "$launcher"
+fi
+exec "$launcher" "${catalog_arguments[@]}"

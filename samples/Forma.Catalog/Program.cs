@@ -8,6 +8,10 @@ using Forma;
 Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
 #endif
 
-_ = SvgBackendDefaults.Verify();
+#if THORVG
+_ = SvgThorvgBackendDefaults.Verify();
+#else
+_ = SvgSkiaBackendDefaults.Verify();
+#endif
 using var game = new CatalogGame(CatalogMetricsOptions.Parse(args));
 game.Run();

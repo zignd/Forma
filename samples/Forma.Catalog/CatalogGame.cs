@@ -164,10 +164,26 @@ public sealed class CatalogGame : Game
             innerException);
     }
 
+    internal static InvalidOperationException CreateDrawException(ComponentStory story, Exception innerException)
+    {
+        if (innerException == null) throw new ArgumentNullException(nameof(innerException));
+        var storyName = story == null ? "<no active story>" : $"{story.Category} / {story.Name}";
+        return new InvalidOperationException(
+            $"Catalog draw failed in '{storyName}': {innerException.Message}",
+            innerException);
+    }
+
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(_ui.Theme.BackgroundColor);
-        _ui.Draw(GraphicsDevice);
+        try
+        {
+            _ui.Draw(GraphicsDevice);
+        }
+        catch (Exception exception)
+        {
+            throw CreateDrawException(_catalog?.ActiveStory, exception);
+        }
         if (_hotReload != null)
         {
             _hotReload.Update();

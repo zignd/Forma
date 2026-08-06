@@ -542,6 +542,22 @@ public sealed class CatalogInventoryTest
         });
     }
 
+    [Test]
+    public void CatalogDrawExceptionsIdentifyTheStory()
+    {
+        var story = new ComponentStory("Composition", "Broken Clip", "Test", () => new Border());
+        var cause = new InvalidOperationException("Capture failed.");
+
+        var exception = CatalogGame.CreateDrawException(story, cause);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exception.Message, Does.Contain("Composition / Broken Clip"));
+            Assert.That(exception.Message, Does.Contain("Capture failed."));
+            Assert.That(exception.InnerException, Is.SameAs(cause));
+        });
+    }
+
     [TestCase("Display Density", "densityStatus")]
     [TestCase("Fallback Chain", "fallbackPreview")]
     [TestCase("Wrapping and Selection", "wrappingDiagnostics")]

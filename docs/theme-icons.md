@@ -81,7 +81,7 @@ licenses, zero-sized SVGs, source hash drift, and incomplete density output.
 
 ## Intentional Exclusions
 
-Only runtime icons mapped to behavior Forma currently exposes are imported. File-dialog navigation
-toolbar icons, dialog/window close icons, ColorPicker pipette/shape/overbright icons, tab drop marks,
+Only runtime icons mapped to behavior Forma currently exposes are imported. Dialog/window close
+icons, ColorPicker pipette/shape/overbright icons, tab drop marks,
 and CodeEdit completion-color backgrounds remain excluded until corresponding interactive behavior
 exists. Godot's editor icon collection is excluded entirely.

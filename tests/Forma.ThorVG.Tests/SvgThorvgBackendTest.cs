@@ -69,7 +69,7 @@ namespace Forma.Tests
                 .OrderBy(name => name, StringComparer.Ordinal)
                 .ToArray();
 
-            Assert.That(resources, Has.Length.EqualTo(67));
+            Assert.That(resources, Has.Length.EqualTo(79));
             foreach (var resource in resources)
             {
                 var source = SvgImageSource.FromManifestResource(assembly, resource);

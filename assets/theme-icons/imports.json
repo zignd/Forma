@@ -22,6 +22,7 @@
       "Sha256": "7a21120e4d13d9b2d1298beb660872ae8f0621a08b862928740cc3cc19224e67",
       "License": "Godot-MIT",
       "Bindings": [
+        "FileDialog:back",
         "Tree:arrow_collapsed_mirrored",
         "FoldableContainer:folded_arrow_mirrored"
       ],
@@ -38,6 +39,7 @@
       "Bindings": [
         "CodeEdit:executing_line",
         "CodeEdit:folded",
+        "FileDialog:forward",
         "Tree:arrow_collapsed",
         "FoldableContainer:folded_arrow"
       ],
@@ -53,6 +55,7 @@
       "Sha256": "2de93bbfbc65100e8ae93631af65cd88481d61cdbe9e497f2beb919e1891648d",
       "License": "Godot-MIT",
       "Bindings": [
+        "FileDialog:up",
         "FoldableContainer:expanded_arrow_mirrored"
       ],
       "States": [
@@ -70,6 +73,162 @@
       ],
       "States": [
         "marked"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "favorite",
+      "Source": "scene/theme/icons/favorite.svg",
+      "Sha256": "343bb4de41c5f278c8cb342d4e06ab486707507b843fe405caa2494c5739573c",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:favorite"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file_mode_list",
+      "Source": "scene/theme/icons/file_mode_list.svg",
+      "Sha256": "9a58bbcace22fd5ddbfc689d84fc9e9a5072d26dff209d6abf8965840845102b",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:list_mode"
+      ],
+      "States": [
+        "list"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file_mode_thumbnail",
+      "Source": "scene/theme/icons/file_mode_thumbnail.svg",
+      "Sha256": "a4355e273bdac81bbb67b0aa27028d0a543f10641b6a8e26bd08f6f7b8eecb41",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:thumbnail_mode"
+      ],
+      "States": [
+        "thumbnail"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file_thumbnail",
+      "Source": "scene/theme/icons/file_thumbnail.svg",
+      "Sha256": "8545dd3793a4a2e05a39337741499a6eba76e17aefc575bbf8b9056826526961",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:file_thumbnail"
+      ],
+      "States": [
+        "thumbnail"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "folder_create",
+      "Source": "scene/theme/icons/folder_create.svg",
+      "Sha256": "f41d6d3175fec74171223fc2f635ecde73c16dea18fa9ff3c65816b716e6bdff",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:create_folder"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "folder_thumbnail",
+      "Source": "scene/theme/icons/folder_thumbnail.svg",
+      "Sha256": "8ef979c606c534100db5d4201899fff8ec996b956cb62142934f740c8761a821",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:folder_thumbnail"
+      ],
+      "States": [
+        "thumbnail"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "move_down",
+      "Source": "scene/theme/icons/move_down.svg",
+      "Sha256": "0fe13777a34b972e44e4e1e0d842a1474d39e1d8f1710caaa65c42b9edd1e75a",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:favorite_down"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "move_up",
+      "Source": "scene/theme/icons/move_up.svg",
+      "Sha256": "e858a986f1932446b450c73fad55f98134b3f3e3ce511a57a279c6bda405ed2d",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:favorite_up"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "up"
+    },
+    {
+      "Name": "reload",
+      "Source": "scene/theme/icons/reload.svg",
+      "Sha256": "ccca0bbd0b4c9650ec2df18b263ebd96c194498aa1ce519f3a1ccd23a44f5a0c",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:reload"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "sort",
+      "Source": "scene/theme/icons/sort.svg",
+      "Sha256": "64c37555fd8f65a09334cba72a768615d9fb813d3dcc580eba8722ed86818147",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:sort"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "toggle_filename_filter",
+      "Source": "scene/theme/icons/toggle_filename_filter.svg",
+      "Sha256": "5c72a353166ef7d33dc59bf00ab9716f3e271748e60a67b3c6621b65a628dd42",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:toggle_filename_filter"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "visibility_visible",
+      "Source": "scene/theme/icons/visibility_visible.svg",
+      "Sha256": "96360dffc807226202c6e69060515813278d8f44d53bfc5d5fc046924faf326a",
+      "License": "Godot-MIT",
+      "Bindings": [
+        "FileDialog:toggle_hidden"
+      ],
+      "States": [
+        "visible"
       ],
       "Directionality": "none"
     },

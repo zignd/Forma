@@ -10,15 +10,15 @@
       "Density": 1,
       "FileName": "theme-icons-1x.png",
       "Width": 512,
-      "Height": 134,
-      "Sha256": "01e1cf594c993602833d50f378a20af7145a5eda6463ffab4ddfbe4a3aad1ec9"
+      "Height": 202,
+      "Sha256": "b4e136bf998fee2819e8781ff3f8e0d46caf62c92a7be3112e257471945ed44f"
     },
     {
       "Density": 2,
       "FileName": "theme-icons-2x.png",
       "Width": 1024,
-      "Height": 268,
-      "Sha256": "3e5f1a8259767b66ad9c00aad08a4699aa671b95e7b1ffc6614dc033549c35bb"
+      "Height": 404,
+      "Sha256": "157864e2deff34acb0b3b9ac871f2ebb5fba8b75aa49b2218c61386eb6dbaaf0"
     }
   ],
   "Icons": [
@@ -55,6 +55,7 @@
       "Source": "scene/theme/icons/arrow_left.svg",
       "SourceSha256": "7a21120e4d13d9b2d1298beb660872ae8f0621a08b862928740cc3cc19224e67",
       "Bindings": [
+        "FileDialog:back",
         "Tree:arrow_collapsed_mirrored",
         "FoldableContainer:folded_arrow_mirrored"
       ],
@@ -77,6 +78,7 @@
       "Bindings": [
         "CodeEdit:executing_line",
         "CodeEdit:folded",
+        "FileDialog:forward",
         "Tree:arrow_collapsed",
         "FoldableContainer:folded_arrow"
       ],
@@ -98,6 +100,7 @@
       "Source": "scene/theme/icons/arrow_up.svg",
       "SourceSha256": "2de93bbfbc65100e8ae93631af65cd88481d61cdbe9e497f2beb919e1891648d",
       "Bindings": [
+        "FileDialog:up",
         "FoldableContainer:expanded_arrow_mirrored"
       ],
       "States": [
@@ -244,9 +247,28 @@
       "Directionality": "none"
     },
     {
-      "Name": "file",
+      "Name": "favorite",
       "Density": 1,
       "X": 214,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/favorite.svg",
+      "SourceSha256": "343bb4de41c5f278c8cb342d4e06ab486707507b843fe405caa2494c5739573c",
+      "Bindings": [
+        "FileDialog:favorite"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file",
+      "Density": 1,
+      "X": 234,
       "Y": 2,
       "Width": 16,
       "Height": 16,
@@ -263,9 +285,66 @@
       "Directionality": "none"
     },
     {
+      "Name": "file_mode_list",
+      "Density": 1,
+      "X": 254,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/file_mode_list.svg",
+      "SourceSha256": "9a58bbcace22fd5ddbfc689d84fc9e9a5072d26dff209d6abf8965840845102b",
+      "Bindings": [
+        "FileDialog:list_mode"
+      ],
+      "States": [
+        "list"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file_mode_thumbnail",
+      "Density": 1,
+      "X": 274,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/file_mode_thumbnail.svg",
+      "SourceSha256": "a4355e273bdac81bbb67b0aa27028d0a543f10641b6a8e26bd08f6f7b8eecb41",
+      "Bindings": [
+        "FileDialog:thumbnail_mode"
+      ],
+      "States": [
+        "thumbnail"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file_thumbnail",
+      "Density": 1,
+      "X": 294,
+      "Y": 2,
+      "Width": 64,
+      "Height": 64,
+      "LogicalWidth": 64,
+      "LogicalHeight": 64,
+      "Source": "scene/theme/icons/file_thumbnail.svg",
+      "SourceSha256": "8545dd3793a4a2e05a39337741499a6eba76e17aefc575bbf8b9056826526961",
+      "Bindings": [
+        "FileDialog:file_thumbnail"
+      ],
+      "States": [
+        "thumbnail"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "folder",
       "Density": 1,
-      "X": 234,
+      "X": 362,
       "Y": 2,
       "Width": 16,
       "Height": 16,
@@ -282,9 +361,47 @@
       "Directionality": "none"
     },
     {
+      "Name": "folder_create",
+      "Density": 1,
+      "X": 382,
+      "Y": 2,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/folder_create.svg",
+      "SourceSha256": "f41d6d3175fec74171223fc2f635ecde73c16dea18fa9ff3c65816b716e6bdff",
+      "Bindings": [
+        "FileDialog:create_folder"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "folder_thumbnail",
+      "Density": 1,
+      "X": 402,
+      "Y": 2,
+      "Width": 64,
+      "Height": 64,
+      "LogicalWidth": 64,
+      "LogicalHeight": 64,
+      "Source": "scene/theme/icons/folder_thumbnail.svg",
+      "SourceSha256": "8ef979c606c534100db5d4201899fff8ec996b956cb62142934f740c8761a821",
+      "Bindings": [
+        "FileDialog:folder_thumbnail"
+      ],
+      "States": [
+        "thumbnail"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "graph_port",
       "Density": 1,
-      "X": 254,
+      "X": 470,
       "Y": 2,
       "Width": 10,
       "Height": 10,
@@ -303,7 +420,7 @@
     {
       "Name": "grid_layout",
       "Density": 1,
-      "X": 268,
+      "X": 484,
       "Y": 2,
       "Width": 16,
       "Height": 16,
@@ -322,8 +439,8 @@
     {
       "Name": "grid_minimap",
       "Density": 1,
-      "X": 288,
-      "Y": 2,
+      "X": 2,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -341,8 +458,8 @@
     {
       "Name": "grid_snap",
       "Density": 1,
-      "X": 308,
-      "Y": 2,
+      "X": 22,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -360,8 +477,8 @@
     {
       "Name": "grid_toggle",
       "Density": 1,
-      "X": 328,
-      "Y": 2,
+      "X": 42,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -379,8 +496,8 @@
     {
       "Name": "h_dragger",
       "Density": 1,
-      "X": 348,
-      "Y": 2,
+      "X": 62,
+      "Y": 70,
       "Width": 30,
       "Height": 60,
       "LogicalWidth": 30,
@@ -398,8 +515,8 @@
     {
       "Name": "hslider_tick",
       "Density": 1,
-      "X": 382,
-      "Y": 2,
+      "X": 96,
+      "Y": 70,
       "Width": 4,
       "Height": 8,
       "LogicalWidth": 4,
@@ -417,8 +534,8 @@
     {
       "Name": "hsplitter",
       "Density": 1,
-      "X": 390,
-      "Y": 2,
+      "X": 104,
+      "Y": 70,
       "Width": 8,
       "Height": 48,
       "LogicalWidth": 8,
@@ -436,8 +553,8 @@
     {
       "Name": "indeterminate",
       "Density": 1,
-      "X": 402,
-      "Y": 2,
+      "X": 116,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -456,8 +573,8 @@
     {
       "Name": "indeterminate_disabled",
       "Density": 1,
-      "X": 422,
-      "Y": 2,
+      "X": 136,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -477,8 +594,8 @@
     {
       "Name": "line_edit_clear",
       "Density": 1,
-      "X": 442,
-      "Y": 2,
+      "X": 156,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -497,8 +614,8 @@
     {
       "Name": "mini_checkerboard",
       "Density": 1,
-      "X": 462,
-      "Y": 2,
+      "X": 176,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -514,10 +631,48 @@
       "Directionality": "none"
     },
     {
+      "Name": "move_down",
+      "Density": 1,
+      "X": 196,
+      "Y": 70,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/move_down.svg",
+      "SourceSha256": "0fe13777a34b972e44e4e1e0d842a1474d39e1d8f1710caaa65c42b9edd1e75a",
+      "Bindings": [
+        "FileDialog:favorite_down"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "move_up",
+      "Density": 1,
+      "X": 216,
+      "Y": 70,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/move_up.svg",
+      "SourceSha256": "e858a986f1932446b450c73fad55f98134b3f3e3ce511a57a279c6bda405ed2d",
+      "Bindings": [
+        "FileDialog:favorite_up"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "up"
+    },
+    {
       "Name": "option_button_arrow",
       "Density": 1,
-      "X": 482,
-      "Y": 2,
+      "X": 236,
+      "Y": 70,
       "Width": 12,
       "Height": 12,
       "LogicalWidth": 12,
@@ -536,8 +691,8 @@
     {
       "Name": "popup_menu_arrow_left",
       "Density": 1,
-      "X": 498,
-      "Y": 2,
+      "X": 252,
+      "Y": 70,
       "Width": 8,
       "Height": 16,
       "LogicalWidth": 8,
@@ -555,8 +710,8 @@
     {
       "Name": "popup_menu_arrow_right",
       "Density": 1,
-      "X": 2,
-      "Y": 66,
+      "X": 264,
+      "Y": 70,
       "Width": 8,
       "Height": 16,
       "LogicalWidth": 8,
@@ -574,8 +729,8 @@
     {
       "Name": "radio_checked",
       "Density": 1,
-      "X": 14,
-      "Y": 66,
+      "X": 276,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -595,8 +750,8 @@
     {
       "Name": "radio_checked_disabled",
       "Density": 1,
-      "X": 34,
-      "Y": 66,
+      "X": 296,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -617,8 +772,8 @@
     {
       "Name": "radio_unchecked",
       "Density": 1,
-      "X": 54,
-      "Y": 66,
+      "X": 316,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -638,8 +793,8 @@
     {
       "Name": "radio_unchecked_disabled",
       "Density": 1,
-      "X": 74,
-      "Y": 66,
+      "X": 336,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -660,8 +815,8 @@
     {
       "Name": "region_folded",
       "Density": 1,
-      "X": 94,
-      "Y": 66,
+      "X": 356,
+      "Y": 70,
       "Width": 12,
       "Height": 12,
       "LogicalWidth": 12,
@@ -680,8 +835,8 @@
     {
       "Name": "region_unfolded",
       "Density": 1,
-      "X": 110,
-      "Y": 66,
+      "X": 372,
+      "Y": 70,
       "Width": 12,
       "Height": 12,
       "LogicalWidth": 12,
@@ -698,10 +853,29 @@
       "Directionality": "down"
     },
     {
+      "Name": "reload",
+      "Density": 1,
+      "X": 388,
+      "Y": 70,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/reload.svg",
+      "SourceSha256": "ccca0bbd0b4c9650ec2df18b263ebd96c194498aa1ce519f3a1ccd23a44f5a0c",
+      "Bindings": [
+        "FileDialog:reload"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "scroll_button_left",
       "Density": 1,
-      "X": 126,
-      "Y": 66,
+      "X": 408,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -720,8 +894,8 @@
     {
       "Name": "scroll_button_left_hl",
       "Density": 1,
-      "X": 146,
-      "Y": 66,
+      "X": 428,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -740,8 +914,8 @@
     {
       "Name": "scroll_button_right",
       "Density": 1,
-      "X": 166,
-      "Y": 66,
+      "X": 448,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -760,8 +934,8 @@
     {
       "Name": "scroll_button_right_hl",
       "Density": 1,
-      "X": 186,
-      "Y": 66,
+      "X": 468,
+      "Y": 70,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -780,8 +954,8 @@
     {
       "Name": "scroll_hint_horizontal",
       "Density": 1,
-      "X": 206,
-      "Y": 66,
+      "X": 2,
+      "Y": 134,
       "Width": 24,
       "Height": 32,
       "LogicalWidth": 24,
@@ -799,8 +973,8 @@
     {
       "Name": "scroll_hint_vertical",
       "Density": 1,
-      "X": 234,
-      "Y": 66,
+      "X": 30,
+      "Y": 134,
       "Width": 32,
       "Height": 24,
       "LogicalWidth": 32,
@@ -818,8 +992,8 @@
     {
       "Name": "slider_grabber",
       "Density": 1,
-      "X": 270,
-      "Y": 66,
+      "X": 66,
+      "Y": 134,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -838,8 +1012,8 @@
     {
       "Name": "slider_grabber_disabled",
       "Density": 1,
-      "X": 290,
-      "Y": 66,
+      "X": 86,
+      "Y": 134,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -858,8 +1032,8 @@
     {
       "Name": "slider_grabber_hl",
       "Density": 1,
-      "X": 310,
-      "Y": 66,
+      "X": 106,
+      "Y": 134,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -876,10 +1050,29 @@
       "Directionality": "none"
     },
     {
+      "Name": "sort",
+      "Density": 1,
+      "X": 126,
+      "Y": 134,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/sort.svg",
+      "SourceSha256": "64c37555fd8f65a09334cba72a768615d9fb813d3dcc580eba8722ed86818147",
+      "Bindings": [
+        "FileDialog:sort"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "tabs_menu",
       "Density": 1,
-      "X": 330,
-      "Y": 66,
+      "X": 146,
+      "Y": 134,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -897,8 +1090,8 @@
     {
       "Name": "tabs_menu_hl",
       "Density": 1,
-      "X": 350,
-      "Y": 66,
+      "X": 166,
+      "Y": 134,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -916,8 +1109,8 @@
     {
       "Name": "text_edit_ellipsis",
       "Density": 1,
-      "X": 370,
-      "Y": 66,
+      "X": 186,
+      "Y": 134,
       "Width": 14,
       "Height": 8,
       "LogicalWidth": 14,
@@ -935,8 +1128,8 @@
     {
       "Name": "text_edit_space",
       "Density": 1,
-      "X": 388,
-      "Y": 66,
+      "X": 204,
+      "Y": 134,
       "Width": 8,
       "Height": 8,
       "LogicalWidth": 8,
@@ -955,8 +1148,8 @@
     {
       "Name": "text_edit_tab",
       "Density": 1,
-      "X": 400,
-      "Y": 66,
+      "X": 216,
+      "Y": 134,
       "Width": 8,
       "Height": 8,
       "LogicalWidth": 8,
@@ -973,10 +1166,29 @@
       "Directionality": "right"
     },
     {
+      "Name": "toggle_filename_filter",
+      "Density": 1,
+      "X": 228,
+      "Y": 134,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_filename_filter.svg",
+      "SourceSha256": "5c72a353166ef7d33dc59bf00ab9716f3e271748e60a67b3c6621b65a628dd42",
+      "Bindings": [
+        "FileDialog:toggle_filename_filter"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "toggle_off",
       "Density": 1,
-      "X": 412,
-      "Y": 66,
+      "X": 248,
+      "Y": 134,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 32,
@@ -994,8 +1206,8 @@
     {
       "Name": "toggle_off_disabled",
       "Density": 1,
-      "X": 448,
-      "Y": 66,
+      "X": 284,
+      "Y": 134,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 32,
@@ -1014,8 +1226,8 @@
     {
       "Name": "toggle_off_disabled_mirrored",
       "Density": 1,
-      "X": 2,
-      "Y": 102,
+      "X": 320,
+      "Y": 134,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 32,
@@ -1034,8 +1246,8 @@
     {
       "Name": "toggle_off_mirrored",
       "Density": 1,
-      "X": 38,
-      "Y": 102,
+      "X": 356,
+      "Y": 134,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 32,
@@ -1053,8 +1265,8 @@
     {
       "Name": "toggle_on",
       "Density": 1,
-      "X": 74,
-      "Y": 102,
+      "X": 392,
+      "Y": 134,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 32,
@@ -1072,8 +1284,8 @@
     {
       "Name": "toggle_on_disabled",
       "Density": 1,
-      "X": 110,
-      "Y": 102,
+      "X": 428,
+      "Y": 134,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 32,
@@ -1092,8 +1304,8 @@
     {
       "Name": "toggle_on_disabled_mirrored",
       "Density": 1,
-      "X": 146,
-      "Y": 102,
+      "X": 464,
+      "Y": 134,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 32,
@@ -1112,8 +1324,8 @@
     {
       "Name": "toggle_on_mirrored",
       "Density": 1,
-      "X": 182,
-      "Y": 102,
+      "X": 2,
+      "Y": 170,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 32,
@@ -1131,8 +1343,8 @@
     {
       "Name": "unchecked",
       "Density": 1,
-      "X": 218,
-      "Y": 102,
+      "X": 38,
+      "Y": 170,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -1152,8 +1364,8 @@
     {
       "Name": "unchecked_disabled",
       "Density": 1,
-      "X": 238,
-      "Y": 102,
+      "X": 58,
+      "Y": 170,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -1174,8 +1386,8 @@
     {
       "Name": "updown",
       "Density": 1,
-      "X": 258,
-      "Y": 102,
+      "X": 78,
+      "Y": 170,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -1193,8 +1405,8 @@
     {
       "Name": "v_dragger",
       "Density": 1,
-      "X": 278,
-      "Y": 102,
+      "X": 98,
+      "Y": 170,
       "Width": 60,
       "Height": 30,
       "LogicalWidth": 60,
@@ -1212,8 +1424,8 @@
     {
       "Name": "value_down",
       "Density": 1,
-      "X": 342,
-      "Y": 102,
+      "X": 162,
+      "Y": 170,
       "Width": 16,
       "Height": 8,
       "LogicalWidth": 16,
@@ -1237,8 +1449,8 @@
     {
       "Name": "value_up",
       "Density": 1,
-      "X": 362,
-      "Y": 102,
+      "X": 182,
+      "Y": 170,
       "Width": 16,
       "Height": 8,
       "LogicalWidth": 16,
@@ -1260,10 +1472,29 @@
       "Directionality": "up"
     },
     {
+      "Name": "visibility_visible",
+      "Density": 1,
+      "X": 202,
+      "Y": 170,
+      "Width": 16,
+      "Height": 16,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/visibility_visible.svg",
+      "SourceSha256": "96360dffc807226202c6e69060515813278d8f44d53bfc5d5fc046924faf326a",
+      "Bindings": [
+        "FileDialog:toggle_hidden"
+      ],
+      "States": [
+        "visible"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "vslider_tick",
       "Density": 1,
-      "X": 382,
-      "Y": 102,
+      "X": 222,
+      "Y": 170,
       "Width": 8,
       "Height": 4,
       "LogicalWidth": 8,
@@ -1281,8 +1512,8 @@
     {
       "Name": "vsplitter",
       "Density": 1,
-      "X": 394,
-      "Y": 102,
+      "X": 234,
+      "Y": 170,
       "Width": 48,
       "Height": 8,
       "LogicalWidth": 48,
@@ -1300,8 +1531,8 @@
     {
       "Name": "zoom_less",
       "Density": 1,
-      "X": 446,
-      "Y": 102,
+      "X": 286,
+      "Y": 170,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -1319,8 +1550,8 @@
     {
       "Name": "zoom_more",
       "Density": 1,
-      "X": 466,
-      "Y": 102,
+      "X": 306,
+      "Y": 170,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -1338,8 +1569,8 @@
     {
       "Name": "zoom_reset",
       "Density": 1,
-      "X": 486,
-      "Y": 102,
+      "X": 326,
+      "Y": 170,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 16,
@@ -1387,6 +1618,7 @@
       "Source": "scene/theme/icons/arrow_left.svg",
       "SourceSha256": "7a21120e4d13d9b2d1298beb660872ae8f0621a08b862928740cc3cc19224e67",
       "Bindings": [
+        "FileDialog:back",
         "Tree:arrow_collapsed_mirrored",
         "FoldableContainer:folded_arrow_mirrored"
       ],
@@ -1409,6 +1641,7 @@
       "Bindings": [
         "CodeEdit:executing_line",
         "CodeEdit:folded",
+        "FileDialog:forward",
         "Tree:arrow_collapsed",
         "FoldableContainer:folded_arrow"
       ],
@@ -1430,6 +1663,7 @@
       "Source": "scene/theme/icons/arrow_up.svg",
       "SourceSha256": "2de93bbfbc65100e8ae93631af65cd88481d61cdbe9e497f2beb919e1891648d",
       "Bindings": [
+        "FileDialog:up",
         "FoldableContainer:expanded_arrow_mirrored"
       ],
       "States": [
@@ -1576,9 +1810,28 @@
       "Directionality": "none"
     },
     {
-      "Name": "file",
+      "Name": "favorite",
       "Density": 2,
       "X": 428,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/favorite.svg",
+      "SourceSha256": "343bb4de41c5f278c8cb342d4e06ab486707507b843fe405caa2494c5739573c",
+      "Bindings": [
+        "FileDialog:favorite"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file",
+      "Density": 2,
+      "X": 468,
       "Y": 4,
       "Width": 32,
       "Height": 32,
@@ -1595,9 +1848,66 @@
       "Directionality": "none"
     },
     {
+      "Name": "file_mode_list",
+      "Density": 2,
+      "X": 508,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/file_mode_list.svg",
+      "SourceSha256": "9a58bbcace22fd5ddbfc689d84fc9e9a5072d26dff209d6abf8965840845102b",
+      "Bindings": [
+        "FileDialog:list_mode"
+      ],
+      "States": [
+        "list"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file_mode_thumbnail",
+      "Density": 2,
+      "X": 548,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/file_mode_thumbnail.svg",
+      "SourceSha256": "a4355e273bdac81bbb67b0aa27028d0a543f10641b6a8e26bd08f6f7b8eecb41",
+      "Bindings": [
+        "FileDialog:thumbnail_mode"
+      ],
+      "States": [
+        "thumbnail"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "file_thumbnail",
+      "Density": 2,
+      "X": 588,
+      "Y": 4,
+      "Width": 128,
+      "Height": 128,
+      "LogicalWidth": 64,
+      "LogicalHeight": 64,
+      "Source": "scene/theme/icons/file_thumbnail.svg",
+      "SourceSha256": "8545dd3793a4a2e05a39337741499a6eba76e17aefc575bbf8b9056826526961",
+      "Bindings": [
+        "FileDialog:file_thumbnail"
+      ],
+      "States": [
+        "thumbnail"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "folder",
       "Density": 2,
-      "X": 468,
+      "X": 724,
       "Y": 4,
       "Width": 32,
       "Height": 32,
@@ -1614,9 +1924,47 @@
       "Directionality": "none"
     },
     {
+      "Name": "folder_create",
+      "Density": 2,
+      "X": 764,
+      "Y": 4,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/folder_create.svg",
+      "SourceSha256": "f41d6d3175fec74171223fc2f635ecde73c16dea18fa9ff3c65816b716e6bdff",
+      "Bindings": [
+        "FileDialog:create_folder"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
+      "Name": "folder_thumbnail",
+      "Density": 2,
+      "X": 804,
+      "Y": 4,
+      "Width": 128,
+      "Height": 128,
+      "LogicalWidth": 64,
+      "LogicalHeight": 64,
+      "Source": "scene/theme/icons/folder_thumbnail.svg",
+      "SourceSha256": "8ef979c606c534100db5d4201899fff8ec996b956cb62142934f740c8761a821",
+      "Bindings": [
+        "FileDialog:folder_thumbnail"
+      ],
+      "States": [
+        "thumbnail"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "graph_port",
       "Density": 2,
-      "X": 508,
+      "X": 940,
       "Y": 4,
       "Width": 20,
       "Height": 20,
@@ -1635,7 +1983,7 @@
     {
       "Name": "grid_layout",
       "Density": 2,
-      "X": 536,
+      "X": 968,
       "Y": 4,
       "Width": 32,
       "Height": 32,
@@ -1654,8 +2002,8 @@
     {
       "Name": "grid_minimap",
       "Density": 2,
-      "X": 576,
-      "Y": 4,
+      "X": 4,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1673,8 +2021,8 @@
     {
       "Name": "grid_snap",
       "Density": 2,
-      "X": 616,
-      "Y": 4,
+      "X": 44,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1692,8 +2040,8 @@
     {
       "Name": "grid_toggle",
       "Density": 2,
-      "X": 656,
-      "Y": 4,
+      "X": 84,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1711,8 +2059,8 @@
     {
       "Name": "h_dragger",
       "Density": 2,
-      "X": 696,
-      "Y": 4,
+      "X": 124,
+      "Y": 140,
       "Width": 60,
       "Height": 120,
       "LogicalWidth": 30,
@@ -1730,8 +2078,8 @@
     {
       "Name": "hslider_tick",
       "Density": 2,
-      "X": 764,
-      "Y": 4,
+      "X": 192,
+      "Y": 140,
       "Width": 8,
       "Height": 16,
       "LogicalWidth": 4,
@@ -1749,8 +2097,8 @@
     {
       "Name": "hsplitter",
       "Density": 2,
-      "X": 780,
-      "Y": 4,
+      "X": 208,
+      "Y": 140,
       "Width": 16,
       "Height": 96,
       "LogicalWidth": 8,
@@ -1768,8 +2116,8 @@
     {
       "Name": "indeterminate",
       "Density": 2,
-      "X": 804,
-      "Y": 4,
+      "X": 232,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1788,8 +2136,8 @@
     {
       "Name": "indeterminate_disabled",
       "Density": 2,
-      "X": 844,
-      "Y": 4,
+      "X": 272,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1809,8 +2157,8 @@
     {
       "Name": "line_edit_clear",
       "Density": 2,
-      "X": 884,
-      "Y": 4,
+      "X": 312,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1829,8 +2177,8 @@
     {
       "Name": "mini_checkerboard",
       "Density": 2,
-      "X": 924,
-      "Y": 4,
+      "X": 352,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1846,10 +2194,48 @@
       "Directionality": "none"
     },
     {
+      "Name": "move_down",
+      "Density": 2,
+      "X": 392,
+      "Y": 140,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/move_down.svg",
+      "SourceSha256": "0fe13777a34b972e44e4e1e0d842a1474d39e1d8f1710caaa65c42b9edd1e75a",
+      "Bindings": [
+        "FileDialog:favorite_down"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "down"
+    },
+    {
+      "Name": "move_up",
+      "Density": 2,
+      "X": 432,
+      "Y": 140,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/move_up.svg",
+      "SourceSha256": "e858a986f1932446b450c73fad55f98134b3f3e3ce511a57a279c6bda405ed2d",
+      "Bindings": [
+        "FileDialog:favorite_up"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "up"
+    },
+    {
       "Name": "option_button_arrow",
       "Density": 2,
-      "X": 964,
-      "Y": 4,
+      "X": 472,
+      "Y": 140,
       "Width": 24,
       "Height": 24,
       "LogicalWidth": 12,
@@ -1868,8 +2254,8 @@
     {
       "Name": "popup_menu_arrow_left",
       "Density": 2,
-      "X": 996,
-      "Y": 4,
+      "X": 504,
+      "Y": 140,
       "Width": 16,
       "Height": 32,
       "LogicalWidth": 8,
@@ -1887,8 +2273,8 @@
     {
       "Name": "popup_menu_arrow_right",
       "Density": 2,
-      "X": 4,
-      "Y": 132,
+      "X": 528,
+      "Y": 140,
       "Width": 16,
       "Height": 32,
       "LogicalWidth": 8,
@@ -1906,8 +2292,8 @@
     {
       "Name": "radio_checked",
       "Density": 2,
-      "X": 28,
-      "Y": 132,
+      "X": 552,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1927,8 +2313,8 @@
     {
       "Name": "radio_checked_disabled",
       "Density": 2,
-      "X": 68,
-      "Y": 132,
+      "X": 592,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1949,8 +2335,8 @@
     {
       "Name": "radio_unchecked",
       "Density": 2,
-      "X": 108,
-      "Y": 132,
+      "X": 632,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1970,8 +2356,8 @@
     {
       "Name": "radio_unchecked_disabled",
       "Density": 2,
-      "X": 148,
-      "Y": 132,
+      "X": 672,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -1992,8 +2378,8 @@
     {
       "Name": "region_folded",
       "Density": 2,
-      "X": 188,
-      "Y": 132,
+      "X": 712,
+      "Y": 140,
       "Width": 24,
       "Height": 24,
       "LogicalWidth": 12,
@@ -2012,8 +2398,8 @@
     {
       "Name": "region_unfolded",
       "Density": 2,
-      "X": 220,
-      "Y": 132,
+      "X": 744,
+      "Y": 140,
       "Width": 24,
       "Height": 24,
       "LogicalWidth": 12,
@@ -2030,10 +2416,29 @@
       "Directionality": "down"
     },
     {
+      "Name": "reload",
+      "Density": 2,
+      "X": 776,
+      "Y": 140,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/reload.svg",
+      "SourceSha256": "ccca0bbd0b4c9650ec2df18b263ebd96c194498aa1ce519f3a1ccd23a44f5a0c",
+      "Bindings": [
+        "FileDialog:reload"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "scroll_button_left",
       "Density": 2,
-      "X": 252,
-      "Y": 132,
+      "X": 816,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2052,8 +2457,8 @@
     {
       "Name": "scroll_button_left_hl",
       "Density": 2,
-      "X": 292,
-      "Y": 132,
+      "X": 856,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2072,8 +2477,8 @@
     {
       "Name": "scroll_button_right",
       "Density": 2,
-      "X": 332,
-      "Y": 132,
+      "X": 896,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2092,8 +2497,8 @@
     {
       "Name": "scroll_button_right_hl",
       "Density": 2,
-      "X": 372,
-      "Y": 132,
+      "X": 936,
+      "Y": 140,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2112,8 +2517,8 @@
     {
       "Name": "scroll_hint_horizontal",
       "Density": 2,
-      "X": 412,
-      "Y": 132,
+      "X": 4,
+      "Y": 268,
       "Width": 48,
       "Height": 64,
       "LogicalWidth": 24,
@@ -2131,8 +2536,8 @@
     {
       "Name": "scroll_hint_vertical",
       "Density": 2,
-      "X": 468,
-      "Y": 132,
+      "X": 60,
+      "Y": 268,
       "Width": 64,
       "Height": 48,
       "LogicalWidth": 32,
@@ -2150,8 +2555,8 @@
     {
       "Name": "slider_grabber",
       "Density": 2,
-      "X": 540,
-      "Y": 132,
+      "X": 132,
+      "Y": 268,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2170,8 +2575,8 @@
     {
       "Name": "slider_grabber_disabled",
       "Density": 2,
-      "X": 580,
-      "Y": 132,
+      "X": 172,
+      "Y": 268,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2190,8 +2595,8 @@
     {
       "Name": "slider_grabber_hl",
       "Density": 2,
-      "X": 620,
-      "Y": 132,
+      "X": 212,
+      "Y": 268,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2208,10 +2613,29 @@
       "Directionality": "none"
     },
     {
+      "Name": "sort",
+      "Density": 2,
+      "X": 252,
+      "Y": 268,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/sort.svg",
+      "SourceSha256": "64c37555fd8f65a09334cba72a768615d9fb813d3dcc580eba8722ed86818147",
+      "Bindings": [
+        "FileDialog:sort"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "tabs_menu",
       "Density": 2,
-      "X": 660,
-      "Y": 132,
+      "X": 292,
+      "Y": 268,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2229,8 +2653,8 @@
     {
       "Name": "tabs_menu_hl",
       "Density": 2,
-      "X": 700,
-      "Y": 132,
+      "X": 332,
+      "Y": 268,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2248,8 +2672,8 @@
     {
       "Name": "text_edit_ellipsis",
       "Density": 2,
-      "X": 740,
-      "Y": 132,
+      "X": 372,
+      "Y": 268,
       "Width": 28,
       "Height": 16,
       "LogicalWidth": 14,
@@ -2267,8 +2691,8 @@
     {
       "Name": "text_edit_space",
       "Density": 2,
-      "X": 776,
-      "Y": 132,
+      "X": 408,
+      "Y": 268,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 8,
@@ -2287,8 +2711,8 @@
     {
       "Name": "text_edit_tab",
       "Density": 2,
-      "X": 800,
-      "Y": 132,
+      "X": 432,
+      "Y": 268,
       "Width": 16,
       "Height": 16,
       "LogicalWidth": 8,
@@ -2305,10 +2729,29 @@
       "Directionality": "right"
     },
     {
+      "Name": "toggle_filename_filter",
+      "Density": 2,
+      "X": 456,
+      "Y": 268,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/toggle_filename_filter.svg",
+      "SourceSha256": "5c72a353166ef7d33dc59bf00ab9716f3e271748e60a67b3c6621b65a628dd42",
+      "Bindings": [
+        "FileDialog:toggle_filename_filter"
+      ],
+      "States": [
+        "normal"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "toggle_off",
       "Density": 2,
-      "X": 824,
-      "Y": 132,
+      "X": 496,
+      "Y": 268,
       "Width": 64,
       "Height": 32,
       "LogicalWidth": 32,
@@ -2326,8 +2769,8 @@
     {
       "Name": "toggle_off_disabled",
       "Density": 2,
-      "X": 896,
-      "Y": 132,
+      "X": 568,
+      "Y": 268,
       "Width": 64,
       "Height": 32,
       "LogicalWidth": 32,
@@ -2346,8 +2789,8 @@
     {
       "Name": "toggle_off_disabled_mirrored",
       "Density": 2,
-      "X": 4,
-      "Y": 204,
+      "X": 640,
+      "Y": 268,
       "Width": 64,
       "Height": 32,
       "LogicalWidth": 32,
@@ -2366,8 +2809,8 @@
     {
       "Name": "toggle_off_mirrored",
       "Density": 2,
-      "X": 76,
-      "Y": 204,
+      "X": 712,
+      "Y": 268,
       "Width": 64,
       "Height": 32,
       "LogicalWidth": 32,
@@ -2385,8 +2828,8 @@
     {
       "Name": "toggle_on",
       "Density": 2,
-      "X": 148,
-      "Y": 204,
+      "X": 784,
+      "Y": 268,
       "Width": 64,
       "Height": 32,
       "LogicalWidth": 32,
@@ -2404,8 +2847,8 @@
     {
       "Name": "toggle_on_disabled",
       "Density": 2,
-      "X": 220,
-      "Y": 204,
+      "X": 856,
+      "Y": 268,
       "Width": 64,
       "Height": 32,
       "LogicalWidth": 32,
@@ -2424,8 +2867,8 @@
     {
       "Name": "toggle_on_disabled_mirrored",
       "Density": 2,
-      "X": 292,
-      "Y": 204,
+      "X": 928,
+      "Y": 268,
       "Width": 64,
       "Height": 32,
       "LogicalWidth": 32,
@@ -2444,8 +2887,8 @@
     {
       "Name": "toggle_on_mirrored",
       "Density": 2,
-      "X": 364,
-      "Y": 204,
+      "X": 4,
+      "Y": 340,
       "Width": 64,
       "Height": 32,
       "LogicalWidth": 32,
@@ -2463,8 +2906,8 @@
     {
       "Name": "unchecked",
       "Density": 2,
-      "X": 436,
-      "Y": 204,
+      "X": 76,
+      "Y": 340,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2484,8 +2927,8 @@
     {
       "Name": "unchecked_disabled",
       "Density": 2,
-      "X": 476,
-      "Y": 204,
+      "X": 116,
+      "Y": 340,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2506,8 +2949,8 @@
     {
       "Name": "updown",
       "Density": 2,
-      "X": 516,
-      "Y": 204,
+      "X": 156,
+      "Y": 340,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2525,8 +2968,8 @@
     {
       "Name": "v_dragger",
       "Density": 2,
-      "X": 556,
-      "Y": 204,
+      "X": 196,
+      "Y": 340,
       "Width": 120,
       "Height": 60,
       "LogicalWidth": 60,
@@ -2544,8 +2987,8 @@
     {
       "Name": "value_down",
       "Density": 2,
-      "X": 684,
-      "Y": 204,
+      "X": 324,
+      "Y": 340,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 16,
@@ -2569,8 +3012,8 @@
     {
       "Name": "value_up",
       "Density": 2,
-      "X": 724,
-      "Y": 204,
+      "X": 364,
+      "Y": 340,
       "Width": 32,
       "Height": 16,
       "LogicalWidth": 16,
@@ -2592,10 +3035,29 @@
       "Directionality": "up"
     },
     {
+      "Name": "visibility_visible",
+      "Density": 2,
+      "X": 404,
+      "Y": 340,
+      "Width": 32,
+      "Height": 32,
+      "LogicalWidth": 16,
+      "LogicalHeight": 16,
+      "Source": "scene/theme/icons/visibility_visible.svg",
+      "SourceSha256": "96360dffc807226202c6e69060515813278d8f44d53bfc5d5fc046924faf326a",
+      "Bindings": [
+        "FileDialog:toggle_hidden"
+      ],
+      "States": [
+        "visible"
+      ],
+      "Directionality": "none"
+    },
+    {
       "Name": "vslider_tick",
       "Density": 2,
-      "X": 764,
-      "Y": 204,
+      "X": 444,
+      "Y": 340,
       "Width": 16,
       "Height": 8,
       "LogicalWidth": 8,
@@ -2613,8 +3075,8 @@
     {
       "Name": "vsplitter",
       "Density": 2,
-      "X": 788,
-      "Y": 204,
+      "X": 468,
+      "Y": 340,
       "Width": 96,
       "Height": 16,
       "LogicalWidth": 48,
@@ -2632,8 +3094,8 @@
     {
       "Name": "zoom_less",
       "Density": 2,
-      "X": 892,
-      "Y": 204,
+      "X": 572,
+      "Y": 340,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2651,8 +3113,8 @@
     {
       "Name": "zoom_more",
       "Density": 2,
-      "X": 932,
-      "Y": 204,
+      "X": 612,
+      "Y": 340,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,
@@ -2670,8 +3132,8 @@
     {
       "Name": "zoom_reset",
       "Density": 2,
-      "X": 972,
-      "Y": 204,
+      "X": 652,
+      "Y": 340,
       "Width": 32,
       "Height": 32,
       "LogicalWidth": 16,

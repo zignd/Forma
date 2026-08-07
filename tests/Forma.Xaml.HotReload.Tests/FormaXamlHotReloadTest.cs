@@ -47,6 +47,39 @@ public class FormaXamlHotReloadTest
     }
 
     [Test]
+    public async Task Reload_PreservesInheritedDataContextWithoutMakingItLocal()
+    {
+        await File.WriteAllTextAsync(Path.Combine(_directory, "View.xaml"), "<Control xmlns='https://forma.dev/xaml' Name='New' />");
+        using var context = new UIContext();
+        var initialModel = new object();
+        var updatedModel = new object();
+        var parent = new Control { DataContext = initialModel };
+        Control current = new Control { Name = "Old" };
+        parent.AddChild(current);
+        context.Add(parent);
+        using var service = new FormaXamlHotReloadService(context, _directory, watchFiles: false);
+        using var registration = service.Register("View.xaml", () => current, (oldValue, replacement) =>
+        {
+            parent.RemoveChild(oldValue);
+            parent.AddChild(replacement);
+            current = replacement;
+        });
+
+        await service.RequestReloadAsync("View.xaml");
+        context.Update(new GameTime(), new MouseState(), new KeyboardState());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(current.Name, Is.EqualTo("New"));
+            Assert.That(current.HasLocalDataContext, Is.False);
+            Assert.That(current.DataContext, Is.SameAs(initialModel));
+        });
+
+        parent.DataContext = updatedModel;
+        Assert.That(current.DataContext, Is.SameAs(updatedModel));
+    }
+
+    [Test]
     public async Task SvgAssetReload_ResolvesRelativeFileAndCreatesNewSourceIdentity()
     {
         Directory.CreateDirectory(Path.Combine(_directory, "Views"));

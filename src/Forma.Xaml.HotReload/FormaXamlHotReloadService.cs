@@ -333,7 +333,7 @@ public sealed class FormaXamlHotReloadService : IDisposable
             {
                 foreach (var replacement in prepared.Replacements)
                 {
-                    if (replacement.Expected is Control oldControl && replacement.Value is Control newControl)
+                    if (replacement.Expected is Control oldControl && oldControl.HasLocalDataContext && replacement.Value is Control newControl)
                         newControl.DataContext = oldControl.DataContext;
                     try { replacement.Registration.Replace(replacement.Expected, replacement.Value); }
                     catch (Exception exception)

@@ -9,7 +9,7 @@
     <Nullable>disable</Nullable>
     <CatalogBackend Condition="'$(CatalogBackend)' == ''">$(MonoGamePlatform)</CatalogBackend>
     <FormaNativeRuntime Condition="'$(FormaNativeRuntime)' == '' And '$(MonoGamePlatform)' == 'Native'">true</FormaNativeRuntime>
-    <SvgBackend Condition="'$(SvgBackend)' == ''">Skia</SvgBackend>
+    <SvgBackend Condition="'$(SvgBackend)' == ''">ThorVG</SvgBackend>
     <DefineConstants Condition="'$(SvgBackend)' == 'ThorVG'">$(DefineConstants);THORVG</DefineConstants>
   </PropertyGroup>
 
@@ -19,7 +19,9 @@
     <ProjectReference Include="$(MonoGameProjectPath)" Condition="'$(MonoGameProjectPath)' != ''" />
     <PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="$(MonoGameVersion)" Condition="'$(FormaNativeRuntime)' == 'true' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('Linux'))" />
     <PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="$(MonoGameVersion)" Condition="'$(FormaNativeRuntime)' == 'true' And '$(NativeRuntimePath)' == '' And $([MSBuild]::IsOSPlatform('OSX'))" />
-    <ProjectReference Include="../Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=MonoGame;CatalogBackend=$(CatalogBackend);SvgBackend=$(SvgBackend)" />
+    <ProjectReference Include="../Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=MonoGame;CatalogBackend=$(CatalogBackend)" />
+    <ProjectReference Include="../../src/Forma.Svg/Forma.Svg.csproj" AdditionalProperties="FormaRuntime=MonoGame" Condition="'$(SvgBackend)' == 'Skia'" />
+    <ProjectReference Include="../../src/Forma.Svg.ThorVG/Forma.Svg.ThorVG.csproj" AdditionalProperties="FormaRuntime=MonoGame" Condition="'$(SvgBackend)' == 'ThorVG'" />
     <Compile Include="../Forma.Catalog/Program.cs" Link="Program.cs" />
     <MonoGameContentReference Include="../Forma.Catalog/Content/Content.mgcb" />
     <Content Include="$(NativeRuntimePath)" Link="$([System.IO.Path]::GetFileName('$(NativeRuntimePath)'))" CopyToOutputDirectory="PreserveNewest" Condition="'$(FormaNativeRuntime)' == 'true' And '$(NativeRuntimePath)' != ''" />

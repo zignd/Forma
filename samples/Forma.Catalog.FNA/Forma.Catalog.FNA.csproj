@@ -8,7 +8,7 @@
     <IsPackable>false</IsPackable>
     <Nullable>disable</Nullable>
     <DefineConstants>$(DefineConstants);FORMA_CATALOG_FNA</DefineConstants>
-    <SvgBackend Condition="'$(SvgBackend)' == ''">Skia</SvgBackend>
+    <SvgBackend Condition="'$(SvgBackend)' == ''">ThorVG</SvgBackend>
     <DefineConstants Condition="'$(SvgBackend)' == 'ThorVG'">$(DefineConstants);THORVG</DefineConstants>
   </PropertyGroup>
 
@@ -17,7 +17,9 @@
     <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FnaProjectPath)' == ''" />
     <PackageReference Include="FNA.NET.NativeAssets" Version="$(FnaNativeAssetsVersion)" Condition="'$(FnaProjectPath)' != ''" />
     <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FnaProjectPath)' != ''" />
-    <ProjectReference Include="../Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=FNA;CatalogBackend=FNA;SvgBackend=$(SvgBackend)" />
+    <ProjectReference Include="../Forma.Catalog/Forma.Catalog.csproj" AdditionalProperties="FormaRuntime=FNA;CatalogBackend=FNA" />
+    <ProjectReference Include="../../src/Forma.Svg/Forma.Svg.csproj" AdditionalProperties="FormaRuntime=FNA" Condition="'$(SvgBackend)' == 'Skia'" />
+    <ProjectReference Include="../../src/Forma.Svg.ThorVG/Forma.Svg.ThorVG.csproj" AdditionalProperties="FormaRuntime=FNA" Condition="'$(SvgBackend)' == 'ThorVG'" />
     <Compile Include="../Forma.Catalog/Program.cs" Link="Program.cs" />
     <MonoGameContentReference Include="../Forma.Catalog/Content/Content.mgcb" />
     <None Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />

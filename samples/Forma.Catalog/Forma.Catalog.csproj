@@ -6,7 +6,6 @@
     <IsPackable>false</IsPackable>
     <Nullable>disable</Nullable>
     <CatalogBackend Condition="'$(CatalogBackend)' == ''">$(FormaRuntime)</CatalogBackend>
-    <SvgBackend Condition="'$(SvgBackend)' == ''">Skia</SvgBackend>
     <FormaXamlBuildAssembly>$(MSBuildThisFileDirectory)../../src/Forma.Xaml.Build/bin/$(FormaRuntime)/$(Configuration)/net10.0/Forma.Xaml.Build.dll</FormaXamlBuildAssembly>
     <FormaXamlHotReload Condition="'$(FormaXamlHotReload)' == '' And '$(Configuration)' == 'Debug'">true</FormaXamlHotReload>
     <FormaXamlHotReload Condition="'$(FormaXamlHotReload)' == ''">false</FormaXamlHotReload>
@@ -20,8 +19,6 @@
     <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" />
     <ProjectReference Include="../../src/Forma.DynamicText/Forma.DynamicText.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" />
     <ProjectReference Include="../../src/Forma.Media/Forma.Media.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" />
-    <ProjectReference Include="../../src/Forma.Svg/Forma.Svg.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" Condition="'$(SvgBackend)' == 'Skia'" />
-    <ProjectReference Include="../../src/Forma.Svg.ThorVG/Forma.Svg.ThorVG.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" Condition="'$(SvgBackend)' == 'ThorVG'" />
     <ProjectReference Include="../../src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" ReferenceOutputAssembly="false" />
     <ProjectReference Include="../../src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" GlobalPropertiesToRemove="CatalogBackend" Condition="'$(FormaXamlHotReload)' == 'true'" />
     <AssemblyMetadata Include="FormaCatalogBackend" Value="$(CatalogBackend)" />

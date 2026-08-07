@@ -7,7 +7,7 @@
     <IsPackable>false</IsPackable>
     <UseAppHost>false</UseAppHost>
     <Nullable>disable</Nullable>
-    <SvgBackend Condition="'$(SvgBackend)' == ''">Skia</SvgBackend>
+    <SvgBackend Condition="'$(SvgBackend)' == ''">ThorVG</SvgBackend>
     <DefineConstants Condition="'$(SvgBackend)' == 'ThorVG'">$(DefineConstants);THORVG</DefineConstants>
   </PropertyGroup>
 

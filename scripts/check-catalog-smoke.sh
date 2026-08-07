@@ -12,7 +12,7 @@ actual="$stage_directory/catalog.json"
 stable_baseline="$stage_directory/baseline-stable.json"
 stable_actual="$stage_directory/actual-stable.json"
 runtime="${FormaRuntime:-MonoGame}"
-svg_backend="${SvgBackend:-Skia}"
+svg_backend="${SvgBackend:-ThorVG}"
 catalog_options=()
 if [[ -n "${FormaCatalogViewportWidth:-}" && -n "${FormaCatalogViewportHeight:-}" ]]; then
   catalog_options+=(--viewport-width "$FormaCatalogViewportWidth" --viewport-height "$FormaCatalogViewportHeight")

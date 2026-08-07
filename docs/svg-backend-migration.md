@@ -19,6 +19,10 @@ reflection. Source-project hosts call `SvgSkiaBackendDefaults.Install()` or
 `SvgThorvgBackendDefaults.Install()` before first SVG use; `Verify()` additionally runs a bounded
 2x2 raster check.
 
+Forma's Catalog and SVG smoke hosts default to ThorVG on validated macOS arm64 and Linux x64
+systems. Pass `-p:SvgBackend=Skia` for explicit rollback. Windows remains on explicit Skia until
+ThorVG Windows native assets are qualified and distributed.
+
 Existing `Forma.Svg.MonoGame` and `Forma.Svg.FNA` packages remain one-window compatibility packages.
 They emit a build warning, depend on explicit Skia, and preserve existing output. Migrate by removing
 the compatibility package, adding one explicit package, cleaning lock/output directories, and

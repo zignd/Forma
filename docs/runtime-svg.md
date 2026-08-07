@@ -10,20 +10,21 @@ Reference exactly one backend matching the selected Forma runtime:
 
 ```xml
 <PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.1" />
-<PackageReference Include="Forma.Svg.Skia.MonoGame" Version="0.1.0-alpha.1" />
+<PackageReference Include="Forma.Svg.ThorVG.MonoGame" Version="0.1.0-alpha.1" />
 ```
 
-Replace `Skia` with `ThorVG` to select the smaller source-built backend. Use `.FNA` peers together
-for FNA. Package builds install the selected backend automatically through a source module
+ThorVG is the default used by Forma's Catalog and SVG smoke hosts on validated macOS arm64 and
+Linux x64 systems. Replace `ThorVG` with `Skia` to select the reference renderer explicitly. Use
+`.FNA` peers together for FNA. Package builds install the selected backend automatically through a source module
 initializer. Source-project consumers call the matching explicit installer:
 
 ```csharp
-var health = SvgSkiaBackendDefaults.Verify();
+var health = SvgThorvgBackendDefaults.Verify();
 if (!health.IsAvailable)
     throw new InvalidOperationException(health.Diagnostic);
 ```
 
-Use `SvgThorvgBackendDefaults.Verify()` for ThorVG. `SvgRuntime.Health` reports stable backend ID,
+Use `SvgSkiaBackendDefaults.Verify()` for Skia. `SvgRuntime.Health` reports stable backend ID,
 registration, native availability/source, link mode, backend/profile versions, tested features, and
 an actionable bounded diagnostic. Drawing without a backend fails explicitly. Selection is
 process-wide and immutable after first parse; there is no cross-backend fallback. See the

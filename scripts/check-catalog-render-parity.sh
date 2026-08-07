@@ -17,7 +17,8 @@ catalog_options=()
 if [[ -n "${FormaCatalogViewportWidth:-}" && -n "${FormaCatalogViewportHeight:-}" ]]; then
   catalog_options+=(--viewport-width "$FormaCatalogViewportWidth" --viewport-height "$FormaCatalogViewportHeight")
 fi
-monogame_msbuild_options=(-p:FormaRuntime=MonoGame)
+svg_backend="${SvgBackend:-ThorVG}"
+monogame_msbuild_options=(-p:FormaRuntime=MonoGame -p:SvgBackend="$svg_backend")
 fna_environment=(env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES)
 if [[ "$(uname -s)" == "Linux" ]]; then
   fna_environment+=(SDL_VIDEODRIVER=offscreen FNA3D_FORCE_DRIVER=OpenGL FNA3D_OPENGL_WINDOW_DEPTHSTENCILFORMAT=None)
@@ -46,7 +47,7 @@ dotnet run --project "$repository_root/samples/Forma.Catalog.MonoGame/Forma.Cata
 "${fna_environment[@]}" \
   dotnet run --project "$repository_root/samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj" \
   --configuration Release \
-  -p:FormaRuntime=FNA \
+  -p:FormaRuntime=FNA -p:SvgBackend="$svg_backend" \
   -- \
   ${catalog_options[@]+"${catalog_options[@]}"} \
   --render-output "$fna_report" \
@@ -93,7 +94,7 @@ dotnet run --project "$repository_root/samples/Forma.Catalog.MonoGame/Forma.Cata
 "${fna_environment[@]}" \
   dotnet run --project "$repository_root/samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj" \
   --configuration Release \
-  -p:FormaRuntime=FNA \
+  -p:FormaRuntime=FNA -p:SvgBackend="$svg_backend" \
   --no-build \
   -- \
   ${catalog_options[@]+"${catalog_options[@]}"} \

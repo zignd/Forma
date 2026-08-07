@@ -7,7 +7,7 @@ set -euo pipefail
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 artifact_root="$repository_root/Artifacts/runtime-svg-baselines"
 image_root="$repository_root/docs/images"
-svg_backend="${SvgBackend:-Skia}"
+svg_backend="${SvgBackend:-ThorVG}"
 case "$svg_backend" in
   Skia) backend_suffix=""; expected_svg_id="skia" ;;
   ThorVG) backend_suffix="-thorvg"; expected_svg_id="thorvg" ;;

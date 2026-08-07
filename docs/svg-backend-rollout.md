@@ -1,11 +1,11 @@
 # SVG Backend Rollout and Qualification
 
-## Initial Release Decision
+## Default Decision
 
-Skia remains the compatibility backend. ThorVG ships opt-in and experimental for macOS arm64 and
-Linux x64. Windows x64 is untested for ThorVG and is outside the initial matrix. No console is
-qualified. A later default requires a separate measured release decision; introducing ThorVG does
-not change existing consumers.
+ThorVG is the default for Forma's Catalog and SVG validation hosts on validated macOS arm64 and
+Linux x64 systems. Skia remains the compatibility backend and the explicit rollback renderer.
+Windows x64 is untested for ThorVG and continues to select Skia explicitly. No console is qualified.
+Existing consumers do not change silently because backend package selection remains explicit.
 
 Legacy `Forma.Svg.MonoGame` and `Forma.Svg.FNA` package IDs remain available through the `0.x`
 release line and emit build warnings. They are scheduled for removal in Forma `1.0.0`, after at
@@ -33,8 +33,8 @@ totals from `make svg-benchmark`, not portable performance guarantees.
 The Skia root package is a thin wrapper whose transitive native packages account for most published
 size. Package and publish sizes therefore answer different questions. Loaded native code/data is
 platform-loader dependent; the shipped ThorVG dynamic image size above is the reproducible public
-proxy. ThorVG stays opt-in because visual differences and its slower cold health initialization are
-accepted tradeoffs, not hidden regressions.
+proxy. The default accepts visual differences and slower cold health initialization in exchange for
+the smaller dependency graph, faster corpus parsing/rasterization, and lower managed allocation.
 
 ## Public Release Gates
 

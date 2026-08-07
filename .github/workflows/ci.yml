@@ -72,12 +72,12 @@ jobs:
           FNA3D_FORCE_DRIVER: OpenGL
           FNA3D_OPENGL_WINDOW_DEPTHSTENCILFORMAT: None
         run: |
-          xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' vulkaninfo --summary
           if [[ "$FORMA_RUNTIME" == "FNA" ]]; then
             env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES SvgBackend=Skia FormaRuntime=FNA xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
             env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=FNA --no-build --nologo
             env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=FNA -p:SvgBackend=Skia
           else
+            xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' vulkaninfo --summary
             SvgBackend=Skia FormaRuntime=MonoGame xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
             xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame --no-build --nologo
             xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame -p:SvgBackend=Skia

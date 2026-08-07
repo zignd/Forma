@@ -604,19 +604,19 @@ Each curated control entry should include:
 - [x] Add bug, feature, documentation, and platform/backend issue forms.
 - [x] Add a pull-request template with runtime/backend impact, tests, visual evidence, API changes,
   documentation, licensing/provenance, and generated-output checks.
-- [ ] Document good-first-issue and help-wanted labeling criteria.
+- [x] Document good-first-issue and help-wanted labeling criteria.
 - [x] Document release-note expectations and public API compatibility review.
 - [x] Add an architecture/contributor map linking code ownership boundaries to focused validation
   commands.
 
 ### Exit Criteria
 
-- [ ] A clean-checkout contributor can build one runtime, run a focused test, format XAML, and prepare
+- [x] A clean-checkout contributor can build one runtime, run a focused test, format XAML, and prepare
   a compliant pull request solely from project-owned guidance.
-- [ ] Security and conduct contact routes have confirmed maintainers and are not placeholder text.
-- [ ] Issue forms collect enough environment and reproduction information to triage runtime-specific
+- [x] Security and conduct contact routes have confirmed maintainers and are not placeholder text.
+- [x] Issue forms collect enough environment and reproduction information to triage runtime-specific
   defects without an immediate clarification round.
-- [ ] Community files are linked from the README and recognized by the repository host.
+- [x] Community files are linked from the README and recognized by the repository host.
 
 ## Phase 7: Documentation Site, Versioning, and CI Quality Gates
 

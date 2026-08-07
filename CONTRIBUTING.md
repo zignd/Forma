@@ -71,6 +71,25 @@ make icons-verify
 Graphics tests may require the operating-system setup used by CI. Document any test you could not
 run and why.
 
+## Contribution Labels
+
+Maintainers apply `good first issue` only when the issue:
+
+- has one bounded owner area and no unresolved API, architecture, security, or release decision;
+- states the expected behavior, relevant files or starting point, and acceptance checks;
+- can be completed with project-owned prerequisites and a focused validation command;
+- does not require private platform access, unpublished credentials, or native artifact signing;
+- has a maintainer available to answer repository-specific questions and review the result.
+
+Maintainers apply `help wanted` when the scope and desired outcome are accepted, but implementation
+would benefit from contributor time or domain expertise. The issue must identify runtime/backend
+impact, evidence required for both peers, and any prerequisite design or upstream work. It may be
+larger than a first contribution, but it must not be an unreviewed feature request.
+
+Remove either label when new investigation reveals a blocked design decision, confidential platform
+dependency, stale reproduction, or materially larger scope. Contributors may ask for an issue to be
+split before claiming it; assignment does not reserve an inactive issue indefinitely.
+
 ## Generated Assets and Dependencies
 
 Use `make icons-import` only with the reviewed upstream Godot checkout, then run `make icons-verify`.

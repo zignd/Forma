@@ -1087,6 +1087,15 @@ public class FormaXamlCompilerTest
     }
 
     [Test]
+    public void SreCompiler_AssignsLineEditTextVerticalAlignment()
+    {
+        const string source = "<LineEdit xmlns='https://forma.dev/xaml' TextVerticalAlignment='Bottom' />";
+        var lineEdit = (LineEdit)FormaXamlCompiler.CreateSre().CompileSre(source, "LineEditAlignment.xaml").Build(null);
+
+        Assert.That(lineEdit.TextVerticalAlignment, Is.EqualTo(VerticalAlignment.Bottom));
+    }
+
+    [Test]
     public void SreCompiler_BuildsFoundationalPrimitiveResourceGraph()
     {
         const string source = "<Border xmlns='https://forma.dev/xaml' Background='#80402010' CornerRadius='1,2,3,4'><PathShape Data='M0 0 H10 V10 H0 Z' Fill='#FF56C596' /></Border>";

@@ -958,6 +958,35 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void LineEditVerticallyAlignsSingleLineTextWithinPadding()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            var lineEdit = new LineEdit
+            {
+                UIFont = new DynamicUIFont(face, 18),
+                Text = "Aligned",
+                Padding = new Thickness(6, 4, 6, 4),
+                Size = new Vector2(160, 64),
+            };
+            var layout = lineEdit.GetEditingLayout();
+            var spareHeight = lineEdit.Size.Y - lineEdit.Padding.Vertical - layout.Size.Y;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(lineEdit.TextVerticalAlignment, Is.EqualTo(VerticalAlignment.Center));
+                Assert.That(lineEdit.GetTextVerticalOffset(layout), Is.EqualTo(spareHeight * .5f).Within(.01f));
+            });
+
+            lineEdit.TextVerticalAlignment = VerticalAlignment.Top;
+            Assert.That(lineEdit.GetTextVerticalOffset(layout), Is.Zero);
+            lineEdit.TextVerticalAlignment = VerticalAlignment.Bottom;
+            Assert.That(lineEdit.GetTextVerticalOffset(layout), Is.EqualTo(spareHeight).Within(.01f));
+            lineEdit.TextVerticalAlignment = VerticalAlignment.Fill;
+            Assert.That(lineEdit.GetTextVerticalOffset(layout), Is.Zero);
+            Assert.That(() => lineEdit.TextVerticalAlignment = (VerticalAlignment)99, Throws.TypeOf<ArgumentOutOfRangeException>());
+        }
+
+        [Test]
         public void LineEditKeepsImePreeditSeparateAndCommitsItsReplacementRange()
         {
             using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");

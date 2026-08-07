@@ -357,6 +357,7 @@ namespace Forma
         private int _imeSelectionLength;
         private int _imeReplaceStart;
         private int _imeReplaceLength;
+        private VerticalAlignment _textVerticalAlignment = VerticalAlignment.Center;
         private static readonly TimeSpan MultiClickTimeout = TimeSpan.FromMilliseconds(600);
         private const int MultiClickTolerance = 5;
         public LineEdit()
@@ -452,6 +453,17 @@ namespace Forma
         public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
         internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public Thickness Padding { get; set; }
+        public VerticalAlignment TextVerticalAlignment
+        {
+            get => _textVerticalAlignment;
+            set
+            {
+                if (!Enum.IsDefined(typeof(VerticalAlignment), value)) throw new ArgumentOutOfRangeException(nameof(value));
+                if (_textVerticalAlignment == value) return;
+                _textVerticalAlignment = value;
+                QueueLayout();
+            }
+        }
         /// <summary>Optional per-control override used by <see cref="Paste()"/> before <see cref="UIContext.Clipboard"/>.</summary>
         public Func<LineEdit, string> ClipboardTextProvider { get; set; }
         public event Action<LineEdit, string> TextChanged;
@@ -928,7 +940,7 @@ namespace Forma
                 if (string.IsNullOrEmpty(Text) && !HasImeComposition) _scrollOffset = 0;
                 else EnsureCaretVisible(layout, GetDisplayCaretColumn());
                 var viewport = GetTextViewport();
-                var origin = GlobalPosition + new Vector2(Padding.Left - _scrollOffset, Padding.Top);
+                var origin = GlobalPosition + new Vector2(Padding.Left - _scrollOffset, Padding.Top + GetTextVerticalOffset(layout));
                 context.PushClip(viewport);
                 try
                 {
@@ -975,6 +987,13 @@ namespace Forma
             if (EffectiveUIFont == null) throw new InvalidOperationException("A font is required for text layout.");
             var direction = TextDirection == TextDirection.Inherited ? TextDirection.Auto : TextDirection;
             return TextMetrics.Layout(EffectiveUIFont, text, new TextLayoutOptions(direction: direction, locale: Language));
+        }
+        internal float GetTextVerticalOffset(TextLayout layout)
+        {
+            if (layout == null) throw new ArgumentNullException(nameof(layout));
+            var spareHeight = MathF.Max(0, Size.Y - Padding.Vertical - layout.Size.Y);
+            return TextVerticalAlignment == VerticalAlignment.Center ? spareHeight * .5f
+                : TextVerticalAlignment == VerticalAlignment.Bottom ? spareHeight : 0;
         }
         private Rectangle GetTextViewport()
         {

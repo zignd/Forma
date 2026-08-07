@@ -417,6 +417,35 @@ public sealed class CatalogInventoryTest
     }
 
     [Test]
+    public void LineEditStoryExposesTextAndVerticalAlignmentInTheInspector()
+    {
+        var font = CreateTestFont();
+        var shell = new CatalogShell(StoryCatalog.Create(null), font, font);
+        using var context = new UIContext();
+        context.Add(shell);
+        Assert.That(shell.SelectStory(nameof(LineEdit)), Is.True);
+
+        var lineEdit = (LineEdit)shell.ActiveStoryControl;
+        var inspector = NameScope.GetNameScope(shell).Find<VBoxContainer>("Inspector");
+        var sections = inspector.Children.Cast<VBoxContainer>()
+            .ToDictionary(section => ((Label)section.Children[0]).Text, section => section.Children[1]);
+        var text = (LineEdit)sections["Text"];
+        var alignment = (OptionButton)sections["Text Vertical Alignment"];
+        var bottomIndex = alignment.Items.ToList().IndexOf(nameof(VerticalAlignment.Bottom));
+
+        text.Text = "Inspector value";
+        alignment.Select(bottomIndex, emitSignal: true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(lineEdit.CustomMinimumSize, Is.EqualTo(new Vector2(300, 84)));
+            Assert.That(lineEdit.Text, Is.EqualTo("Inspector value"));
+            Assert.That(lineEdit.TextVerticalAlignment, Is.EqualTo(VerticalAlignment.Bottom));
+            Assert.That(alignment.Selected, Is.EqualTo(bottomIndex));
+        });
+    }
+
+    [Test]
     public void CatalogInspectorOnlyShowsApplicableButtonSettings()
     {
         var font = CreateTestFont();

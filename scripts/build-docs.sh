@@ -48,7 +48,7 @@ dotnet docfx docs/docfx.json --warningsAsErrors
 test -f "$site_root/index.html"
 test -f "$site_root/api/Forma.Control.html"
 test -f "$site_root/xrefmap.yml"
-rg -q "github.com/zigrok/Forma/blob/$(git rev-parse HEAD)/src/Forma/" \
+grep -Fq "github.com/zigrok/Forma/blob/$(git rev-parse HEAD)/src/Forma/" \
   "$site_root/api/Forma.Control.html"
 
 printf 'Built Forma documentation at %s.\n' "$site_root"

@@ -22,12 +22,13 @@
     <ProjectReference Include="../Forma.Xaml.Compiler/Forma.Xaml.Compiler.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" PrivateAssets="All" />
   </ItemGroup>
 
-  <Target Name="CopyFormaXamlTaskDependencies" AfterTargets="Build">
+  <Target Name="CopyFormaXamlTaskDependencies" BeforeTargets="CoreCompile">
     <ItemGroup>
       <_FormaCecilDependency Include="$(PkgMono_Cecil)/lib/netstandard2.0/*.dll" />
       <_FormaPeerDependency Include="$(NuGetPackageRoot)$([System.String]::Copy('$(MonoGamePackageId)').ToLowerInvariant())/$(MonoGameVersion)/lib/*/MonoGame.Framework.dll" Condition="'$(FormaRuntime)' == 'MonoGame'" />
       <_FormaPeerDependency Include="$([System.IO.Path]::Combine('$(NuGetPackageRoot)', $([System.String]::Copy('$(FnaPackageId)').ToLowerInvariant()), '$(FnaVersion)', 'lib', 'net9.0', 'FNA.NET.dll'))" Condition="'$(FormaRuntime)' == 'FNA'" />
     </ItemGroup>
+    <Error Condition="'@(_FormaPeerDependency)' == ''" Text="The $(FormaRuntime) package does not contain the peer framework assembly required by Forma.Xaml.Build." />
     <Copy SourceFiles="@(_FormaCecilDependency);@(_FormaPeerDependency)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
   </Target>
 

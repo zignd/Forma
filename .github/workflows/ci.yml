@@ -112,7 +112,7 @@ jobs:
         run: |
           if [[ "$FORMA_RUNTIME" == "MonoGame" ]]; then
             SvgBackend=Skia MonoGamePlatform=Windows CatalogBackend=WindowsDX FormaRuntime=MonoGame bash scripts/check-catalog-smoke.sh
-            bash scripts/check-quick-start.sh
+            MonoGamePlatform=Windows bash scripts/check-quick-start.sh
             dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=Windows --nologo
             dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=Windows -p:SvgBackend=Skia
           else

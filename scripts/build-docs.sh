@@ -51,8 +51,12 @@ dotnet docfx docs/docfx.json --warningsAsErrors
 test -f "$site_root/index.html"
 test -f "$site_root/api/Forma.Control.html"
 test -f "$site_root/xrefmap.yml"
-grep -Fq "github.com/zigrok/Forma/blob/$(git rev-parse HEAD)/src/Forma/" \
-  "$site_root/api/Forma.Control.html"
+source_link_pattern='github\.com/zigrok/Forma/blob/[0-9a-f]{40}/src/Forma/'
+if ! grep -Eq "$source_link_pattern" "$site_root/api/Forma.Control.html"; then
+  printf 'Generated Control API page does not contain an immutable zigrok/Forma Source Link.\n' >&2
+  grep -Eo 'github\.com/[^"< ]+/blob/[^"< ]+' "$site_root/api/Forma.Control.html" | head -5 >&2 || true
+  exit 1
+fi
 
 printf 'Built Forma documentation at %s.\n' "$site_root"
 if [[ "$mode" == "serve" ]]; then

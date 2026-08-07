@@ -26,7 +26,8 @@ for project in "${projects[@]}"; do
 done
 
 rm -rf "$generated_root" "$api_root" "$site_root"
-mkdir -p "$generated_root/references"
+mkdir -p "$generated_root/examples" "$generated_root/references"
+cp samples/Forma.QuickStart/FirstView.xaml "$generated_root/examples/FirstView.xaml"
 for project in "${projects[@]}"; do
   find "src/$project/bin/MonoGame/Release/net10.0" -maxdepth 1 -type f -name '*.dll' \
     -exec cp {} "$generated_root/references/" \;

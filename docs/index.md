@@ -40,7 +40,7 @@ See [runtime support and migration](runtime-support.md) for the validated backen
 | Route | Start here | Use it when |
 | --- | --- | --- |
 | C# | [Build your first UI in C#](getting-started/csharp-first-ui.md) | The host creates and wires controls directly |
-| XAML | [Forma XAML language](xaml-language.md) | The project wants compiled declarative views, typed bindings, or Debug hot reload |
+| XAML | [Build your first UI in XAML](getting-started/xaml-first-ui.md) | The project wants compiled declarative views, typed bindings, or Debug hot reload |
 
 Both routes use the same controls, layout engine, themes, input, and runtime peer selection. Start
 with C# when evaluating the minimum host responsibilities; add XAML when its build-time model fits

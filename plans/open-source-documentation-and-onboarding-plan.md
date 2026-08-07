@@ -493,8 +493,8 @@ Each curated control entry should include:
 - [x] Share runtime-neutral Forma setup code where practical without hiding host responsibilities.
 - [x] Document a C# first UI with one layout container, label, editable field, and button event.
 - [x] Document viewport resize and `UIContext` disposal explicitly.
-- [ ] Add a first XAML view with matching build package, `x:Class`, namescope lookup, and typed binding.
-- [ ] Verify Debug hot reload separately from the minimum production XAML path.
+- [x] Add a first XAML view with matching build package, `x:Class`, namescope lookup, and typed binding.
+- [x] Verify Debug hot reload separately from the minimum production XAML path.
 - [x] Add clean-cache build and bounded startup checks for both quick-start fixtures.
 - [x] Capture small, current screenshots of the expected result.
 - [x] Add troubleshooting callouts for mixed runtime packages, missing native assets, absent content,

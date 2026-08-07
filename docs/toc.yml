@@ -4,6 +4,8 @@
   items:
     - name: First UI in C#
       href: getting-started/csharp-first-ui.md
+    - name: First UI in XAML
+      href: getting-started/xaml-first-ui.md
 - name: XAML
   items:
     - name: Language contract

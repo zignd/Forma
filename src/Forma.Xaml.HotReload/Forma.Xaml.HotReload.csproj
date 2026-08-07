@@ -15,7 +15,20 @@
     <ProjectReference Include="$(MonoGameProjectPath)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' != ''" />
     <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''" />
     <ProjectReference Include="../Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
-    <ProjectReference Include="../Forma.Xaml.Compiler/Forma.Xaml.Compiler.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../Forma.Xaml.Compiler/Forma.Xaml.Compiler.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" PrivateAssets="All" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../NOTICE.md" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../RELEASE_NOTES.md" Pack="true" PackagePath="" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" />
+    <None Include="../../external/XamlX/LICENSE" Pack="true" PackagePath="licenses/XamlX/" />
+    <None Include="$(TargetDir)Forma.Xaml.Compiler.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(TargetDir)XamlX.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(TargetDir)XamlX.IL.Cecil.dll" Pack="true" PackagePath="lib/net10.0/" />
   </ItemGroup>
 
 </Project>

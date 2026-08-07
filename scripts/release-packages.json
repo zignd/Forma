@@ -1,0 +1,18 @@
+{
+  "packages": [
+    { "project": "src/Forma/Forma.csproj", "runtime": "MonoGame", "id": "Forma.MonoGame" },
+    { "project": "src/Forma/Forma.csproj", "runtime": "FNA", "id": "Forma.FNA" },
+    { "project": "src/Forma.DynamicText/Forma.DynamicText.csproj", "runtime": "MonoGame", "id": "Forma.DynamicText.MonoGame" },
+    { "project": "src/Forma.DynamicText/Forma.DynamicText.csproj", "runtime": "FNA", "id": "Forma.DynamicText.FNA" },
+    { "project": "src/Forma.Media/Forma.Media.csproj", "runtime": "MonoGame", "id": "Forma.Media.MonoGame" },
+    { "project": "src/Forma.Media/Forma.Media.csproj", "runtime": "FNA", "id": "Forma.Media.FNA" },
+    { "project": "src/Forma.Svg/Forma.Svg.csproj", "runtime": "MonoGame", "id": "Forma.Svg.Skia.MonoGame" },
+    { "project": "src/Forma.Svg/Forma.Svg.csproj", "runtime": "FNA", "id": "Forma.Svg.Skia.FNA" },
+    { "project": "src/Forma.Svg.ThorVG/Forma.Svg.ThorVG.csproj", "runtime": "MonoGame", "id": "Forma.Svg.ThorVG.MonoGame" },
+    { "project": "src/Forma.Svg.ThorVG/Forma.Svg.ThorVG.csproj", "runtime": "FNA", "id": "Forma.Svg.ThorVG.FNA" },
+    { "project": "src/Forma.Xaml.Build/Forma.Xaml.Build.csproj", "runtime": "MonoGame", "id": "Forma.Xaml.Build.MonoGame", "symbols": false },
+    { "project": "src/Forma.Xaml.Build/Forma.Xaml.Build.csproj", "runtime": "FNA", "id": "Forma.Xaml.Build.FNA", "symbols": false },
+    { "project": "src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj", "runtime": "MonoGame", "id": "Forma.Xaml.HotReload.MonoGame" },
+    { "project": "src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj", "runtime": "FNA", "id": "Forma.Xaml.HotReload.FNA" }
+  ]
+}

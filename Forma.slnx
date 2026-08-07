@@ -37,6 +37,7 @@
     <Project Path="tests/Forma.ThorVG.Tests/Forma.ThorVG.Tests.csproj" />
     <Project Path="tests/Forma.Xaml.Build.Integration/Forma.Xaml.Build.Integration.csproj" />
     <Project Path="tests/Forma.Xaml.Compiler.Tests/Forma.Xaml.Compiler.Tests.csproj" />
+    <Project Path="tests/Forma.Xaml.HotReload.PackageConsumer/Forma.Xaml.HotReload.PackageConsumer.csproj" />
     <Project Path="tests/Forma.Xaml.HotReload.Tests/Forma.Xaml.HotReload.Tests.csproj" />
     <Project Path="tests/Forma.Xaml.Game.Tests/Forma.Xaml.Game.Tests.csproj" />
     <Project Path="tests/Forma.Xaml.Tests/Forma.Xaml.Tests.csproj" />

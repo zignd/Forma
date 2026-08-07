@@ -1,10 +1,17 @@
 name: Release
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   package:
@@ -16,36 +23,38 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-      - name: Validate release version
+      - name: Validate release tag
+        if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
-          monogame_core_version="$(dotnet msbuild src/Forma/Forma.csproj -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
-          monogame_dynamic_text_version="$(dotnet msbuild src/Forma.DynamicText/Forma.DynamicText.csproj -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
-          monogame_media_version="$(dotnet msbuild src/Forma.Media/Forma.Media.csproj -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
-          xaml_build_version="$(dotnet msbuild src/Forma.Xaml.Build/Forma.Xaml.Build.csproj -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
-          fna_core_version="$(dotnet msbuild src/Forma/Forma.csproj -p:FormaRuntime=FNA -getProperty:Version -nologo)"
-          fna_dynamic_text_version="$(dotnet msbuild src/Forma.DynamicText/Forma.DynamicText.csproj -p:FormaRuntime=FNA -getProperty:Version -nologo)"
-          fna_media_version="$(dotnet msbuild src/Forma.Media/Forma.Media.csproj -p:FormaRuntime=FNA -getProperty:Version -nologo)"
-          test "$monogame_core_version" = "$monogame_dynamic_text_version"
-          test "$monogame_core_version" = "$monogame_media_version"
-          test "$monogame_core_version" = "$xaml_build_version"
-          test "$monogame_core_version" = "$fna_core_version"
-          test "$monogame_core_version" = "$fna_dynamic_text_version"
-          test "$monogame_core_version" = "$fna_media_version"
-          printf 'Peer release version: %s\n' "$monogame_core_version"
+          version="$(dotnet msbuild src/Forma/Forma.csproj -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
+          test "$GITHUB_REF_NAME" = "v$version"
+          [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?(\+[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$ ]]
       - name: Validate licenses and native redistribution notices
         run: bash scripts/check-compliance.sh
-      - run: dotnet run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- verify
-      - run: bash scripts/check-runtime-parity.sh
-      - run: make CONFIGURATION=Release test-xaml
-      - run: bash scripts/test-package-consumer.sh
+      - name: Verify deterministic default theme icons
+        run: dotnet run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- verify
+      - name: Validate runtime parity
+        run: bash scripts/check-runtime-parity.sh
+      - name: Validate XAML
+        run: make CONFIGURATION=Release test-xaml
+      - name: Validate package consumers
+        run: bash scripts/test-package-consumer.sh
+      - name: Validate SVG package consumers
+        run: bash scripts/test-svg-package-consumers.sh
+      - name: Pack approved release manifest
+        run: bash scripts/pack-release-packages.sh
+      - name: Record artifact checksums
+        working-directory: Artifacts/release-packages
+        run: sha256sum *.nupkg *.snupkg > SHA256SUMS
       - name: Upload validated packages
         uses: actions/upload-artifact@v7
         with:
-          name: nuget-packages
+          name: nuget-release-packages
           path: |
-            Artifacts/packages/*/*.nupkg
-            Artifacts/packages/*/*.snupkg
+            Artifacts/release-packages/*.nupkg
+            Artifacts/release-packages/*.snupkg
+            Artifacts/release-packages/SHA256SUMS
           if-no-files-found: error
 
   nativeaot:
@@ -66,3 +75,60 @@ jobs:
           name: nativeaot-osx-arm64-release-evidence
           path: Artifacts/nativeaot/**
           if-no-files-found: error
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [package, nativeaot]
+    runs-on: ubuntu-latest
+    environment: nuget-production
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Download validated packages
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-release-packages
+          path: Artifacts/release-packages
+      - name: Verify downloaded artifact
+        working-directory: Artifacts/release-packages
+        run: sha256sum --check SHA256SUMS
+      - name: Revalidate approved manifest without rebuilding
+        env:
+          FORMA_RELEASE_VALIDATE_ONLY: true
+        run: bash scripts/pack-release-packages.sh
+      - name: Exchange GitHub OIDC token for NuGet API key
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+      - name: Publish approved packages
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          while IFS= read -r package_id; do
+            dotnet nuget push "Artifacts/release-packages/$package_id.$version.nupkg" \
+              --api-key "$NUGET_API_KEY" \
+              --source https://api.nuget.org/v3/index.json
+          done < <(jq -r '.packages[].id' scripts/release-packages.json)
+      - name: Verify NuGet.org indexing and clean restores
+        run: bash scripts/verify-published-packages.sh "${GITHUB_REF_NAME#v}"
+      - name: Create GitHub release from published artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            Artifacts/release-packages/*.nupkg \
+            Artifacts/release-packages/*.snupkg \
+            Artifacts/release-packages/SHA256SUMS \
+            --verify-tag \
+            --generate-notes \
+            --title "Forma ${GITHUB_REF_NAME#v}"

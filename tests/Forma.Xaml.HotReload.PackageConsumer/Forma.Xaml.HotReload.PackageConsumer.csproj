@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <FormaRuntime Condition="'$(FormaRuntime)' == ''">MonoGame</FormaRuntime>
+    <FormaPackageVersion>0.1.0-alpha.1</FormaPackageVersion>
+    <RestoreSources>$(FormaPackageSource);https://api.nuget.org/v3/index.json</RestoreSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Forma.Xaml.HotReload.$(FormaRuntime)" Version="$(FormaPackageVersion)" />
+  </ItemGroup>
+</Project>

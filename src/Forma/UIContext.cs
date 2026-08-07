@@ -62,10 +62,13 @@ namespace Forma
 
         public UIContext()
         {
+            Clipboard = RuntimeClipboard.Instance;
             Theme = new Theme { FontFamily = UIFontDefaultRegistry.FontFamily };
         }
         public IReadOnlyList<Control> Roots => _roots;
         public ResourceDictionary Resources { get; } = new ResourceDictionary();
+        /// <summary>Clipboard capability used by copy, cut, and paste commands in retained text controls.</summary>
+        public IClipboard Clipboard { get; set; }
         public Theme Theme
         {
             get => _theme;

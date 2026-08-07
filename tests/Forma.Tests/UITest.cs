@@ -20,6 +20,13 @@ namespace Forma.Tests
     {
         private static readonly GameTime Time = new GameTime();
 
+        private sealed class TestClipboard : IClipboard
+        {
+            public string Text { get; set; }
+            public string GetText() => Text;
+            public bool SetText(string text) { Text = text; return true; }
+        }
+
         private static MouseState Mouse(int x, int y, ButtonState left = ButtonState.Released, ButtonState right = ButtonState.Released, ButtonState middle = ButtonState.Released, ButtonState xButton1 = ButtonState.Released, ButtonState xButton2 = ButtonState.Released, int scrollWheel = 0) => new MouseState(x, y, scrollWheel, left, middle, right, xButton1, xButton2);
 
         private static Texture2D CreateHeadlessTexture(int width, int height)
@@ -2752,11 +2759,12 @@ namespace Forma.Tests
         [Test]
         public void LineEdit_MapsGodotRetainedContextMenuClipboardAndFocusApis()
         {
-            var edit = new LineEdit { Text = "value", Size = new Vector2(160, 24), ClipboardTextProvider = _ => "pa\nst\te" };
+            var edit = new LineEdit { Text = "value", Size = new Vector2(160, 24) };
             var copied = string.Empty;
             edit.CopyRequested += (_, text) => copied = text;
             edit.ClearUndoHistory();
-            var context = new UIContext(); context.Add(edit);
+            var clipboard = new TestClipboard();
+            var context = new UIContext { Clipboard = clipboard }; context.Add(edit);
 
             context.Update(Time, Mouse(8, 8), new KeyboardState());
             context.Update(Time, Mouse(8, 8, right: ButtonState.Pressed), new KeyboardState());
@@ -2774,11 +2782,14 @@ namespace Forma.Tests
             edit.MenuOption(LineEditMenuOption.SelectAll);
             edit.MenuOption(LineEditMenuOption.Copy);
             Assert.That(copied, Is.EqualTo("value"));
+            Assert.That(clipboard.Text, Is.EqualTo("value"));
 
             edit.MenuOption(LineEditMenuOption.Cut);
             Assert.That(copied, Is.EqualTo("value"));
+            Assert.That(clipboard.Text, Is.EqualTo("value"));
             Assert.That(edit.Text, Is.Empty);
 
+            clipboard.Text = "pa\nst\te";
             edit.MenuOption(LineEditMenuOption.Paste);
             Assert.That(edit.Text, Is.EqualTo("paste"));
 
@@ -4174,6 +4185,34 @@ namespace Forma.Tests
             Assert.That(edit.FirstVisibleLine, Is.EqualTo(5));
             edit.SetCaret(1, 0); edit.AdjustViewportToCaret();
             Assert.That(edit.FirstVisibleLine, Is.EqualTo(1));
+        }
+
+        [TestCase(typeof(TextEdit))]
+        [TestCase(typeof(CodeEdit))]
+        public void MultilineEditorsKeepClickedCaretLineAfterPointerRelease(Type editorType)
+        {
+            var editor = (TextEdit)Activator.CreateInstance(editorType)!;
+            editor.Font = CreateTestFont();
+            editor.Text = "first\nsecond\nthird";
+            editor.Size = new Vector2(240, 64);
+            using var context = new UIContext();
+            context.Add(editor);
+
+            var point = new Point(100, 24);
+            context.Update(Time, Mouse(point.X, point.Y), new KeyboardState());
+            context.Update(Time, Mouse(point.X, point.Y, ButtonState.Pressed), new KeyboardState());
+            context.Update(Time, Mouse(point.X, point.Y), new KeyboardState());
+
+            Assert.That(editor.CaretLine, Is.EqualTo(1));
+            Assert.That(editor.CaretColumnInLine, Is.GreaterThan(0));
+
+            var thirdLinePoint = new Point(point.X, 40);
+            context.Update(Time, Mouse(point.X, point.Y, ButtonState.Pressed), new KeyboardState());
+            context.Update(Time, Mouse(thirdLinePoint.X, thirdLinePoint.Y, ButtonState.Pressed), new KeyboardState());
+            context.Update(Time, Mouse(thirdLinePoint.X, thirdLinePoint.Y), new KeyboardState());
+
+            Assert.That(editor.CaretLine, Is.EqualTo(2));
+            Assert.That(editor.HasSelection, Is.True);
         }
 
         [Test]
@@ -7369,6 +7408,21 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void ScrollBar_EndButtonsUseWheelFallbackWhenStepIsContinuous()
+        {
+            var scroll = new VScrollBar { Size = new Vector2(14, 100), MinValue = 0, MaxValue = 100, Page = 20, Value = 40 };
+            var context = new UIContext(); context.Add(scroll);
+
+            Assert.That(scroll.Step, Is.Zero, "A scrollbar remains continuous for grabber dragging by default.");
+            context.Update(Time, Mouse(7, 96, ButtonState.Pressed), new KeyboardState());
+            Assert.That(scroll.Value, Is.EqualTo(42.5f), "The increment button uses page / 8 when no line step is configured.");
+            context.Update(Time, Mouse(7, 96), new KeyboardState());
+
+            context.Update(Time, Mouse(7, 4, ButtonState.Pressed), new KeyboardState());
+            Assert.That(scroll.Value, Is.EqualTo(40), "The decrement button applies the same fallback in the opposite direction.");
+        }
+
+        [Test]
         public void ScrollBar_HighlightsOnlyTheHoveredRegionLikeGodot()
         {
             var vertical = new VScrollBar { Size = new Vector2(14, 100), MinValue = 0, MaxValue = 100, Page = 20, Value = 40 };
@@ -10288,9 +10342,10 @@ namespace Forma.Tests
         [Test]
         public void TextEdit_MapsGodotRetainedContextMenuCommands()
         {
-            var edit = new TextEdit { Text = "value", Size = new Vector2(160, 48), ClipboardTextProvider = _ => "paste" };
+            var edit = new TextEdit { Text = "value", Size = new Vector2(160, 48) };
             var copied = string.Empty; edit.CopyRequested += (_, text) => copied = text;
-            var context = new UIContext(); context.Add(edit);
+            var clipboard = new TestClipboard();
+            var context = new UIContext { Clipboard = clipboard }; context.Add(edit);
             context.Update(Time, Mouse(8, 8), new KeyboardState());
             context.Update(Time, Mouse(8, 8, right: ButtonState.Pressed), new KeyboardState());
             var menu = edit.GetMenu();
@@ -10304,10 +10359,12 @@ namespace Forma.Tests
             Assert.That(edit.SelectedText, Is.EqualTo("value"));
             edit.MenuOption(TextEditMenuOption.Copy);
             Assert.That(copied, Is.EqualTo("value"));
+            Assert.That(clipboard.Text, Is.EqualTo("value"));
             edit.MenuOption(TextEditMenuOption.Clear);
             Assert.That(edit.Text, Is.Empty);
             edit.MenuOption(TextEditMenuOption.Undo);
             Assert.That(edit.Text, Is.EqualTo("value"));
+            clipboard.Text = "paste";
             edit.SetCaret(0, 0); edit.MenuOption(TextEditMenuOption.Paste);
             Assert.That(edit.Text, Is.EqualTo("pastevalue"));
 
@@ -10316,6 +10373,52 @@ namespace Forma.Tests
             context.Update(Time, Mouse(8, 8), new KeyboardState());
             context.Update(Time, Mouse(8, 8, right: ButtonState.Pressed), new KeyboardState());
             Assert.That(edit.IsMenuVisible(), Is.False);
+        }
+
+        [TestCase(typeof(TextEdit))]
+        [TestCase(typeof(CodeEdit))]
+        public void MultilineEditorContextMenuCommandsRetainPartialSelection(Type editorType)
+        {
+            var edit = (TextEdit)Activator.CreateInstance(editorType)!;
+            edit.Font = CreateTestFont();
+            edit.Text = "value";
+            edit.Size = new Vector2(240, 64);
+            edit.Select(0, 1, 0, 4);
+            var clipboard = new TestClipboard();
+            using var context = new UIContext { Clipboard = clipboard };
+            context.Add(edit);
+            context.SetFocus(edit);
+
+            void OpenMenu()
+            {
+                context.Update(Time, Mouse(100, 16), new KeyboardState());
+                context.Update(Time, Mouse(100, 16, right: ButtonState.Pressed), new KeyboardState());
+                context.Update(Time, Mouse(100, 16), new KeyboardState());
+            }
+
+            void ActivateMenuItem(int index)
+            {
+                var menu = edit.GetMenu();
+                var x = menu.Bounds.X + 8;
+                var y = menu.Bounds.Y + 1 + (int)(menu.ItemHeight * (index + 0.5f));
+                context.Update(Time, Mouse(x, y, ButtonState.Pressed), new KeyboardState());
+                context.Update(Time, Mouse(x, y), new KeyboardState());
+            }
+
+            OpenMenu();
+            ActivateMenuItem(1);
+            Assert.That(clipboard.Text, Is.EqualTo("alu"), "Copy should use the retained partial selection.");
+
+            OpenMenu();
+            ActivateMenuItem(0);
+            Assert.That(clipboard.Text, Is.EqualTo("alu"), "Cut should copy only the retained partial selection.");
+            Assert.That(edit.Text, Is.EqualTo("ve"));
+
+            edit.Select(0, 0, 0, 1);
+            clipboard.Text = "X";
+            OpenMenu();
+            ActivateMenuItem(2);
+            Assert.That(edit.Text, Is.EqualTo("Xe"), "Paste should replace the retained partial selection.");
         }
 
         [Test]
@@ -11100,6 +11203,29 @@ namespace Forma.Tests
         }
 
         [Test]
+        public void RichTextLabelWordWrapUsesRemainingWidthAcrossStyledSpanBoundaries()
+        {
+            using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
+            const string remainder = ". Use the property inspector to change values.";
+            var fonts = new UIFont[] { new DynamicUIFont(face, 16), new SpriteFontAdapter(CreateTestFont(), 16) };
+            foreach (var font in fonts)
+            {
+                var availableWidth = TextMetrics.Measure(font, ". Use the property ").X + .5f;
+                var richText = new RichTextLabel { UIFont = font, AutowrapMode = LabelAutowrapMode.Word };
+                richText.AppendBbcode("Interactive example of [color=#30b9a4]Forma.OptionButton[/color]" + remainder);
+
+                var prefixLength = richText.GetFittingWrapPrefixLength(remainder, availableWidth);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(prefixLength, Is.GreaterThan(2), $"{font.GetType().Name} should keep the period and following words on the current line.");
+                    Assert.That(prefixLength, Is.LessThan(remainder.Length));
+                    Assert.That(char.IsWhiteSpace(remainder[prefixLength - 1]), Is.True, "Word wrapping should stop at a Unicode line-break opportunity.");
+                });
+            }
+        }
+
+        [Test]
         public void RichTextLabelLetterSpacingAdjustsMeasuredGraphemeAdvances()
         {
             using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
@@ -11473,7 +11599,8 @@ namespace Forma.Tests
             label.AppendText("Node status");
             var copied = string.Empty;
             label.CopyRequested += (_, text) => copied = text;
-            var context = new UIContext(); context.Add(label); context.SetFocus(label);
+            var clipboard = new TestClipboard();
+            var context = new UIContext { Clipboard = clipboard }; context.Add(label); context.SetFocus(label);
 
             context.Update(Time, Mouse(0, 0), new KeyboardState(Keys.LeftControl));
             context.Update(Time, Mouse(0, 0), new KeyboardState(Keys.LeftControl, Keys.A));
@@ -11482,6 +11609,7 @@ namespace Forma.Tests
             context.Update(Time, Mouse(0, 0), new KeyboardState(Keys.LeftControl));
             context.Update(Time, Mouse(0, 0), new KeyboardState(Keys.LeftControl, Keys.C));
             Assert.That(copied, Is.EqualTo("Node status"));
+            Assert.That(clipboard.Text, Is.EqualTo("Node status"));
 
             label.Deselect(); label.ShortcutKeysEnabled = false;
             context.Update(Time, Mouse(0, 0), new KeyboardState(Keys.LeftControl));
@@ -11496,7 +11624,8 @@ namespace Forma.Tests
             label.AppendText("Node status");
             var copied = string.Empty;
             label.CopyRequested += (_, text) => copied = text;
-            var context = new UIContext(); context.Add(label);
+            var clipboard = new TestClipboard();
+            var context = new UIContext { Clipboard = clipboard }; context.Add(label);
 
             context.Update(Time, Mouse(4, 6), new KeyboardState());
             context.Update(Time, Mouse(4, 6, right: ButtonState.Pressed), new KeyboardState());
@@ -11510,6 +11639,7 @@ namespace Forma.Tests
             context.Update(Time, Mouse(menu.Bounds.X + 8, menu.Bounds.Y + 8, ButtonState.Pressed), new KeyboardState());
             context.Update(Time, Mouse(menu.Bounds.X + 8, menu.Bounds.Y + 8), new KeyboardState());
             Assert.That(copied, Is.EqualTo("Node status"));
+            Assert.That(clipboard.Text, Is.EqualTo("Node status"));
             Assert.That(menu.Visible, Is.False);
 
             context.SetFocus(label);

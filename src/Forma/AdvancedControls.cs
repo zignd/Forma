@@ -452,12 +452,12 @@ namespace Forma
         public UIFont UIFont { get => _fontSelection.UIFont; set { _fontSelection.SetUIFont(value); QueueLayout(); } }
         internal UIFont EffectiveUIFont => ResolveFont(_fontSelection);
         public Thickness Padding { get; set; }
-        /// <summary>Optional host callback used by <see cref="Paste()"/> to obtain platform clipboard text.</summary>
+        /// <summary>Optional per-control override used by <see cref="Paste()"/> before <see cref="UIContext.Clipboard"/>.</summary>
         public Func<LineEdit, string> ClipboardTextProvider { get; set; }
         public event Action<LineEdit, string> TextChanged;
         public event Action<LineEdit, string> TextChangeRejected;
         public event EventHandler TextSubmitted;
-        /// <summary>Raised when Copy or Cut needs the host to put text on the platform clipboard.</summary>
+        /// <summary>Raised after Copy or Cut submits text to <see cref="UIContext.Clipboard"/>.</summary>
         public event Action<LineEdit, string> CopyRequested;
         /// <summary>Returns the retained context popup, equivalent to Godot's <c>get_menu()</c>.</summary>
         public virtual PopupMenu GetMenu() => _contextMenu;
@@ -610,7 +610,7 @@ namespace Forma
         {
             if (!HasSelection || !string.IsNullOrEmpty(SecretCharacter)) return;
             var copied = SelectedText;
-            if (!string.IsNullOrEmpty(copied)) CopyRequested?.Invoke(this, copied);
+            if (!string.IsNullOrEmpty(copied)) WriteClipboard(copied);
         }
         public void Cut()
         {
@@ -620,10 +620,10 @@ namespace Forma
             if (!HasSelection || !string.IsNullOrEmpty(SecretCharacter)) return;
             var copied = SelectedText;
             if (string.IsNullOrEmpty(copied)) return;
-            CopyRequested?.Invoke(this, copied);
+            WriteClipboard(copied);
             DeleteSelection();
         }
-        public void Paste() => Paste(ClipboardTextProvider?.Invoke(this));
+        public void Paste() => Paste(ClipboardTextProvider?.Invoke(this) ?? Context?.Clipboard?.GetText());
         public void Paste(string clipboard)
         {
             if (!Editable || string.IsNullOrEmpty(clipboard)) return;
@@ -665,6 +665,11 @@ namespace Forma
                 case LineEditMenuOption.InsertWordJoiner: InsertControlCharacter('\u2060'); break;
                 case LineEditMenuOption.InsertSoftHyphen: InsertControlCharacter('\u00AD'); break;
             }
+        }
+        private void WriteClipboard(string text)
+        {
+            Context?.Clipboard?.SetText(text);
+            CopyRequested?.Invoke(this, text);
         }
         public override Vector2 GetMinimumSize() => Vector2.Max(CustomMinimumSize, new Vector2(80, EffectiveUIFont == null ? 24 : TextMetrics.LineHeight(EffectiveUIFont) + Padding.Vertical));
         internal override void PointerPressed(Point position)
@@ -792,7 +797,7 @@ namespace Forma
             return from;
         }
         private static bool IsWordChar(char c) => char.IsLetterOrDigit(c) || c == '_';
-        private int GetCaretColumnAtPosition(Point position)
+        protected virtual int GetCaretColumnAtPosition(Point position)
         {
             if (EffectiveUIFont == null) return Text.Length;
             var layout = GetEditingLayout();
@@ -841,7 +846,7 @@ namespace Forma
         internal override void FocusLost()
         {
             CancelImeComposition();
-            if (DeselectOnFocusLoss) Deselect();
+            if (DeselectOnFocusLoss && !IsMenuVisible()) Deselect();
             if (SubmitOnFocusExit) TextSubmitted?.Invoke(this, EventArgs.Empty);
             base.FocusLost();
         }
@@ -1050,7 +1055,7 @@ namespace Forma
         public new bool ShortcutKeysEnabled { get; set; } = true;
         /// <summary>Allows copying/cutting whole caret line ranges when no caret has a selection, matching Godot's <c>empty_selection_clipboard_enabled</c>.</summary>
         public bool EmptySelectionClipboardEnabled { get; set; } = true;
-        /// <summary>Optional host callback used by <see cref="Paste(string, int)"/> to obtain platform clipboard text.</summary>
+        /// <summary>Optional per-control override used by <see cref="Paste(int)"/> before <see cref="UIContext.Clipboard"/>.</summary>
         public new Func<TextEdit, string> ClipboardTextProvider { get; set; }
         /// <summary>First visible source line, corresponding to Godot's get_first_visible_line().</summary>
         public int FirstVisibleLine { get; private set; }
@@ -1066,7 +1071,7 @@ namespace Forma
         public bool MultipleCaretsEnabled { get => _multipleCaretsEnabled; set { _multipleCaretsEnabled = value; if (!value) RemoveSecondaryCarets(); } }
         public int CaretCount => 1 + _secondaryCarets.Count;
         public event Action<TextEdit, int, int> GutterClicked;
-        /// <summary>Raised when Copy or Cut needs the host to put text on the platform clipboard.</summary>
+        /// <summary>Raised after Copy or Cut submits text to <see cref="UIContext.Clipboard"/>.</summary>
         public new event Action<TextEdit, string> CopyRequested;
         /// <summary>Returns the retained context popup, equivalent to Godot's <c>get_menu()</c>.</summary>
         public override PopupMenu GetMenu() => _contextMenu;
@@ -1383,13 +1388,13 @@ namespace Forma
             var copied = GetSelectedText(caret);
             if (!string.IsNullOrEmpty(copied))
             {
-                _cutCopyLine = string.Empty; CopyRequested?.Invoke(this, copied); return;
+                _cutCopyLine = string.Empty; WriteClipboard(copied); return;
             }
             if (!EmptySelectionClipboardEnabled) return;
             var ranges = GetCaretLineRanges(caret); var lines = new System.Text.StringBuilder();
             foreach (var range in ranges) for (var line = range.First; line <= range.Last; line++) { lines.Append(GetLine(line)); lines.Append('\n'); }
             copied = lines.ToString(); _cutCopyLine = CaretCount == 1 ? copied : string.Empty;
-            if (!string.IsNullOrEmpty(copied)) CopyRequested?.Invoke(this, copied);
+            if (!string.IsNullOrEmpty(copied)) WriteClipboard(copied);
         }
         /// <summary>Copies text using <see cref="Copy"/> then removes selections or whole caret line ranges when editable.</summary>
         public void Cut(int caret = -1)
@@ -1401,7 +1406,7 @@ namespace Forma
             DeleteCaretLines(caret);
         }
         /// <summary>Obtains host clipboard content and applies Godot's multi-caret paste distribution policy.</summary>
-        public void Paste(int caret = -1) => Paste(ClipboardTextProvider?.Invoke(this), caret);
+        public void Paste(int caret = -1) => Paste(ClipboardTextProvider?.Invoke(this) ?? Context?.Clipboard?.GetText(), caret);
         /// <summary>Pastes supplied clipboard content at one caret or all carets. A line per caret is used when the counts match.</summary>
         public void Paste(string clipboard, int caret = -1)
         {
@@ -1425,6 +1430,11 @@ namespace Forma
             }
             foreach (var index in carets) replacements[index] = distributeLines ? replacements[index] : clipboard;
             ApplyMultiCaretEdits(edits, edit => replacements[edit.Caret]);
+        }
+        private void WriteClipboard(string text)
+        {
+            Context?.Clipboard?.SetText(text);
+            CopyRequested?.Invoke(this, text);
         }
         /// <summary>Clears the retained document and secondary carets, matching Godot's <c>clear</c>.</summary>
         public new void Clear()
@@ -1670,13 +1680,16 @@ namespace Forma
             {
                 var gutterLine = GetLineAtVisibleRow((int)((position.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont))));
                 if (_gutters[gutter].Clickable && IsLineGutterClickable(gutterLine, gutter)) GutterClicked?.Invoke(this, gutterLine, gutter);
-                return;
             }
+        }
+        protected override int GetCaretColumnAtPosition(Point position)
+        {
+            if (EffectiveUIFont == null) return Text.Length;
             GetLineAndWrapAtVisibleRow((int)((position.Y - GlobalPosition.Y - Padding.Top) / Math.Max(1, TextMetrics.LineHeight(EffectiveUIFont))), out var line, out var wrapIndex);
             var localX = position.X - GlobalPosition.X - Padding.Left - TextContentLeftInset;
-            var source = GetLine(line); var segment = GetWrapSegments(line)[wrapIndex]; var text = source.Substring(segment.Start, segment.Length);
+            var source = GetLine(line); var segment = GetWrapSegments(line)[wrapIndex];
             var column = segment.Start + GetSegmentLayout(source, segment.Start, segment.Length).HitTest(new Vector2(localX, 0));
-            SetCaret(line, column);
+            return GetLineStart(line) + column;
         }
         internal override void PointerRightPressed(Point position) => OpenContextMenu(position);
         internal override void KeyPressed(Keys key)

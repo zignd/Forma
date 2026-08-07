@@ -629,7 +629,11 @@ namespace Forma
             stopped = value < 0;
             return sign * value;
         }
-        private float GetEffectiveStep() => CustomStep >= 0 ? CustomStep : Step;
+        private float GetEffectiveStep()
+        {
+            if (CustomStep >= 0) return CustomStep;
+            return Step > 0 ? Step : GetWheelScrollBase();
+        }
         private float GetPageScrollAmount() => Page != 0 ? Page : (MaxValue - MinValue) / FallbackPageDivisor;
         private float GetWheelScrollBase() => Page != 0 ? Page / PageDivisor : (MaxValue - MinValue) / FallbackPageDivisor;
         private int GetButtonSize()
@@ -2170,7 +2174,7 @@ namespace Forma
                 {
                     var text = GetSelectedText();
                     if (string.IsNullOrEmpty(text)) text = Text;
-                    if (!string.IsNullOrEmpty(text)) CopyRequested?.Invoke(this, text);
+                    WriteClipboard(text);
                 }
                 else if (id == ContextMenuSelectAllId) SelectAll();
             };
@@ -2302,7 +2306,7 @@ namespace Forma
         /// <summary>Whether metadata spans use the conventional Godot link underline.</summary>
         public bool MetaUnderline { get; set; } = true;
         public event Action<RichTextLabel, object> MetaClicked;
-        /// <summary>Raised when the focused copy shortcut requests that the host put selected text on its platform clipboard.</summary>
+        /// <summary>Raised after a copy command submits text to <see cref="UIContext.Clipboard"/>.</summary>
         public event Action<RichTextLabel, string> CopyRequested;
         /// <summary>Returns the retained context popup, equivalent to Godot's <c>get_menu()</c>.</summary>
         public PopupMenu GetMenu() => _contextMenu;
@@ -2542,8 +2546,17 @@ namespace Forma
                             var layout = CreateTextLayout(EffectiveUIFont, chunk, new TextLayoutOptions(direction: direction, locale: Language));
                             if (Autowrap && cursor.X > origin.X && cursor.X + layout.Size.X > right)
                             {
+                                var prefixLength = GetFittingWrapPrefixLength(chunk, Math.Max(1, right - cursor.X), direction);
+                                if (prefixLength > 0)
+                                {
+                                    var prefixLayout = CreateTextLayout(EffectiveUIFont, chunk.Substring(0, prefixLength), new TextLayoutOptions(direction: direction, locale: Language));
+                                    DrawRichTextLayout(context, prefixLayout, cursor, span, color, textIndex);
+                                    offset += prefixLength;
+                                    textIndex += prefixLength;
+                                }
                                 cursor.X = origin.X;
                                 cursor.Y += lineHeight;
+                                if (prefixLength > 0) continue;
                             }
                             if (Autowrap && layout.Size.X > right - origin.X)
                             {
@@ -2561,6 +2574,25 @@ namespace Forma
                 }
                 finally { if (ScrollActive) context.PopClip(); }
             }
+        }
+        internal int GetFittingWrapPrefixLength(string text, float availableWidth, TextDirection direction = TextDirection.Auto)
+        {
+            if (EffectiveUIFont == null || string.IsNullOrEmpty(text) || !float.IsFinite(availableWidth) || availableWidth <= 0) return 0;
+            if (AutowrapMode == LabelAutowrapMode.Arbitrary)
+            {
+                var layout = CreateTextLayout(EffectiveUIFont, text, new TextLayoutOptions(availableWidth, TextWrapping.Character, direction: direction, locale: Language));
+                return layout.Lines.Count > 1 ? layout.Lines[0].Length : 0;
+            }
+            var fittingLength = 0;
+            foreach (var opportunity in UnicodeLineBreaker.GetUtf16BreakOpportunities(text))
+            {
+                if (opportunity >= text.Length) break;
+                var prefix = text.Substring(0, opportunity);
+                var width = CreateTextLayout(EffectiveUIFont, prefix, new TextLayoutOptions(direction: direction, locale: Language)).Size.X;
+                if (width > availableWidth) break;
+                fittingLength = opportunity;
+            }
+            return fittingLength;
         }
         private void DrawRichTextLayout(UIRenderContext context, TextLayout layout, Vector2 position, RichTextSpan span, Color color, int textIndex)
         {
@@ -2653,7 +2685,7 @@ namespace Forma
         }
         internal override void FocusLost()
         {
-            if (DeselectOnFocusLossEnabled) Deselect();
+            if (DeselectOnFocusLossEnabled && !_contextMenu.Visible) Deselect();
             base.FocusLost();
         }
         /// <summary>Returns the selected text when a retained drag begins from an existing selection.</summary>
@@ -2721,12 +2753,17 @@ namespace Forma
                 if (key == Keys.C)
                 {
                     var selectedText = GetSelectedText();
-                    if (!string.IsNullOrEmpty(selectedText)) CopyRequested?.Invoke(this, selectedText);
+                    WriteClipboard(selectedText);
                 }
             }
-
             if (key == Keys.Apps || (key == Keys.F10 && HasShiftModifier()))
                 OpenContextMenu(new Point((int)MathF.Floor(GlobalPosition.X), (int)MathF.Floor(GlobalPosition.Y)));
+        }
+        private void WriteClipboard(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+            Context?.Clipboard?.SetText(text);
+            CopyRequested?.Invoke(this, text);
         }
         /// <summary>Returns metadata at the given screen-space position, equivalent to Godot's <c>get_meta_under_mouse()</c>.</summary>
         public object GetMetaUnderPosition(Point position)

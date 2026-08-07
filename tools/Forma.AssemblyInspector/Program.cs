@@ -12,6 +12,7 @@ return args.Length == 0 ? Usage() : args[0] switch
     "forbid-references" => ForbidReferences(args),
     "compare-api" => CompareApi(args),
     "docs-coverage" => CheckDocumentationCoverage(args),
+    "control-families" => CheckControlFamilies(args),
     "normalize-source-links" => NormalizeSourceLinks(args),
     _ => Usage(),
 };
@@ -23,8 +24,65 @@ static int Usage()
     Console.Error.WriteLine("  Forma.AssemblyInspector forbid-references <assembly> <forbidden-reference> [<forbidden-reference> ...]");
     Console.Error.WriteLine("  Forma.AssemblyInspector compare-api <left-assembly> <right-assembly>");
     Console.Error.WriteLine("  Forma.AssemblyInspector docs-coverage <api-yaml-directory> <site-directory> <control-story-directory> <minimum-type-percent> <minimum-member-percent> <report-path>");
+    Console.Error.WriteLine("  Forma.AssemblyInspector control-families <api-yaml-directory> <site-directory> <manifest>");
     Console.Error.WriteLine("  Forma.AssemblyInspector normalize-source-links <api-yaml-directory> <repository-url> <revision>");
     return 2;
+}
+
+static int CheckControlFamilies(string[] arguments)
+{
+    if (arguments.Length != 4) return Usage();
+    var apiDirectory = Path.GetFullPath(arguments[1]);
+    var siteDirectory = Path.GetFullPath(arguments[2]);
+    var manifestPath = Path.GetFullPath(arguments[3]);
+    var manifest = JsonSerializer.Deserialize<ControlFamilyManifest>(File.ReadAllText(manifestPath),
+        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new InvalidDataException("Control-family manifest is empty.");
+    var errors = new List<string>();
+    if (manifest.SchemaVersion != 1) errors.Add($"Unsupported control-family schema version {manifest.SchemaVersion}.");
+    if (manifest.RootUid != "Forma.Control") errors.Add($"Expected rootUid Forma.Control, found {manifest.RootUid}.");
+
+    var expectedFamilyIds = new[] { "buttons", "collections", "containers", "data-display", "dialogs", "graph-code", "media", "selection", "text-input" };
+    var actualFamilyIds = manifest.Families.Select(family => family.Id).ToArray();
+    if (!actualFamilyIds.SequenceEqual(expectedFamilyIds, StringComparer.Ordinal))
+        errors.Add("Control families must contain the nine required IDs in ordinal order.");
+
+    var generatedControls = new HashSet<string>(StringComparer.Ordinal);
+    foreach (var yamlPath in Directory.EnumerateFiles(apiDirectory, "*.yml", SearchOption.TopDirectoryOnly))
+    {
+        using var input = File.OpenText(yamlPath);
+        var yaml = new YamlStream();
+        yaml.Load(input);
+        if (yaml.Documents.Count == 0 || yaml.Documents[0].RootNode is not YamlMappingNode root ||
+            !root.Children.TryGetValue(new YamlScalarNode("items"), out var itemsNode) || itemsNode is not YamlSequenceNode items)
+            continue;
+        var primary = items.Children.OfType<YamlMappingNode>().FirstOrDefault();
+        if (primary is null || Scalar(primary, "type") != "Class") continue;
+        var uid = Scalar(primary, "uid");
+        var rooted = uid == manifest.RootUid;
+        if (!rooted && primary.Children.TryGetValue(new YamlScalarNode("inheritance"), out var inheritanceNode) && inheritanceNode is YamlSequenceNode inheritance)
+            rooted = inheritance.Children.OfType<YamlScalarNode>().Any(node => node.Value == manifest.RootUid);
+        if (rooted && uid is not null) generatedControls.Add(uid);
+    }
+
+    var mappedControls = new HashSet<string>(StringComparer.Ordinal);
+    foreach (var family in manifest.Families)
+    {
+        if (string.IsNullOrWhiteSpace(family.Title)) errors.Add($"Family {family.Id} has no title.");
+        if (!family.Types.SequenceEqual(family.Types.OrderBy(uid => uid, StringComparer.Ordinal), StringComparer.Ordinal))
+            errors.Add($"Family {family.Id} types are not in ordinal order.");
+        foreach (var uid in family.Types)
+            if (!mappedControls.Add(uid)) errors.Add($"Control {uid} appears in more than one family.");
+        if (!File.Exists(Path.Combine(siteDirectory, "reference", "controls", $"{family.Id}.html")))
+            errors.Add($"Family page was not built: reference/controls/{family.Id}.html");
+    }
+
+    foreach (var uid in generatedControls.Except(mappedControls, StringComparer.Ordinal).OrderBy(uid => uid, StringComparer.Ordinal))
+        errors.Add($"Generated control is not assigned to a family: {uid}");
+    foreach (var uid in mappedControls.Except(generatedControls, StringComparer.Ordinal).OrderBy(uid => uid, StringComparer.Ordinal))
+        errors.Add($"Family manifest contains a non-control or missing API UID: {uid}");
+    foreach (var error in errors) Console.Error.WriteLine(error);
+    Console.WriteLine($"Control families: {mappedControls.Count} controls mapped once across {manifest.Families.Count} built pages.");
+    return errors.Count == 0 ? 0 : 1;
 }
 
 static int NormalizeSourceLinks(string[] arguments)
@@ -246,3 +304,5 @@ sealed record DocumentationCoverageReport(
     double MinimumTypeCoveragePercent,
     double MinimumMemberCoveragePercent,
     IReadOnlyList<ControlMapping> Controls);
+sealed record ControlFamilyManifest(int SchemaVersion, string RootUid, IReadOnlyList<ControlFamily> Families);
+sealed record ControlFamily(string Id, string Title, IReadOnlyList<string> Types);

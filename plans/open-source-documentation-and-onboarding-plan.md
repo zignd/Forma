@@ -549,17 +549,17 @@ Each curated control entry should include:
   URLs and runtime-neutral namespaces.
 - [x] Generate one conceptual API reference rather than duplicate MonoGame/FNA pages, while clearly
   documenting package selection and failing if parity detects an unexplained public API difference.
-- [ ] Create curated control-family overview pages for text input, buttons, selection, containers,
+- [x] Create curated control-family overview pages for text input, buttons, selection, containers,
   collections, dialogs, data display, graph/code controls, and media.
 - [x] Generate or validate the mapping among public controls, Catalog stories, and reference pages.
-- [ ] Add default-value and support-limitation notes where generated signatures are insufficient.
-- [ ] Add accessibility contracts to applicable control pages.
+- [x] Add default-value and support-limitation notes where generated signatures are insufficient.
+- [x] Add accessibility contracts to applicable control pages.
 - [ ] Introduce API diff review for releases so removed or changed public members require migration
   notes and reference updates.
 
 ### Exit Criteria
 
-- [ ] Every public control appears in searchable generated reference and one curated family page.
+- [x] Every public control appears in searchable generated reference and one curated family page.
 - [ ] Missing XML documentation fails the agreed coverage gate for newly added public APIs.
 - [ ] Runtime peer APIs resolve to one conceptual reference without obscuring package requirements.
 - [ ] Control-reference links and source links pass CI.

@@ -37,7 +37,8 @@
       {
         "files": [
           "images/**",
-          "examples/**"
+          "examples/**",
+          "reference/*.json"
         ]
       }
     ],

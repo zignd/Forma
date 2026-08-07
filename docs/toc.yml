@@ -30,6 +30,28 @@
       href: troubleshooting/xaml-build-and-hot-reload.md
     - name: Rendering and assets
       href: troubleshooting/rendering-and-assets.md
+- name: Control reference
+  items:
+    - name: Family overview
+      href: reference/controls/index.md
+    - name: Text input
+      href: reference/controls/text-input.md
+    - name: Buttons
+      href: reference/controls/buttons.md
+    - name: Selection
+      href: reference/controls/selection.md
+    - name: Containers
+      href: reference/controls/containers.md
+    - name: Collections
+      href: reference/controls/collections.md
+    - name: Dialogs and menus
+      href: reference/controls/dialogs.md
+    - name: Data display
+      href: reference/controls/data-display.md
+    - name: Graph and code
+      href: reference/controls/graph-code.md
+    - name: Media
+      href: reference/controls/media.md
 - name: XAML
   items:
     - name: Language contract

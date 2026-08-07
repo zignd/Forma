@@ -56,6 +56,8 @@ dotnet docfx build docs/docfx.json --warningsAsErrors
 dotnet run --project tools/Forma.AssemblyInspector/Forma.AssemblyInspector.csproj -- \
   docs-coverage "$api_root" "$site_root" samples/Forma.Catalog/Stories/Controls \
   27.65 11.57 "$site_root/control-coverage.json"
+dotnet run --project tools/Forma.AssemblyInspector/Forma.AssemblyInspector.csproj -- \
+  control-families "$api_root" "$site_root" docs/reference/control-families.json
 
 test -f "$site_root/index.html"
 test -f "$site_root/api/Forma.Control.html"

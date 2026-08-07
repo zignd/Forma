@@ -33,6 +33,7 @@ runtime/backend integrator (R), and contributor (C).
 | `docs/troubleshooting/runtime-and-packages.md` | G, R, C | Peer, restore, native asset, and capability failures | Current troubleshooting guide; runtime contracts own support |
 | `docs/troubleshooting/xaml-build-and-hot-reload.md` | X, A, C | XAML diagnostics, discovery, binding, and reload failures | Current troubleshooting guide; language contract owns semantics |
 | `docs/troubleshooting/rendering-and-assets.md` | G, A, R, C | Blank output, assets, SVG, scale, and device failures | Current troubleshooting guide; specialist guides own limits |
+| `docs/reference/controls/` | G, X, A | Nine curated control families, defaults, limits, accessibility, Catalog/API routes | Current curated reference; JSON manifest owns complete mapping |
 | `docs/authorized-host-checklist.md` | R, C | Approved runtime-host requirements | Current specialist host-integration checklist |
 | `docs/dynamic-text.md` | G, A, R | Dynamic-font setup, shaping, caching, deployment | Current text and fonts guide |
 | `docs/runtime-acquisition.md` | R, C | Runtime dependency selection and pins | Current architecture decision; package manifest is machine-owned |
@@ -90,6 +91,11 @@ baseline closely enough that one newly undocumented public item fails rather tha
 baseline silently. Raising the floors requires adding useful XML summaries first; lowering them
 requires explicit compatibility/documentation review. Abstract and owner-only controls do not need
 synthetic standalone stories, but they remain part of XML/API coverage.
+
+`docs/reference/control-families.json` maps every generated `Control` descendant to exactly one of
+the nine curated family pages. The documentation gate compares that manifest with Docfx inheritance
+metadata and requires every page in the built site; fixed type totals are generated, not maintained
+in prose.
 
 ## Audit Commands
 

@@ -9,6 +9,28 @@ validate_only="${FORMA_RELEASE_VALIDATE_ONLY:-false}"
 
 command -v jq >/dev/null || { printf 'jq is required to read %s.\n' "$manifest_path" >&2; exit 1; }
 
+discovered_manifest="$(mktemp)"
+declared_manifest="$(mktemp)"
+trap 'rm -f "$discovered_manifest" "$declared_manifest"' EXIT
+
+for project_path in "$repository_root"/src/*/*.csproj; do
+  project="${project_path#"$repository_root/"}"
+  for runtime in MonoGame FNA; do
+    is_packable="$(dotnet msbuild "$project_path" -p:FormaRuntime="$runtime" -getProperty:IsPackable -nologo)"
+    if [[ "$is_packable" == "true" || "$is_packable" == "True" ]]; then
+      package_id="$(dotnet msbuild "$project_path" -p:FormaRuntime="$runtime" -getProperty:PackageId -nologo)"
+      printf '%s\t%s\t%s\n' "$project" "$runtime" "$package_id"
+    fi
+  done
+done | sort -u >"$discovered_manifest"
+
+jq -r '(.packages + .excludedPackages)[] | [.project, .runtime, .id] | @tsv' \
+  "$manifest_path" | sort >"$declared_manifest"
+if ! diff -u "$discovered_manifest" "$declared_manifest"; then
+  printf 'Release manifest and explicit exclusions do not cover every packable source/runtime peer.\n' >&2
+  exit 1
+fi
+
 version="$(dotnet msbuild "$repository_root/src/Forma/Forma.csproj" -p:FormaRuntime=MonoGame -getProperty:Version -nologo)"
 [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?(\+[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$ ]] || {
   printf 'Forma version is not SemVer-compatible: %s\n' "$version" >&2

@@ -14,5 +14,19 @@
     { "project": "src/Forma.Xaml.Build/Forma.Xaml.Build.csproj", "runtime": "FNA", "id": "Forma.Xaml.Build.FNA", "symbols": false },
     { "project": "src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj", "runtime": "MonoGame", "id": "Forma.Xaml.HotReload.MonoGame" },
     { "project": "src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj", "runtime": "FNA", "id": "Forma.Xaml.HotReload.FNA" }
+  ],
+  "excludedPackages": [
+    {
+      "project": "src/Forma.Svg.Compatibility/Forma.Svg.Compatibility.csproj",
+      "runtime": "MonoGame",
+      "id": "Forma.Svg.MonoGame",
+      "reason": "Unused compatibility identity with no prior public release."
+    },
+    {
+      "project": "src/Forma.Svg.Compatibility/Forma.Svg.Compatibility.csproj",
+      "runtime": "FNA",
+      "id": "Forma.Svg.FNA",
+      "reason": "Unused compatibility identity with no prior public release."
+    }
   ]
 }

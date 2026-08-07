@@ -502,8 +502,8 @@ Each curated control entry should include:
 
 ### Exit Criteria
 
-- [ ] Both C# quick starts build and execute from the documented commands on supported CI hosts.
-- [ ] Both XAML quick starts compile in Debug and Release, and Release output excludes development
+- [x] Both C# quick starts build and execute from the documented commands on supported CI hosts.
+- [x] Both XAML quick starts compile in Debug and Release, and Release output excludes development
   compiler/hot-reload artifacts according to existing XAML gates.
 - [ ] Package-based instructions restore from an empty cache when public packages become canonical.
 - [ ] A first-time tester completes one runtime path without repository-author assistance.

@@ -1,0 +1,10 @@
+﻿<FoldableContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="FoldableContainer"
+    TooltipText="Forma.FoldableContainer"
+    CustomMinimumSize="560,360"
+    Title="Transform">
+    <Label Text="Position   120, 64" CustomMinimumSize="280,30" />
+    <Label Text="Rotation   0 degrees" CustomMinimumSize="280,30" />
+</FoldableContainer>

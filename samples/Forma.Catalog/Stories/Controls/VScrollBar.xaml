@@ -1,0 +1,10 @@
+﻿<VScrollBar
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="VScrollBar"
+    TooltipText="Forma.VScrollBar"
+    CustomMinimumSize="64,300"
+    MinValue="0"
+    MaxValue="100"
+    Page="20"
+    Value="40" />

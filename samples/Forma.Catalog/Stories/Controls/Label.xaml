@@ -1,0 +1,10 @@
+﻿<Label
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="Label"
+    TooltipText="Forma.Label"
+    CustomMinimumSize="300,64"
+    Text="Label&#10;Forma"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center"
+    AutowrapMode="Word" />

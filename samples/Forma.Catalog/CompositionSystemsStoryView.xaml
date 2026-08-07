@@ -1,42 +1,80 @@
-<BoxContainer xmlns="https://forma.dev/xaml"
-              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-              xmlns:local="clr-namespace:Forma.Catalog"
-              x:Class="Forma.Catalog.CompositionSystemsStoryView"
-              x:Name="CompositionRoot"
-              Separation="12"
-              CustomMinimumSize="720,620">
+﻿<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Class="Forma.Catalog.CompositionSystemsStoryView"
+    x:Name="CompositionRoot"
+    Separation="12"
+    CustomMinimumSize="720,620">
     <BoxContainer.Resources>
         <ResourceDictionary>
-            <Style x:Key="TemplatePartChrome" Selector="Button >> Border.composition-part">
+            <Style x:Key="TemplatePartChrome" Selector="Button &gt;&gt; Border.composition-part">
                 <Setter Property="BorderThickness" Value="2" />
                 <Setter Property="Opacity" Value="0.86" />
             </Style>
             <ControlTemplate x:Key="PartButtonTemplate" TargetType="Button">
-                <Border x:Name="PartChrome" Classes="composition-part" Background="#FF174B5B" BorderBrush="#FF65DCC8" Padding="12,7" CornerRadius="4">
+                <Border
+                    x:Name="PartChrome"
+                    Classes="composition-part"
+                    Background="#FF174B5B"
+                    BorderBrush="#FF65DCC8"
+                    Padding="12,7"
+                    CornerRadius="4">
                     <TextBlock Text="{Binding Text, RelativeSource=TemplatedParent}" HorizontalAlignment="Center" />
                 </Border>
             </ControlTemplate>
             <ControlTemplate x:Key="ThemeButtonTemplate" TargetType="local:CatalogThemeButton">
-                <Border x:Name="ThemeReplacementChrome" Background="#FF5B263D" BorderBrush="#FFFFC857" BorderThickness="2" Padding="12,7" CornerRadius="2">
+                <Border
+                    x:Name="ThemeReplacementChrome"
+                    Background="#FF5B263D"
+                    BorderBrush="#FFFFC857"
+                    BorderThickness="2"
+                    Padding="12,7"
+                    CornerRadius="2">
                     <TextBlock Text="{Binding Text, RelativeSource=TemplatedParent}" HorizontalAlignment="Center" />
                 </Border>
             </ControlTemplate>
         </ResourceDictionary>
     </BoxContainer.Resources>
 
-    <Label Text="Composition systems" FontColor="#FF30B9A4" Uppercase="True" CustomMinimumSize="0,28" />
-    <FlexPanel x:Name="ResponsiveLayout" Classes="responsive" Wrap="Wrap" Gap="10" CustomMinimumSize="680,150">
-        <Border x:Name="GradientSurface" Padding="14" CornerRadius="6" CustomMinimumSize="210,130">
+    <Label
+        Text="Composition systems"
+        FontColor="#FF30B9A4"
+        Uppercase="True"
+        CustomMinimumSize="0,28" />
+    <FlexPanel
+        x:Name="ResponsiveLayout"
+        Classes="responsive"
+        Wrap="Wrap"
+        Gap="10"
+        CustomMinimumSize="680,150">
+        <Border
+            x:Name="GradientSurface"
+            Padding="14"
+            CornerRadius="6"
+            CustomMinimumSize="210,130">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" />
             </Border.Background>
-            <PathShape x:Name="EffectShape" Data="M8 48 L36 8 L64 48 L36 34 Z" Fill="#FF56C596" Stroke="#FF102A35" StrokeThickness="2">
+            <PathShape
+                x:Name="EffectShape"
+                Data="M8 48 L36 8 L64 48 L36 34 Z"
+                Fill="#FF56C596"
+                Stroke="#FF102A35"
+                StrokeThickness="2">
                 <PathShape.Effect>
-                    <DropShadowEffect Color="#AA102A35" Offset="4,4" BlurRadius="3" />
+                    <DropShadowEffect
+                        Color="#AA102A35"
+                        Offset="4,4"
+                        BlurRadius="3" />
                 </PathShape.Effect>
             </PathShape>
         </Border>
-        <GridPanel x:Name="ResponsiveGrid" ColumnGap="8" RowGap="8" CustomMinimumSize="420,130">
+        <GridPanel
+            x:Name="ResponsiveGrid"
+            ColumnGap="8"
+            RowGap="8"
+            CustomMinimumSize="420,130">
             <GridPanel.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="2*" />
@@ -45,18 +83,46 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </GridPanel.RowDefinitions>
-            <Border Background="#FF26313C" Padding="8"><Label Text="Grid A" /></Border>
-            <Border GridPanel.Column="1" Background="#FF355D68" Padding="8"><Label Text="Grid B" /></Border>
-            <Border GridPanel.Row="1" GridPanel.ColumnSpan="2" Background="#FF3E4855" Padding="8">
+            <Border Background="#FF26313C" Padding="8">
+                <Label Text="Grid A" />
+            </Border>
+            <Border
+                GridPanel.Column="1"
+                Background="#FF355D68"
+                Padding="8">
+                <Label Text="Grid B" />
+            </Border>
+            <Border
+                GridPanel.Row="1"
+                GridPanel.ColumnSpan="2"
+                Background="#FF3E4855"
+                Padding="8">
                 <Label x:Name="AncestorRelative" Text="{Binding Name, RelativeSource=FindAncestor, AncestorType=BoxContainer}" />
             </Border>
         </GridPanel>
     </FlexPanel>
 
-    <FlexPanel Gap="10" Wrap="Wrap" CustomMinimumSize="680,100">
-        <Button x:Name="PartSelectorProbe" Template="{StaticResource PartButtonTemplate}" Text="Styled across template boundary" CustomMinimumSize="260,42" />
-        <Label x:Name="SelfRelative" Text="{Binding Name, RelativeSource=Self}" CustomMinimumSize="160,42" />
-        <local:CatalogThemeButton x:Name="ThemeProbe" Text="Theme-owned template" CustomMinimumSize="190,42" />
-        <Button x:Name="ApplyThemeTemplate" Text="Replace theme template" Pressed="OnApplyThemeTemplate" CustomMinimumSize="190,42" />
+    <FlexPanel
+        Gap="10"
+        Wrap="Wrap"
+        CustomMinimumSize="680,100">
+        <Button
+            x:Name="PartSelectorProbe"
+            Template="{StaticResource PartButtonTemplate}"
+            Text="Styled across template boundary"
+            CustomMinimumSize="260,42" />
+        <Label
+            x:Name="SelfRelative"
+            Text="{Binding Name, RelativeSource=Self}"
+            CustomMinimumSize="160,42" />
+        <local:CatalogThemeButton
+            x:Name="ThemeProbe"
+            Text="Theme-owned template"
+            CustomMinimumSize="190,42" />
+        <Button
+            x:Name="ApplyThemeTemplate"
+            Text="Replace theme template"
+            Pressed="OnApplyThemeTemplate"
+            CustomMinimumSize="190,42" />
     </FlexPanel>
 </BoxContainer>

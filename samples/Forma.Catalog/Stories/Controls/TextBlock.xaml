@@ -1,0 +1,10 @@
+﻿<TextBlock
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="TextBlock"
+    TooltipText="Forma.TextBlock"
+    CustomMinimumSize="300,64"
+    Text="TextBlock&#10;Forma"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center"
+    AutowrapMode="Word" />

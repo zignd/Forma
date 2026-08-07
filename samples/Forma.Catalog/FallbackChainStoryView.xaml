@@ -1,0 +1,20 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.FallbackChainStoryView"
+    Separation="10"
+    CustomMinimumSize="660,260">
+    <LineEdit
+        x:Name="fallbackText"
+        Text="Forma Ελληνικά Кириллица مرحبا क्ष 你好 ★ 👩🏽‍💻"
+        CustomMinimumSize="640,38" />
+    <Label
+        x:Name="fallbackPreview"
+        AutowrapMode="Word"
+        CustomMinimumSize="640,76" />
+    <Label
+        x:Name="fallbackDiagnostics"
+        AutowrapMode="Word"
+        FontColor="#FF8F99AA"
+        CustomMinimumSize="640,100" />
+</VBoxContainer>

@@ -1,0 +1,6 @@
+﻿<ContentPresenter
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="ContentPresenter"
+    TooltipText="Forma.ContentPresenter"
+    CustomMinimumSize="300,120" />

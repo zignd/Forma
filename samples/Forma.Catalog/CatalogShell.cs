@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -19,13 +21,19 @@ public sealed class CatalogShell : BoxContainer
     {
         nameof(Control.Name), nameof(Control.Position), nameof(Control.Size), nameof(Control.CustomMinimumSize),
         nameof(Control.Parent), nameof(Control.Context), nameof(Control.Children), nameof(Control.Bounds),
-        nameof(Control.GlobalPosition), nameof(Control.Margins),
+        nameof(Control.GlobalPosition), nameof(Control.Margins), nameof(Control.Margin),
+        nameof(Control.Width), nameof(Control.Height), nameof(Control.MinWidth), nameof(Control.MinHeight),
+        nameof(Control.MaxWidth), nameof(Control.MaxHeight), nameof(Control.CustomMaximumSize),
+        nameof(Control.HorizontalSizeFlags), nameof(Control.VerticalSizeFlags), nameof(Control.SizeFlagsStretchRatio),
+        nameof(Control.HorizontalAlignment), nameof(Control.VerticalAlignment), nameof(Control.HGrowDirection),
+        nameof(Control.VGrowDirection), nameof(Control.ZIndex),
     };
 
     private readonly IReadOnlyList<ComponentStory> _stories;
     private readonly UIFont _font;
     private readonly UIFont _codeFont;
     private readonly SpriteFont _compatibilityFont;
+    private readonly SpriteFont _compatibilityCodeFont;
     private LineEdit _search;
     private ItemList _navigation;
     private Label _storyTitle;
@@ -34,6 +42,8 @@ public sealed class CatalogShell : BoxContainer
     private CatalogPreviewContainer _preview;
     private VBoxContainer _inspector;
     private Label _count;
+    private PanelContainer _hotReloadDiagnosticsPanel;
+    private TextEdit _hotReloadDetails;
     private readonly Action<bool> _setDynamicTextEnabled;
     private readonly CatalogShellViewModel _viewModel;
     private CheckBox _dynamicTextToggle;
@@ -49,17 +59,23 @@ public sealed class CatalogShell : BoxContainer
     public Control ActiveStoryControl => _currentControl;
 
     public CatalogShell(IReadOnlyList<ComponentStory> stories, SpriteFont font, SpriteFont codeFont, Action<bool> setDynamicTextEnabled = null)
-        : this(stories, new SpriteFontAdapter(font), new SpriteFontAdapter(codeFont), font, setDynamicTextEnabled)
+        : this(stories, new SpriteFontAdapter(font), new SpriteFontAdapter(codeFont), font, codeFont, setDynamicTextEnabled)
     {
     }
 
     public CatalogShell(IReadOnlyList<ComponentStory> stories, UIFont font, UIFont codeFont, SpriteFont compatibilityFont, Action<bool> setDynamicTextEnabled = null)
+        : this(stories, font, codeFont, compatibilityFont, compatibilityFont, setDynamicTextEnabled)
+    {
+    }
+
+    public CatalogShell(IReadOnlyList<ComponentStory> stories, UIFont font, UIFont codeFont, SpriteFont compatibilityFont, SpriteFont compatibilityCodeFont, Action<bool> setDynamicTextEnabled = null)
         : base(Orientation.Vertical)
     {
         _stories = stories;
         _font = font;
         _codeFont = codeFont;
         _compatibilityFont = compatibilityFont;
+        _compatibilityCodeFont = compatibilityCodeFont;
         _setDynamicTextEnabled = setDynamicTextEnabled;
         _viewModel = new CatalogShellViewModel { DynamicTextEnabled = true };
         DataContext = _viewModel;
@@ -109,16 +125,18 @@ public sealed class CatalogShell : BoxContainer
         if (index < _preview.Children.Count - 1) _preview.MoveChild(replacement, index);
         ClearChildren(_inspector);
         _currentControl = replacement;
-        FontApplicator.Apply(replacement, _font, _codeFont, _compatibilityFont);
+        ApplyFonts(replacement);
         _currentStory.Attached?.Invoke(replacement);
         BuildInspector(replacement);
     }
 
-    public void ReportHotReloadDiagnostics(int count, string summary)
+    public void ReportHotReloadDiagnostics(int count, string details)
     {
         _viewModel.HotReloadStatus = count == 0
-            ? "XAML reload ready"
-            : $"XAML: {count} issue{(count == 1 ? string.Empty : "s")} · {summary}";
+            ? "XAML hot reload ready"
+            : $"XAML: {count} issue{(count == 1 ? string.Empty : "s")}";
+        _viewModel.HotReloadDetails = count == 0 ? string.Empty : details ?? string.Empty;
+        _viewModel.HasHotReloadIssues = count != 0;
     }
 
     private void BindVisualTree()
@@ -132,20 +150,29 @@ public sealed class CatalogShell : BoxContainer
         _preview = scope.Find<CatalogPreviewContainer>("Preview") ?? throw MissingName("Preview");
         _inspector = scope.Find<VBoxContainer>("Inspector") ?? throw MissingName("Inspector");
         _count = scope.Find<Label>("Count") ?? throw MissingName("Count");
+        _hotReloadDiagnosticsPanel = scope.Find<PanelContainer>("HotReloadDiagnosticsPanel") ?? throw MissingName("HotReloadDiagnosticsPanel");
+        _hotReloadDetails = scope.Find<TextEdit>("HotReloadDetails") ?? throw MissingName("HotReloadDetails");
         _dynamicTextToggle = scope.Find<CheckBox>("dynamicTextMode") ?? throw MissingName("dynamicTextMode");
         _dynamicTextToggle.ButtonPressed = _viewModel.DynamicTextEnabled;
         _count.Text = _viewModel.CountText;
         _storyCategory.Text = _viewModel.StoryCategory;
         _storyTitle.Text = _viewModel.StoryTitle;
         _description.Text = _viewModel.Description;
+        _hotReloadDiagnosticsPanel.Visible = _viewModel.HasHotReloadIssues;
+        _hotReloadDetails.Text = _viewModel.HotReloadDetails;
         _search.TextChanged += (_, _) => RefreshNavigation();
         _navigation.ItemSelected += (_, index) => SelectStory(index);
         var reset = scope.Find<Button>("Reset") ?? throw MissingName("Reset");
         reset.Pressed += (_, _) => LoadStory(_currentStory);
+        var copyHotReloadDetails = scope.Find<Button>("CopyHotReloadDetails") ?? throw MissingName("CopyHotReloadDetails");
+        copyHotReloadDetails.Pressed += (_, _) => { _hotReloadDetails.SelectAll(); _hotReloadDetails.Copy(); };
+        var dismissHotReloadDetails = scope.Find<Button>("DismissHotReloadDetails") ?? throw MissingName("DismissHotReloadDetails");
+        dismissHotReloadDetails.Pressed += (_, _) => _viewModel.HasHotReloadIssues = false;
         _dynamicTextToggle.Toggled += (_, enabled) =>
         {
             if (_detached) return;
             _setDynamicTextEnabled?.Invoke(enabled);
+            ApplyFonts(this);
             if (_currentStory != null) LoadStory(_currentStory);
         };
 
@@ -153,17 +180,23 @@ public sealed class CatalogShell : BoxContainer
         ApplyPanel(scope.Find<PanelContainer>("NavigationPanel"), visuals.PanelBackground, visuals.PanelBackground);
         ApplyPanel(scope.Find<PanelContainer>("PreviewPanel"), visuals.PreviewBackground, visuals.PreviewBorder);
         ApplyPanel(scope.Find<PanelContainer>("InspectorPanel"), visuals.PanelBackground, visuals.PanelBackground);
+        ApplyPanel(_hotReloadDiagnosticsPanel, visuals.PanelBackground, visuals.WarningColor);
         scope.Find<ColorRect>("HeaderAccent").Color = visuals.AccentColor;
         scope.Find<Label>("CatalogSubtitle").FontColor = visuals.MutedTextColor;
-        scope.Find<Label>("BackendStatus").FontColor = visuals.WarningColor;
         AttachAuthoredStyles(visuals);
         BeginAuthoredStoryboard(visuals);
         RemoveChild(visuals);
 
-        FontApplicator.Apply(this, _font, _codeFont, _compatibilityFont);
+        ApplyFonts(this);
     }
 
     public bool DynamicTextEnabled => _dynamicTextToggle.ButtonPressed;
+
+    private void ApplyFonts(Control control)
+    {
+        if (DynamicTextEnabled) FontApplicator.Apply(control, _font, _codeFont, _compatibilityFont);
+        else FontApplicator.Apply(control, _compatibilityFont, _compatibilityCodeFont);
+    }
 
     private void RefreshNavigation(bool selectFirst = true)
     {
@@ -208,7 +241,7 @@ public sealed class CatalogShell : BoxContainer
         _currentControl = story.Factory();
         if (retainedDataContext != null) _currentControl.DataContext = retainedDataContext;
         _preview.AddChild(_currentControl);
-        FontApplicator.Apply(_currentControl, _font, _codeFont, _compatibilityFont);
+        ApplyFonts(_currentControl);
         story.Attached?.Invoke(_currentControl);
         _viewModel.StoryCategory = story.Category;
         _viewModel.StoryTitle = story.Name;
@@ -218,15 +251,18 @@ public sealed class CatalogShell : BoxContainer
         _description.Text = _viewModel.Description;
         _description.ParseBbcode(story.Description);
         BuildInspector(_currentControl);
+        ApplyFonts(_inspector);
         ActiveStoryChanged?.Invoke(story, _currentControl);
     }
 
     private void BuildInspector(Control target)
     {
-        var properties = target.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(property => property.CanRead && property.CanWrite && property.GetIndexParameters().Length == 0)
+        var source = target.HasLocalDataContext && target.DataContext != null ? target.DataContext : target;
+        var properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(property => property.CanRead && property.SetMethod?.IsPublic == true && property.GetIndexParameters().Length == 0)
             .Where(property => !ExcludedProperties.Contains(property.Name) && IsInspectable(property.PropertyType))
-            .OrderBy(property => property.DeclaringType == target.GetType() ? 0 : 1)
+            .Where(property => IsApplicableInspectorProperty(source, property))
+            .OrderBy(property => property.DeclaringType == source.GetType() ? 0 : 1)
             .ThenBy(property => property.Name)
             .Take(18)
             .ToList();
@@ -239,7 +275,7 @@ public sealed class CatalogShell : BoxContainer
 
         foreach (var property in properties)
         {
-            var editor = CreatePropertyEditor(target, property);
+            var editor = CreatePropertyEditor(source, property);
             if (editor == null) continue;
             var section = new VBoxContainer { Separation = 4 };
             section.AddChild(new Label { Text = SplitName(property.Name), UIFont = _font, FontColor = new Color(174, 184, 200), CustomMinimumSize = new Vector2(0, 20) });
@@ -248,7 +284,7 @@ public sealed class CatalogShell : BoxContainer
         }
     }
 
-    private Control CreatePropertyEditor(Control target, PropertyInfo property)
+    private Control CreatePropertyEditor(object target, PropertyInfo property)
     {
         object ReadValue()
         {
@@ -256,22 +292,25 @@ public sealed class CatalogShell : BoxContainer
             catch { return null; }
         }
 
-        void SetValue(object value)
+        object SetValue(object value)
         {
             try { property.SetValue(target, value); }
             catch { }
+            return ReadValue();
         }
 
         if (property.PropertyType == typeof(bool))
         {
             var toggle = new CheckBox { Text = "Enabled", UIFont = _font, ButtonPressed = (bool)(ReadValue() ?? false), CustomMinimumSize = new Vector2(0, 30) };
-            toggle.Toggled += (_, value) => SetValue(value);
+            toggle.Toggled += (_, value) => toggle.ButtonPressed = (bool)(SetValue(value) ?? false);
+            SynchronizeEditor(target, property, toggle, value => toggle.ButtonPressed = (bool)(value ?? false));
             return toggle;
         }
         if (property.PropertyType == typeof(string))
         {
             var field = new LineEdit { UIFont = _font, Text = (string)ReadValue() ?? string.Empty, CustomMinimumSize = new Vector2(0, 32) };
-            field.TextChanged += (_, value) => SetValue(value);
+            field.TextChanged += (_, value) => field.Text = (string)SetValue(value) ?? string.Empty;
+            SynchronizeEditor(target, property, field, value => field.Text = (string)value ?? string.Empty);
             return field;
         }
         if (property.PropertyType.IsEnum)
@@ -281,32 +320,96 @@ public sealed class CatalogShell : BoxContainer
             for (var index = 0; index < values.Length; index++) option.AddItem(values.GetValue(index).ToString(), index);
             var current = ReadValue();
             for (var index = 0; index < values.Length; index++) if (Equals(values.GetValue(index), current)) option.Select(index);
-            option.ItemSelected += (_, index) => SetValue(values.GetValue(index));
+            option.ItemSelected += (_, index) =>
+            {
+                var accepted = SetValue(values.GetValue(index));
+                for (var acceptedIndex = 0; acceptedIndex < values.Length; acceptedIndex++)
+                    if (Equals(values.GetValue(acceptedIndex), accepted)) option.Select(acceptedIndex);
+            };
+            SynchronizeEditor(target, property, option, value =>
+            {
+                for (var index = 0; index < values.Length; index++) if (Equals(values.GetValue(index), value)) option.Select(index);
+            });
             return option;
         }
         if (property.PropertyType == typeof(Color))
         {
             var picker = new ColorPickerButton { UIFont = _font, Color = (Color)(ReadValue() ?? Color.White), CustomMinimumSize = new Vector2(0, 34) };
-            picker.ColorChanged += (_, value) => SetValue(value);
+            picker.ColorChanged += (_, value) => picker.Color = (Color)(SetValue(value) ?? Color.White);
+            SynchronizeEditor(target, property, picker, value => picker.Color = (Color)(value ?? Color.White));
             return picker;
         }
         if (IsNumeric(property.PropertyType))
         {
             var value = Convert.ToSingle(ReadValue() ?? 0, CultureInfo.InvariantCulture);
-            var maximum = Math.Max(100, MathF.Ceiling(Math.Abs(value) * 2 + 10));
+            if (!float.IsFinite(value)) value = 0;
+            var (minimum, maximum) = GetNumericRange(target, property, value);
             var row = new HBoxContainer { Separation = 8, CustomMinimumSize = new Vector2(0, 30) };
             var valueLabel = new Label { Text = value.ToString("0.##", CultureInfo.InvariantCulture), UIFont = _font, CustomMinimumSize = new Vector2(54, 28), VerticalAlignment = VerticalAlignment.Center };
-            var slider = new HSlider { MinValue = 0, MaxValue = maximum, Step = property.PropertyType == typeof(float) || property.PropertyType == typeof(double) ? .1f : 1, Value = value, HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
+            var slider = new HSlider { MinValue = minimum, MaxValue = maximum, Step = property.PropertyType == typeof(float) || property.PropertyType == typeof(double) ? .1f : 1, Value = value, HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
             slider.ValueChanged += (_, changed) =>
             {
-                valueLabel.Text = changed.ToString("0.##", CultureInfo.InvariantCulture);
-                SetValue(ConvertNumeric(changed, property.PropertyType));
+                var accepted = Convert.ToSingle(SetValue(ConvertNumeric(changed, property.PropertyType)) ?? 0, CultureInfo.InvariantCulture);
+                if (!float.IsFinite(accepted)) accepted = 0;
+                slider.Value = accepted;
+                valueLabel.Text = accepted.ToString("0.##", CultureInfo.InvariantCulture);
             };
+            SynchronizeEditor(target, property, row, changedValue =>
+            {
+                var changed = Convert.ToSingle(changedValue ?? 0, CultureInfo.InvariantCulture);
+                slider.Value = changed;
+                valueLabel.Text = changed.ToString("0.##", CultureInfo.InvariantCulture);
+            });
             row.AddChild(slider);
             row.AddChild(valueLabel);
             return row;
         }
         return null;
+    }
+
+    private static bool IsApplicableInspectorProperty(object source, PropertyInfo property)
+    {
+        if (source is not Control control) return true;
+        if (property.DeclaringType == typeof(Control))
+            return property.Name == nameof(Control.Opacity) ||
+                property.Name == nameof(Control.Enabled) && control.FocusMode != FocusMode.None;
+        if (source is not BaseButton button) return true;
+        if (property.Name == nameof(BaseButton.ToggleMode) && source is CheckBox) return false;
+        if (property.Name == nameof(BaseButton.ButtonPressed))
+            return button.ToggleMode && source is not CheckBox && source is not CheckButton;
+        if (property.Name == nameof(BaseButton.ActionMode) ||
+            property.Name == nameof(BaseButton.ButtonMask) ||
+            property.Name == nameof(BaseButton.KeepPressedOutside)) return false;
+        if (property.Name == nameof(BaseButton.ShortcutFeedback) ||
+            property.Name == nameof(BaseButton.ShortcutFeedbackDuration) ||
+            property.Name == nameof(BaseButton.ShortcutInTooltip)) return button.Shortcut != null;
+        if (property.Name == nameof(BaseButton.ExpandIcon) ||
+            property.Name == nameof(BaseButton.IconAlignment) ||
+            property.Name == nameof(BaseButton.IconModulate) ||
+            property.Name == nameof(BaseButton.IconSeparation) ||
+            property.Name == nameof(BaseButton.VerticalIconAlignment)) return button.Icon != null;
+        return true;
+    }
+
+    private static (float Minimum, float Maximum) GetNumericRange(object source, PropertyInfo property, float value)
+    {
+        var range = property.GetCustomAttribute<RangeAttribute>();
+        if (range != null)
+            return (Convert.ToSingle(range.Minimum, CultureInfo.InvariantCulture), Convert.ToSingle(range.Maximum, CultureInfo.InvariantCulture));
+        if (source is Control && property.Name == nameof(Control.Opacity)) return (0, 1);
+        if (source is Forma.Range rangeControl && property.Name == nameof(Forma.Range.Value)) return (rangeControl.MinValue, rangeControl.MaxValue);
+        return (value < 0 ? MathF.Floor(value * 2 - 10) : 0, Math.Max(100, MathF.Ceiling(Math.Abs(value) * 2 + 10)));
+    }
+
+    private static void SynchronizeEditor(object source, PropertyInfo property, Control editor, Action<object> update)
+    {
+        if (source is not INotifyPropertyChanged observable) return;
+        PropertyChangedEventHandler changed = (_, args) =>
+        {
+            if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName == property.Name) update(property.GetValue(source));
+        };
+        observable.PropertyChanged += changed;
+        editor.Detached += (_, _) => observable.PropertyChanged -= changed;
     }
 
     private static bool IsInspectable(Type type) => type == typeof(bool) || type == typeof(string) || type == typeof(Color) || type.IsEnum || IsNumeric(type);

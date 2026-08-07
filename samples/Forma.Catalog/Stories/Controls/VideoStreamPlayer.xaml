@@ -1,0 +1,19 @@
+﻿<media:VideoStreamPlayer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:media="clr-namespace:Forma;assembly=Forma.Media"
+    x:Name="VideoStreamPlayer"
+    TooltipText="Forma.VideoStreamPlayer"
+    CustomMinimumSize="560,360"
+    Autoplay="True"
+    Loop="True"
+    Expand="True"
+    Volume="0.75">
+    <ColorRect Size="560,315" Color="#FF10141B" />
+    <Label
+        Position="180,124"
+        Size="200,68"
+        Text="VIDEO&#10;NO STREAM"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center" />
+</media:VideoStreamPlayer>

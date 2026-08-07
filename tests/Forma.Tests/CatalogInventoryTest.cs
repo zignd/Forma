@@ -15,6 +15,20 @@ namespace Forma.Tests;
 
 public sealed class CatalogInventoryTest
 {
+    private sealed class TestClipboard : IClipboard
+    {
+        public string Text { get; private set; }
+        public string GetText() => Text;
+        public bool SetText(string text) { Text = text; return true; }
+    }
+
+    [Test]
+    public void CatalogWindowTitleIdentifiesTheRuntimeBackend()
+    {
+        Assert.That(CatalogBackend.WindowTitle, Is.EqualTo($"Forma Catalog [{CatalogBackend.Name}]"));
+        Assert.That(CatalogBackend.Name, Is.AnyOf("MonoGame", "FNA"));
+    }
+
     [Test]
     public void StoryCatalogIncludesEveryConstructiblePublicControl()
     {
@@ -85,6 +99,46 @@ public sealed class CatalogInventoryTest
             Assert.DoesNotThrow(() => root = story.Factory(), $"{story.Category} / {story.Name}");
             (root as IDisposable)?.Dispose();
         }
+    }
+
+    [Test]
+    public void EveryReflectedControlStoryCanAttachRuntimeData()
+    {
+        foreach (var story in StoryCatalog.Create(null).Where(item => item.XamlPath.StartsWith("Stories/Controls/", StringComparison.Ordinal)))
+        {
+            var root = story.Factory();
+            Assert.DoesNotThrow(() => story.Attached?.Invoke(root), $"{story.Category} / {story.Name}");
+            (root as IDisposable)?.Dispose();
+        }
+    }
+
+    [Test]
+    public void EveryCatalogStoryHasItsOwnXamlFile()
+    {
+        var stories = StoryCatalog.Create(null);
+        var catalogDirectory = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../samples/Forma.Catalog"));
+        var missingPaths = stories
+            .Where(story => string.IsNullOrWhiteSpace(story.XamlPath))
+            .Select(story => $"{story.Category} / {story.Name}")
+            .ToArray();
+        var duplicatePaths = stories
+            .Where(story => !string.IsNullOrWhiteSpace(story.XamlPath))
+            .GroupBy(story => story.XamlPath)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToArray();
+        var missingFiles = stories
+            .Where(story => !string.IsNullOrWhiteSpace(story.XamlPath))
+            .Where(story => !File.Exists(Path.Combine(catalogDirectory, story.XamlPath)))
+            .Select(story => $"{story.Category} / {story.Name}: {story.XamlPath}")
+            .ToArray();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(missingPaths, Is.Empty, $"Stories without XAML:{Environment.NewLine}{string.Join(Environment.NewLine, missingPaths)}");
+            Assert.That(duplicatePaths, Is.Empty, $"XAML files shared by multiple stories:{Environment.NewLine}{string.Join(Environment.NewLine, duplicatePaths)}");
+            Assert.That(missingFiles, Is.Empty, $"Missing XAML files:{Environment.NewLine}{string.Join(Environment.NewLine, missingFiles)}");
+        });
     }
 
     [Test]
@@ -305,6 +359,135 @@ public sealed class CatalogInventoryTest
             Assert.That(bindingScope.Find<Label>("BindingSummary").Text, Does.Contain("Atlas Tools is 82% complete"));
             Assert.That(loopTarget.Color, Is.Not.EqualTo(initialLoopColor));
         });
+    }
+
+    [Test]
+    public void CatalogInspectorEditsTheBindingStoryViewModel()
+    {
+        var font = CreateTestFont();
+        var shell = new CatalogShell(StoryCatalog.Create(null), font, font);
+        using var context = new UIContext();
+        context.Add(shell);
+        Assert.That(shell.SelectStory("Compiled Data Binding"), Is.True);
+
+        var bindingRoot = (DataBindingStoryView)shell.ActiveStoryControl;
+        var bindingScope = NameScope.GetNameScope(bindingRoot);
+        var inspector = NameScope.GetNameScope(shell).Find<VBoxContainer>("Inspector");
+        var sections = inspector.Children.Cast<VBoxContainer>()
+            .ToDictionary(section => ((Label)section.Children[0]).Text, section => section.Children[1]);
+        var projectName = (LineEdit)sections["Project Name"];
+        var completionRow = (HBoxContainer)sections["Completion"];
+        var completion = (HSlider)completionRow.Children[0];
+        var autoSave = (CheckBox)sections["Auto Save Enabled"];
+
+        projectName.Text = "Atlas Tools";
+        completion.Value = 82;
+        autoSave.ButtonPressed = false;
+        bindingRoot.ViewModel.ProjectName = "Forma Studio";
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(bindingRoot.ViewModel.ProjectName, Is.EqualTo("Forma Studio"));
+            Assert.That(bindingRoot.ViewModel.Completion, Is.EqualTo(82));
+            Assert.That(bindingRoot.ViewModel.AutoSaveEnabled, Is.False);
+            Assert.That(projectName.Text, Is.EqualTo("Forma Studio"));
+            Assert.That(completion.MinValue, Is.Zero);
+            Assert.That(completion.MaxValue, Is.EqualTo(100));
+            Assert.That(bindingScope.Find<Label>("BindingSummary").Text, Is.EqualTo("Forma Studio is 82% complete · autosave off"));
+        });
+    }
+
+    [Test]
+    public void CatalogInspectorOnlyShowsApplicableButtonSettings()
+    {
+        var font = CreateTestFont();
+        var shell = new CatalogShell(StoryCatalog.Create(null), font, font);
+        using var context = new UIContext();
+        context.Add(shell);
+        Assert.That(shell.SelectStory(nameof(Button)), Is.True);
+
+        var button = (Button)shell.ActiveStoryControl;
+        var inspector = NameScope.GetNameScope(shell).Find<VBoxContainer>("Inspector");
+        var buttonSections = inspector.Children.Cast<VBoxContainer>()
+            .ToDictionary(section => ((Label)section.Children[0]).Text, section => section.Children[1]);
+        ((LineEdit)buttonSections["Text"]).Text = "Run build";
+        ((CheckBox)buttonSections["Flat"]).ButtonPressed = true;
+        var opacity = ((HBoxContainer)buttonSections["Opacity"]).Children.OfType<HSlider>().Single();
+        opacity.Value = .5f;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(button.Text, Is.EqualTo("Run build"));
+            Assert.That(button.Flat, Is.True);
+            Assert.That(button.Opacity, Is.EqualTo(.5f));
+            Assert.That(opacity.MinValue, Is.Zero);
+            Assert.That(opacity.MaxValue, Is.EqualTo(1));
+            Assert.That(buttonSections.Keys, Does.Not.Contain("Button Pressed"));
+            Assert.That(buttonSections.Keys, Does.Not.Contain("Action Mode"));
+            Assert.That(buttonSections.Keys, Does.Not.Contain("Button Mask"));
+            Assert.That(buttonSections.Keys, Does.Not.Contain("Expand Icon"));
+            Assert.That(buttonSections.Keys, Does.Not.Contain("Shortcut Feedback"));
+            Assert.That(buttonSections.Keys, Does.Not.Contain("Width"));
+        });
+
+        Assert.That(shell.SelectStory(nameof(CheckBox)), Is.True);
+        var checkBox = (CheckBox)shell.ActiveStoryControl;
+        inspector = NameScope.GetNameScope(shell).Find<VBoxContainer>("Inspector");
+        var checkBoxSections = inspector.Children.Cast<VBoxContainer>()
+            .ToDictionary(section => ((Label)section.Children[0]).Text, section => section.Children[1]);
+        ((CheckBox)checkBoxSections["Checked"]).ButtonPressed = false;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checkBox.Checked, Is.False);
+            Assert.That(checkBoxSections.Keys, Does.Contain("Checked"));
+            Assert.That(checkBoxSections.Keys, Does.Not.Contain("Button Pressed"));
+            Assert.That(checkBoxSections.Keys, Does.Not.Contain("Toggle Mode"));
+        });
+
+        Assert.That(shell.SelectStory(nameof(GridContainer)), Is.True);
+        var grid = (GridContainer)shell.ActiveStoryControl;
+        context.Layout();
+        var initialThirdItemPosition = grid.Children[2].Position;
+        inspector = NameScope.GetNameScope(shell).Find<VBoxContainer>("Inspector");
+        var gridSections = inspector.Children.Cast<VBoxContainer>()
+            .ToDictionary(section => ((Label)section.Children[0]).Text, section => section.Children[1]);
+        var columns = ((HBoxContainer)gridSections["Columns"]).Children.OfType<HSlider>().Single();
+        var horizontalSeparation = ((HBoxContainer)gridSections["Horizontal Separation"]).Children.OfType<HSlider>().Single();
+        columns.Value = 2;
+        horizontalSeparation.Value = 12;
+        context.Layout();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(grid.Columns, Is.EqualTo(2));
+            Assert.That(grid.HorizontalSeparation, Is.EqualTo(12));
+            Assert.That(grid.Children[2].Position, Is.Not.EqualTo(initialThirdItemPosition));
+            Assert.That(columns.MinValue, Is.Zero);
+            Assert.That(float.IsFinite(horizontalSeparation.Value), Is.True);
+        });
+    }
+
+    [Test]
+    public void EveryCatalogInspectorBuildsFiniteEditors()
+    {
+        var font = CreateTestFont();
+        var stories = StoryCatalog.Create(null);
+        var shell = new CatalogShell(stories, font, font);
+        using var context = new UIContext();
+        context.Add(shell);
+
+        foreach (var story in stories.Where(story => story.Name != "Override and suppression"))
+        {
+            Assert.That(shell.SelectStory(story.Name), Is.True, story.Name);
+            var inspector = NameScope.GetNameScope(shell).Find<VBoxContainer>("Inspector");
+            foreach (var slider in inspector.Children.SelectMany(section => section.Children).SelectMany(Flatten).OfType<HSlider>())
+            {
+                Assert.That(float.IsFinite(slider.MinValue), Is.True, $"{story.Name} has a non-finite inspector minimum.");
+                Assert.That(float.IsFinite(slider.MaxValue), Is.True, $"{story.Name} has a non-finite inspector maximum.");
+                Assert.That(float.IsFinite(slider.Value), Is.True, $"{story.Name} has a non-finite inspector value.");
+            }
+        }
     }
 
     [Test]
@@ -629,6 +812,9 @@ public sealed class CatalogInventoryTest
         var font = CreateTestFont();
         var stories = StoryCatalog.Create(null);
         var shell = new CatalogShell(stories, font, font);
+        var clipboard = new TestClipboard();
+        using var context = new UIContext { Clipboard = clipboard };
+        context.Add(shell);
         Assert.That(shell.SelectStory("Dynamic Sizes"), Is.True);
         var retainedModel = shell.ActiveStoryControl.DataContext;
         var replacementStory = new DynamicSizesStoryView { DataContext = retainedModel };
@@ -638,11 +824,19 @@ public sealed class CatalogInventoryTest
             .SingleOrDefault(metadata => metadata.Key == "FormaCatalogXamlRoot")?.Value;
         if (sourceRoot == null) Assert.Ignore("Catalog XAML source metadata is intentionally Debug-only.");
         var sourcePath = Path.Combine(sourceRoot, "CatalogShell.xaml");
-        shell.ReportHotReloadDiagnostics(1, "FXAML2501 invalid template part");
+        shell.ReportHotReloadDiagnostics(0, null);
+        Assert.That(NameScope.GetNameScope(shell).Find<Label>("HotReloadStatus").Text, Is.EqualTo("XAML hot reload ready"));
+        var diagnostics = "FXAML2501 invalid template part\n/Projects/Forma/CatalogShell.xaml:42\n\nFXAML2502 missing target";
+        shell.ReportHotReloadDiagnostics(2, diagnostics);
         var replacementShellTree = (BoxContainer)Forma.Xaml.Compiler.FormaXamlCompiler.CreateSre(typeof(CatalogShell).Assembly.GetName().Name)
             .CompileSre(File.ReadAllText(sourcePath), "CatalogShell.xaml").Build(null);
         replacementShellTree.DataContext = shell.DataContext;
         shell.ApplyHotReloadedTree(replacementShellTree);
+        var diagnosticScope = NameScope.GetNameScope(shell);
+        var details = diagnosticScope.Find<TextEdit>("HotReloadDetails");
+        var copyDetails = diagnosticScope.Find<Button>("CopyHotReloadDetails");
+        copyDetails.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
+        copyDetails.KeyReleased(Microsoft.Xna.Framework.Input.Keys.Enter);
 
         Assert.Multiple(() =>
         {
@@ -650,7 +844,20 @@ public sealed class CatalogInventoryTest
             Assert.That(shell.ActiveStory.XamlPath, Is.EqualTo("DynamicSizesStoryView.xaml"));
             Assert.That(shell.ActiveStoryControl.DataContext, Is.SameAs(retainedModel));
             Assert.That(shell.ActiveStoryControl.Parent.Name, Is.EqualTo("Preview"));
-            Assert.That(NameScope.GetNameScope(shell).Find<Label>("HotReloadStatus").Text, Does.Contain("FXAML2501"));
+            Assert.That(diagnosticScope.Find<Label>("HotReloadStatus").Text, Is.EqualTo("XAML: 2 issues"));
+            Assert.That(diagnosticScope.Find<PanelContainer>("HotReloadDiagnosticsPanel").Visible, Is.True);
+            Assert.That(details.Text, Is.EqualTo(diagnostics));
+            Assert.That(details.Editable, Is.False);
+            Assert.That(details.ContextMenuEnabled, Is.True);
+            Assert.That(clipboard.Text, Is.EqualTo(diagnostics));
+        });
+
+        shell.ReportHotReloadDiagnostics(0, null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(diagnosticScope.Find<Label>("HotReloadStatus").Text, Is.EqualTo("XAML hot reload ready"));
+            Assert.That(diagnosticScope.Find<PanelContainer>("HotReloadDiagnosticsPanel").Visible, Is.False);
+            Assert.That(details.Text, Is.Empty);
         });
     }
 
@@ -898,14 +1105,37 @@ public sealed class CatalogInventoryTest
     [Test]
     public void CatalogShellModeToggleSelectsDynamicAndCompatibilityServices()
     {
+        using var face = UIFontFace.FromProjectFile(TestContext.CurrentContext.TestDirectory, "Fonts/Inter_Regular.ttf");
         var selected = true;
-        var font = CreateTestFont();
+        var font = new DynamicUIFont(face, 16);
+        var codeFont = new DynamicUIFont(face, 15);
+        var compatibilityFont = CreateTestFont();
+        var compatibilityCodeFont = CreateTestFont();
         var shell = new CatalogShell(
-            new[] { new ComponentStory("Test", "Mode", "Mode", () => new Label { Text = "Mode" }) },
+            new[] { new ComponentStory("Test", "Mode", "Mode", () =>
+            {
+                var root = new VBoxContainer();
+                root.AddChild(new TextEdit { Text = "Text" });
+                root.AddChild(new CodeEdit { Text = "Code" });
+                return root;
+            }) },
             font,
-            font,
+            codeFont,
+            compatibilityFont,
+            compatibilityCodeFont,
             enabled => selected = enabled);
-        var toggle = (CheckBox)shell.Children[0].Children.Single(control => control.Name == "dynamicTextMode");
+        var scope = NameScope.GetNameScope(shell);
+        var toggle = scope.Find<CheckBox>("dynamicTextMode");
+        var description = scope.Find<RichTextLabel>("Description");
+        var inspector = scope.Find<VBoxContainer>("Inspector");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(((TextEdit)shell.ActiveStoryControl.Children[0]).UIFont, Is.SameAs(font));
+            Assert.That(((CodeEdit)shell.ActiveStoryControl.Children[1]).UIFont, Is.SameAs(codeFont));
+            Assert.That(description.UIFont, Is.SameAs(font));
+            Assert.That(inspector.Children.SelectMany(Flatten).OfType<Label>().All(label => ReferenceEquals(label.UIFont, font)), Is.True);
+        });
 
         toggle.SetPressed(false);
 
@@ -913,6 +1143,21 @@ public sealed class CatalogInventoryTest
         {
             Assert.That(shell.DynamicTextEnabled, Is.False);
             Assert.That(selected, Is.False);
+            Assert.That(((TextEdit)shell.ActiveStoryControl.Children[0]).UIFont, Is.TypeOf<SpriteFontAdapter>());
+            Assert.That(((SpriteFontAdapter)((CodeEdit)shell.ActiveStoryControl.Children[1]).UIFont).SpriteFont, Is.SameAs(compatibilityCodeFont));
+            Assert.That(description.UIFont, Is.TypeOf<SpriteFontAdapter>());
+            Assert.That(inspector.Children.SelectMany(Flatten).OfType<Label>().All(label => label.UIFont is SpriteFontAdapter), Is.True);
+            Assert.That(inspector.Children.SelectMany(Flatten).OfType<BaseButton>().All(button => button.UIFont is SpriteFontAdapter), Is.True);
+        });
+
+        toggle.SetPressed(true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(((TextEdit)shell.ActiveStoryControl.Children[0]).UIFont, Is.SameAs(font));
+            Assert.That(((CodeEdit)shell.ActiveStoryControl.Children[1]).UIFont, Is.SameAs(codeFont));
+            Assert.That(description.UIFont, Is.SameAs(font));
+            Assert.That(inspector.Children.SelectMany(Flatten).OfType<Label>().All(label => ReferenceEquals(label.UIFont, font)), Is.True);
         });
     }
 

@@ -1,10 +1,11 @@
-<BoxContainer xmlns="https://forma.dev/xaml"
-              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-              xmlns:local="clr-namespace:Forma.Catalog"
-              x:Class="Forma.Catalog.StylesStoryView"
-              x:Name="StylesRoot"
-              Separation="14"
-              CustomMinimumSize="660,300">
+﻿<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Class="Forma.Catalog.StylesStoryView"
+    x:Name="StylesRoot"
+    Separation="14"
+    CustomMinimumSize="660,300">
     <BoxContainer.Resources>
         <ResourceDictionary>
             <Style x:Key="ExampleRect" Selector="ColorRect">
@@ -21,23 +22,40 @@
             </Style>
         </ResourceDictionary>
     </BoxContainer.Resources>
-    <Label Text="Selector styles" FontColor="#FF30B9A4" Uppercase="True" CustomMinimumSize="0,28" />
-    <Label Text="Type and class selectors establish the card treatment; hover and name selectors override it by specificity."
-           FontColor="#FF8F99AA"
-           AutowrapMode="Word"
-           CustomMinimumSize="620,42" />
+    <Label
+        Text="Selector styles"
+        FontColor="#FF30B9A4"
+        Uppercase="True"
+        CustomMinimumSize="0,28" />
+    <Label
+        Text="Type and class selectors establish the card treatment; hover and name selectors override it by specificity."
+        FontColor="#FF8F99AA"
+        AutowrapMode="Word"
+        CustomMinimumSize="620,42" />
     <HBoxContainer Separation="14" CustomMinimumSize="620,150">
         <VBoxContainer Separation="8" HorizontalSizeFlags="Fill, Expand">
             <ColorRect x:Name="BaseCard" Classes="style-card" />
-            <Label Text="Class selector" FontColor="#FF8F99AA" HorizontalAlignment="Center" />
+            <Label
+                Text="Class selector"
+                FontColor="#FF8F99AA"
+                HorizontalAlignment="Center" />
         </VBoxContainer>
         <VBoxContainer Separation="8" HorizontalSizeFlags="Fill, Expand">
-            <ColorRect x:Name="HoverCard" Classes="style-card" TooltipText="Hover state" />
-            <Label Text="Hover state" FontColor="#FF8F99AA" HorizontalAlignment="Center" />
+            <ColorRect
+                x:Name="HoverCard"
+                Classes="style-card"
+                TooltipText="Hover state" />
+            <Label
+                Text="Hover state"
+                FontColor="#FF8F99AA"
+                HorizontalAlignment="Center" />
         </VBoxContainer>
         <VBoxContainer Separation="8" HorizontalSizeFlags="Fill, Expand">
             <ColorRect x:Name="SelectedCard" Classes="style-card" />
-            <Label Text="Name specificity" FontColor="#FF8F99AA" HorizontalAlignment="Center" />
+            <Label
+                Text="Name specificity"
+                FontColor="#FF8F99AA"
+                HorizontalAlignment="Center" />
         </VBoxContainer>
     </HBoxContainer>
 </BoxContainer>

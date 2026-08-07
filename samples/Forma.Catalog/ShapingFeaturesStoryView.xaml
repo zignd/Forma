@@ -1,0 +1,38 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.ShapingFeaturesStoryView"
+    Separation="10"
+    CustomMinimumSize="660,280">
+    <HBoxContainer Separation="12">
+        <CheckBox
+            x:Name="ligatures"
+            Text="Standard ligatures"
+            ButtonPressed="True" />
+        <CheckBox
+            x:Name="kerning"
+            Text="Kerning"
+            ButtonPressed="True" />
+        <HSlider
+            x:Name="weight"
+            MinValue="100"
+            MaxValue="900"
+            Step="100"
+            Value="400"
+            CustomMinimumSize="180,34" />
+    </HBoxContainer>
+    <Label
+        x:Name="latinFeatures"
+        Text="office AV é"
+        CustomMinimumSize="640,62" />
+    <Label
+        x:Name="arabicFeatures"
+        Text="مرحبا بالعالم"
+        TextDirection="RightToLeft"
+        Language="ar"
+        CustomMinimumSize="640,62" />
+    <Label
+        x:Name="featureDiagnostics"
+        FontColor="#FF8F99AA"
+        CustomMinimumSize="640,40" />
+</VBoxContainer>

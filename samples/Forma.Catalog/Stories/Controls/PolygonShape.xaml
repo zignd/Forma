@@ -1,0 +1,6 @@
+﻿<PolygonShape
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="PolygonShape"
+    TooltipText="Forma.PolygonShape"
+    CustomMinimumSize="300,160" />

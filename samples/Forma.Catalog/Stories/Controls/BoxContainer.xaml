@@ -1,0 +1,12 @@
+﻿<local:CatalogBoxContainerStoryRoot
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Name="BoxContainer"
+    TooltipText="Forma.BoxContainer"
+    CustomMinimumSize="560,360"
+    Separation="8">
+    <Button Text="One" CustomMinimumSize="96,38" />
+    <Button Text="Two" CustomMinimumSize="96,38" />
+    <Button Text="Three" CustomMinimumSize="96,38" />
+</local:CatalogBoxContainerStoryRoot>

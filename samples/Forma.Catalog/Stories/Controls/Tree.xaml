@@ -1,0 +1,8 @@
+﻿<Tree
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="Tree"
+    TooltipText="Forma.Tree"
+    CustomMinimumSize="560,360"
+    Columns="2"
+    ColumnTitlesVisible="True" />

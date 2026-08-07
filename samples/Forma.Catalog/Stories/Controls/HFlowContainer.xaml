@@ -1,0 +1,16 @@
+﻿<HFlowContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="HFlowContainer"
+    TooltipText="Forma.HFlowContainer"
+    CustomMinimumSize="560,360">
+    <Button Text="Item 1" CustomMinimumSize="92,34" />
+    <Button Text="Item 2" CustomMinimumSize="92,34" />
+    <Button Text="Item 3" CustomMinimumSize="92,34" />
+    <Button Text="Item 4" CustomMinimumSize="92,34" />
+    <Button Text="Item 5" CustomMinimumSize="92,34" />
+    <Button Text="Item 6" CustomMinimumSize="92,34" />
+    <Button Text="Item 7" CustomMinimumSize="92,34" />
+    <Button Text="Item 8" CustomMinimumSize="92,34" />
+    <Button Text="Item 9" CustomMinimumSize="92,34" />
+</HFlowContainer>

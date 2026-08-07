@@ -1,0 +1,9 @@
+﻿<PopupPanel
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="PopupPanel"
+    TooltipText="Forma.PopupPanel"
+    CustomMinimumSize="560,360"
+    Modal="False"
+    HideOnOutsideClick="False"
+    Visible="True" />

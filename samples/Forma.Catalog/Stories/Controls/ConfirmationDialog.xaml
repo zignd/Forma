@@ -1,0 +1,11 @@
+﻿<ConfirmationDialog
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="ConfirmationDialog"
+    TooltipText="Forma.ConfirmationDialog"
+    CustomMinimumSize="560,360"
+    Title="ConfirmationDialog"
+    DialogText="Continue with this action?"
+    Modal="False"
+    HideOnOutsideClick="False"
+    Visible="True" />

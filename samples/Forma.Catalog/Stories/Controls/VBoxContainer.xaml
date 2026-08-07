@@ -1,0 +1,11 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="VBoxContainer"
+    TooltipText="Forma.VBoxContainer"
+    CustomMinimumSize="560,360"
+    Separation="8">
+    <Button Text="One" CustomMinimumSize="96,38" />
+    <Button Text="Two" CustomMinimumSize="96,38" />
+    <Button Text="Three" CustomMinimumSize="96,38" />
+</VBoxContainer>

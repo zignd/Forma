@@ -1,0 +1,6 @@
+﻿<HSeparator
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="HSeparator"
+    TooltipText="Forma.HSeparator"
+    CustomMinimumSize="300,64" />

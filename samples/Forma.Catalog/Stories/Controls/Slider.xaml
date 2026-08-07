@@ -1,0 +1,11 @@
+﻿<local:CatalogSliderStoryRoot
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Name="Slider"
+    TooltipText="Forma.Slider"
+    CustomMinimumSize="300,64"
+    MinValue="0"
+    MaxValue="100"
+    Value="62"
+    TickCount="6" />

@@ -1,0 +1,11 @@
+﻿<FileDialog
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="FileDialog"
+    TooltipText="Forma.FileDialog"
+    CustomMinimumSize="560,360"
+    Title="Open project asset"
+    DialogText="Select a file from the project"
+    Modal="False"
+    HideOnOutsideClick="False"
+    Visible="True" />

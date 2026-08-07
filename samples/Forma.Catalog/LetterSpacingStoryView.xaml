@@ -1,0 +1,49 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.LetterSpacingStoryView"
+    Separation="10"
+    CustomMinimumSize="320,320"
+    HorizontalSizeFlags="Fill, Expand">
+    <LineEdit
+        x:Name="letterSpacingText"
+        Text="runtime."
+        ClearButtonEnabled="True"
+        CustomMinimumSize="320,38" />
+    <HBoxContainer Separation="10">
+        <HSlider
+            x:Name="letterSpacing"
+            MinValue="-1"
+            MaxValue="2"
+            Step="0.05"
+            Value="0.25"
+            TickCount="7"
+            CustomMinimumSize="170,34"
+            HorizontalSizeFlags="Fill, Expand" />
+        <Button
+            x:Name="resetLetterSpacing"
+            Text="Reset to zero"
+            CustomMinimumSize="140,34" />
+    </HBoxContainer>
+    <Label
+        x:Name="letterSpacingStatus"
+        AutowrapMode="Word"
+        FontColor="#FF8F99AA"
+        CustomMinimumSize="320,44" />
+    <RichTextLabel
+        x:Name="naturalSpacingPreview"
+        FitContent="False"
+        ScrollActive="False"
+        AutowrapMode="Word"
+        Padding="0"
+        FontColor="#FF8F99AA"
+        CustomMinimumSize="0,64" />
+    <RichTextLabel
+        x:Name="trackedSpacingPreview"
+        FitContent="False"
+        ScrollActive="False"
+        AutowrapMode="Word"
+        Padding="0"
+        FontColor="#FF30B9A4"
+        CustomMinimumSize="0,64" />
+</VBoxContainer>

@@ -1,0 +1,9 @@
+﻿<GraphNode
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="GraphNode"
+    TooltipText="Forma.GraphNode"
+    CustomMinimumSize="300,160"
+    Title="GraphNode">
+    <Label Text="Process value" CustomMinimumSize="180,32" />
+</GraphNode>

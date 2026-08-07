@@ -1,0 +1,7 @@
+﻿<NinePatchRect
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="NinePatchRect"
+    TooltipText="Forma.NinePatchRect"
+    CustomMinimumSize="300,160"
+    PatchMargin="8" />

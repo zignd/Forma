@@ -1,0 +1,11 @@
+﻿<local:CatalogScrollBarStoryRoot
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Name="ScrollBar"
+    TooltipText="Forma.ScrollBar"
+    CustomMinimumSize="300,64"
+    MinValue="0"
+    MaxValue="100"
+    Page="20"
+    Value="40" />

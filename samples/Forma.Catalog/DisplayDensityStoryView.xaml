@@ -1,0 +1,39 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.DisplayDensityStoryView"
+    Separation="12"
+    CustomMinimumSize="660,260">
+    <HBoxContainer Separation="8">
+        <Button
+            x:Name="density1"
+            Text="1x"
+            CustomMinimumSize="84,34" />
+        <Button
+            x:Name="density15"
+            Text="1.5x"
+            CustomMinimumSize="84,34" />
+        <Button
+            x:Name="density2"
+            Text="2x"
+            CustomMinimumSize="84,34" />
+    </HBoxContainer>
+    <Label x:Name="densityStatus" CustomMinimumSize="0,24" />
+    <HBoxContainer Separation="18">
+        <Label
+            x:Name="sample1"
+            Text="Forma&#10;24 px logical&#10;24 px raster"
+            CustomMinimumSize="190,120"
+            VerticalAlignment="Center" />
+        <Label
+            x:Name="sample15"
+            Text="Forma&#10;24 px logical&#10;36 px raster"
+            CustomMinimumSize="190,120"
+            VerticalAlignment="Center" />
+        <Label
+            x:Name="sample2"
+            Text="Forma&#10;24 px logical&#10;48 px raster"
+            CustomMinimumSize="190,120"
+            VerticalAlignment="Center" />
+    </HBoxContainer>
+</VBoxContainer>

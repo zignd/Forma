@@ -11,4 +11,6 @@ internal static class CatalogBackend
     public static string Name { get; } = typeof(CatalogBackend).Assembly
         .GetCustomAttributes<AssemblyMetadataAttribute>()
         .FirstOrDefault(attribute => attribute.Key == "FormaCatalogBackend")?.Value ?? "Unknown";
+
+    public static string WindowTitle => $"Forma Catalog [{Name}]";
 }

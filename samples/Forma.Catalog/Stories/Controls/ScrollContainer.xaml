@@ -1,0 +1,23 @@
+﻿<ScrollContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="ScrollContainer"
+    TooltipText="Forma.ScrollContainer"
+    CustomMinimumSize="560,360">
+    <VBoxContainer Separation="6" CustomMinimumSize="500,600">
+        <Button Text="Scrollable row 1" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 2" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 3" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 4" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 5" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 6" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 7" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 8" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 9" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 10" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 11" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 12" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 13" CustomMinimumSize="480,32" />
+        <Button Text="Scrollable row 14" CustomMinimumSize="480,32" />
+    </VBoxContainer>
+</ScrollContainer>

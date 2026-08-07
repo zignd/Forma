@@ -1,16 +1,35 @@
-<BoxContainer xmlns="https://forma.dev/xaml"
-              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-              x:Class="Forma.Catalog.IconCustomizationStoryView"
-              Separation="12"
-              CustomMinimumSize="620,150">
+﻿<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.IconCustomizationStoryView"
+    Separation="12"
+    CustomMinimumSize="620,150">
     <HBoxContainer Separation="8">
-        <Button x:Name="ltr" Text="LTR" CustomMinimumSize="90,32" />
-        <Button x:Name="rtl" Text="RTL" CustomMinimumSize="90,32" />
+        <Button
+            x:Name="ltr"
+            Text="LTR"
+            CustomMinimumSize="90,32" />
+        <Button
+            x:Name="rtl"
+            Text="RTL"
+            CustomMinimumSize="90,32" />
     </HBoxContainer>
     <HBoxContainer Separation="18" CustomMinimumSize="620,100">
-        <VBoxContainer Separation="6" CustomMinimumSize="164,72"><Label Text="Default" HorizontalAlignment="Center" /><OptionButton x:Name="default" CustomMinimumSize="164,36" /></VBoxContainer>
-        <VBoxContainer Separation="6" CustomMinimumSize="164,72"><Label Text="Overridden" HorizontalAlignment="Center" /><OptionButton x:Name="override" CustomMinimumSize="164,36" /></VBoxContainer>
-        <VBoxContainer Separation="6" CustomMinimumSize="164,72"><Label Text="Suppressed" HorizontalAlignment="Center" /><OptionButton x:Name="suppressed" CustomMinimumSize="164,36" /></VBoxContainer>
-        <Button x:Name="contentIcon" Text="Content" CustomMinimumSize="120,64" />
+        <VBoxContainer Separation="6" CustomMinimumSize="164,72">
+            <Label Text="Default" HorizontalAlignment="Center" />
+            <OptionButton x:Name="default" CustomMinimumSize="164,36" />
+        </VBoxContainer>
+        <VBoxContainer Separation="6" CustomMinimumSize="164,72">
+            <Label Text="Overridden" HorizontalAlignment="Center" />
+            <OptionButton x:Name="override" CustomMinimumSize="164,36" />
+        </VBoxContainer>
+        <VBoxContainer Separation="6" CustomMinimumSize="164,72">
+            <Label Text="Suppressed" HorizontalAlignment="Center" />
+            <OptionButton x:Name="suppressed" CustomMinimumSize="164,36" />
+        </VBoxContainer>
+        <Button
+            x:Name="contentIcon"
+            Text="Content"
+            CustomMinimumSize="120,64" />
     </HBoxContainer>
 </BoxContainer>

@@ -1,0 +1,9 @@
+﻿<LineEdit
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="LineEdit"
+    TooltipText="Forma.LineEdit"
+    CustomMinimumSize="300,64"
+    Text="Editable component value"
+    PlaceholderText="Type here"
+    ClearButtonEnabled="True" />

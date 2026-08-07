@@ -1,0 +1,36 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.AtlasInspectorStoryView"
+    Separation="9"
+    CustomMinimumSize="680,390">
+    <HBoxContainer Separation="8">
+        <LineEdit
+            x:Name="atlasStress"
+            Text="ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 مرحبا 你好 👩🏽‍💻"
+            CustomMinimumSize="450,38" />
+        <Button
+            x:Name="atlasRefresh"
+            Text="Refresh"
+            CustomMinimumSize="96,38" />
+        <Button
+            x:Name="atlasClear"
+            Text="Clear"
+            CustomMinimumSize="86,38" />
+    </HBoxContainer>
+    <Label
+        x:Name="atlasPreviewText"
+        AutowrapMode="Word"
+        CustomMinimumSize="660,58" />
+    <Label
+        x:Name="atlasStatus"
+        AutowrapMode="Word"
+        FontColor="#FF8F99AA"
+        CustomMinimumSize="660,48" />
+    <HBoxContainer x:Name="atlasPages" Separation="8">
+        <DynamicGlyphAtlasView x:Name="atlasPage0" CustomMinimumSize="150,150" />
+        <DynamicGlyphAtlasView x:Name="atlasPage1" CustomMinimumSize="150,150" />
+        <DynamicGlyphAtlasView x:Name="atlasPage2" CustomMinimumSize="150,150" />
+        <DynamicGlyphAtlasView x:Name="atlasPage3" CustomMinimumSize="150,150" />
+    </HBoxContainer>
+</VBoxContainer>

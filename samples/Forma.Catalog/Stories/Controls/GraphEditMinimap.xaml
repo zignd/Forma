@@ -1,0 +1,6 @@
+﻿<GraphEditMinimap
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="GraphEditMinimap"
+    TooltipText="Forma.GraphEditMinimap"
+    CustomMinimumSize="300,160" />

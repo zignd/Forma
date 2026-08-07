@@ -1,0 +1,10 @@
+﻿<HScrollBar
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="HScrollBar"
+    TooltipText="Forma.HScrollBar"
+    CustomMinimumSize="300,64"
+    MinValue="0"
+    MaxValue="100"
+    Page="20"
+    Value="40" />

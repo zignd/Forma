@@ -1,0 +1,17 @@
+﻿<MenuBar
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="MenuBar"
+    TooltipText="Forma.MenuBar"
+    CustomMinimumSize="560,64">
+    <MenuButton
+        x:Name="FileMenu"
+        Text="File"
+        CustomMinimumSize="50,26"
+        HorizontalSizeFlags="ShrinkBegin" />
+    <MenuButton
+        x:Name="EditMenu"
+        Text="Edit"
+        CustomMinimumSize="50,26"
+        HorizontalSizeFlags="ShrinkBegin" />
+</MenuBar>

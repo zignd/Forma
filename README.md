@@ -147,9 +147,10 @@ Override `MONOGAME_PROJECT` when the fork lives elsewhere.
 
 ![FNA catalog](docs/images/catalog-fna.png)
 
-The catalog title and stories are runtime-neutral. Runtime/backend identity appears only in
-diagnostics and metrics. See [samples/Forma.Catalog/README.md](samples/Forma.Catalog/README.md) for
-bounded metrics, screenshot, render-parity, and native-backend commands.
+The catalog stories are runtime-neutral, while the window title identifies the active runtime as
+`Forma Catalog [MonoGame]` or `Forma Catalog [FNA]`. See
+[samples/Forma.Catalog/README.md](samples/Forma.Catalog/README.md) for bounded metrics, screenshot,
+render-parity, and native-backend commands.
 
 Default control icons are embedded, density-aware, and independent of application content
 pipelines. The Catalog activates the optional runtime SVG provider and exposes SVG/PNG policy

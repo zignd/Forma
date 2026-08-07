@@ -1,0 +1,8 @@
+﻿<TextEdit
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="TextEdit"
+    TooltipText="Forma.TextEdit"
+    CustomMinimumSize="560,360"
+    Text="A multiline editor built with Forma.&#10;&#10;Select text, move the caret, and edit this document."
+    LineWrappingMode="Boundary" />

@@ -1,0 +1,27 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.FailureStatesStoryView"
+    Separation="9"
+    CustomMinimumSize="660,300">
+    <Button
+        x:Name="runFailureProbes"
+        Text="Run failure probes"
+        CustomMinimumSize="190,36" />
+    <Label
+        x:Name="missingFaceFailure"
+        AutowrapMode="Word"
+        CustomMinimumSize="640,38" />
+    <Label
+        x:Name="malformedFontFailure"
+        AutowrapMode="Word"
+        CustomMinimumSize="640,38" />
+    <Label
+        x:Name="fallbackFailure"
+        AutowrapMode="Word"
+        CustomMinimumSize="640,38" />
+    <Label
+        x:Name="atlasFailure"
+        AutowrapMode="Word"
+        CustomMinimumSize="640,54" />
+</VBoxContainer>

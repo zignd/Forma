@@ -1,0 +1,23 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.BidirectionalStoryView"
+    Separation="10"
+    CustomMinimumSize="660,270">
+    <HBoxContainer Separation="10">
+        <LineEdit
+            x:Name="bidiText"
+            Text="Forma שלום 123 مرحبا"
+            CustomMinimumSize="470,38" />
+        <OptionButton x:Name="bidiDirection" CustomMinimumSize="150,38" />
+    </HBoxContainer>
+    <Label
+        x:Name="bidiPreview"
+        AutowrapMode="Word"
+        CustomMinimumSize="640,76" />
+    <Label
+        x:Name="bidiDiagnostics"
+        AutowrapMode="Word"
+        FontColor="#FF8F99AA"
+        CustomMinimumSize="640,96" />
+</VBoxContainer>

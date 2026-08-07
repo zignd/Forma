@@ -1,0 +1,7 @@
+﻿<ColorPresetButton
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="ColorPresetButton"
+    TooltipText="Forma.ColorPresetButton"
+    CustomMinimumSize="300,64"
+    Color="#FFF6B949" />

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -36,6 +37,7 @@ public sealed class CatalogBindingStoryViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler PropertyChanged;
     public string ProjectName { get => _projectName; set { if (Set(ref _projectName, value)) NotifySummary(); } }
+    [Range(0, 100)]
     public float Completion { get => _completion; set { if (Set(ref _completion, value)) NotifySummary(); } }
     public bool AutoSaveEnabled { get => _autoSaveEnabled; set { if (Set(ref _autoSaveEnabled, value)) NotifySummary(); } }
     public string CompletionText => $"Progress: {Completion:0}%";
@@ -84,6 +86,31 @@ public sealed record CatalogTemplateItem(string Name);
 
 public sealed class CatalogThemeButton : BaseButton
 {
+}
+
+public sealed class CatalogBoxContainerStoryRoot : BoxContainer
+{
+    public CatalogBoxContainerStoryRoot() : base(Orientation.Horizontal) { }
+}
+
+public sealed class CatalogSliderStoryRoot : Slider
+{
+    public CatalogSliderStoryRoot() : base(Orientation.Horizontal) { }
+}
+
+public sealed class CatalogScrollBarStoryRoot : ScrollBar
+{
+    public CatalogScrollBarStoryRoot() : base(Orientation.Horizontal) { }
+}
+
+public sealed class CatalogSplitContainerStoryRoot : SplitContainer
+{
+    public CatalogSplitContainerStoryRoot() : base(Orientation.Horizontal) { }
+}
+
+public sealed class CatalogFlowContainerStoryRoot : FlowContainer
+{
+    public CatalogFlowContainerStoryRoot() : base(Orientation.Horizontal) { }
 }
 
 public sealed class CompositionSystemsStoryView : BoxContainer
@@ -193,6 +220,75 @@ public sealed class DynamicSizesStoryView : BoxContainer
     }
 
     public CatalogStoryViewModel ViewModel { get; }
+}
+
+public sealed class LetterSpacingStoryView : BoxContainer
+{
+    public LetterSpacingStoryView() : base(Orientation.Vertical) => FormaXamlLoader.Load(this);
+}
+
+public sealed class DisplayDensityStoryView : BoxContainer
+{
+    public DisplayDensityStoryView() : base(Orientation.Vertical) => FormaXamlLoader.Load(this);
+}
+
+public sealed class FallbackChainStoryView : BoxContainer
+{
+    public FallbackChainStoryView() : base(Orientation.Vertical) => FormaXamlLoader.Load(this);
+}
+
+public sealed class ShapingFeaturesStoryView : BoxContainer
+{
+    public ShapingFeaturesStoryView() : base(Orientation.Vertical) => FormaXamlLoader.Load(this);
+}
+
+public sealed class BidirectionalStoryView : BoxContainer
+{
+    public BidirectionalStoryView() : base(Orientation.Vertical)
+    {
+        FormaXamlLoader.Load(this);
+        var direction = NameScope.GetNameScope(this).Find<OptionButton>("bidiDirection");
+        direction.AddItem("Auto");
+        direction.AddItem("LTR");
+        direction.AddItem("RTL");
+    }
+}
+
+public sealed class WrappingSelectionStoryView : BoxContainer
+{
+    public WrappingSelectionStoryView() : base(Orientation.Vertical)
+    {
+        FormaXamlLoader.Load(this);
+        var scope = NameScope.GetNameScope(this);
+        var wrapping = scope.Find<OptionButton>("wrappingMode");
+        wrapping.AddItem("No wrap");
+        wrapping.AddItem("Character");
+        wrapping.AddItem("Word");
+        wrapping.Select(2);
+        var direction = scope.Find<OptionButton>("wrappingDirection");
+        direction.AddItem("Auto");
+        direction.AddItem("LTR");
+        direction.AddItem("RTL");
+        var movement = scope.Find<OptionButton>("caretMovement");
+        movement.AddItem("Grapheme");
+        movement.AddItem("Word");
+        movement.AddItem("Visual");
+    }
+}
+
+public sealed class SpriteFontCompatibilityStoryView : BoxContainer
+{
+    public SpriteFontCompatibilityStoryView() : base(Orientation.Vertical) => FormaXamlLoader.Load(this);
+}
+
+public sealed class AtlasInspectorStoryView : BoxContainer
+{
+    public AtlasInspectorStoryView() : base(Orientation.Vertical) => FormaXamlLoader.Load(this);
+}
+
+public sealed class FailureStatesStoryView : BoxContainer
+{
+    public FailureStatesStoryView() : base(Orientation.Vertical) => FormaXamlLoader.Load(this);
 }
 
 public sealed class StylesStoryView : BoxContainer

@@ -1,27 +1,44 @@
-<BoxContainer xmlns="https://forma.dev/xaml"
-              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-              xmlns:local="clr-namespace:Forma.Catalog"
-              x:Class="Forma.Catalog.AnimationsStoryView"
-              x:DataType="local:CatalogAnimationStoryViewModel"
-              x:Name="AnimationsRoot"
-              Separation="14"
-              CustomMinimumSize="660,320">
+﻿<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Class="Forma.Catalog.AnimationsStoryView"
+    x:DataType="local:CatalogAnimationStoryViewModel"
+    x:Name="AnimationsRoot"
+    Separation="14"
+    CustomMinimumSize="660,320">
     <BoxContainer.Resources>
         <ResourceDictionary>
-            <Storyboard x:Key="EventPulse" AutoReverse="True" FillBehavior="Stop">
+            <Storyboard
+                x:Key="EventPulse"
+                AutoReverse="True"
+                FillBehavior="Stop">
                 <ColorTimeline TargetName="EventTarget" Property="Color">
                     <KeyFrame Time="0:0:0" Value="#FF30B9A4" />
-                    <KeyFrame Time="0:0:0.45" Value="#FFF6B949" Easing="CubicInOut" />
+                    <KeyFrame
+                        Time="0:0:0.45"
+                        Value="#FFF6B949"
+                        Easing="CubicInOut" />
                 </ColorTimeline>
                 <Vector2Timeline TargetName="EventTarget" Property="CustomMinimumSize">
                     <KeyFrame Time="0:0:0" Value="250,76" />
-                    <KeyFrame Time="0:0:0.45" Value="300,96" Easing="CubicInOut" />
+                    <KeyFrame
+                        Time="0:0:0.45"
+                        Value="300,96"
+                        Easing="CubicInOut" />
                 </Vector2Timeline>
             </Storyboard>
-            <Storyboard x:Key="LoopPulse" AutoReverse="True" RepeatBehavior="Forever" FillBehavior="Stop">
+            <Storyboard
+                x:Key="LoopPulse"
+                AutoReverse="True"
+                RepeatBehavior="Forever"
+                FillBehavior="Stop">
                 <ColorTimeline TargetName="LoopTarget" Property="Color">
                     <KeyFrame Time="0:0:0" Value="#FF4D78CC" />
-                    <KeyFrame Time="0:0:0.8" Value="#FFD45F8C" Easing="CubicInOut" />
+                    <KeyFrame
+                        Time="0:0:0.8"
+                        Value="#FFD45F8C"
+                        Easing="CubicInOut" />
                 </ColorTimeline>
             </Storyboard>
         </ResourceDictionary>
@@ -32,17 +49,39 @@
     <PropertyTrigger Binding="{Binding IsLooping}" Value="True">
         <BeginStoryboard Storyboard="{StaticResource LoopPulse}" />
     </PropertyTrigger>
-    <Label Text="Storyboards and triggers" FontColor="#FF30B9A4" Uppercase="True" CustomMinimumSize="0,28" />
-    <Label Text="An event trigger replays the size and color pulse. A typed property trigger owns the looping color clock."
-           FontColor="#FF8F99AA"
-           AutowrapMode="Word"
-           CustomMinimumSize="620,42" />
+    <Label
+        Text="Storyboards and triggers"
+        FontColor="#FF30B9A4"
+        Uppercase="True"
+        CustomMinimumSize="0,28" />
+    <Label
+        Text="An event trigger replays the size and color pulse. A typed property trigger owns the looping color clock."
+        FontColor="#FF8F99AA"
+        AutowrapMode="Word"
+        CustomMinimumSize="620,42" />
     <VBoxContainer Separation="10">
-        <ColorRect x:Name="EventTarget" Color="#FF30B9A4" CustomMinimumSize="250,76" HorizontalSizeFlags="ShrinkCenter" />
-        <Button x:Name="ReplayButton" Text="Replay event animation" CustomMinimumSize="230,36" HorizontalSizeFlags="ShrinkCenter" />
+        <ColorRect
+            x:Name="EventTarget"
+            Color="#FF30B9A4"
+            CustomMinimumSize="250,76"
+            HorizontalSizeFlags="ShrinkCenter" />
+        <Button
+            x:Name="ReplayButton"
+            Text="Replay event animation"
+            CustomMinimumSize="230,36"
+            HorizontalSizeFlags="ShrinkCenter" />
     </VBoxContainer>
     <VBoxContainer Separation="10">
-        <ColorRect x:Name="LoopTarget" Color="#FF4D78CC" CustomMinimumSize="250,50" HorizontalSizeFlags="ShrinkCenter" />
-        <CheckBox x:Name="LoopToggle" Text="Loop property animation" ButtonPressed="{Binding IsLooping, Mode=TwoWay}" CustomMinimumSize="230,34" HorizontalSizeFlags="ShrinkCenter" />
+        <ColorRect
+            x:Name="LoopTarget"
+            Color="#FF4D78CC"
+            CustomMinimumSize="250,50"
+            HorizontalSizeFlags="ShrinkCenter" />
+        <CheckBox
+            x:Name="LoopToggle"
+            Text="Loop property animation"
+            ButtonPressed="{Binding IsLooping, Mode=TwoWay}"
+            CustomMinimumSize="230,34"
+            HorizontalSizeFlags="ShrinkCenter" />
     </VBoxContainer>
 </BoxContainer>

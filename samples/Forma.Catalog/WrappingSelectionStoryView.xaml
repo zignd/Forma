@@ -1,0 +1,128 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.WrappingSelectionStoryView"
+    Separation="9"
+    CustomMinimumSize="680,560">
+    <TextEdit
+        x:Name="wrappingText"
+        Text="Forma élan office שלום مرحبا&#10;नमस्ते สวัสดี 你好 — select this text with the mouse."
+        LineWrappingMode="Boundary"
+        CustomMinimumSize="660,105" />
+    <HBoxContainer Separation="8">
+        <HSlider
+            x:Name="wrappingWidth"
+            MinValue="240"
+            MaxValue="640"
+            Step="20"
+            Value="460"
+            CustomMinimumSize="170,34" />
+        <OptionButton x:Name="wrappingMode" CustomMinimumSize="130,34" />
+        <CheckBox x:Name="wrappingEllipsis" Text="Ellipsis" />
+        <OptionButton x:Name="wrappingDirection" CustomMinimumSize="110,34" />
+    </HBoxContainer>
+    <HBoxContainer Separation="8">
+        <OptionButton x:Name="caretMovement" CustomMinimumSize="130,34" />
+        <Button
+            x:Name="caretPrevious"
+            Text="Previous"
+            CustomMinimumSize="100,34" />
+        <Button
+            x:Name="caretNext"
+            Text="Next"
+            CustomMinimumSize="100,34" />
+        <Button
+            x:Name="inspectSelection"
+            Text="Inspect selection"
+            CustomMinimumSize="150,34" />
+    </HBoxContainer>
+    <Label
+        x:Name="wrappingPreview"
+        ClipText="True"
+        CustomMinimumSize="460,190"
+        CustomMaximumSize="460,190">
+        <ColorRect
+            x:Name="selectionOverlay0"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay1"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay2"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay3"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay4"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay5"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay6"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay7"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay8"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay9"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay10"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="selectionOverlay11"
+            Color="#5230B9A4"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="1" />
+        <ColorRect
+            x:Name="caretOverlay"
+            Color="#FFF6B949"
+            MouseFilter="Ignore"
+            Visible="False"
+            ZIndex="2" />
+    </Label>
+    <Label
+        x:Name="wrappingDiagnostics"
+        AutowrapMode="Word"
+        FontColor="#FF8F99AA"
+        CustomMinimumSize="660,58" />
+</VBoxContainer>

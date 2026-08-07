@@ -1,0 +1,11 @@
+﻿<AcceptDialog
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="AcceptDialog"
+    TooltipText="Forma.AcceptDialog"
+    CustomMinimumSize="560,360"
+    Title="AcceptDialog"
+    DialogText="This is a modal message."
+    Modal="False"
+    HideOnOutsideClick="False"
+    Visible="True" />

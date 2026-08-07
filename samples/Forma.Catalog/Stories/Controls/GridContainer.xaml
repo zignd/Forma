@@ -1,0 +1,17 @@
+﻿<GridContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="GridContainer"
+    TooltipText="Forma.GridContainer"
+    CustomMinimumSize="560,360"
+    Columns="3">
+    <Button Text="1" CustomMinimumSize="84,44" />
+    <Button Text="2" CustomMinimumSize="84,44" />
+    <Button Text="3" CustomMinimumSize="84,44" />
+    <Button Text="4" CustomMinimumSize="84,44" />
+    <Button Text="5" CustomMinimumSize="84,44" />
+    <Button Text="6" CustomMinimumSize="84,44" />
+    <Button Text="7" CustomMinimumSize="84,44" />
+    <Button Text="8" CustomMinimumSize="84,44" />
+    <Button Text="9" CustomMinimumSize="84,44" />
+</GridContainer>

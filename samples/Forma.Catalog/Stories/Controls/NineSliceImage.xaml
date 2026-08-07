@@ -1,0 +1,7 @@
+﻿<NineSliceImage
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="NineSliceImage"
+    TooltipText="Forma.NineSliceImage"
+    CustomMinimumSize="300,160"
+    PatchMargin="8" />

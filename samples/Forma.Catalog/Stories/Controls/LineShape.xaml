@@ -1,0 +1,6 @@
+﻿<LineShape
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="LineShape"
+    TooltipText="Forma.LineShape"
+    CustomMinimumSize="300,160" />

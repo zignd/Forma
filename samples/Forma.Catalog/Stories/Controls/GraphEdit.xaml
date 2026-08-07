@@ -1,0 +1,19 @@
+﻿<GraphEdit
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="GraphEdit"
+    TooltipText="Forma.GraphEdit"
+    CustomMinimumSize="560,360"
+    HorizontalSizeFlags="Fill, Expand"
+    VerticalSizeFlags="Fill, Expand">
+    <GraphNode
+        x:Name="Input"
+        Title="Input"
+        Position="32,54"
+        Size="150,84" />
+    <GraphNode
+        x:Name="Output"
+        Title="Output"
+        Position="310,180"
+        Size="150,84" />
+</GraphEdit>

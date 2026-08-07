@@ -1,0 +1,13 @@
+﻿<AspectRatioContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="AspectRatioContainer"
+    TooltipText="Forma.AspectRatioContainer"
+    CustomMinimumSize="560,360"
+    Ratio="1.7777778">
+    <ColorRect
+        Color="#FF30B9A4"
+        CustomMinimumSize="240,135"
+        HorizontalSizeFlags="Fill"
+        VerticalSizeFlags="Fill" />
+</AspectRatioContainer>

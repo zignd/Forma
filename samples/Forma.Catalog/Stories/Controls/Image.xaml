@@ -1,0 +1,7 @@
+﻿<Image
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="Image"
+    TooltipText="Forma.Image"
+    CustomMinimumSize="300,160"
+    Stretch="Contain" />

@@ -1,0 +1,27 @@
+﻿<local:CatalogSplitContainerStoryRoot
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Name="SplitContainer"
+    TooltipText="Forma.SplitContainer"
+    CustomMinimumSize="560,360"
+    SplitOffset="260">
+    <Panel
+        x:Name="PrimaryPane"
+        BackgroundColor="#FF254646"
+        CustomMinimumSize="240,120">
+        <Label
+            Text="Primary pane"
+            Position="18,18"
+            Size="180,28" />
+    </Panel>
+    <Panel
+        x:Name="SecondaryPane"
+        BackgroundColor="#FF403725"
+        CustomMinimumSize="240,120">
+        <Label
+            Text="Secondary pane"
+            Position="18,18"
+            Size="180,28" />
+    </Panel>
+</local:CatalogSplitContainerStoryRoot>

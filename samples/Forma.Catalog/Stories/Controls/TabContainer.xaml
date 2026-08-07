@@ -1,0 +1,34 @@
+﻿<TabContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="TabContainer"
+    TooltipText="Forma.TabContainer"
+    CustomMinimumSize="560,360">
+    <Panel
+        x:Name="Scene"
+        BackgroundColor="#FF254646"
+        CustomMinimumSize="240,120">
+        <Label
+            Text="Scene"
+            Position="18,18"
+            Size="180,28" />
+    </Panel>
+    <Panel
+        x:Name="Inspector"
+        BackgroundColor="#FF403725"
+        CustomMinimumSize="240,120">
+        <Label
+            Text="Inspector"
+            Position="18,18"
+            Size="180,28" />
+    </Panel>
+    <Panel
+        x:Name="Output"
+        BackgroundColor="#FF2B3141"
+        CustomMinimumSize="240,120">
+        <Label
+            Text="Output"
+            Position="18,18"
+            Size="180,28" />
+    </Panel>
+</TabContainer>

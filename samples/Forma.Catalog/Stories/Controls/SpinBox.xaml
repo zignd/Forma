@@ -1,0 +1,11 @@
+﻿<SpinBox
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="SpinBox"
+    TooltipText="Forma.SpinBox"
+    CustomMinimumSize="300,64"
+    MinValue="8"
+    MaxValue="96"
+    Value="24"
+    Step="1"
+    Prefix="Font size: " />

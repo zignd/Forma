@@ -1,0 +1,10 @@
+﻿<HSlider
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="HSlider"
+    TooltipText="Forma.HSlider"
+    CustomMinimumSize="300,64"
+    MinValue="0"
+    MaxValue="100"
+    Value="62"
+    TickCount="6" />

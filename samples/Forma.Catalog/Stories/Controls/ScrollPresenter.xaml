@@ -1,0 +1,6 @@
+﻿<ScrollPresenter
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="ScrollPresenter"
+    TooltipText="Forma.ScrollPresenter"
+    CustomMinimumSize="300,160" />

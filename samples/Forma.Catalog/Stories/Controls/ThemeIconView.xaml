@@ -1,0 +1,6 @@
+﻿<ThemeIconView
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="ThemeIconView"
+    TooltipText="Forma.ThemeIconView"
+    CustomMinimumSize="300,160" />

@@ -1,10 +1,11 @@
-<BoxContainer xmlns="https://forma.dev/xaml"
-               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-               xmlns:local="clr-namespace:Forma.Catalog"
-               x:Class="Forma.Catalog.TemplateGalleryStoryView"
-               x:Name="TemplateGalleryRoot"
-               Separation="12"
-               CustomMinimumSize="680,760">
+﻿<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Class="Forma.Catalog.TemplateGalleryStoryView"
+    x:Name="TemplateGalleryRoot"
+    Separation="12"
+    CustomMinimumSize="680,760">
     <BoxContainer.Resources>
         <ResourceDictionary>
             <DataTemplate x:Key="ReferenceItemTemplate" x:DataType="local:CatalogTemplateItem">
@@ -13,18 +14,38 @@
                 </Border>
             </DataTemplate>
             <ControlTemplate x:Key="SignalButtonTemplate" TargetType="Button">
-                <Border Background="#FF16324A" BorderBrush="#FF52D6C8" BorderThickness="2" Padding="10,6" CornerRadius="4">
-                    <TextBlock Text="{Binding Text, RelativeSource=TemplatedParent}" Foreground="#FFF5FBFA" HorizontalAlignment="Center" />
+                <Border
+                    Background="#FF16324A"
+                    BorderBrush="#FF52D6C8"
+                    BorderThickness="2"
+                    Padding="10,6"
+                    CornerRadius="4">
+                    <TextBlock
+                        Text="{Binding Text, RelativeSource=TemplatedParent}"
+                        Foreground="#FFF5FBFA"
+                        HorizontalAlignment="Center" />
                 </Border>
             </ControlTemplate>
             <ControlTemplate x:Key="OrbitalButtonTemplate" TargetType="Button">
                 <OverlayPanel>
-                    <Border Background="#FF4A2038" BorderBrush="#FFFFC857" BorderThickness="0,0,0,3" CornerRadius="12" />
-                    <TextBlock Text="{Binding Text, RelativeSource=TemplatedParent}" Foreground="#FFFFF6DD" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border
+                        Background="#FF4A2038"
+                        BorderBrush="#FFFFC857"
+                        BorderThickness="0,0,0,3"
+                        CornerRadius="12" />
+                    <TextBlock
+                        Text="{Binding Text, RelativeSource=TemplatedParent}"
+                        Foreground="#FFFFF6DD"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
                 </OverlayPanel>
             </ControlTemplate>
             <ControlTemplate x:Key="RailListTemplate" TargetType="ListBox">
-                <Border Background="#FF181B22" BorderBrush="#FFFFC857" BorderThickness="3,0,0,0" Padding="8">
+                <Border
+                    Background="#FF181B22"
+                    BorderBrush="#FFFFC857"
+                    BorderThickness="3,0,0,0"
+                    Padding="8">
                     <OverlayPanel>
                         <ScrollPresenter x:Name="PART_ScrollPresenter" ClipToBounds="False" />
                         <ItemsPresenter x:Name="PART_ItemsPresenter" />
@@ -32,7 +53,11 @@
                 </Border>
             </ControlTemplate>
             <ControlTemplate x:Key="LedgerGridTemplate" TargetType="DataGrid">
-                <Border Background="#FF10151B" BorderBrush="#FF5B8DEF" BorderThickness="1" Padding="6">
+                <Border
+                    Background="#FF10151B"
+                    BorderBrush="#FF5B8DEF"
+                    BorderThickness="1"
+                    Padding="6">
                     <VBoxContainer Separation="4">
                         <GridPanel x:Name="PART_ColumnHeaders" CustomMinimumSize="0,28" />
                         <OverlayPanel>
@@ -43,17 +68,31 @@
                 </Border>
             </ControlTemplate>
             <ControlTemplate x:Key="OutlineTreeTemplate" TargetType="Tree">
-                <Border Background="#FF152019" BorderBrush="#FF70C27A" BorderThickness="1" Padding="8" CornerRadius="4">
+                <Border
+                    Background="#FF152019"
+                    BorderBrush="#FF70C27A"
+                    BorderThickness="1"
+                    Padding="8"
+                    CornerRadius="4">
                     <TreePresenter x:Name="PART_TreePresenter" />
                 </Border>
             </ControlTemplate>
             <ControlTemplate x:Key="TerminalEditorTemplate" TargetType="LineEdit">
-                <Border Background="#FF0D1117" BorderBrush="#FFEB6F92" BorderThickness="0,0,0,2" Padding="8,5">
+                <Border
+                    Background="#FF0D1117"
+                    BorderBrush="#FFEB6F92"
+                    BorderThickness="0,0,0,2"
+                    Padding="8,5">
                     <LineEditPresenter x:Name="PART_EditorPresenter" />
                 </Border>
             </ControlTemplate>
             <ControlTemplate x:Key="SheetDialogTemplate" TargetType="ConfirmationDialog">
-                <Border Background="#FFF3F6F8" BorderBrush="#FF243746" BorderThickness="1" Padding="12" CornerRadius="3">
+                <Border
+                    Background="#FFF3F6F8"
+                    BorderBrush="#FF243746"
+                    BorderThickness="1"
+                    Padding="12"
+                    CornerRadius="3">
                     <VBoxContainer Separation="8">
                         <Label x:Name="PART_TitlePresenter" FontColor="#FF16324A" />
                         <Label x:Name="PART_ContentPresenter" FontColor="#FF3B4A54" />
@@ -65,7 +104,11 @@
                 </Border>
             </ControlTemplate>
             <ControlTemplate x:Key="NavigationTemplate" TargetType="ListBox">
-                <Border Background="#FF25262B" BorderBrush="#FFB8F35A" BorderThickness="0,0,0,3" Padding="6">
+                <Border
+                    Background="#FF25262B"
+                    BorderBrush="#FFB8F35A"
+                    BorderThickness="0,0,0,3"
+                    Padding="6">
                     <OverlayPanel>
                         <ScrollPresenter x:Name="PART_ScrollPresenter" ClipToBounds="False" />
                         <ItemsPresenter x:Name="PART_ItemsPresenter" />
@@ -74,13 +117,48 @@
             </ControlTemplate>
         </ResourceDictionary>
     </BoxContainer.Resources>
-    <Label Text="Template systems" FontColor="#FF30B9A4" Uppercase="True" CustomMinimumSize="0,28" />
-    <Button x:Name="ReferenceButton" Template="{StaticResource SignalButtonTemplate}" Text="Launch sequence" CustomMinimumSize="220,42" />
-    <Button x:Name="ReferenceButtonAlternate" Template="{StaticResource OrbitalButtonTemplate}" Text="Same command, new structure" CustomMinimumSize="260,42" />
-    <LineEdit x:Name="ReferenceEditor" Template="{StaticResource TerminalEditorTemplate}" Text="template-first editor" CustomMinimumSize="320,40" />
-    <ListBox x:Name="ReferenceList" Template="{StaticResource RailListTemplate}" ItemTemplate="{StaticResource ReferenceItemTemplate}" CustomMinimumSize="320,100" />
-    <DataGrid x:Name="ReferenceGrid" Template="{StaticResource LedgerGridTemplate}" CustomMinimumSize="500,130" />
-    <Tree x:Name="ReferenceTree" Template="{StaticResource OutlineTreeTemplate}" CustomMinimumSize="320,110" />
-    <ConfirmationDialog x:Name="ReferenceDialog" Template="{StaticResource SheetDialogTemplate}" Title="Publish changes" DialogText="Ship the template-only composition?" CustomMinimumSize="360,150" />
-    <ListBox x:Name="ReferenceNavigation" Template="{StaticResource NavigationTemplate}" ItemTemplate="{StaticResource ReferenceItemTemplate}" CustomMinimumSize="500,58" />
+    <Label
+        Text="Template systems"
+        FontColor="#FF30B9A4"
+        Uppercase="True"
+        CustomMinimumSize="0,28" />
+    <Button
+        x:Name="ReferenceButton"
+        Template="{StaticResource SignalButtonTemplate}"
+        Text="Launch sequence"
+        CustomMinimumSize="220,42" />
+    <Button
+        x:Name="ReferenceButtonAlternate"
+        Template="{StaticResource OrbitalButtonTemplate}"
+        Text="Same command, new structure"
+        CustomMinimumSize="260,42" />
+    <LineEdit
+        x:Name="ReferenceEditor"
+        Template="{StaticResource TerminalEditorTemplate}"
+        Text="template-first editor"
+        CustomMinimumSize="320,40" />
+    <ListBox
+        x:Name="ReferenceList"
+        Template="{StaticResource RailListTemplate}"
+        ItemTemplate="{StaticResource ReferenceItemTemplate}"
+        CustomMinimumSize="320,100" />
+    <DataGrid
+        x:Name="ReferenceGrid"
+        Template="{StaticResource LedgerGridTemplate}"
+        CustomMinimumSize="500,130" />
+    <Tree
+        x:Name="ReferenceTree"
+        Template="{StaticResource OutlineTreeTemplate}"
+        CustomMinimumSize="320,110" />
+    <ConfirmationDialog
+        x:Name="ReferenceDialog"
+        Template="{StaticResource SheetDialogTemplate}"
+        Title="Publish changes"
+        DialogText="Ship the template-only composition?"
+        CustomMinimumSize="360,150" />
+    <ListBox
+        x:Name="ReferenceNavigation"
+        Template="{StaticResource NavigationTemplate}"
+        ItemTemplate="{StaticResource ReferenceItemTemplate}"
+        CustomMinimumSize="500,58" />
 </BoxContainer>

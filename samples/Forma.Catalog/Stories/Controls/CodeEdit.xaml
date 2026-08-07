@@ -1,0 +1,10 @@
+﻿<CodeEdit
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="CodeEdit"
+    TooltipText="Forma.CodeEdit"
+    CustomMinimumSize="560,360"
+    Text="using Forma;&#10;&#10;var button = new Button&#10;{&#10;    Text = &quot;Run game&quot;,&#10;};"
+    DrawLineNumbers="True"
+    DrawMinimap="True"
+    LineWrappingMode="Boundary" />

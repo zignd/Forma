@@ -1,47 +1,72 @@
-<BoxContainer xmlns="https://forma.dev/xaml"
-              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-              xmlns:local="clr-namespace:Forma.Catalog"
-              x:Class="Forma.Catalog.DataBindingStoryView"
-              x:DataType="local:CatalogBindingStoryViewModel"
-              x:Name="BindingRoot"
-              Separation="12"
-              CustomMinimumSize="660,320">
-    <Label Text="Compiled data binding" FontColor="#FF30B9A4" Uppercase="True" CustomMinimumSize="0,28" />
-    <Label Text="Edit the model through two-way controls while one-way targets update from property notifications."
-           FontColor="#FF8F99AA"
-           AutowrapMode="Word"
-           CustomMinimumSize="620,42" />
+﻿<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Class="Forma.Catalog.DataBindingStoryView"
+    x:DataType="local:CatalogBindingStoryViewModel"
+    x:Name="BindingRoot"
+    Separation="12"
+    CustomMinimumSize="660,320">
+    <Label
+        Text="Compiled data binding"
+        FontColor="#FF30B9A4"
+        Uppercase="True"
+        CustomMinimumSize="0,28" />
+    <Label
+        Text="Edit the model through two-way controls while one-way targets update from property notifications."
+        FontColor="#FF8F99AA"
+        AutowrapMode="Word"
+        CustomMinimumSize="620,42" />
     <HBoxContainer Separation="12">
-        <Label Text="Project" CustomMinimumSize="110,36" VerticalAlignment="Center" />
-        <LineEdit x:Name="ProjectNameEditor"
-                  Text="{Binding ProjectName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                  ClearButtonEnabled="True"
-                  HorizontalSizeFlags="Fill, Expand"
-                  CustomMinimumSize="400,36" />
+        <Label
+            Text="Project"
+            CustomMinimumSize="110,36"
+            VerticalAlignment="Center" />
+        <LineEdit
+            x:Name="ProjectNameEditor"
+            Text="{Binding ProjectName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            ClearButtonEnabled="True"
+            HorizontalSizeFlags="Fill, Expand"
+            CustomMinimumSize="400,36" />
     </HBoxContainer>
     <HBoxContainer Separation="12">
-        <Label Text="Completion" CustomMinimumSize="110,34" VerticalAlignment="Center" />
-        <HSlider x:Name="CompletionSlider"
-                 MinValue="0"
-                 MaxValue="100"
-                 Step="1"
-                 Value="{Binding Completion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                 HorizontalSizeFlags="Fill, Expand"
-                 CustomMinimumSize="320,34" />
-        <Label x:Name="CompletionLabel"
-               Text="{Binding CompletionText}"
-               CustomMinimumSize="130,34"
-               VerticalAlignment="Center" />
+        <Label
+            Text="Completion"
+            CustomMinimumSize="110,34"
+            VerticalAlignment="Center" />
+        <HSlider
+            x:Name="CompletionSlider"
+            MinValue="0"
+            MaxValue="100"
+            Step="1"
+            Value="{Binding Completion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            HorizontalSizeFlags="Fill, Expand"
+            CustomMinimumSize="320,34" />
+        <Label
+            x:Name="CompletionLabel"
+            Text="{Binding CompletionText}"
+            CustomMinimumSize="130,34"
+            VerticalAlignment="Center" />
     </HBoxContainer>
-    <CheckBox x:Name="AutoSaveToggle"
-              Text="Autosave enabled"
-              ButtonPressed="{Binding AutoSaveEnabled, Mode=TwoWay}"
-              CustomMinimumSize="220,34" />
-    <ProgressBar MinValue="0" MaxValue="100" Value="{Binding Completion}" CustomMinimumSize="620,28" />
-    <Label x:Name="BindingSummary"
-           Text="{Binding Summary}"
-           FontColor="#FFF6B949"
-           AutowrapMode="Word"
-           CustomMinimumSize="620,34" />
-    <Button Text="Reset model" Pressed="OnResetPressed" CustomMinimumSize="160,36" HorizontalSizeFlags="ShrinkBegin" />
+    <CheckBox
+        x:Name="AutoSaveToggle"
+        Text="Autosave enabled"
+        ButtonPressed="{Binding AutoSaveEnabled, Mode=TwoWay}"
+        CustomMinimumSize="220,34" />
+    <ProgressBar
+        MinValue="0"
+        MaxValue="100"
+        Value="{Binding Completion}"
+        CustomMinimumSize="620,28" />
+    <Label
+        x:Name="BindingSummary"
+        Text="{Binding Summary}"
+        FontColor="#FFF6B949"
+        AutowrapMode="Word"
+        CustomMinimumSize="620,34" />
+    <Button
+        Text="Reset model"
+        Pressed="OnResetPressed"
+        CustomMinimumSize="160,36"
+        HorizontalSizeFlags="ShrinkBegin" />
 </BoxContainer>

@@ -1,0 +1,9 @@
+﻿<GraphFrame
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="GraphFrame"
+    TooltipText="Forma.GraphFrame"
+    CustomMinimumSize="300,160"
+    Title="GraphFrame">
+    <Label Text="Process value" CustomMinimumSize="180,32" />
+</GraphFrame>

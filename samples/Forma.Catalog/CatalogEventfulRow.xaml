@@ -1,7 +1,12 @@
-<Control xmlns="https://forma.dev/xaml"
-         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         xmlns:local="clr-namespace:Forma.Catalog"
-         x:Class="Forma.Catalog.CatalogEventfulRow"
-         x:DataType="local:CatalogCollectionItem">
-    <Button x:Name="RowAction" Text="{Binding Name}" Pressed="OnRowPressed" CustomMinimumSize="150,30" />
+﻿<Control
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Catalog"
+    x:Class="Forma.Catalog.CatalogEventfulRow"
+    x:DataType="local:CatalogCollectionItem">
+    <Button
+        x:Name="RowAction"
+        Text="{Binding Name}"
+        Pressed="OnRowPressed"
+        CustomMinimumSize="150,30" />
 </Control>

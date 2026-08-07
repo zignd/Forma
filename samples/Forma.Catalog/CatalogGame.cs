@@ -79,7 +79,7 @@ public sealed class CatalogGame : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         Window.AllowUserResizing = true;
-        Window.Title = "Forma Catalog";
+        Window.Title = CatalogBackend.WindowTitle;
         _textInput = new RuntimeCatalogTextInputAdapter(this, _ui.TextInput);
     }
 
@@ -99,13 +99,18 @@ public sealed class CatalogGame : Game
         _hebrewFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoSansHebrew_Subset.ttf");
         _emojiFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, "Fonts/NotoEmoji_Subset.ttf");
         _catalogTexture = CreateCatalogTexture();
-        Window.Title = "Forma Catalog";
         var defaultFont = CreateDynamicFont("Inter", 16, null);
         _ui.Theme.FontFamily = new UIFontFamily(new[] { defaultFont });
         _ui.TooltipUIFont = defaultFont;
         var stories = StoryCatalog.Create(_catalogTexture, SetInteractiveDisplayScale, CreateDynamicFont);
         _storyCount = stories.Count;
-        _catalog = new CatalogShell(stories, defaultFont, CreateDynamicFont("Inter", 15, null), _font, enabled => _dynamicTextEnabled = enabled);
+        _catalog = new CatalogShell(
+            stories,
+            defaultFont,
+            CreateDynamicFont("Inter", 15, null),
+            _font,
+            _codeFont,
+            enabled => _dynamicTextEnabled = enabled);
         if (_metricsOptions?.LayoutDirection != null) _catalog.LayoutDirection = _metricsOptions.LayoutDirection.Value;
         _ui.Add(_catalog);
         _liveResize = LiveResizeAdapter.TryCreate(this);
@@ -260,7 +265,9 @@ public sealed class CatalogGame : Game
         _xamlHotReload.DiagnosticsChanged += diagnostics =>
         {
             foreach (var diagnostic in diagnostics) Console.Error.WriteLine(diagnostic);
-            _catalog.ReportHotReloadDiagnostics(diagnostics.Count, diagnostics.FirstOrDefault()?.ToString());
+            _catalog.ReportHotReloadDiagnostics(
+                diagnostics.Count,
+                string.Join(Environment.NewLine + Environment.NewLine, diagnostics.Select(diagnostic => diagnostic.ToString())));
         };
         _xamlHotReloadRegistration = _xamlHotReload.Register<Control>("CatalogShell.xaml", () => _catalog, (_, replacement) =>
         {
@@ -269,6 +276,7 @@ public sealed class CatalogGame : Game
         });
         _catalog.ActiveStoryChanged += RegisterActiveStory;
         RegisterActiveStory(_catalog.ActiveStory, _catalog.ActiveStoryControl);
+        _catalog.ReportHotReloadDiagnostics(0, null);
     }
 
     private void RegisterActiveStory(ComponentStory story, Control root)

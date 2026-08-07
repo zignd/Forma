@@ -1,0 +1,8 @@
+﻿<RichTextLabel
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="RichTextLabel"
+    TooltipText="Forma.RichTextLabel"
+    CustomMinimumSize="560,360"
+    SelectionEnabled="True"
+    ScrollActive="True" />

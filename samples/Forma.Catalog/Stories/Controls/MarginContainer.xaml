@@ -1,0 +1,17 @@
+﻿<MarginContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="MarginContainer"
+    TooltipText="Forma.MarginContainer"
+    CustomMinimumSize="560,360">
+    <Container CustomMinimumSize="240,128">
+        <ColorRect
+            Position="24,24"
+            Size="180,80"
+            Color="#FF30B9A4" />
+        <Label
+            Position="42,50"
+            Size="140,28"
+            Text="MarginContainer" />
+    </Container>
+</MarginContainer>

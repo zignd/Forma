@@ -1,0 +1,17 @@
+﻿<VBoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Forma.Catalog.SpriteFontCompatibilityStoryView"
+    Separation="12"
+    CustomMinimumSize="660,250">
+    <LineEdit
+        x:Name="compatibilityText"
+        Text="Forma office AV"
+        CustomMinimumSize="640,38" />
+    <Label x:Name="dynamicCompatibility" CustomMinimumSize="640,62" />
+    <Label x:Name="spriteCompatibility" CustomMinimumSize="640,62" />
+    <Label
+        x:Name="compatibilityDiagnostics"
+        FontColor="#FF8F99AA"
+        CustomMinimumSize="640,42" />
+</VBoxContainer>

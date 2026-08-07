@@ -1,0 +1,6 @@
+﻿<TemplatedControl
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="TemplatedControl"
+    TooltipText="Forma.TemplatedControl"
+    CustomMinimumSize="300,120" />

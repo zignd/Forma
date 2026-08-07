@@ -1,0 +1,10 @@
+﻿<Border
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="Border"
+    TooltipText="Forma.Border"
+    CustomMinimumSize="560,360"
+    BorderBrush="#FFF6B949"
+    BorderThickness="3">
+    <ColorRect Color="#FF30B9A4" CustomMinimumSize="240,128" />
+</Border>

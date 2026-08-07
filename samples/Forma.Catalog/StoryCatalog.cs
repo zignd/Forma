@@ -40,18 +40,18 @@ public static class StoryCatalog
     {
         var stories = new List<ComponentStory>();
         var controlType = typeof(Control);
-        var explicitFactories = new Dictionary<Type, Func<Control>>
+        var xamlRootTypes = new Dictionary<Type, Type>
         {
-            [typeof(BoxContainer)] = () => new BoxContainer(Orientation.Horizontal),
-            [typeof(Slider)] = () => new Slider(Orientation.Horizontal),
-            [typeof(ScrollBar)] = () => new ScrollBar(Orientation.Horizontal),
-            [typeof(SplitContainer)] = () => new SplitContainer(Orientation.Horizontal),
-            [typeof(FlowContainer)] = () => new FlowContainer(Orientation.Horizontal),
+            [typeof(BoxContainer)] = typeof(CatalogBoxContainerStoryRoot),
+            [typeof(Slider)] = typeof(CatalogSliderStoryRoot),
+            [typeof(ScrollBar)] = typeof(CatalogScrollBarStoryRoot),
+            [typeof(SplitContainer)] = typeof(CatalogSplitContainerStoryRoot),
+            [typeof(FlowContainer)] = typeof(CatalogFlowContainerStoryRoot),
         };
         foreach (var type in new[] { controlType.Assembly, typeof(VideoStreamPlayer).Assembly }
                      .SelectMany(assembly => assembly.GetTypes())
                      .Where(type => type.IsPublic && !type.IsAbstract && controlType.IsAssignableFrom(type))
-                     .Where(type => type.GetConstructor(Type.EmptyTypes) != null || explicitFactories.ContainsKey(type))
+                     .Where(type => type.GetConstructor(Type.EmptyTypes) != null || xamlRootTypes.ContainsKey(type))
                      .OrderBy(type => GetCategory(type))
                      .ThenBy(type => type.Name))
         {
@@ -61,7 +61,10 @@ public static class StoryCatalog
                 type == typeof(VideoStreamPlayer)
                     ? "Optional [color=#30b9a4]Forma.Media[/color] video control configured for autoplay, looping, and responsive expansion. Assign a content-loaded Video to begin playback."
                     : $"Interactive example of [color=#30b9a4]{type.FullName}[/color]. Use the property inspector to change its public writable values at runtime.",
-                () => CreateExample(type, texture, explicitFactories)));
+                () => (Control)FormaXamlLoader.Load(
+                    xamlRootTypes.TryGetValue(type, out var xamlRootType) ? xamlRootType : type),
+                root => AttachExample(root, texture),
+                $"Stories/Controls/{type.Name}.xaml"));
         }
         stories.Add(new ComponentStory(
             "XAML",
@@ -163,62 +166,16 @@ public static class StoryCatalog
         "Typography",
         "Letter Spacing",
         "Edit the sample and compare natural shaping with adjustable tracking from -1 to 2 logical pixels.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 10, CustomMinimumSize = new Vector2(320, 320), HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand };
-            column.AddChild(new LineEdit
-            {
-                Name = "letterSpacingText",
-                Text = "runtime.",
-                ClearButtonEnabled = true,
-                CustomMinimumSize = new Vector2(320, 38),
-            });
-            var controls = new HBoxContainer { Separation = 10 };
-            controls.AddChild(new Slider(Orientation.Horizontal)
-            {
-                Name = "letterSpacing",
-                MinValue = -1,
-                MaxValue = 2,
-                Step = .05f,
-                Value = .25f,
-                TickCount = 7,
-                CustomMinimumSize = new Vector2(170, 34),
-                HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand,
-            });
-            controls.AddChild(new Button { Name = "resetLetterSpacing", Text = "Reset to zero", CustomMinimumSize = new Vector2(140, 34) });
-            column.AddChild(controls);
-            column.AddChild(new Label { Name = "letterSpacingStatus", AutowrapMode = LabelAutowrapMode.Word, FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(320, 44) });
-            column.AddChild(new RichTextLabel
-            {
-                Name = "naturalSpacingPreview",
-                FitContent = false,
-                ScrollActive = false,
-                AutowrapMode = LabelAutowrapMode.Word,
-                Padding = Thickness.Zero,
-                FontColor = new Color(143, 153, 170),
-                CustomMinimumSize = new Vector2(0, 64),
-            });
-            column.AddChild(new RichTextLabel
-            {
-                Name = "trackedSpacingPreview",
-                FitContent = false,
-                ScrollActive = false,
-                AutowrapMode = LabelAutowrapMode.Word,
-                Padding = Thickness.Zero,
-                FontColor = new Color(48, 185, 164),
-                CustomMinimumSize = new Vector2(0, 64),
-            });
-            return column;
-        },
+        () => new LetterSpacingStoryView(),
         root =>
         {
-            var input = (LineEdit)root.Children[0];
-            var controls = root.Children[1];
-            var spacing = (Slider)controls.Children[0];
-            var reset = (Button)controls.Children[1];
-            var status = (Label)root.Children[2];
-            var natural = (RichTextLabel)root.Children[3];
-            var tracked = (RichTextLabel)root.Children[4];
+            var scope = NameScope.GetNameScope(root);
+            var input = scope.Find<LineEdit>("letterSpacingText");
+            var spacing = scope.Find<Slider>("letterSpacing");
+            var reset = scope.Find<Button>("resetLetterSpacing");
+            var status = scope.Find<Label>("letterSpacingStatus");
+            var natural = scope.Find<RichTextLabel>("naturalSpacingPreview");
+            var tracked = scope.Find<RichTextLabel>("trackedSpacingPreview");
             if (createDynamicFont != null)
             {
                 natural.UIFont = createDynamicFont("Inter", 28, null);
@@ -246,25 +203,14 @@ public static class StoryCatalog
             spacing.ValueChanged += (_, _) => Refresh();
             reset.Pressed += (_, _) => spacing.Value = 0;
             Refresh();
-        });
+        },
+        "LetterSpacingStoryView.xaml");
 
     private static ComponentStory CreateDisplayDensityStory(Action<float> setDisplayScale, Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
         "Display Density",
         "Compare stable 24 px logical bounds while switching physical rasterization between 1x, 1.5x, and 2x.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 12, CustomMinimumSize = new Vector2(660, 260) };
-            var buttons = new HBoxContainer { Separation = 8 };
-            foreach (var density in new[] { "1x", "1.5x", "2x" }) buttons.AddChild(new Button { Name = density, Text = density, CustomMinimumSize = new Vector2(84, 34) });
-            column.AddChild(buttons);
-            column.AddChild(new Label { Name = "densityStatus", CustomMinimumSize = new Vector2(0, 24) });
-            var samples = new HBoxContainer { Separation = 18 };
-            foreach (var density in new[] { 1f, 1.5f, 2f })
-                samples.AddChild(new Label { Name = $"sample{density:0.0}", Text = $"Forma\n24 px logical\n{24 * density:0} px raster", CustomMinimumSize = new Vector2(190, 120), VerticalAlignment = VerticalAlignment.Center });
-            column.AddChild(samples);
-            return column;
-        },
+        () => new DisplayDensityStoryView(),
         root =>
         {
             var buttons = root.Children[0];
@@ -282,20 +228,14 @@ public static class StoryCatalog
             ((Button)buttons.Children[1]).Pressed += (_, _) => Select(1.5f);
             ((Button)buttons.Children[2]).Pressed += (_, _) => Select(2);
             Select(1);
-        });
+        },
+        "DisplayDensityStoryView.xaml");
 
     private static ComponentStory CreateFallbackChainStory(Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
         "Fallback Chain",
         "Shape mixed scripts through the real fallback family and report the selected face for every retained run.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 10, CustomMinimumSize = new Vector2(660, 260) };
-            column.AddChild(new LineEdit { Name = "fallbackText", Text = "Forma Ελληνικά Кириллица مرحبا क्ष 你好 ★ 👩🏽‍💻", CustomMinimumSize = new Vector2(640, 38) });
-            column.AddChild(new Label { Name = "fallbackPreview", AutowrapMode = LabelAutowrapMode.Word, CustomMinimumSize = new Vector2(640, 76) });
-            column.AddChild(new Label { Name = "fallbackDiagnostics", AutowrapMode = LabelAutowrapMode.Word, FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(640, 100) });
-            return column;
-        },
+        () => new FallbackChainStoryView(),
         root =>
         {
             var input = (LineEdit)root.Children[0];
@@ -316,25 +256,14 @@ public static class StoryCatalog
             }
             input.TextChanged += (_, _) => Refresh();
             Refresh();
-        });
+        },
+        "FallbackChainStoryView.xaml");
 
     private static ComponentStory CreateShapingFeaturesStory(Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
         "Shaping and Features",
         "Toggle standard ligatures and kerning, then vary the Noto Arabic weight axis through real HarfBuzz layouts.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 10, CustomMinimumSize = new Vector2(660, 280) };
-            var controls = new HBoxContainer { Separation = 12 };
-            controls.AddChild(new CheckBox { Name = "ligatures", Text = "Standard ligatures", ButtonPressed = true });
-            controls.AddChild(new CheckBox { Name = "kerning", Text = "Kerning", ButtonPressed = true });
-            controls.AddChild(new Slider(Orientation.Horizontal) { Name = "weight", MinValue = 100, MaxValue = 900, Step = 100, Value = 400, CustomMinimumSize = new Vector2(180, 34) });
-            column.AddChild(controls);
-            column.AddChild(new Label { Name = "latinFeatures", Text = "office AV é", CustomMinimumSize = new Vector2(640, 62) });
-            column.AddChild(new Label { Name = "arabicFeatures", Text = "مرحبا بالعالم", TextDirection = TextDirection.RightToLeft, Language = "ar", CustomMinimumSize = new Vector2(640, 62) });
-            column.AddChild(new Label { Name = "featureDiagnostics", FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(640, 40) });
-            return column;
-        },
+        () => new ShapingFeaturesStoryView(),
         root =>
         {
             var controls = root.Children[0];
@@ -362,27 +291,14 @@ public static class StoryCatalog
             kerning.Toggled += (_, _) => Refresh();
             weight.ValueChanged += (_, _) => Refresh();
             Refresh();
-        });
+        },
+        "ShapingFeaturesStoryView.xaml");
 
     private static ComponentStory CreateBidirectionalStory(Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
         "Bidirectional Text",
         "Edit mixed Hebrew, Arabic, numbers, and Latin text; force paragraph direction and inspect logical versus visual run order.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 10, CustomMinimumSize = new Vector2(660, 270) };
-            var controls = new HBoxContainer { Separation = 10 };
-            controls.AddChild(new LineEdit { Name = "bidiText", Text = "Forma שלום 123 مرحبا", CustomMinimumSize = new Vector2(470, 38) });
-            var direction = new OptionButton { Name = "bidiDirection", CustomMinimumSize = new Vector2(150, 38) };
-            direction.AddItem("Auto");
-            direction.AddItem("LTR");
-            direction.AddItem("RTL");
-            controls.AddChild(direction);
-            column.AddChild(controls);
-            column.AddChild(new Label { Name = "bidiPreview", AutowrapMode = LabelAutowrapMode.Word, CustomMinimumSize = new Vector2(640, 76) });
-            column.AddChild(new Label { Name = "bidiDiagnostics", AutowrapMode = LabelAutowrapMode.Word, FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(640, 96) });
-            return column;
-        },
+        () => new BidirectionalStoryView(),
         root =>
         {
             var controls = root.Children[0];
@@ -404,55 +320,14 @@ public static class StoryCatalog
             input.TextChanged += (_, _) => Refresh();
             direction.ItemSelected += (_, _) => Refresh();
             Refresh();
-        });
+        },
+        "BidirectionalStoryView.xaml");
 
     private static ComponentStory CreateWrappingSelectionStory(Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
         "Wrapping and Selection",
         "Edit multilingual paragraphs, select with the mouse, and inspect caret, range, wrapping, ellipsis, and visual movement on one retained layout.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 9, CustomMinimumSize = new Vector2(680, 560) };
-            column.AddChild(new TextEdit
-            {
-                Name = "wrappingText",
-                Text = "Forma élan office שלום مرحبا\nनमस्ते สวัสดี 你好 — select this text with the mouse.",
-                LineWrappingMode = TextEditLineWrappingMode.Boundary,
-                CustomMinimumSize = new Vector2(660, 105),
-            });
-            var layoutControls = new HBoxContainer { Separation = 8 };
-            layoutControls.AddChild(new Slider(Orientation.Horizontal) { Name = "wrappingWidth", MinValue = 240, MaxValue = 640, Step = 20, Value = 460, CustomMinimumSize = new Vector2(170, 34) });
-            var wrapping = new OptionButton { Name = "wrappingMode", CustomMinimumSize = new Vector2(130, 34) };
-            wrapping.AddItem("No wrap");
-            wrapping.AddItem("Character");
-            wrapping.AddItem("Word");
-            wrapping.Select(2);
-            layoutControls.AddChild(wrapping);
-            layoutControls.AddChild(new CheckBox { Name = "wrappingEllipsis", Text = "Ellipsis" });
-            var direction = new OptionButton { Name = "wrappingDirection", CustomMinimumSize = new Vector2(110, 34) };
-            direction.AddItem("Auto");
-            direction.AddItem("LTR");
-            direction.AddItem("RTL");
-            layoutControls.AddChild(direction);
-            column.AddChild(layoutControls);
-            var movementControls = new HBoxContainer { Separation = 8 };
-            var movement = new OptionButton { Name = "caretMovement", CustomMinimumSize = new Vector2(130, 34) };
-            movement.AddItem("Grapheme");
-            movement.AddItem("Word");
-            movement.AddItem("Visual");
-            movementControls.AddChild(movement);
-            movementControls.AddChild(new Button { Name = "caretPrevious", Text = "Previous", CustomMinimumSize = new Vector2(100, 34) });
-            movementControls.AddChild(new Button { Name = "caretNext", Text = "Next", CustomMinimumSize = new Vector2(100, 34) });
-            movementControls.AddChild(new Button { Name = "inspectSelection", Text = "Inspect selection", CustomMinimumSize = new Vector2(150, 34) });
-            column.AddChild(movementControls);
-            var preview = new Label { Name = "wrappingPreview", ClipText = true, CustomMinimumSize = new Vector2(460, 190), CustomMaximumSize = new Vector2(460, 190) };
-            for (var index = 0; index < 12; index++)
-                preview.AddChild(new ColorRect { Name = $"selectionOverlay{index}", Color = new Color(48, 185, 164, 82), MouseFilter = MouseFilter.Ignore, Visible = false, ZIndex = 1 });
-            preview.AddChild(new ColorRect { Name = "caretOverlay", Color = new Color(246, 185, 73), MouseFilter = MouseFilter.Ignore, Visible = false, ZIndex = 2 });
-            column.AddChild(preview);
-            column.AddChild(new Label { Name = "wrappingDiagnostics", AutowrapMode = LabelAutowrapMode.Word, FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(660, 58) });
-            return column;
-        },
+        () => new WrappingSelectionStoryView(),
         root =>
         {
             var editor = (TextEdit)root.Children[0];
@@ -542,21 +417,14 @@ public static class StoryCatalog
             next.Pressed += (_, _) => MoveCaret(1);
             inspect.Pressed += (_, _) => Refresh();
             Refresh();
-        });
+        },
+        "WrappingSelectionStoryView.xaml");
 
     private static ComponentStory CreateSpriteFontCompatibilityStory(Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
         "SpriteFont Compatibility",
         "Compare retained dynamic text with the native-free SpriteFontAdapter path. Metric differences are expected because the source fonts and rasterizers differ.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 12, CustomMinimumSize = new Vector2(660, 250) };
-            column.AddChild(new LineEdit { Name = "compatibilityText", Text = "Forma office AV", CustomMinimumSize = new Vector2(640, 38) });
-            column.AddChild(new Label { Name = "dynamicCompatibility", CustomMinimumSize = new Vector2(640, 62) });
-            column.AddChild(new Label { Name = "spriteCompatibility", CustomMinimumSize = new Vector2(640, 62) });
-            column.AddChild(new Label { Name = "compatibilityDiagnostics", FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(640, 42) });
-            return column;
-        },
+        () => new SpriteFontCompatibilityStoryView(),
         root =>
         {
             var input = (LineEdit)root.Children[0];
@@ -576,27 +444,14 @@ public static class StoryCatalog
             }
             input.TextChanged += (_, _) => Refresh();
             Refresh();
-        });
+        },
+        "SpriteFontCompatibilityStoryView.xaml");
 
     private static ComponentStory CreateAtlasInspectorStory(Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
         "Atlas Inspector",
         "Inspect immutable page previews, occupancy, cache activity, uploads, evictions, and bounded memory while stressing or clearing the device cache.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 9, CustomMinimumSize = new Vector2(680, 390) };
-            var controls = new HBoxContainer { Separation = 8 };
-            controls.AddChild(new LineEdit { Name = "atlasStress", Text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 مرحبا 你好 👩🏽‍💻", CustomMinimumSize = new Vector2(450, 38) });
-            controls.AddChild(new Button { Name = "atlasRefresh", Text = "Refresh", CustomMinimumSize = new Vector2(96, 38) });
-            controls.AddChild(new Button { Name = "atlasClear", Text = "Clear", CustomMinimumSize = new Vector2(86, 38) });
-            column.AddChild(controls);
-            column.AddChild(new Label { Name = "atlasPreviewText", AutowrapMode = LabelAutowrapMode.Word, CustomMinimumSize = new Vector2(660, 58) });
-            column.AddChild(new Label { Name = "atlasStatus", AutowrapMode = LabelAutowrapMode.Word, FontColor = new Color(143, 153, 170), CustomMinimumSize = new Vector2(660, 48) });
-            var pages = new HBoxContainer { Name = "atlasPages", Separation = 8 };
-            for (var index = 0; index < 4; index++) pages.AddChild(new DynamicGlyphAtlasView { Name = $"atlasPage{index}", CustomMinimumSize = new Vector2(150, 150) });
-            column.AddChild(pages);
-            return column;
-        },
+        () => new AtlasInspectorStoryView(),
         root =>
         {
             var controls = root.Children[0];
@@ -621,22 +476,14 @@ public static class StoryCatalog
             refresh.Pressed += (_, _) => Refresh();
             clear.Pressed += (_, _) => { root.Context.ClearDynamicGlyphCache(); Refresh(); };
             Refresh();
-        });
+        },
+        "AtlasInspectorStoryView.xaml");
 
     private static ComponentStory CreateFailureStatesStory(Func<string, float, IReadOnlyList<UIFontVariationCoordinate>, UIFont> createDynamicFont) => new(
         "Typography",
         "Failure States",
         "Run bounded font, fallback, and atlas failure probes. Expected failures remain visible diagnostics and never terminate the catalog.",
-        () =>
-        {
-            var column = new VBoxContainer { Separation = 9, CustomMinimumSize = new Vector2(660, 300) };
-            column.AddChild(new Button { Name = "runFailureProbes", Text = "Run failure probes", CustomMinimumSize = new Vector2(190, 36) });
-            column.AddChild(new Label { Name = "missingFaceFailure", AutowrapMode = LabelAutowrapMode.Word, CustomMinimumSize = new Vector2(640, 38) });
-            column.AddChild(new Label { Name = "malformedFontFailure", AutowrapMode = LabelAutowrapMode.Word, CustomMinimumSize = new Vector2(640, 38) });
-            column.AddChild(new Label { Name = "fallbackFailure", AutowrapMode = LabelAutowrapMode.Word, CustomMinimumSize = new Vector2(640, 38) });
-            column.AddChild(new Label { Name = "atlasFailure", AutowrapMode = LabelAutowrapMode.Word, CustomMinimumSize = new Vector2(640, 54) });
-            return column;
-        },
+        () => new FailureStatesStoryView(),
         root =>
         {
             var run = (Button)root.Children[0];
@@ -664,7 +511,8 @@ public static class StoryCatalog
             }
             run.Pressed += (_, _) => Probe();
             Probe();
-        });
+        },
+        "FailureStatesStoryView.xaml");
 
     private static ComponentStory CreateIconInventoryStory() => new(
         "Theme icons",
@@ -807,16 +655,6 @@ public static class StoryCatalog
         },
         "IconCustomizationStoryView.xaml");
 
-    private static Control LabeledOption(string label, string name)
-    {
-        var column = new VBoxContainer { Separation = 6, CustomMinimumSize = new Vector2(164, 72) };
-        column.AddChild(new Label { Text = label, HorizontalAlignment = HorizontalAlignment.Center });
-        var option = new OptionButton { Name = name, CustomMinimumSize = new Vector2(164, 36) };
-        option.AddItem("Density");
-        column.AddChild(option);
-        return column;
-    }
-
     private static ComponentStory CreateIconDiagnosticsStory(Action<float> setDisplayScale) => new(
         "Theme icons",
         "Atlas diagnostics",
@@ -853,58 +691,11 @@ public static class StoryCatalog
         public List<string> Bindings { get; set; } = new();
     }
 
-    private static Control CreateExample(Type type, Texture2D texture, IReadOnlyDictionary<Type, Func<Control>> explicitFactories)
+    private static void AttachExample(Control control, Texture2D texture)
     {
-        var control = explicitFactories.TryGetValue(type, out var factory) ? factory() : (Control)Activator.CreateInstance(type);
-        control.Name = type.Name;
-        control.TooltipText = type.FullName;
-        control.CustomMinimumSize = IsLargeSurface(type) ? new Vector2(560, 360) : new Vector2(300, 64);
-        SeedExample(control, type.Name, texture);
-        return control;
-    }
-
-    private static void SeedExample(Control control, string name, Texture2D texture)
-    {
-        if (control is VideoStreamPlayer videoPlayer)
-        {
-            videoPlayer.Autoplay = true;
-            videoPlayer.Loop = true;
-            videoPlayer.Expand = true;
-            videoPlayer.Volume = .75f;
-            videoPlayer.AddChild(new ColorRect
-            {
-                Size = new Vector2(560, 315),
-                Color = new Color(16, 20, 27),
-            });
-            videoPlayer.AddChild(new Label
-            {
-                Position = new Vector2(180, 124),
-                Size = new Vector2(200, 68),
-                Text = "VIDEO\nNO STREAM",
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-            });
-            return;
-        }
-        if (control is Popup embeddedPopup)
-        {
-            embeddedPopup.Modal = false;
-            embeddedPopup.HideOnOutsideClick = false;
-            embeddedPopup.Visible = true;
-        }
         if (control is FileDialog fileDialog)
         {
-            fileDialog.Title = "Open project asset";
-            fileDialog.DialogText = "Select a file from the project";
             fileDialog.AddFilter("*.cs;*.png;*.json");
-            fileDialog.Visible = true;
-            return;
-        }
-        if (control is AcceptDialog dialog)
-        {
-            dialog.Title = name;
-            dialog.DialogText = control is ConfirmationDialog ? "Continue with this action?" : "This is a modal message.";
-            dialog.Visible = true;
             return;
         }
         if (control is PopupMenu popupMenu)
@@ -914,24 +705,24 @@ public static class StoryCatalog
             popupMenu.SetItemChecked(1, true);
             popupMenu.AddSeparator();
             popupMenu.AddItem("Close", 3);
-            popupMenu.Visible = true;
             return;
         }
         if (control is MenuBar menuBar)
         {
-            var file = menuBar.AddMenu("File");
+            var file = (MenuButton)menuBar.Children.Single(child => child.Name == "FileMenu");
             file.Menu.AddItem("New");
             file.Menu.AddItem("Open");
             file.Menu.AddSeparator();
             file.Menu.AddItem("Save");
-            var edit = menuBar.AddMenu("Edit");
+            var edit = (MenuButton)menuBar.Children.Single(child => child.Name == "EditMenu");
             edit.Menu.AddItem("Undo");
             edit.Menu.AddItem("Redo");
+            file.Pressed += (_, _) => edit.Menu.Hide();
+            edit.Pressed += (_, _) => file.Menu.Hide();
             return;
         }
         if (control is MenuButton menuButton)
         {
-            menuButton.Text = "Build";
             menuButton.Menu.AddItem("Build solution");
             menuButton.Menu.AddItem("Rebuild");
             menuButton.Menu.AddItem("Clean");
@@ -945,26 +736,16 @@ public static class StoryCatalog
             optionButton.Select(0);
             return;
         }
-        if (control is TabContainer tabContainer)
-        {
-            tabContainer.AddChild(CreatePage("Scene", new Color(37, 70, 70)));
-            tabContainer.AddChild(CreatePage("Inspector", new Color(64, 55, 37)));
-            tabContainer.AddChild(CreatePage("Output", new Color(43, 49, 65)));
-            return;
-        }
         if (control is TabBar tabBar)
         {
             tabBar.AddTab("Scene");
             tabBar.AddTab("Inspector");
             tabBar.AddTab("Output");
             tabBar.AddTab("Debugger");
-            tabBar.CloseDisplayPolicy = TabCloseDisplayPolicy.ActiveOnly;
             return;
         }
         if (control is Tree tree)
         {
-            tree.Columns = 2;
-            tree.ColumnTitlesVisible = true;
             tree.SetColumnTitle(0, "Node");
             tree.SetColumnTitle(1, "Visible");
             var root = tree.CreateItem();
@@ -985,239 +766,65 @@ public static class StoryCatalog
             itemList.AddItem("World.cs", texture);
             itemList.AddItem("palette.png", texture);
             itemList.Select(0);
-            itemList.MaxColumns = 2;
             return;
         }
         if (control is GraphEdit graphEdit)
         {
-            graphEdit.HorizontalSizeFlags = SizeFlags.Fill | SizeFlags.Expand;
-            graphEdit.VerticalSizeFlags = SizeFlags.Fill | SizeFlags.Expand;
-            var source = new GraphNode { Name = "Input", Title = "Input", Position = new Vector2(32, 54), Size = new Vector2(150, 84) };
+            var source = (GraphNode)graphEdit.Children.Single(child => child.Name == "Input");
             source.AddOutputPort("value", 1, new Color(48, 185, 164));
-            var output = new GraphNode { Name = "Output", Title = "Output", Position = new Vector2(310, 180), Size = new Vector2(150, 84) };
+            var output = (GraphNode)graphEdit.Children.Single(child => child.Name == "Output");
             output.AddInputPort("value", 1, new Color(48, 185, 164));
-            graphEdit.AddChild(source);
-            graphEdit.AddChild(output);
             graphEdit.ConnectNode("Input", 0, "Output", 0);
             return;
         }
         if (control is GraphNode graphNode)
         {
-            graphNode.Title = name;
             graphNode.AddInputPort("input", 1, new Color(246, 185, 73));
             graphNode.AddOutputPort("result", 1, new Color(48, 185, 164));
-            graphNode.AddChild(new Label { Text = "Process value", CustomMinimumSize = new Vector2(180, 32) });
-            return;
-        }
-        if (control is CodeEdit codeEdit)
-        {
-            codeEdit.Text = "using Forma;\n\nvar button = new Button\n{\n    Text = \"Run game\",\n};";
-            codeEdit.DrawLineNumbers = true;
-            codeEdit.DrawMinimap = true;
-            codeEdit.SetLineWrappingMode(TextEditLineWrappingMode.Boundary);
             return;
         }
         if (control is RichTextLabel richText)
         {
             richText.AppendBbcode("[color=#30b9a4][b]Forma[/b][/color][br]Rich text supports [i]formatting[/i], links, lists, tables, and selection.");
-            richText.SelectionEnabled = true;
-            richText.ScrollActive = true;
-            return;
-        }
-        if (control is TextEdit textEdit)
-        {
-            textEdit.Text = "A multiline editor built with Forma.\n\nSelect text, move the caret, and edit this document.";
-            textEdit.SetLineWrappingMode(TextEditLineWrappingMode.Boundary);
-            return;
-        }
-        if (control is SpinBox spinBox)
-        {
-            spinBox.MinValue = 8;
-            spinBox.MaxValue = 96;
-            spinBox.Value = 24;
-            spinBox.Step = 1;
-            spinBox.Prefix = "Font size: ";
-            return;
-        }
-        if (control is LineEdit lineEdit)
-        {
-            lineEdit.Text = "Editable component value";
-            lineEdit.PlaceholderText = "Type here";
-            lineEdit.ClearButtonEnabled = true;
             return;
         }
         if (control is ColorPicker colorPicker)
         {
-            colorPicker.Color = new Color(48, 185, 164);
             colorPicker.AddPreset(new Color(246, 185, 73));
             colorPicker.AddPreset(new Color(91, 126, 246));
             return;
         }
         if (control is ColorPickerButton colorPickerButton)
         {
-            colorPickerButton.Color = new Color(48, 185, 164);
             colorPickerButton.Picker.AddPreset(new Color(246, 185, 73));
-            return;
-        }
-        if (control is ColorPresetButton presetButton)
-        {
-            presetButton.Color = new Color(246, 185, 73);
             return;
         }
         if (control is TextureProgressBar textureProgress)
         {
             textureProgress.Under = texture;
             textureProgress.Progress = texture;
-            textureProgress.Value = 68;
-            textureProgress.TintUnder = new Color(80, 86, 98);
-            textureProgress.TintProgress = new Color(48, 185, 164);
             return;
         }
         if (control is TextureButton textureButton)
         {
             textureButton.TextureNormal = texture;
-            textureButton.StretchMode = TextureButtonStretchMode.KeepAspectCentered;
             return;
         }
         if (control is NinePatchRect ninePatch)
         {
             ninePatch.Texture = texture;
-            ninePatch.PatchMargin = new Thickness(8);
             return;
         }
         if (control is TextureRect textureRect)
         {
             textureRect.Texture = texture;
-            textureRect.StretchMode = TextureStretchMode.Tile;
-            textureRect.ExpandMode = TextureRectExpandMode.IgnoreSize;
             return;
         }
         if (control is SubViewportContainer subViewport)
         {
-            subViewport.Stretch = true;
-            subViewport.StretchShrink = 2;
-            subViewport.ViewportClearColor = new Color(17, 21, 27);
             subViewport.ViewportContext.Add(new ColorRect { Position = new Vector2(16, 16), Size = new Vector2(180, 100), Color = new Color(48, 185, 164) });
-            return;
         }
-        if (control is VirtualJoystick joystick)
-        {
-            joystick.CustomMinimumSize = new Vector2(180, 180);
-            joystick.BackgroundColor = new Color(43, 52, 66);
-            joystick.KnobColor = new Color(48, 185, 164);
-            return;
-        }
-        if (control is FoldableContainer foldable)
-        {
-            foldable.Title = "Transform";
-            foldable.AddChild(new Label { Text = "Position   120, 64", CustomMinimumSize = new Vector2(280, 30) });
-            foldable.AddChild(new Label { Text = "Rotation   0 degrees", CustomMinimumSize = new Vector2(280, 30) });
-            return;
-        }
-        if (control is ScrollContainer scroll)
-        {
-            var content = new VBoxContainer { Separation = 6, CustomMinimumSize = new Vector2(500, 600) };
-            for (var index = 1; index <= 14; index++) content.AddChild(new Button { Text = $"Scrollable row {index}", CustomMinimumSize = new Vector2(480, 32) });
-            scroll.AddChild(content);
-            return;
-        }
-        if (control is AspectRatioContainer aspectRatio)
-        {
-            aspectRatio.Ratio = 16f / 9;
-            aspectRatio.AddChild(new ColorRect { Color = new Color(48, 185, 164), CustomMinimumSize = new Vector2(240, 135), HorizontalSizeFlags = SizeFlags.Fill, VerticalSizeFlags = SizeFlags.Fill });
-            return;
-        }
-        if (control is SplitContainer split)
-        {
-            split.AddChild(CreatePage("Primary pane", new Color(37, 70, 70)));
-            split.AddChild(CreatePage("Secondary pane", new Color(64, 55, 37)));
-            split.SplitOffset = 260;
-            return;
-        }
-        if (control is FlowContainer flow)
-        {
-            for (var index = 1; index <= 9; index++) flow.AddChild(new Button { Text = $"Item {index}", CustomMinimumSize = new Vector2(92, 34) });
-            return;
-        }
-        if (control is GridContainer grid)
-        {
-            grid.Columns = 3;
-            for (var index = 1; index <= 9; index++) grid.AddChild(new Button { Text = index.ToString(CultureInfo.InvariantCulture), CustomMinimumSize = new Vector2(84, 44) });
-            return;
-        }
-        if (control is BoxContainer box)
-        {
-            box.Separation = 8;
-            box.AddChild(new Button { Text = "One", CustomMinimumSize = new Vector2(96, 38) });
-            box.AddChild(new Button { Text = "Two", CustomMinimumSize = new Vector2(96, 38) });
-            box.AddChild(new Button { Text = "Three", CustomMinimumSize = new Vector2(96, 38) });
-            return;
-        }
-        if (control is Container container)
-        {
-            var content = new Container { CustomMinimumSize = new Vector2(240, 128) };
-            content.AddChild(new ColorRect { Position = new Vector2(24, 24), Size = new Vector2(180, 80), Color = new Color(48, 185, 164) });
-            content.AddChild(new Label { Position = new Vector2(42, 50), Size = new Vector2(140, 28), Text = name });
-            container.AddChild(content);
-            return;
-        }
-        if (control is Label label)
-        {
-            label.Text = $"{name}\nForma";
-            label.HorizontalAlignment = HorizontalAlignment.Center;
-            label.VerticalAlignment = VerticalAlignment.Center;
-            label.AutowrapMode = LabelAutowrapMode.Word;
-            return;
-        }
-        if (control is BaseButton button)
-        {
-            button.Text = name;
-            if (control is CheckBox checkBox) checkBox.ButtonPressed = true;
-            return;
-        }
-        if (control is ProgressBar progressBar)
-        {
-            progressBar.Value = 62;
-            return;
-        }
-        if (control is Slider slider)
-        {
-            slider.Value = 62;
-            slider.TickCount = 6;
-            return;
-        }
-        if (control is Forma.Range range)
-        {
-            range.Value = 62;
-            return;
-        }
-        if (control is ColorRect colorRect)
-        {
-            colorRect.Color = new Color(48, 185, 164);
-            return;
-        }
-        if (control is ReferenceRect referenceRect)
-        {
-            referenceRect.BorderColor = new Color(246, 185, 73);
-            referenceRect.BorderWidth = 3;
-            return;
-        }
-        if (control is Panel panel) panel.BackgroundColor = new Color(43, 52, 66);
     }
-
-    private static Panel CreatePage(string name, Color color)
-    {
-        var page = new Panel { Name = name, BackgroundColor = color, CustomMinimumSize = new Vector2(240, 120) };
-        page.AddChild(new Label { Text = name, Position = new Vector2(18, 18), Size = new Vector2(180, 28) });
-        return page;
-    }
-
-    private static bool IsLargeSurface(Type type) =>
-        typeof(Container).IsAssignableFrom(type) ||
-        type == typeof(Tree) || type == typeof(ItemList) || type == typeof(TextEdit) ||
-        type == typeof(CodeEdit) || type == typeof(RichTextLabel) || type == typeof(GraphEdit) ||
-        type == typeof(ColorPicker) || type == typeof(VideoStreamPlayer) ||
-        typeof(Popup).IsAssignableFrom(type);
 
     private static string GetCategory(Type type)
     {
@@ -1243,6 +850,7 @@ public static class FontApplicator
         {
             case CodeEdit codeEdit: codeEdit.UIFont = codeFont; break;
             case TextEdit textEdit: textEdit.UIFont = font; break;
+            case RichTextLabel richTextLabel: richTextLabel.UIFont = font; break;
             case Label label when label.Name == "spriteCompatibility": label.Font = compatibilityFont; break;
             case Label label: label.UIFont = font; break;
             case MenuButton menuButton: menuButton.UIFont = font; Apply(menuButton.Menu, font, codeFont, compatibilityFont); break;

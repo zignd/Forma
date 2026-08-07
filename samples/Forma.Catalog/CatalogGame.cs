@@ -236,6 +236,7 @@ public sealed class CatalogGame : Game
             _liveResize?.Dispose();
             _textInput.Dispose();
 #if FORMA_XAML_HOT_RELOAD
+            if (_catalog != null) _catalog.ActiveStoryChanged -= RegisterActiveStory;
             _activeStoryHotReloadRegistration?.Dispose();
             _xamlHotReloadRegistration?.Dispose();
             _xamlHotReload?.Dispose();

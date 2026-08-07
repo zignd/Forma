@@ -79,21 +79,17 @@ contracts rather than volatile measurements. Change them through their owning AD
 
 ## Public Control Coverage
 
-The 2026-08-07 source scan found 118 public classes rooted at `Control`: 43 have class-level XML
-summaries, 75 do not, and 111 have direct reflected Catalog stories. Generated Docfx metadata is the
-canonical current type inventory. No curated control-family reference exists yet.
+`CatalogInventoryTest` reflects constructible public controls and requires one Catalog story for
+each. Every strict documentation build then parses Docfx YAML, measures documented public types and
+members, and verifies every reflected control story has both generated metadata and an HTML API
+page. The generated `control-coverage.json` in the site artifact is the current count and mapping
+authority.
 
-| Coverage | Types |
-| --- | --- |
-| XML summary and direct story | `AcceptDialog`, `Border`, `CheckButton`, `CodeEdit`, `ColorPicker`, `ColorPickerButton`, `ColorPickerDialog`, `ColorPickerPopupPanel`, `ColorPresetButton`, `Control`, `DynamicGlyphAtlasView`, `FileDialog`, `FoldableContainer`, `GraphEdit`, `GraphEditFilter`, `GraphEditMinimap`, `GraphElement`, `GraphFrame`, `GraphNode`, `Image`, `ItemList`, `LineEdit`, `MenuBar`, `MenuButton`, `NineSliceImage`, `Popup`, `PopupMenu`, `RichTextDocument`, `RichTextLabel`, `SplitContainerDragger`, `SplitContainerMultiDragger`, `SubViewportContainer`, `TabBar`, `TemplatedControl`, `TextBlock`, `ThemeIconRect`, `ThemeIconView`, `Tree`, `VideoStreamPlayer`, `VirtualJoystick` |
-| Missing XML summary; direct story | `AspectRatioContainer`, `BaseButton`, `BoxContainer`, `Button`, `CanvasPanel`, `CenterContainer`, `CheckBox`, `ColorRect`, `ConfirmationDialog`, `Container`, `ContentControl`, `ContentPresenter`, `DataGrid`, `DataGridCell`, `DataGridColumnHeader`, `DataGridRow`, `EllipseShape`, `FlexPanel`, `FlowContainer`, `GridContainer`, `GridPanel`, `HBoxContainer`, `HFlowContainer`, `HScrollBar`, `HSeparator`, `HSlider`, `HSplitContainer`, `ItemsControl`, `ItemsPresenter`, `Label`, `LineEditPresenter`, `LineShape`, `LinkButton`, `ListBox`, `ListBoxItem`, `MarginContainer`, `NinePatchRect`, `OptionButton`, `OverlayPanel`, `Panel`, `PanelContainer`, `PathShape`, `PolygonShape`, `PolylineShape`, `PopupPanel`, `ProgressBar`, `RectangleShape`, `ReferenceRect`, `ScrollBar`, `ScrollContainer`, `ScrollPresenter`, `Slider`, `SpinBox`, `SplitContainer`, `StackPanel`, `TabContainer`, `TextEdit`, `TextureButton`, `TextureProgressBar`, `TextureRect`, `TreePresenter`, `VBoxContainer`, `VFlowContainer`, `VScrollBar`, `VSeparator`, `VSlider`, `VSplitContainer`, `Viewbox`, `VirtualizingGridPanel`, `VirtualizingStackPanel`, `WrapPanel` |
-| Summary; feature or owner story | `DrawingElement` through the Runtime SVG feature story; `PopupMenuItems` through `PopupMenu`; `SpinBoxLineEdit` through `SpinBox` |
-| Missing summary; descendant stories only | Abstract `Range`, `Separator`, `Shape`, `VirtualizingPanel` |
-
-The next reference pass should add useful summaries to the 75 gaps and create curated family pages
-for text input, buttons, selection, containers, collections, dialogs, data display, graph/code
-controls, and media. Catalog coverage remains enforced by `CatalogInventoryTest`; owner-only and
-abstract controls do not require synthetic standalone stories.
+The initial floors are 27.65% for public types and 11.57% for public members. They match the audited
+baseline closely enough that one newly undocumented public item fails rather than lowering the
+baseline silently. Raising the floors requires adding useful XML summaries first; lowering them
+requires explicit compatibility/documentation review. Abstract and owner-only controls do not need
+synthetic standalone stories, but they remain part of XML/API coverage.
 
 ## Audit Commands
 
@@ -107,6 +103,10 @@ rg -n '\b[0-9]+\b.*\b(test|tests|icon|icons|package|packages|platform|RID|contro
 
 # Machine-owned icon inventory
 jq '.Icons | length' assets/theme-icons/imports.json
+
+# Generated XML coverage and control/story/API mapping (after `make docs`)
+jq '{PublicTypes, DocumentedTypes, TypeCoveragePercent, PublicMembers, DocumentedMembers, MemberCoveragePercent, Controls: (.Controls | length)}' \
+  Artifacts/docs/site/control-coverage.json
 
 # Version and runtime pin authority
 rg -n 'FormaVersion|MonoGameVersion|FnaVersion|FnaNativeAssetsVersion' Directory.Build.props

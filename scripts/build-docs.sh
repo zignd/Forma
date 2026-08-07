@@ -7,6 +7,7 @@ docs_port="${DOCS_PORT:-8080}"
 generated_root="$repository_root/docs/_generated"
 api_root="$repository_root/docs/api"
 site_root="$repository_root/Artifacts/docs/site"
+docs_revision="$(git -C "$repository_root" rev-parse HEAD)"
 
 case "$mode" in
   build|check|serve) ;;
@@ -22,7 +23,8 @@ fi
 projects=(Forma Forma.DynamicText Forma.Media Forma.Svg Forma.Svg.ThorVG Forma.Xaml.HotReload)
 for project in "${projects[@]}"; do
   dotnet build "src/$project/$project.csproj" \
-    --configuration Release -p:FormaRuntime=MonoGame --no-incremental --nologo
+    --configuration Release -p:FormaRuntime=MonoGame -p:SourceRevisionId="$docs_revision" \
+    --no-incremental --nologo
 done
 
 rm -rf "$generated_root" "$api_root" "$site_root"
@@ -47,6 +49,10 @@ cp "$nuget_root/nvorbis/$nvorbis_version/lib/netstandard2.0/NVorbis.dll" \
   "$generated_root/references/"
 
 dotnet docfx docs/docfx.json --warningsAsErrors
+
+dotnet run --project tools/Forma.AssemblyInspector/Forma.AssemblyInspector.csproj -- \
+  docs-coverage "$api_root" "$site_root" samples/Forma.Catalog/Stories/Controls \
+  27.65 11.57 "$site_root/control-coverage.json"
 
 test -f "$site_root/index.html"
 test -f "$site_root/api/Forma.Control.html"

@@ -2,12 +2,16 @@
 // SPDX-License-Identifier: MIT
 
 using Mono.Cecil;
+using System.Globalization;
+using System.Text.Json;
+using YamlDotNet.RepresentationModel;
 
 return args.Length == 0 ? Usage() : args[0] switch
 {
     "references" => CheckReferences(args),
     "forbid-references" => ForbidReferences(args),
     "compare-api" => CompareApi(args),
+    "docs-coverage" => CheckDocumentationCoverage(args),
     _ => Usage(),
 };
 
@@ -17,8 +21,78 @@ static int Usage()
     Console.Error.WriteLine("  Forma.AssemblyInspector references <assembly> <assembly-name> <runtime> <required-reference> <forbidden-reference>");
     Console.Error.WriteLine("  Forma.AssemblyInspector forbid-references <assembly> <forbidden-reference> [<forbidden-reference> ...]");
     Console.Error.WriteLine("  Forma.AssemblyInspector compare-api <left-assembly> <right-assembly>");
+    Console.Error.WriteLine("  Forma.AssemblyInspector docs-coverage <api-yaml-directory> <site-directory> <control-story-directory> <minimum-type-percent> <minimum-member-percent> <report-path>");
     return 2;
 }
+
+static int CheckDocumentationCoverage(string[] arguments)
+{
+    if (arguments.Length != 7 ||
+        !double.TryParse(arguments[4], NumberStyles.Float, CultureInfo.InvariantCulture, out var minimumTypePercent) ||
+        !double.TryParse(arguments[5], NumberStyles.Float, CultureInfo.InvariantCulture, out var minimumMemberPercent))
+        return Usage();
+
+    var apiDirectory = Path.GetFullPath(arguments[1]);
+    var siteDirectory = Path.GetFullPath(arguments[2]);
+    var storyDirectory = Path.GetFullPath(arguments[3]);
+    var reportPath = Path.GetFullPath(arguments[6]);
+    var types = new List<DocumentationItem>();
+    var members = new List<DocumentationItem>();
+
+    foreach (var yamlPath in Directory.EnumerateFiles(apiDirectory, "*.yml", SearchOption.TopDirectoryOnly))
+    {
+        using var input = File.OpenText(yamlPath);
+        var yaml = new YamlStream();
+        yaml.Load(input);
+        if (yaml.Documents.Count == 0 || yaml.Documents[0].RootNode is not YamlMappingNode root ||
+            !root.Children.TryGetValue(new YamlScalarNode("items"), out var itemsNode) || itemsNode is not YamlSequenceNode items)
+            continue;
+
+        foreach (var itemNode in items.Children.OfType<YamlMappingNode>())
+        {
+            var uid = Scalar(itemNode, "uid");
+            var kind = Scalar(itemNode, "type");
+            if (string.IsNullOrWhiteSpace(uid) || string.IsNullOrWhiteSpace(kind)) continue;
+            var item = new DocumentationItem(uid, !string.IsNullOrWhiteSpace(Scalar(itemNode, "summary")));
+            if (kind is "Class" or "Struct" or "Interface" or "Enum" or "Delegate") types.Add(item);
+            else if (kind is "Constructor" or "Method" or "Property" or "Field" or "Event" or "Operator") members.Add(item);
+        }
+    }
+
+    var typeCoverage = Percentage(types.Count(item => item.Documented), types.Count);
+    var memberCoverage = Percentage(members.Count(item => item.Documented), members.Count);
+    var missingMappings = new List<string>();
+    var mappings = new List<ControlMapping>();
+    foreach (var storyPath in Directory.EnumerateFiles(storyDirectory, "*.xaml", SearchOption.TopDirectoryOnly).OrderBy(path => path, StringComparer.Ordinal))
+    {
+        var controlName = Path.GetFileNameWithoutExtension(storyPath);
+        var uid = $"Forma.{controlName}";
+        var yamlExists = File.Exists(Path.Combine(apiDirectory, $"{uid}.yml"));
+        var htmlExists = File.Exists(Path.Combine(siteDirectory, "api", $"{uid}.html"));
+        mappings.Add(new ControlMapping(controlName, Path.GetRelativePath(Directory.GetParent(storyDirectory)!.Parent!.Parent!.FullName, storyPath), uid, yamlExists, htmlExists));
+        if (!yamlExists || !htmlExists) missingMappings.Add($"{controlName}: metadata={yamlExists}, page={htmlExists}");
+    }
+
+    var report = new DocumentationCoverageReport(
+        types.Count, types.Count(item => item.Documented), typeCoverage,
+        members.Count, members.Count(item => item.Documented), memberCoverage,
+        minimumTypePercent, minimumMemberPercent, mappings);
+    Directory.CreateDirectory(Path.GetDirectoryName(reportPath)!);
+    File.WriteAllText(reportPath, JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }) + Environment.NewLine);
+
+    foreach (var missing in missingMappings) Console.Error.WriteLine($"Missing control mapping: {missing}");
+    if (typeCoverage < minimumTypePercent)
+        Console.Error.WriteLine($"Type documentation coverage {typeCoverage:F1}% is below {minimumTypePercent:F1}%.");
+    if (memberCoverage < minimumMemberPercent)
+        Console.Error.WriteLine($"Member documentation coverage {memberCoverage:F1}% is below {minimumMemberPercent:F1}%.");
+    Console.WriteLine($"Documentation coverage: {report.DocumentedTypes}/{report.PublicTypes} types ({typeCoverage:F1}%), {report.DocumentedMembers}/{report.PublicMembers} members ({memberCoverage:F1}%), {mappings.Count} control story/reference mappings.");
+    return missingMappings.Count == 0 && typeCoverage >= minimumTypePercent && memberCoverage >= minimumMemberPercent ? 0 : 1;
+}
+
+static string? Scalar(YamlMappingNode node, string key) =>
+    node.Children.TryGetValue(new YamlScalarNode(key), out var value) && value is YamlScalarNode scalar ? scalar.Value : null;
+
+static double Percentage(int documented, int total) => total == 0 ? 100 : documented * 100.0 / total;
 
 static int CheckReferences(string[] arguments)
 {
@@ -106,3 +180,16 @@ static string TypeKind(TypeDefinition type) => type.IsInterface ? "interface" : 
 static string GenericSignature(GenericParameter parameter) => $"{parameter.Position}:{parameter.Name}:{parameter.Attributes}:{string.Join(",", parameter.Constraints.Select(constraint => constraint.ConstraintType.FullName))}";
 static string MethodSignature(TypeDefinition type, MethodDefinition method) =>
     $"method {MethodVisibility(method)} {(method.IsStatic ? "static " : "")}{(method.IsAbstract ? "abstract " : "")}{method.ReturnType.FullName} {type.FullName}::{method.Name}`{method.GenericParameters.Count}({string.Join(",", method.Parameters.Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}"))})";
+
+sealed record DocumentationItem(string Uid, bool Documented);
+sealed record ControlMapping(string Control, string Story, string ApiUid, bool MetadataExists, bool PageExists);
+sealed record DocumentationCoverageReport(
+    int PublicTypes,
+    int DocumentedTypes,
+    double TypeCoveragePercent,
+    int PublicMembers,
+    int DocumentedMembers,
+    double MemberCoveragePercent,
+    double MinimumTypeCoveragePercent,
+    double MinimumMemberCoveragePercent,
+    IReadOnlyList<ControlMapping> Controls);

@@ -40,6 +40,7 @@ jq -e 'all(.Icons[]; .License == "Godot-MIT" and (.Source | startswith("scene/th
   "$repository_root/assets/theme-icons/imports.json" >/dev/null
 grep -Fq 'Svg.Skia' "$repository_root/THIRD-PARTY-NOTICES.md"
 grep -Fq 'Clipper2 2.0.0' "$repository_root/THIRD-PARTY-NOTICES.md"
+grep -Fq 'YamlDotNet 16.3.0' "$repository_root/THIRD-PARTY-NOTICES.md"
 jq -e '.unicodeVersion == "17.0.0" and (.files | length > 0) and all(.files[]; (.url | startswith("https://www.unicode.org/Public/17.0.0/")) and (.sha256 | test("^[0-9a-f]{64}$")))' \
   "$repository_root/assets/unicode/manifest.json" >/dev/null
 

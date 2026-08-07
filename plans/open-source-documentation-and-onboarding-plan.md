@@ -541,7 +541,7 @@ Each curated control entry should include:
 ### Tasks
 
 - [x] Enable XML documentation output for all public runtime packages intended for reference.
-- [ ] Measure public type/member XML coverage and define an initial enforced threshold.
+- [x] Measure public type/member XML coverage and define an initial enforced threshold.
 - [ ] Document every public control type and high-value public member lacking a useful summary.
 - [x] Build the canonical MonoGame release-family assemblies, XML documentation, and portable PDBs
   before Docfx metadata generation, and require runtime API parity to pass first.
@@ -551,7 +551,7 @@ Each curated control entry should include:
   documenting package selection and failing if parity detects an unexplained public API difference.
 - [ ] Create curated control-family overview pages for text input, buttons, selection, containers,
   collections, dialogs, data display, graph/code controls, and media.
-- [ ] Generate or validate the mapping among public controls, Catalog stories, and reference pages.
+- [x] Generate or validate the mapping among public controls, Catalog stories, and reference pages.
 - [ ] Add default-value and support-limitation notes where generated signatures are insufficient.
 - [ ] Add accessibility contracts to applicable control pages.
 - [ ] Introduce API diff review for releases so removed or changed public members require migration
@@ -636,9 +636,9 @@ Each curated control entry should include:
 - [x] Validate package IDs and versions against generated build/package metadata.
 - [x] Validate the NuGet.org publication manifest against packable project IDs so newly approved
   packages, including runtime/backend peers, cannot be omitted silently.
-- [ ] Generate inventory values from authoritative manifests where exact counts are intentionally
+- [x] Generate inventory values from authoritative manifests where exact counts are intentionally
   displayed.
-- [ ] Add a control-story-reference completeness check.
+- [x] Add a control-story-reference completeness check.
 - [ ] Publish stable documentation through GitHub Pages, keep default-branch previews visibly
   separate, and generate immutable release paths plus a version manifest for supported package lines.
 - [ ] Add redirects and link-stability rules before publishing public URLs.

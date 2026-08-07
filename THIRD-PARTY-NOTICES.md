@@ -23,6 +23,16 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FO
 DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## YamlDotNet
+
+The build-only `Forma.AssemblyInspector` tool uses YamlDotNet 16.3.0 to parse generated Docfx
+metadata for documentation coverage and control-reference validation. It is not linked into Forma
+application or NuGet package output. YamlDotNet is distributed under the MIT License.
+
+Source: https://github.com/aaubry/YamlDotNet at `ae480660f4fb26f3eb0b41c1d1fcf21c0e9d9e73`
+
+Copyright (c) Antoine Aubry and contributors
+
 ## Godot Engine
 
 Copyright (c) 2014-present Godot Engine contributors (see Godot's AUTHORS.md).

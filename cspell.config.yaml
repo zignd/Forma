@@ -1,0 +1,20 @@
+version: "0.2"
+language: en-US
+useGitignore: true
+files:
+  - README.md
+  - CONTRIBUTING.md
+  - CODE_OF_CONDUCT.md
+  - SECURITY.md
+  - SUPPORT.md
+  - RELEASE_NOTES.md
+  - docs/**/*.md
+ignorePaths:
+  - docs/api/**
+  - docs/_generated/**
+dictionaryDefinitions:
+  - name: forma-project
+    path: ./config/cspell-project-words.txt
+    addWords: true
+dictionaries:
+  - forma-project

@@ -5,19 +5,29 @@ on:
     branches: [main]
     paths:
       - ".config/dotnet-tools.json"
+      - ".markdownlint-cli2.jsonc"
       - ".github/workflows/docs.yml"
       - "Directory.Build.props"
       - "Makefile"
+      - "config/cspell-project-words.txt"
+      - "cspell.config.yaml"
       - "docs/**"
+      - "package-lock.json"
+      - "package.json"
       - "scripts/build-docs.sh"
       - "src/**"
   pull_request:
     paths:
       - ".config/dotnet-tools.json"
+      - ".markdownlint-cli2.jsonc"
       - ".github/workflows/docs.yml"
       - "Directory.Build.props"
       - "Makefile"
+      - "config/cspell-project-words.txt"
+      - "cspell.config.yaml"
       - "docs/**"
+      - "package-lock.json"
+      - "package.json"
       - "scripts/build-docs.sh"
       - "src/**"
   workflow_dispatch:
@@ -39,6 +49,10 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
       - name: Build strict Docfx site
         run: make docs-check
       - name: Check external links

@@ -3,7 +3,7 @@ title: Build your first UI in C#
 description: Run the same small Forma interface on MonoGame or FNA.
 ---
 
-# Build your first UI in C#
+# Build your first UI in C\#
 
 This route creates one retained control tree with a label, editable field, button event, and status
 label. The shared view is compiled and smoke-tested against both runtime peers. The first public

@@ -34,7 +34,7 @@ DOTNET_ARGS := --configuration "$(CONFIGURATION)" --nologo
 	xaml-game-monogame xaml-game-fna smoke smoke-monogame smoke-fna render-parity video-smoke \
 	text-spike text-spike-local text-baseline xaml-spike \
 	format-xaml format-xaml-check \
-	docs docs-check docs-serve \
+	docs docs-quality docs-check docs-serve \
 	compliance backend-references parity packages aot-analyzers native-font-failures static-font-backend nativeaot check check-all \
 	svg-selection svg-benchmark svg-compare svg-packages thorvg-catalog thorvg-render thorvg-spike thorvg-linux thorvg-nativeaot thorvg-static-host icons icons-import icons-verify unicode unicode-verify track clean
 
@@ -98,7 +98,12 @@ format-xaml-check: tools ## Check all repository XAML formatting without changin
 docs: ## Build the Docfx guide and API site.
 	bash scripts/build-docs.sh build
 
-docs-check: ## Validate runtime parity and build Docfx with warnings as errors.
+docs-quality: ## Check authored documentation spelling and Markdown structure.
+	npm ci --ignore-scripts
+	npm run docs:spell
+	npm run docs:style
+
+docs-check: docs-quality ## Validate prose, runtime parity, and Docfx with warnings as errors.
 	bash scripts/build-docs.sh check
 
 docs-serve: ## Build and serve the Docfx site locally (DOCS_PORT defaults to 8080).

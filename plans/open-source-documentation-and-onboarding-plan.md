@@ -632,7 +632,7 @@ Each curated control entry should include:
   Lychee, or another maintained external-link checker with a documented transient-failure policy.
 - [ ] Compile or import every important snippet from executable fixtures.
 - [ ] Build all quick-start and focused sample projects from clean caches in CI.
-- [ ] Add spell/style checks with a narrow project dictionary and no blanket suppression.
+- [x] Add spell/style checks with a narrow project dictionary and no blanket suppression.
 - [x] Validate package IDs and versions against generated build/package metadata.
 - [x] Validate the NuGet.org publication manifest against packable project IDs so newly approved
   packages, including runtime/backend peers, cannot be omitted silently.

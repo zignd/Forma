@@ -1,0 +1,19 @@
+{
+  "config": {
+    "MD013": false,
+    "MD025": {
+      "front_matter_title": ""
+    }
+  },
+  "globs": [
+    "README.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "RELEASE_NOTES.md",
+    "docs/**/*.md",
+    "#docs/api/**",
+    "#docs/_generated/**"
+  ]
+}

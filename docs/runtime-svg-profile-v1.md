@@ -35,11 +35,11 @@ be byte-identical. A comparison passes only when all semantic samples pass and:
 - transparent/opaque interior sample points agree exactly where antialiasing is irrelevant;
 - non-transparent bounds differ by no more than `ceil(scale)` pixels per edge;
 - alpha coverage differs by no more than 4 percentage points of total image area for production
-	theme icons and 8 percentage points for tiny semantic fixtures;
+ theme icons and 8 percentage points for tiny semantic fixtures;
 - production theme icons have mean premultiplied channel error at most 12/255 and 95th percentile
-	error at most 48/255;
+ error at most 48/255;
 - tiny semantic profile fixtures have mean error at most 26/255 and 95th percentile error at most
-	128/255, alongside their exact semantic sample assertions.
+ 128/255, alongside their exact semantic sample assertions.
 
 These measured limits account for a one-pixel antialiasing phase in 8-10 px fixtures; they are not
 relative-to-object percentages, which distort one-pixel lines. Tolerance never permits empty output,

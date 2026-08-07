@@ -1,0 +1,12 @@
+{
+  "name": "forma-documentation-tools",
+  "private": true,
+  "scripts": {
+    "docs:spell": "cspell --no-progress --show-suggestions",
+    "docs:style": "markdownlint-cli2"
+  },
+  "devDependencies": {
+    "cspell": "10.0.1",
+    "markdownlint-cli2": "0.23.2"
+  }
+}

@@ -527,6 +527,7 @@ namespace Forma.Xaml
 
     public static class FormaXamlLoader
     {
+        private static readonly Dictionary<Type, Func<IServiceProvider, object>> Factories = new();
         private static class Registry<T> where T : class
         {
             public static Func<IServiceProvider, T> Build;
@@ -537,6 +538,7 @@ namespace Forma.Xaml
         {
             Registry<T>.Build = build ?? throw new ArgumentNullException(nameof(build));
             Registry<T>.Populate = populate ?? throw new ArgumentNullException(nameof(populate));
+            lock (Factories) Factories[typeof(T)] = serviceProvider => build(serviceProvider);
         }
 
         public static void RegisterPopulate<T>(Action<IServiceProvider, T> populate) where T : class
@@ -548,6 +550,16 @@ namespace Forma.Xaml
         {
             var build = Registry<T>.Build;
             if (build == null) throw new InvalidOperationException($"No compiled Forma XAML factory is registered for {typeof(T).FullName}.");
+            return build(serviceProvider);
+        }
+
+        public static object Load(Type type, IServiceProvider serviceProvider = null)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            Func<IServiceProvider, object> build;
+            lock (Factories)
+                if (!Factories.TryGetValue(type, out build))
+                    throw new InvalidOperationException($"No compiled Forma XAML factory is registered for {type.FullName}.");
             return build(serviceProvider);
         }
 

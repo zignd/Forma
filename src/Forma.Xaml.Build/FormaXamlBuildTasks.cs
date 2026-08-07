@@ -146,8 +146,65 @@ public sealed class CompileFormaXaml : FormaXamlTask
         ValidateTemplates(typeSystem, module, lowered);
         var eventMemberNames = FindEventMemberNames(typeSystem, module, lowered);
         compiler.CompileCecil(lowered, typeSystem, generatedType, contextType, eventMemberNames);
-        if (rootType == null) return;
+        if (rootType == null)
+        {
+            rootType = ResolveObjectType(typeSystem, module, lowered.Nodes[lowered.RootNodeId.Value], lowered)
+                ?? throw new InvalidOperationException($"XAML root type '{lowered.Nodes[lowered.RootNodeId.Value].TypeName}' could not be resolved.");
+            RegisterFactory(typeSystem, module, generatedType, rootType);
+            return;
+        }
         RegisterPopulate(typeSystem, module, generatedType, rootType, lowered);
+    }
+
+    private static void RegisterFactory(CecilTypeSystem typeSystem, ModuleDefinition module, TypeDefinition generatedType, TypeDefinition rootType)
+    {
+        var formaReference = module.AssemblyReferences.Single(reference => reference.Name == "Forma");
+        var formaAssembly = typeSystem.Resolve(formaReference);
+        var loaderType = formaAssembly.MainModule.GetType("Forma.Xaml.FormaXamlLoader");
+        var serviceProvider = module.ImportReference(typeof(IServiceProvider));
+        var rootReference = module.ImportReference(rootType);
+        var build = generatedType.Methods.Single(method => method.Name == "Build");
+        var populate = generatedType.Methods.Single(method => method.Name == "Populate");
+
+        var funcDefinition = module.ImportReference(typeof(Func<,>));
+        var funcType = new GenericInstanceType(funcDefinition);
+        funcType.GenericArguments.Add(serviceProvider);
+        funcType.GenericArguments.Add(rootReference);
+        var funcConstructor = new MethodReference(".ctor", module.TypeSystem.Void, funcType) { HasThis = true };
+        funcConstructor.Parameters.Add(new ParameterDefinition(module.TypeSystem.Object));
+        funcConstructor.Parameters.Add(new ParameterDefinition(module.TypeSystem.IntPtr));
+
+        var actionDefinition = module.ImportReference(typeof(Action<,>));
+        var actionType = new GenericInstanceType(actionDefinition);
+        actionType.GenericArguments.Add(serviceProvider);
+        actionType.GenericArguments.Add(rootReference);
+        var actionConstructor = new MethodReference(".ctor", module.TypeSystem.Void, actionType) { HasThis = true };
+        actionConstructor.Parameters.Add(new ParameterDefinition(module.TypeSystem.Object));
+        actionConstructor.Parameters.Add(new ParameterDefinition(module.TypeSystem.IntPtr));
+
+        var register = new GenericInstanceMethod(module.ImportReference(loaderType.Methods.Single(method => method.Name == "Register")));
+        register.GenericArguments.Add(rootReference);
+        var initializer = GetOrCreateModuleInitializer(module);
+        var processor = initializer.Body.GetILProcessor();
+        var insertion = initializer.Body.Instructions[0];
+        processor.InsertBefore(insertion, Instruction.Create(OpCodes.Ldnull));
+        processor.InsertBefore(insertion, Instruction.Create(OpCodes.Ldftn, build));
+        processor.InsertBefore(insertion, Instruction.Create(OpCodes.Newobj, funcConstructor));
+        processor.InsertBefore(insertion, Instruction.Create(OpCodes.Ldnull));
+        processor.InsertBefore(insertion, Instruction.Create(OpCodes.Ldftn, populate));
+        processor.InsertBefore(insertion, Instruction.Create(OpCodes.Newobj, actionConstructor));
+        processor.InsertBefore(insertion, Instruction.Create(OpCodes.Call, register));
+    }
+
+    private static MethodDefinition GetOrCreateModuleInitializer(ModuleDefinition module)
+    {
+        var moduleType = module.Types.Single(type => type.Name == "<Module>");
+        var initializer = moduleType.Methods.FirstOrDefault(method => method.Name == ".cctor");
+        if (initializer != null) return initializer;
+        initializer = new MethodDefinition(".cctor", MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, module.TypeSystem.Void);
+        initializer.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+        moduleType.Methods.Add(initializer);
+        return initializer;
     }
 
     private static IReadOnlyCollection<string> FindEventMemberNames(CecilTypeSystem typeSystem, ModuleDefinition module, FormaLoweredDocument lowered)
@@ -348,14 +405,7 @@ public sealed class CompileFormaXaml : FormaXamlTask
         var register = new GenericInstanceMethod(module.ImportReference(loaderType.Methods.Single(method => method.Name == "RegisterPopulate")));
         register.GenericArguments.Add(rootType);
 
-        var moduleType = module.Types.Single(type => type.Name == "<Module>");
-        var initializer = moduleType.Methods.FirstOrDefault(method => method.Name == ".cctor");
-        if (initializer == null)
-        {
-            initializer = new MethodDefinition(".cctor", MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, module.TypeSystem.Void);
-            initializer.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
-            moduleType.Methods.Add(initializer);
-        }
+        var initializer = GetOrCreateModuleInitializer(module);
         var processor = initializer.Body.GetILProcessor();
         var insertion = initializer.Body.Instructions[0];
         processor.InsertBefore(insertion, Instruction.Create(OpCodes.Ldnull));

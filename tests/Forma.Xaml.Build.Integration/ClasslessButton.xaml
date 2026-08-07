@@ -1,0 +1,6 @@
+﻿<Button
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="ClasslessButton"
+    Text="Compiled factory"
+    CustomMinimumSize="180,40" />

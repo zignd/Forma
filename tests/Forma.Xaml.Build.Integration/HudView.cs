@@ -26,6 +26,11 @@ internal static class Program
 {
     private static int Main()
     {
+        var classlessButton = FormaXamlLoader.Load<Button>();
+        if (classlessButton.Name != "ClasslessButton" || classlessButton.Text != "Compiled factory" || classlessButton.CustomMinimumSize != new Vector2(180, 40))
+            throw new InvalidOperationException("Classless compiled Forma XAML factory was not registered.");
+        if (FormaXamlLoader.Load(typeof(Button)) is not Button runtimeTypeButton || runtimeTypeButton.Text != "Compiled factory")
+            throw new InvalidOperationException("Runtime-type compiled Forma XAML factory lookup failed.");
         var svgView = new SvgAssetView();
         var svgImage = NameScope.GetNameScope(svgView)?.Find<Image>("RuntimeSvg")
             ?? throw new InvalidOperationException("Compiled SVG image was not registered.");

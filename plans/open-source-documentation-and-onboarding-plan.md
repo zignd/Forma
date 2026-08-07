@@ -157,10 +157,13 @@ styles until user feedback demonstrates a need for a custom frontend.
 
 The repository pins Docfx in `.config/dotnet-tools.json` and restores it with `dotnet tool restore`.
 The canonical configuration lives at `docs/docfx.json`, consumes the task-oriented Markdown hierarchy
-under `docs/`, and writes generated metadata and site output beneath ignored `Artifacts/docs/`
-directories. The Makefile exposes production build, local preview, and validation commands without
-requiring a global Docfx installation. Node.js or a separate JavaScript documentation application is
-not part of the baseline toolchain.
+under `docs/`, writes generated API metadata beneath ignored `docs/api/`, stages references beneath
+ignored `docs/_generated/`, and writes deployable site output beneath ignored `Artifacts/docs/`.
+Docfx content and reference globs cannot traverse above the configuration directory, so the
+in-docset intermediates are required.
+The Makefile exposes production build, local preview, and validation commands without requiring a
+global Docfx installation. Node.js or a separate JavaScript documentation application is not part of
+the baseline toolchain.
 
 Generated API metadata comes from the prebuilt MonoGame release-family `.dll`, XML documentation,
 and portable PDB files after runtime API parity has passed. This makes the reference describe shipped
@@ -416,29 +419,29 @@ Each curated control entry should include:
   ownership-transfer procedure without committing account credentials.
 - [ ] Recheck every initial package ID immediately before publication and record the result in the
   release evidence.
-- [ ] Finalize the fourteen-package initial public manifest, including both ThorVG and XAML
+- [x] Finalize the fourteen-package initial public manifest, including both ThorVG and XAML
   hot-reload peers, while rejecting the two unused SVG compatibility package IDs.
 - [ ] Configure a NuGet.org trusted-publishing policy for GitHub owner `zigrok`, repository `Forma`,
   and workflow `.github/workflows/release.yml`, owned by the Zigrok NuGet.org organization and
   restricted to the protected `nuget-production` environment.
 - [ ] Configure required maintainers for the GitHub `nuget-production` environment so validation and
   artifact review complete before publication approval.
-- [ ] Extend the release package job to pack, inspect, and upload both ThorVG peers, both XAML
+- [x] Extend the release package job to pack, inspect, and upload both ThorVG peers, both XAML
   hot-reload peers, and their symbol packages where produced.
 - [ ] Run `scripts/test-svg-package-consumers.sh` or an equivalent release gate before publication,
   including native RID selection, absent/mismatched ABI failures, no-Skia checks, single-file
   behavior, and mixed-backend rejection.
-- [ ] Add a publish job that downloads the validated artifact, verifies it exactly matches the
+- [x] Add a publish job that downloads the validated artifact, verifies it exactly matches the
   approved manifest/version, obtains a short-lived credential through `NuGet/login`, and pushes to
   NuGet.org without rebuilding or skipping duplicate versions.
-- [ ] Add post-publication indexing and clean-cache restore checks for every manifest package.
+- [x] Add post-publication indexing and clean-cache restore checks for every manifest package.
 - [ ] Document correction, unlisting, ownership, symbol-package, and credential-compromise procedures.
 - [ ] Inventory every current README and `docs/` page with audience, canonical topic, status, and
   intended destination.
 - [ ] Inventory volatile values and duplicated package/platform claims across documentation.
 - [ ] Inventory public controls and map each to XML summary coverage, Catalog story, curated reference
   status, and example status.
-- [ ] Validate the Docfx decision with a minimal local spike that generates one API page from a
+- [x] Validate the Docfx decision with a minimal local spike that generates one API page from a
   release assembly/XML/PDB set, resolves its Source Link URL, builds the modern template, serves the
   site locally, and produces a deployable static artifact.
 - [ ] Establish terminology for stable, preview, experimental, platform-validated, and unsupported.
@@ -465,12 +468,12 @@ Each curated control entry should include:
 - [ ] Add a short “Try Forma” route for MonoGame and FNA without embedding the entire quick start.
 - [ ] Keep runtime pairing and optional package warnings, but move detailed matrices behind links.
 - [ ] Retain Catalog screenshots and add concise captions describing what users can inspect.
-- [ ] Create `docs/index.md` with task-oriented navigation and clear experience levels.
+- [x] Create `docs/index.md` with task-oriented navigation and clear experience levels.
 - [ ] Add “choose C# or XAML” and “choose MonoGame or FNA” decision points.
 - [ ] Link support, security, contribution, release notes, license, and compatibility status from the
   repository front door.
 - [ ] Remove stale manually maintained totals unless generated and contractually useful.
-- [ ] Add a local documentation preview command to `make help` after the site tool is selected.
+- [x] Add a local documentation preview command to `make help` after the site tool is selected.
 
 ### Exit Criteria
 
@@ -537,14 +540,14 @@ Each curated control entry should include:
 
 ### Tasks
 
-- [ ] Enable XML documentation output for all public runtime packages intended for reference.
+- [x] Enable XML documentation output for all public runtime packages intended for reference.
 - [ ] Measure public type/member XML coverage and define an initial enforced threshold.
 - [ ] Document every public control type and high-value public member lacking a useful summary.
-- [ ] Build the canonical MonoGame release-family assemblies, XML documentation, and portable PDBs
+- [x] Build the canonical MonoGame release-family assemblies, XML documentation, and portable PDBs
   before Docfx metadata generation, and require runtime API parity to pass first.
-- [ ] Configure Docfx metadata from those prebuilt artifacts with stable `zigrok/Forma` Source Link
+- [x] Configure Docfx metadata from those prebuilt artifacts with stable `zigrok/Forma` Source Link
   URLs and runtime-neutral namespaces.
-- [ ] Generate one conceptual API reference rather than duplicate MonoGame/FNA pages, while clearly
+- [x] Generate one conceptual API reference rather than duplicate MonoGame/FNA pages, while clearly
   documenting package selection and failing if parity detects an unexplained public API difference.
 - [ ] Create curated control-family overview pages for text input, buttons, selection, containers,
   collections, dialogs, data display, graph/code controls, and media.
@@ -619,12 +622,13 @@ Each curated control entry should include:
 
 ### Tasks
 
-- [ ] Pin Docfx in `.config/dotnet-tools.json` and add `docs/docfx.json`, top-level navigation, the
-  modern template, and ignored metadata/site outputs beneath `Artifacts/docs/`.
-- [ ] Add `make docs`, `make docs-serve`, and `make docs-check` commands that restore and invoke the
+- [x] Pin Docfx in `.config/dotnet-tools.json` and add `docs/docfx.json`, top-level navigation, the
+  modern template, ignored metadata beneath `docs/api/`, staged references beneath
+  `docs/_generated/`, and site output beneath `Artifacts/docs/`.
+- [x] Add `make docs`, `make docs-serve`, and `make docs-check` commands that restore and invoke the
   repository-local Docfx tool for production build, local preview, and validation.
-- [ ] Publish preview artifacts in pull requests or workflow artifacts before enabling public hosting.
-- [ ] Treat Docfx internal-link, cross-reference, and content warnings as CI failures; run Linkspector,
+- [x] Publish preview artifacts in pull requests or workflow artifacts before enabling public hosting.
+- [x] Treat Docfx internal-link, cross-reference, and content warnings as CI failures; run Linkspector,
   Lychee, or another maintained external-link checker with a documented transient-failure policy.
 - [ ] Compile or import every important snippet from executable fixtures.
 - [ ] Build all quick-start and focused sample projects from clean caches in CI.

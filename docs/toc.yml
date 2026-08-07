@@ -1,5 +1,9 @@
 - name: Overview
   href: index.md
+- name: Getting started
+  items:
+    - name: First UI in C#
+      href: getting-started/csharp-first-ui.md
 - name: XAML
   items:
     - name: Language contract

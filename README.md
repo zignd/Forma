@@ -12,6 +12,22 @@ approval. Until that first release is indexed, use the source build route below.
 Run `make help` for the common build, test, catalog, validation, packaging, and plan-tracking
 commands.
 
+## Try Forma
+
+Run the same small C# interface with either runtime from a source checkout:
+
+```sh
+make quick-start-monogame
+make quick-start-fna
+```
+
+![Forma C# quick start with a label, editable field, button, and status text.](docs/images/quick-start-monogame.png)
+
+The [C# first-UI guide](docs/getting-started/csharp-first-ui.md) explains the shared control tree,
+font setup, viewport resizing, input forwarding, disposal, clean-cache smoke check, and expected
+result. Choose the peer already used by the host game; the public APIs match, but binaries cannot be
+mixed.
+
 ## Choose a Runtime
 
 Use one matching package pair and one framework implementation. Never mix runtime variants.
@@ -41,7 +57,8 @@ deployment, and rollback.
 
 ## Forma XAML
 
-Forma XAML is an optional, Forma-native declarative UI language. Release builds inject generated
+Forma XAML is an optional, Forma-native declarative UI language. After the first packages are
+published, a MonoGame project will pair the following references. Release builds inject generated
 IL and typed bindings into the application assembly; shipped applications do not contain source
 XAML, XamlX, Cecil, a reflection binding engine, or a runtime XAML reader. Pair the private build
 package with the selected runtime:
@@ -147,7 +164,11 @@ Override `MONOGAME_PROJECT` when the fork lives elsewhere.
 
 ![MonoGame catalog](docs/images/catalog-monogame.png)
 
+*The MonoGame host showing the shared control-story catalog and inspector.*
+
 ![FNA catalog](docs/images/catalog-fna.png)
+
+*The FNA host rendering the same stories and runtime-neutral UI.*
 
 The catalog stories are runtime-neutral, while the window title identifies the active runtime as
 `Forma Catalog [MonoGame]` or `Forma Catalog [FNA]`. See

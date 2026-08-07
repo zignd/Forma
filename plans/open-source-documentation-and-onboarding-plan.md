@@ -463,13 +463,13 @@ Each curated control entry should include:
 
 ### Tasks
 
-- [ ] Rewrite the README opening around product purpose, maturity, supported runtimes, and a minimal
+- [x] Rewrite the README opening around product purpose, maturity, supported runtimes, and a minimal
   visible result.
-- [ ] Add a short “Try Forma” route for MonoGame and FNA without embedding the entire quick start.
+- [x] Add a short “Try Forma” route for MonoGame and FNA without embedding the entire quick start.
 - [ ] Keep runtime pairing and optional package warnings, but move detailed matrices behind links.
-- [ ] Retain Catalog screenshots and add concise captions describing what users can inspect.
+- [x] Retain Catalog screenshots and add concise captions describing what users can inspect.
 - [x] Create `docs/index.md` with task-oriented navigation and clear experience levels.
-- [ ] Add “choose C# or XAML” and “choose MonoGame or FNA” decision points.
+- [x] Add “choose C# or XAML” and “choose MonoGame or FNA” decision points.
 - [x] Link support, security, contribution, release notes, license, and compatibility status from the
   repository front door.
 - [x] Remove stale manually maintained totals unless generated and contractually useful.
@@ -488,16 +488,16 @@ Each curated control entry should include:
 
 ### Tasks
 
-- [ ] Add the smallest supported MonoGame host fixture used by the documentation.
-- [ ] Add the smallest supported FNA host fixture used by the documentation.
-- [ ] Share runtime-neutral Forma setup code where practical without hiding host responsibilities.
-- [ ] Document a C# first UI with one layout container, label, editable field, and button event.
-- [ ] Document viewport resize and `UIContext` disposal explicitly.
+- [x] Add the smallest supported MonoGame host fixture used by the documentation.
+- [x] Add the smallest supported FNA host fixture used by the documentation.
+- [x] Share runtime-neutral Forma setup code where practical without hiding host responsibilities.
+- [x] Document a C# first UI with one layout container, label, editable field, and button event.
+- [x] Document viewport resize and `UIContext` disposal explicitly.
 - [ ] Add a first XAML view with matching build package, `x:Class`, namescope lookup, and typed binding.
 - [ ] Verify Debug hot reload separately from the minimum production XAML path.
-- [ ] Add clean-cache build and bounded startup checks for both quick-start fixtures.
-- [ ] Capture small, current screenshots of the expected result.
-- [ ] Add troubleshooting callouts for mixed runtime packages, missing native assets, absent content,
+- [x] Add clean-cache build and bounded startup checks for both quick-start fixtures.
+- [x] Capture small, current screenshots of the expected result.
+- [x] Add troubleshooting callouts for mixed runtime packages, missing native assets, absent content,
   unavailable graphics devices, and XAML diagnostics.
 
 ### Exit Criteria

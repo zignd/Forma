@@ -11,8 +11,8 @@ installation path after the approved packages are published to NuGet.org.
 
 ## Start here
 
-- **Evaluate Forma:** browse the [runtime support matrix](runtime-support.md), then run the Catalog
-  from the repository README.
+- **Evaluate Forma:** run the [C# first UI](getting-started/csharp-first-ui.md), then browse the
+  [runtime support matrix](runtime-support.md) and Catalog.
 - **Build with XAML:** read the [Forma XAML language contract](xaml-language.md) and the hot-reload
   guidance in the Catalog and sample projects.
 - **Add text or SVG:** choose [dynamic text](dynamic-text.md) or a
@@ -34,3 +34,14 @@ use the runtime already selected by the host game.
 | FNA | `Forma.FNA` | `Forma.Xaml.Build.FNA` |
 
 See [runtime support and migration](runtime-support.md) for the validated backend and platform matrix.
+
+## Choose C# or XAML
+
+| Route | Start here | Use it when |
+| --- | --- | --- |
+| C# | [Build your first UI in C#](getting-started/csharp-first-ui.md) | The host creates and wires controls directly |
+| XAML | [Forma XAML language](xaml-language.md) | The project wants compiled declarative views, typed bindings, or Debug hot reload |
+
+Both routes use the same controls, layout engine, themes, input, and runtime peer selection. Start
+with C# when evaluating the minimum host responsibilities; add XAML when its build-time model fits
+the project.

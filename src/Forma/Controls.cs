@@ -900,6 +900,16 @@ namespace Forma
                 : (Size.X - textSize.X) / 2;
             return new Vector2(MathF.Max(Padding.Left, x), MathF.Max(Padding.Top, (Size.Y - textSize.Y) / 2));
         }
+        internal Vector2 GetTextPosition(Vector2 textSize, Vector2 iconSize)
+        {
+            var position = GetTextPosition(textSize);
+            if (iconSize == Vector2.Zero || IconAlignment == HorizontalAlignment.Center) return position;
+            var icon = GetIconRectangle(iconSize);
+            position.X = icon.Center.X < Size.X / 2f
+                ? MathF.Max(position.X, icon.Right + IconSeparation)
+                : MathF.Min(position.X, icon.Left - IconSeparation - textSize.X);
+            return new Vector2(MathF.Max(Padding.Left, position.X), position.Y);
+        }
         /// <summary>Calculates the local icon rectangle for the configured icon alignment and expansion mode.</summary>
         public Rectangle GetIconRectangle(Vector2 iconSize)
         {

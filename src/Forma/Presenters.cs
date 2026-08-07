@@ -360,7 +360,10 @@ namespace Forma
             if (_owner.EffectiveUIFont != null && !string.IsNullOrEmpty(_owner.Text) && (!decorativeIcon.HasValue || !_owner.HideTextWhenDecorativeIconAvailable))
             {
                 var textSize = TextMetrics.Measure(_owner.EffectiveUIFont, _owner.Text);
-                var position = _owner.GlobalPosition + _owner.GetTextPosition(textSize);
+                var iconSize = _owner.Icon != null
+                    ? new Vector2(_owner.Icon.Width, _owner.Icon.Height)
+                    : decorativeIcon?.LogicalSize.ToVector2() ?? Vector2.Zero;
+                var position = _owner.GlobalPosition + _owner.GetTextPosition(textSize, iconSize);
                 context.Text(_owner.EffectiveUIFont, _owner.Text, position, _owner.Enabled ? context.Theme.TextColor : context.Theme.DisabledTextColor);
             }
             base.Draw(context);
@@ -1484,6 +1487,7 @@ namespace Forma
             _contentPresenter.Text = _owner.DialogText;
             _contentPresenter.Font = _owner.Font;
             _contentPresenter.UIFont = _owner.UIFont;
+            _contentPresenter.Visible = _owner is not FileDialog && !string.IsNullOrEmpty(_owner.DialogText);
             _contentPresenter.Position = new Vector2(10, titleHeight + 10);
             _contentPresenter.Size = new Vector2(Math.Max(0, Size.X - 20), Math.Max(0, Size.Y - titleHeight - _owner.ButtonHeight - 26));
             ArrangeAction(_acceptButton, _owner.DialogOkButtonBounds, _owner.OkText, !_owner.OkButtonDisabled);

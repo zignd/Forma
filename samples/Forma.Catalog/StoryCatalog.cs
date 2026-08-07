@@ -691,11 +691,62 @@ public static class StoryCatalog
         public List<string> Bindings { get; set; } = new();
     }
 
+    private sealed class CatalogFileDialogFileSystem : IFileDialogFileSystem
+    {
+        private readonly HashSet<string> _directories;
+        private readonly HashSet<string> _files;
+
+        public CatalogFileDialogFileSystem()
+        {
+            RootPath = Path.GetFullPath(Path.Combine(Path.GetPathRoot(Directory.GetCurrentDirectory()) ?? string.Empty, "Forma Project"));
+            _directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                RootPath,
+                Path.Combine(RootPath, "Assets"),
+                Path.Combine(RootPath, "Scenes"),
+                Path.Combine(RootPath, "Scripts"),
+            };
+            _files = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                Path.Combine(RootPath, "project.json"),
+                Path.Combine(RootPath, "Assets", "forma-mark.png"),
+                Path.Combine(RootPath, "Scenes", "main.json"),
+                Path.Combine(RootPath, "Scripts", "PlayerController.cs"),
+                Path.Combine(RootPath, "Scripts", "WorldLoader.cs"),
+            };
+        }
+
+        public string RootPath { get; }
+        public bool IsAvailable => true;
+        public string GetCurrentDirectory() => RootPath;
+        public bool FileExists(string path) => _files.Contains(Path.GetFullPath(path));
+        public bool DirectoryExists(string path) => _directories.Contains(Path.GetFullPath(path));
+        public IEnumerable<string> EnumerateEntries(string path)
+        {
+            var directory = Path.GetFullPath(path);
+            return _directories.Concat(_files)
+                .Where(entry => !string.Equals(entry, directory, StringComparison.OrdinalIgnoreCase))
+                .Where(entry => string.Equals(Path.GetDirectoryName(entry), directory, StringComparison.OrdinalIgnoreCase));
+        }
+        public string GetParentDirectory(string path)
+        {
+            var directory = Path.GetFullPath(path);
+            if (string.Equals(directory, RootPath, StringComparison.OrdinalIgnoreCase)) return null;
+            var parent = Path.GetDirectoryName(directory);
+            return parent != null && DirectoryExists(parent) ? parent : null;
+        }
+        public void CreateDirectory(string path) => _directories.Add(Path.GetFullPath(path));
+        public DateTime GetLastWriteTimeUtc(string path) => new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+    }
+
     private static void AttachExample(Control control, Texture2D texture)
     {
         if (control is FileDialog fileDialog)
         {
-            fileDialog.AddFilter("*.cs;*.png;*.json");
+            var fileSystem = new CatalogFileDialogFileSystem();
+            fileDialog.FileSystem = fileSystem;
+            fileDialog.AddFilter("*.cs,*.png,*.json;Project assets");
+            fileDialog.SetCurrentDir(fileSystem.RootPath);
             return;
         }
         if (control is PopupMenu popupMenu)

@@ -5,7 +5,7 @@
     TooltipText="Forma.FileDialog"
     CustomMinimumSize="560,360"
     Title="Open project asset"
-    DialogText="Select a file from the project"
+    ModeOverridesTitle="False"
     Modal="False"
     HideOnOutsideClick="False"
     Visible="True" />

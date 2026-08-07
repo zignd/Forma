@@ -113,6 +113,25 @@ public sealed class CatalogInventoryTest
     }
 
     [Test]
+    public void FileDialogStoryStartsWithBrowsableFilteredProjectContent()
+    {
+        var story = StoryCatalog.Create(null).Single(item => item.Name == nameof(FileDialog));
+        var dialog = (FileDialog)story.Factory();
+        story.Attached(dialog);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dialog.CurrentPath, Does.EndWith("Forma Project"));
+            Assert.That(dialog.Entries.Select(Path.GetFileName), Is.EqualTo(new[] { "Assets", "Scenes", "Scripts", "project.json" }));
+            Assert.That(dialog.Title, Is.EqualTo("Open project asset"));
+            Assert.That(dialog.DialogText, Is.Empty);
+        });
+
+        dialog.ActivateEntry(Array.FindIndex(dialog.Entries.ToArray(), entry => Path.GetFileName(entry) == "Scripts"));
+        Assert.That(dialog.Entries.Select(Path.GetFileName), Is.EqualTo(new[] { "PlayerController.cs", "WorldLoader.cs" }));
+    }
+
+    [Test]
     public void EveryCatalogStoryHasItsOwnXamlFile()
     {
         var stories = StoryCatalog.Create(null);

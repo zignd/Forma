@@ -2641,10 +2641,12 @@ namespace Forma.Tests
         {
             var button = new Button { Size = new Vector2(100, 30), IconAlignment = HorizontalAlignment.Right };
             Assert.That(button.GetIconRectangle(new Vector2(20, 10)), Is.EqualTo(new Rectangle(72, 10, 20, 10)));
+            Assert.That(button.GetTextPosition(new Vector2(60, 10), new Vector2(20, 10)).X, Is.EqualTo(8), "Right-aligned icons must reserve separation from button text.");
             button.ExpandIcon = true;
             Assert.That(button.GetIconRectangle(new Vector2(20, 10)), Is.EqualTo(new Rectangle(48, 4, 44, 22)));
             button.ExpandIcon = false; button.IconAlignment = HorizontalAlignment.Left; button.LayoutDirection = LayoutDirection.RightToLeft;
             Assert.That(button.GetIconRectangle(new Vector2(20, 10)), Is.EqualTo(new Rectangle(72, 10, 20, 10)));
+            Assert.That(button.GetTextPosition(new Vector2(60, 10), new Vector2(20, 10)).X, Is.EqualTo(8), "RTL icon mirroring must reserve separation on the mirrored side.");
         }
 
         [Test]
@@ -8346,6 +8348,71 @@ namespace Forma.Tests
             }
         }
 
+        [Test]
+        public void FileDialog_DoubleClickNavigatesDirectoriesAndExposesNavigationButtons()
+        {
+            var tempRoot = Path.Combine(Path.GetTempPath(), "MonoGameUiFileDialog_" + Guid.NewGuid().ToString("N"));
+            var subDirectory = Path.Combine(tempRoot, "sub");
+            Directory.CreateDirectory(subDirectory);
+            try
+            {
+                var dialog = new FileDialog { FileMode = FileDialogMode.OpenFile, Visible = true, Size = new Vector2(560, 360) };
+                dialog.SetCurrentDir(tempRoot);
+                using var context = new UIContext { ViewportSize = new Vector2(560, 360) };
+                context.Add(dialog);
+
+                var row = new Point(196, 118);
+                context.Update(new GameTime(TimeSpan.Zero, TimeSpan.Zero), Mouse(row.X, row.Y), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10)), Mouse(row.X, row.Y, ButtonState.Pressed), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(10)), Mouse(row.X, row.Y), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(80)), Mouse(row.X, row.Y, ButtonState.Pressed), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(110), TimeSpan.FromMilliseconds(10)), Mouse(row.X, row.Y), new KeyboardState());
+
+                Assert.That(dialog.CurrentPath, Is.EqualTo(subDirectory));
+                Assert.That(dialog.CurrentFile, Is.Empty);
+                Assert.That(dialog.CanGoBack, Is.True);
+                Assert.That(dialog.GetMinimumSize(), Is.EqualTo(new Vector2(640, 420)));
+                var backButton = dialog.Children.OfType<Button>().Single(button => button.Name == "FileDialogBack");
+                var forwardButton = dialog.Children.OfType<Button>().Single(button => button.Name == "FileDialogForward");
+                var upButton = dialog.Children.OfType<Button>().Single(button => button.Name == "FileDialogUp");
+                Assert.Multiple(() =>
+                {
+                    Assert.That(backButton.Enabled, Is.True);
+                    Assert.That(forwardButton.Enabled, Is.False);
+                    Assert.That(upButton.Enabled, Is.True);
+                    Assert.That(new[] { backButton, forwardButton, upButton }, Has.All.Property(nameof(BaseButton.DecorativeIconProvider)).Not.Null);
+                    Assert.That(new[] { backButton, forwardButton, upButton }, Has.All.Property(nameof(BaseButton.HideTextWhenDecorativeIconAvailable)).True);
+                    Assert.That(new[] { backButton, forwardButton, upButton }.Select(button => button.GetIconRectangle(new Vector2(16, 16))),
+                        Is.All.EqualTo(new Rectangle(7, 7, 16, 16)));
+                    var pathEdit = dialog.Children.OfType<LineEdit>().Single(edit => edit.Name == "FileDialogPath");
+                    Assert.That(pathEdit.Size.Y, Is.EqualTo(30));
+                    Assert.That(pathEdit.Text, Is.EqualTo(subDirectory));
+                    Assert.That(dialog.Children.OfType<LineEdit>().Single(edit => edit.Name == "FileDialogFilename").Size.Y, Is.EqualTo(30));
+                    Assert.That(dialog.Children.OfType<OptionButton>().Single(option => option.Name == "FileDialogFilter").Size.X, Is.GreaterThanOrEqualTo(150));
+                    Assert.That(dialog.Children.OfType<OptionButton>().Single(option => option.Name == "FileDialogSort").Size, Is.EqualTo(new Vector2(200, 30)));
+                    Assert.That(new Point(dialog.DialogCancelButtonBounds.Width, dialog.DialogCancelButtonBounds.Height), Is.EqualTo(new Point(80, 32)));
+                    Assert.That(new Point(dialog.DialogOkButtonBounds.Width, dialog.DialogOkButtonBounds.Height), Is.EqualTo(new Point(80, 32)));
+                    Assert.That(dialog.DialogOkButtonBounds.Left - dialog.DialogCancelButtonBounds.Right, Is.EqualTo(8));
+                });
+
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(120), TimeSpan.FromMilliseconds(10)), Mouse(25, 47, ButtonState.Pressed), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(130), TimeSpan.FromMilliseconds(10)), Mouse(25, 47), new KeyboardState());
+                Assert.That(dialog.CurrentPath, Is.EqualTo(tempRoot), "Back should return to the previous directory.");
+
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(140), TimeSpan.FromMilliseconds(10)), Mouse(61, 47, ButtonState.Pressed), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(150), TimeSpan.FromMilliseconds(10)), Mouse(61, 47), new KeyboardState());
+                Assert.That(dialog.CurrentPath, Is.EqualTo(subDirectory), "Forward should restore the directory left by Back.");
+
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(160), TimeSpan.FromMilliseconds(10)), Mouse(97, 47, ButtonState.Pressed), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(170), TimeSpan.FromMilliseconds(10)), Mouse(97, 47), new KeyboardState());
+                Assert.That(dialog.CurrentPath, Is.EqualTo(tempRoot), "Up should navigate to the parent directory.");
+            }
+            finally
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+
         private static int FindEntryIndex(FileDialog dialog, string path)
         {
             var target = Path.GetFullPath(path);
@@ -8732,6 +8799,101 @@ namespace Forma.Tests
             {
                 FileDialog.SetFavoriteList(Array.Empty<string>());
                 FileDialog.SetRecentList(Array.Empty<string>());
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+
+        [Test]
+        public void FileDialog_RetainedControlsTrackModeCustomizationAndGodotIcons()
+        {
+            var dialog = new FileDialog { Size = new Vector2(560, 360), FileMode = FileDialogMode.OpenFile };
+            var createFolder = dialog.Children.OfType<Button>().Single(button => button.Name == "FileDialogCreateFolder");
+            var filenameFilter = dialog.Children.OfType<LineEdit>().Single(edit => edit.Name == "FileDialogFilenameFilter");
+            var iconButtons = dialog.Children.OfType<Button>().Where(button => new[]
+            {
+                "FileDialogRefresh", "FileDialogFavorite", "FileDialogCreateFolder", "FileDialogShowHidden",
+                "FileDialogThumbnails", "FileDialogList", "FileDialogFilenameFilterToggle",
+                "FileDialogFavoriteUp", "FileDialogFavoriteDown",
+            }.Contains(button.Name)).ToArray();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(createFolder.Visible, Is.False);
+                Assert.That(iconButtons, Has.Length.EqualTo(9));
+                Assert.That(iconButtons, Has.All.Property(nameof(BaseButton.DecorativeIconProvider)).Not.Null);
+                Assert.That(iconButtons, Has.All.Property(nameof(BaseButton.HideTextWhenDecorativeIconAvailable)).True);
+                Assert.That(dialog.Children.OfType<OptionButton>().Single(option => option.Name == "FileDialogSort").DecorativeIconProvider, Is.Not.Null);
+            });
+
+            dialog.FileMode = FileDialogMode.SaveFile;
+            Assert.That(createFolder.Visible, Is.True, "Changing mode should immediately update folder-creation controls.");
+            dialog.CanCreateFolders = false;
+            Assert.That(createFolder.Visible, Is.False, "Changing CanCreateFolders should immediately update retained controls.");
+
+            dialog.ShowFilenameFilter = true;
+            Assert.That(filenameFilter.Visible, Is.True);
+            dialog.SetCustomizationFlagEnabled(FileDialogCustomization.FileFilter, false);
+            Assert.That(filenameFilter.Visible, Is.False, "Disabling filename-filter customization should hide its retained editor.");
+        }
+
+        [Test]
+        public void FileDialog_FavoriteControlsReorderTheSelectedDirectory()
+        {
+            var tempRoot = Path.Combine(Path.GetTempPath(), "MonoGameUiFileDialog_" + Guid.NewGuid().ToString("N"));
+            var first = Path.Combine(tempRoot, "first");
+            var second = Path.Combine(tempRoot, "second");
+            Directory.CreateDirectory(first);
+            Directory.CreateDirectory(second);
+            try
+            {
+                FileDialog.SetFavoriteList(new[] { first, second });
+                var dialog = new FileDialog { Visible = true, Size = new Vector2(560, 360) };
+                dialog.SetCurrentDir(first);
+                using var context = new UIContext { ViewportSize = dialog.Size };
+                context.Add(dialog);
+                context.Update(new GameTime(TimeSpan.Zero, TimeSpan.Zero), Mouse(1, 1), new KeyboardState());
+
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10)), Mouse(20, 180, ButtonState.Pressed), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(10)), Mouse(20, 180), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(30), TimeSpan.FromMilliseconds(10)), Mouse(119, 119, ButtonState.Pressed), new KeyboardState());
+                context.Update(new GameTime(TimeSpan.FromMilliseconds(40), TimeSpan.FromMilliseconds(10)), Mouse(119, 119), new KeyboardState());
+
+                Assert.That(FileDialog.GetFavoriteList(), Is.EqualTo(new[] { second.Replace('\\', '/') + "/", first.Replace('\\', '/') + "/" }));
+            }
+            finally
+            {
+                FileDialog.SetFavoriteList(Array.Empty<string>());
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+
+        [Test]
+        public void FileDialog_DelegatesNativePopupAndConfinesNavigationToItsRoot()
+        {
+            var tempRoot = Path.Combine(Path.GetTempPath(), "MonoGameUiFileDialog_" + Guid.NewGuid().ToString("N"));
+            var root = Path.Combine(tempRoot, "root");
+            var outside = Path.Combine(tempRoot, "outside");
+            Directory.CreateDirectory(root);
+            Directory.CreateDirectory(outside);
+            try
+            {
+                var called = false;
+                FileDialog.NativeDialogHandler = _ => { called = true; return true; };
+                var dialog = new FileDialog { UseNativeDialog = true, Visible = false };
+
+                Assert.That(dialog.PopupFileDialog(), Is.True);
+                Assert.That(called, Is.True);
+                Assert.That(dialog.Visible, Is.False, "A handled native popup should not open the retained dialog.");
+
+                dialog.SetRootSubfolder(root);
+                Assert.That(dialog.CurrentPath, Is.EqualTo(root));
+                Assert.That(() => dialog.NavigateTo(outside), Throws.InstanceOf<UnauthorizedAccessException>());
+                dialog.GoUp();
+                Assert.That(dialog.CurrentPath, Is.EqualTo(root), "GoUp must stop at the configured root.");
+            }
+            finally
+            {
+                FileDialog.NativeDialogHandler = null;
                 Directory.Delete(tempRoot, recursive: true);
             }
         }

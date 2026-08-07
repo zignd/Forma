@@ -1439,6 +1439,12 @@ namespace Forma
         string GetParentDirectory(string path);
         void CreateDirectory(string path);
         DateTime GetLastWriteTimeUtc(string path);
+        bool CanDelete => false;
+        void DeleteFile(string path) => throw new NotSupportedException("Deleting files is unavailable.");
+        void DeleteDirectory(string path) => throw new NotSupportedException("Deleting folders is unavailable.");
+        bool CanShowInFileManager => false;
+        void ShowInFileManager(string path) => throw new NotSupportedException("Showing files in the platform file manager is unavailable.");
+        IReadOnlyList<string> GetDrives() => Array.Empty<string>();
     }
 
     public sealed class DesktopFileDialogFileSystem : IFileDialogFileSystem
@@ -1453,6 +1459,18 @@ namespace Forma
         public string GetParentDirectory(string path) => Directory.GetParent(path)?.FullName;
         public void CreateDirectory(string path) => Directory.CreateDirectory(path);
         public DateTime GetLastWriteTimeUtc(string path) => File.GetLastWriteTimeUtc(path);
+        public bool CanDelete => true;
+        public void DeleteFile(string path) => File.Delete(path);
+        public void DeleteDirectory(string path) => Directory.Delete(path, true);
+        public bool CanShowInFileManager => true;
+        public void ShowInFileManager(string path)
+        {
+            var fullPath = Path.GetFullPath(path);
+            if (OperatingSystem.IsMacOS()) System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("open", $"-R \"{fullPath}\"") { UseShellExecute = false });
+            else if (OperatingSystem.IsWindows()) System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", $"/select,\"{fullPath}\"") { UseShellExecute = false });
+            else System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("xdg-open", $"\"{Path.GetDirectoryName(fullPath) ?? fullPath}\"") { UseShellExecute = false });
+        }
+        public IReadOnlyList<string> GetDrives() => DriveInfo.GetDrives().Select(drive => drive.RootDirectory.FullName).ToArray();
     }
 
     public sealed class FileDialogOption
@@ -1473,33 +1491,198 @@ namespace Forma
     /// <summary>Filesystem-selection dialog with navigation, filtering, sorting and list presentation.</summary>
     public sealed class FileDialog : ConfirmationDialog
     {
+        private const int ContextCopyPath = 1;
+        private const int ContextDelete = 2;
+        private const int ContextRefresh = 3;
+        private const int ContextNewFolder = 4;
+        private const int ContextShowInFileManager = 5;
         private const int MaxRecentDirectories = 20;
+        private const int DialogInset = 10;
+        private const int NavigationButtonSize = 30;
+        private const int NavigationButtonGap = 6;
+        private const int ControlHeight = 30;
+        private const int ToolbarButtonWidth = 32;
+        private const int SidebarWidth = 160;
+        private const int FooterButtonWidth = 80;
+        private const int FooterButtonGap = 8;
+        private const int FooterInset = 10;
+        private const int ThumbnailWidth = 112;
+        private const int ThumbnailHeight = 84;
+        private const int ThumbnailIconSize = 48;
+        private static readonly TimeSpan DoubleClickTimeout = TimeSpan.FromMilliseconds(600);
+        private const int DoubleClickTolerance = 5;
         private static readonly List<string> _favoriteList = new List<string>();
         private static readonly List<string> _recentList = new List<string>();
+        private static bool _defaultShowHiddenFiles;
+        private static FileDialogDisplayMode _defaultDisplayMode = FileDialogDisplayMode.Thumbnails;
+        public static Func<FileDialog, bool> NativeDialogHandler { get; set; }
+        public static Func<string, ThemeIcon?> GetIconCallback { get; set; }
+        public static Func<string, int, ThemeIcon?> GetThumbnailCallback { get; set; }
         private readonly List<string> _filters = new List<string>();
         private readonly List<FileDialogOption> _options = new List<FileDialogOption>();
         private readonly List<string> _entries = new List<string>();
         private readonly List<string> _selectedFiles = new List<string>();
         private readonly bool[] _customizationFlags = new bool[(int)FileDialogCustomization.Delete + 1];
+        private readonly Button _backButton;
+        private readonly Button _forwardButton;
+        private readonly Button _upButton;
+        private readonly Button _refreshButton;
+        private readonly Button _favoriteButton;
+        private readonly Button _createFolderButton;
+        private readonly Button _showHiddenButton;
+        private readonly Button _thumbnailModeButton;
+        private readonly Button _listModeButton;
+        private readonly Button _filenameFilterButton;
+        private readonly LineEdit _directoryEdit;
+        private readonly OptionButton _driveSelector;
+        private readonly LineEdit _filenameEdit;
+        private readonly LineEdit _filenameFilterEdit;
+        private readonly OptionButton _filterSelector;
+        private readonly OptionButton _sortSelector;
+        private readonly Label _favoritesLabel;
+        private readonly Label _recentsLabel;
+        private readonly ItemList _favoritesList;
+        private readonly ItemList _recentsList;
+        private readonly Button _favoriteUpButton;
+        private readonly Button _favoriteDownButton;
+        private readonly ConfirmationDialog _makeDirectoryDialog;
+        private readonly LineEdit _newDirectoryEdit;
+        private readonly ConfirmationDialog _deleteConfirmation;
+        private readonly PopupMenu _itemMenu;
+        private readonly List<Control> _optionControls = new List<Control>();
+        private readonly Dictionary<string, object> _selectedOptions = new Dictionary<string, object>();
         private readonly ConfirmationDialog _overwriteConfirmation;
         private string _pendingOverwritePath = string.Empty;
         private readonly List<string> _history = new List<string>();
         private int _historyPosition = -1;
+        private TimeSpan _lastClickTime = TimeSpan.MinValue;
+        private Point _lastClickPosition;
+        private int _lastClickIndex = -1;
+        private bool _doubleClickPending;
         private int _filterIndex;
         private FileDialogMode _fileMode = FileDialogMode.OpenFile;
+        private FileDialogAccess _access = FileDialogAccess.FileSystem;
+        private FileDialogDisplayMode _displayMode;
+        private FileDialogSortOption _sortOption = FileDialogSortOption.Name;
+        private bool _showHiddenFiles;
+        private bool _showFilenameFilter;
+        private bool _canCreateFolders = true;
+        private string _filenameFilter = string.Empty;
+        private string _rootSubfolder = string.Empty;
+        private bool _synchronizingControls;
+        private int _contextEntryIndex = -1;
         private bool _modeOverridesTitle = true;
         public FileDialog()
         {
             // Godot's FileDialog constructor calls set_hide_on_ok(false): hiding is managed entirely by
             // the mode-specific validity checks in Confirm(), not by the base AcceptDialog's hide-on-ok.
             HideOnOk = false;
+            ButtonHeight = 32;
+            _showHiddenFiles = _defaultShowHiddenFiles;
+            _displayMode = _defaultDisplayMode;
             for (var index = 0; index < _customizationFlags.Length; index++) _customizationFlags[index] = true;
+            _backButton = CreateNavigationButton("FileDialogBack", "<", "Back");
+            _forwardButton = CreateNavigationButton("FileDialogForward", ">", "Forward");
+            _upButton = CreateNavigationButton("FileDialogUp", "^", "Up one folder");
+            ConfigureNavigationIcon(_backButton, "back");
+            ConfigureNavigationIcon(_forwardButton, "forward");
+            ConfigureNavigationIcon(_upButton, "up");
+            _backButton.Pressed += (_, _) => { GoBack(); ClearSelectionAfterDirectoryNavigation(); };
+            _forwardButton.Pressed += (_, _) => { GoForward(); ClearSelectionAfterDirectoryNavigation(); };
+            _upButton.Pressed += (_, _) => { GoUp(); ClearSelectionAfterDirectoryNavigation(); };
+            _refreshButton = CreateNavigationButton("FileDialogRefresh", "R", "Refresh files");
+            ConfigureNavigationIcon(_refreshButton, "reload");
+            _refreshButton.Pressed += (_, _) => { if (!string.IsNullOrEmpty(CurrentPath)) Refresh(CurrentPath); };
+            _favoriteButton = CreateNavigationButton("FileDialogFavorite", "*", "Favorite current folder");
+            ConfigureNavigationIcon(_favoriteButton, "favorite");
+            _favoriteButton.ToggleMode = true;
+            _favoriteButton.Pressed += (_, _) => { ToggleCurrentDirectoryFavorite(); UpdateDirectoryLists(); };
+            _createFolderButton = CreateNavigationButton("FileDialogCreateFolder", "+", "Create a new folder");
+            ConfigureNavigationIcon(_createFolderButton, "create_folder");
+            _createFolderButton.Pressed += (_, _) => ShowCreateFolderDialog();
+            _directoryEdit = new LineEdit { Name = "FileDialogPath", PlaceholderText = "Path", ClearButtonEnabled = true };
+            _directoryEdit.TextSubmitted += (_, _) => SubmitDirectoryPath();
+            _driveSelector = new OptionButton { Name = "FileDialogDrives", FitToLongestItem = false, Visible = false };
+            _driveSelector.ItemSelected += (_, index) => SelectDrive(index);
+            _showHiddenButton = CreateToolbarButton("FileDialogShowHidden", "Hidden", "Toggle hidden files", true);
+            ConfigureNavigationIcon(_showHiddenButton, "toggle_hidden");
+            _showHiddenButton.Toggled += (_, enabled) => { if (!_synchronizingControls) ShowHiddenFiles = enabled; };
+            _thumbnailModeButton = CreateToolbarButton("FileDialogThumbnails", "Grid", "View items as thumbnails", true);
+            ConfigureNavigationIcon(_thumbnailModeButton, "thumbnail_mode");
+            _thumbnailModeButton.Pressed += (_, _) => DisplayMode = FileDialogDisplayMode.Thumbnails;
+            _listModeButton = CreateToolbarButton("FileDialogList", "List", "View items as a list", true);
+            ConfigureNavigationIcon(_listModeButton, "list_mode");
+            _listModeButton.Pressed += (_, _) => DisplayMode = FileDialogDisplayMode.List;
+            _filenameFilterButton = CreateToolbarButton("FileDialogFilenameFilterToggle", "Find", "Filter by filename", true);
+            ConfigureNavigationIcon(_filenameFilterButton, "toggle_filename_filter");
+            _filenameFilterButton.Toggled += (_, enabled) => { if (!_synchronizingControls) ShowFilenameFilter = enabled; };
+            _sortSelector = new OptionButton { Name = "FileDialogSort", FitToLongestItem = false };
+            _sortSelector.DecorativeIconProvider = () => GetThemeIcon("sort");
+            foreach (var name in new[] { "Name (A-Z)", "Name (Z-A)", "Type (A-Z)", "Type (Z-A)", "Modified (newest)", "Modified (oldest)" }) _sortSelector.AddItem(name);
+            _sortSelector.ItemSelected += (_, index) => { if (!_synchronizingControls) SortOption = (FileDialogSortOption)index; };
+            _filenameFilterEdit = new LineEdit { Name = "FileDialogFilenameFilter", PlaceholderText = "Filter filenames", ClearButtonEnabled = true };
+            _filenameFilterEdit.TextChanged += (_, text) => { if (!_synchronizingControls) FilenameFilter = text; };
+            _filenameEdit = new LineEdit { Name = "FileDialogFilename", PlaceholderText = "File name" };
+            _filenameEdit.TextChanged += (_, text) => { if (!_synchronizingControls) SetFilenameFromEditor(text); };
+            _filenameEdit.TextSubmitted += (_, _) => Confirm();
+            _filterSelector = new OptionButton { Name = "FileDialogFilter", FitToLongestItem = false };
+            _filterSelector.ItemSelected += (_, index) => { if (!_synchronizingControls) FilterIndex = index; };
+            _favoritesLabel = new Label { Name = "FileDialogFavoritesLabel", Text = "Favorites" };
+            _recentsLabel = new Label { Name = "FileDialogRecentsLabel", Text = "Recent" };
+            _favoritesList = new ItemList { Name = "FileDialogFavorites", ItemHeight = 26 };
+            _favoritesList.ItemSelected += (_, index) => NavigateFromDirectoryList(_favoritesList, index);
+            _recentsList = new ItemList { Name = "FileDialogRecents", ItemHeight = 26 };
+            _recentsList.ItemSelected += (_, index) => NavigateFromDirectoryList(_recentsList, index);
+            _favoriteUpButton = CreateNavigationButton("FileDialogFavoriteUp", "^", "Move favorite up");
+            ConfigureNavigationIcon(_favoriteUpButton, "favorite_up");
+            _favoriteUpButton.Pressed += (_, _) => MoveSelectedFavorite(-1);
+            _favoriteDownButton = CreateNavigationButton("FileDialogFavoriteDown", "v", "Move favorite down");
+            ConfigureNavigationIcon(_favoriteDownButton, "favorite_down");
+            _favoriteDownButton.Pressed += (_, _) => MoveSelectedFavorite(1);
+            _makeDirectoryDialog = new ConfirmationDialog { Name = "FileDialogCreateFolderDialog", Title = "Create Folder", OkText = "Create", Visible = false, Size = new Vector2(300, 120) };
+            _newDirectoryEdit = new LineEdit { Name = "FileDialogNewFolderName", PlaceholderText = "Folder name", Position = new Vector2(12, 38), Size = new Vector2(276, 28) };
+            _makeDirectoryDialog.AddChild(_newDirectoryEdit);
+            _makeDirectoryDialog.RegisterTextEnter(_newDirectoryEdit);
+            _makeDirectoryDialog.Confirmed += (_, _) => ConfirmCreateFolder();
+            _deleteConfirmation = new ConfirmationDialog { Name = "FileDialogDeleteConfirmation", Title = "Delete", DialogText = "Delete the selected item?", OkText = "Delete", Visible = false, Size = new Vector2(320, 120) };
+            _deleteConfirmation.Confirmed += (_, _) => DeleteContextEntry();
+            _itemMenu = new PopupMenu { Name = "FileDialogItemMenu", Visible = false };
+            _itemMenu.IdPressed += (_, id) => HandleItemMenu(id);
+            AddChild(_backButton);
+            AddChild(_forwardButton);
+            AddChild(_upButton);
+            AddChild(_refreshButton);
+            AddChild(_favoriteButton);
+            AddChild(_createFolderButton);
+            AddChild(_directoryEdit);
+            AddChild(_driveSelector);
+            AddChild(_showHiddenButton);
+            AddChild(_thumbnailModeButton);
+            AddChild(_listModeButton);
+            AddChild(_filenameFilterButton);
+            AddChild(_sortSelector);
+            AddChild(_filenameFilterEdit);
+            AddChild(_filenameEdit);
+            AddChild(_filterSelector);
+            AddChild(_favoritesLabel);
+            AddChild(_recentsLabel);
+            AddChild(_favoritesList);
+            AddChild(_recentsList);
+            AddChild(_favoriteUpButton);
+            AddChild(_favoriteDownButton);
+            AddChild(_makeDirectoryDialog);
+            AddChild(_deleteConfirmation);
+            AddChild(_itemMenu);
             _overwriteConfirmation = new ConfirmationDialog { Title = "Confirm overwrite", DialogText = string.Empty, OkText = "Save", Visible = false, Size = new Vector2(250, 80) };
             _overwriteConfirmation.Confirmed += (_, _) => ConfirmPendingOverwrite();
             _overwriteConfirmation.Canceled += (_, _) => _pendingOverwritePath = string.Empty;
             AddChild(_overwriteConfirmation);
             ApplyFileModePresentation();
+            UpdateFilterSelector();
+            SynchronizeControls();
+            SynchronizeNavigationButtons();
         }
+        public override Vector2 GetMinimumSize() => Vector2.Max(base.GetMinimumSize(), new Vector2(640, 420));
         public FileDialogMode FileMode
         {
             get => _fileMode;
@@ -1508,6 +1691,8 @@ namespace Forma
                 if (_fileMode == value) return;
                 _fileMode = value;
                 ApplyFileModePresentation();
+                SynchronizeControls();
+                QueueLayout();
             }
         }
         public bool ModeOverridesTitle
@@ -1515,11 +1700,62 @@ namespace Forma
             get => _modeOverridesTitle;
             set => _modeOverridesTitle = value;
         }
-        public FileDialogAccess Access { get; set; } = FileDialogAccess.FileSystem;
-        public FileDialogDisplayMode DisplayMode { get; set; } = FileDialogDisplayMode.List;
-        public FileDialogSortOption SortOption { get; set; } = FileDialogSortOption.Name;
-        public bool ShowHiddenFiles { get; set; }
-        public bool CanCreateFolders { get; set; } = true;
+        public FileDialogAccess Access
+        {
+            get => _access;
+            set
+            {
+                if (_access == value) return;
+                _access = value;
+                if (ReferenceEquals(FileSystem, DesktopFileDialogFileSystem.Instance) && value != FileDialogAccess.FileSystem)
+                {
+                    var root = value == FileDialogAccess.Resources
+                        ? AppContext.BaseDirectory
+                        : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    if (!string.IsNullOrEmpty(root) && FileSystem.DirectoryExists(root)) SetRootSubfolder(root);
+                }
+                else if (value == FileDialogAccess.FileSystem) _rootSubfolder = string.Empty;
+                UpdateDriveSelector();
+                QueueLayout();
+            }
+        }
+        public FileDialogDisplayMode DisplayMode
+        {
+            get => _displayMode;
+            set { if (_displayMode == value) return; _displayMode = value; SynchronizeControls(); QueueLayout(); }
+        }
+        public FileDialogSortOption SortOption
+        {
+            get => _sortOption;
+            set { if (_sortOption == value) return; _sortOption = value; SynchronizeControls(); if (!string.IsNullOrEmpty(CurrentPath)) Refresh(CurrentPath); }
+        }
+        public bool ShowHiddenFiles
+        {
+            get => _showHiddenFiles;
+            set { if (_showHiddenFiles == value) return; _showHiddenFiles = value; SynchronizeControls(); if (!string.IsNullOrEmpty(CurrentPath)) Refresh(CurrentPath); }
+        }
+        public bool ShowFilenameFilter
+        {
+            get => _showFilenameFilter;
+            set { if (_showFilenameFilter == value) return; _showFilenameFilter = value; SynchronizeControls(); QueueLayout(); }
+        }
+        public string RootSubfolder
+        {
+            get => _rootSubfolder;
+            set => SetRootSubfolder(value);
+        }
+        public bool UseNativeDialog { get; set; }
+        public bool CanCreateFolders
+        {
+            get => _canCreateFolders;
+            set
+            {
+                if (_canCreateFolders == value) return;
+                _canCreateFolders = value;
+                SynchronizeControls();
+                QueueLayout();
+            }
+        }
         public IFileDialogFileSystem FileSystem { get; set; } = DesktopFileDialogFileSystem.Instance;
         public bool IsFileSystemAvailable => FileSystem?.IsAvailable == true;
         public bool OverwriteWarningEnabled
@@ -1527,8 +1763,20 @@ namespace Forma
             get => IsCustomizationFlagEnabled(FileDialogCustomization.OverwriteWarning);
             set => SetCustomizationFlagEnabled(FileDialogCustomization.OverwriteWarning, value);
         }
-        public float EntryHeight { get; set; } = 22;
-        public string FilenameFilter { get; set; } = string.Empty;
+        public float EntryHeight { get; set; } = 28;
+        public string FilenameFilter
+        {
+            get => _filenameFilter;
+            set
+            {
+                value ??= string.Empty;
+                if (_filenameFilter == value) return;
+                _filenameFilter = value;
+                SynchronizeControls();
+                if (!string.IsNullOrEmpty(CurrentPath)) Refresh(CurrentPath);
+                FilenameFilterChanged?.Invoke(this, value);
+            }
+        }
         public string CurrentPath { get; private set; } = string.Empty;
         public string CurrentFile { get; private set; } = string.Empty;
         public string PendingOverwritePath => _pendingOverwritePath;
@@ -1542,48 +1790,73 @@ namespace Forma
         public event Action<FileDialog, IReadOnlyList<string>> FilesSelected;
         public event Action<FileDialog, string> DirectorySelected;
         public event Action<FileDialog, string> FolderCreated;
-        public void AddFilter(string filter) { if (!string.IsNullOrWhiteSpace(filter)) _filters.Add(filter); ClampFilterIndex(); }
-        public void ClearFilters() { _filters.Clear(); ClampFilterIndex(); }
+        public event Action<FileDialog, string> FilenameFilterChanged;
+        public static void SetDefaultShowHiddenFiles(bool show) => _defaultShowHiddenFiles = show;
+        public static bool GetDefaultShowHiddenFiles() => _defaultShowHiddenFiles;
+        public static void SetDefaultDisplayMode(FileDialogDisplayMode mode) => _defaultDisplayMode = mode;
+        public static FileDialogDisplayMode GetDefaultDisplayMode() => _defaultDisplayMode;
+        public void ClearFilenameFilter() => FilenameFilter = string.Empty;
+        public void DeselectAll() => ClearSelection();
+        public void Invalidate() { if (!string.IsNullOrEmpty(CurrentPath)) Refresh(CurrentPath); }
+        public bool PopupFileDialog()
+        {
+            if (UseNativeDialog && NativeDialogHandler?.Invoke(this) == true) return true;
+            Visible = true;
+            return false;
+        }
+        public void AddFilter(string filter) { if (!string.IsNullOrWhiteSpace(filter)) _filters.Add(filter); ClampFilterIndex(); UpdateFilterSelector(); }
+        public void ClearFilters() { _filters.Clear(); ClampFilterIndex(); UpdateFilterSelector(); }
         public void SetFilters(IEnumerable<string> filters)
         {
             _filters.Clear(); if (filters != null) foreach (var filter in filters) if (!string.IsNullOrWhiteSpace(filter)) _filters.Add(filter);
             ClampFilterIndex();
+            UpdateFilterSelector();
         }
         private void ClampFilterIndex() { if (_filterIndex > LastFilterIndex) _filterIndex = LastFilterIndex; }
-        public void AddOption(string name, IEnumerable<string> values, int defaultValueIndex = 0) => _options.Add(new FileDialogOption(name, values, defaultValueIndex));
+        public void AddOption(string name, IEnumerable<string> values, int defaultValueIndex = 0)
+        {
+            _options.Add(new FileDialogOption(name, values, defaultValueIndex));
+            RebuildOptionControls();
+        }
         public void SetOptionCount(int count)
         {
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
             while (_options.Count < count) _options.Add(new FileDialogOption(string.Empty, null, 0));
             while (_options.Count > count) _options.RemoveAt(_options.Count - 1);
+            RebuildOptionControls();
         }
         public int GetOptionCount() => _options.Count;
         public string GetOptionName(int option) => GetOption(option).Name;
-        public void SetOptionName(int option, string name) => GetOption(option, true).Name = name ?? string.Empty;
+        public void SetOptionName(int option, string name) { GetOption(option, true).Name = name ?? string.Empty; RebuildOptionControls(); }
         public IReadOnlyList<string> GetOptionValues(int option) => GetOption(option).Values.ToArray();
         public void SetOptionValues(int option, IEnumerable<string> values)
         {
             var entry = GetOption(option, true);
             entry.Values = values == null ? new List<string>() : new List<string>(values);
             entry.DefaultIndex = FileDialogOption.ClampDefaultIndex(entry.DefaultIndex, entry.Values.Count);
+            RebuildOptionControls();
         }
         public int GetOptionDefault(int option) => GetOption(option).DefaultIndex;
         public void SetOptionDefault(int option, int defaultValueIndex)
         {
             var entry = GetOption(option, true);
             entry.DefaultIndex = FileDialogOption.ClampDefaultIndex(defaultValueIndex, entry.Values.Count);
+            RebuildOptionControls();
         }
         public IReadOnlyDictionary<string, object> GetSelectedOptions()
         {
-            var selected = new Dictionary<string, object>();
-            foreach (var option in _options) selected[option.Name] = option.SelectedValue;
-            return selected;
+            return new Dictionary<string, object>(_selectedOptions);
         }
         public void SetFileMode(FileDialogMode mode) => FileMode = mode;
         public FileDialogMode GetFileMode() => FileMode;
         public void SetModeOverridesTitle(bool enabled) => ModeOverridesTitle = enabled;
         public bool IsModeOverridingTitle() => ModeOverridesTitle;
-        public void SetCustomizationFlagEnabled(FileDialogCustomization flag, bool enabled) => _customizationFlags[(int)flag] = enabled;
+        public void SetCustomizationFlagEnabled(FileDialogCustomization flag, bool enabled)
+        {
+            _customizationFlags[(int)flag] = enabled;
+            SynchronizeControls();
+            QueueLayout();
+        }
         public bool IsCustomizationFlagEnabled(FileDialogCustomization flag) => _customizationFlags[(int)flag];
         public static void SetFavoriteList(IEnumerable<string> favorites)
         {
@@ -1631,7 +1904,12 @@ namespace Forma
         public void Refresh(string path)
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
-            CurrentPath = Path.GetFullPath(path);
+            var fullPath = Path.GetFullPath(path);
+            EnsureWithinRoot(fullPath);
+            CurrentPath = fullPath;
+            SynchronizeControls();
+            QueueLayout();
+            SynchronizeNavigationButtons();
             _entries.Clear();
             Message = string.Empty;
             if (!IsFileSystemAvailable)
@@ -1664,15 +1942,17 @@ namespace Forma
         {
             if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("A directory path is required.", nameof(path));
             if (!IsFileSystemAvailable) throw new PlatformNotSupportedException("Filesystem access is unavailable.");
-            if (!FileSystem.DirectoryExists(path)) throw new DirectoryNotFoundException(path);
-            Refresh(path);
+            var fullPath = Path.GetFullPath(path);
+            EnsureWithinRoot(fullPath);
+            if (!FileSystem.DirectoryExists(fullPath)) throw new DirectoryNotFoundException(fullPath);
+            Refresh(fullPath);
             PushHistory();
         }
         public void GoUp()
         {
             if (string.IsNullOrEmpty(CurrentPath)) return;
             var parent = FileSystem.GetParentDirectory(CurrentPath);
-            if (parent == null) return;
+            if (parent == null || !IsWithinRoot(parent)) return;
             Refresh(parent);
             PushHistory();
         }
@@ -1690,10 +1970,11 @@ namespace Forma
             if (string.IsNullOrEmpty(CurrentPath)) return;
             if (_historyPosition >= 0 && _historyPosition < _history.Count - 1) _history.RemoveRange(_historyPosition + 1, _history.Count - _historyPosition - 1);
             if (_history.Count == 0 || _history[_historyPosition] != CurrentPath) { _history.Add(CurrentPath); _historyPosition = _history.Count - 1; }
+            SynchronizeNavigationButtons();
         }
         /// <summary>Matches Godot's _update_make_dir_visible: folder creation is force-disabled while
         /// merely picking a file/files to open, regardless of the CanCreateFolders customization flag.</summary>
-        public bool EffectiveCanCreateFolders => CanCreateFolders && FileMode != FileDialogMode.OpenFile && FileMode != FileDialogMode.OpenFiles;
+        public bool EffectiveCanCreateFolders => CanCreateFolders && IsCustomizationFlagEnabled(FileDialogCustomization.CreateFolder) && FileMode != FileDialogMode.OpenFile && FileMode != FileDialogMode.OpenFiles;
         public string CreateFolder(string name)
         {
             if (!EffectiveCanCreateFolders) throw new InvalidOperationException("Folder creation is disabled.");
@@ -1715,6 +1996,7 @@ namespace Forma
                 : Path.GetFullPath(path);
             if (!append) _selectedFiles.Clear();
             if (!_selectedFiles.Contains(CurrentFile)) _selectedFiles.Add(CurrentFile);
+            SynchronizeControls();
         }
         public void ActivateEntry(int index)
         {
@@ -1734,7 +2016,68 @@ namespace Forma
         {
             CurrentFile = string.Empty;
             _selectedFiles.Clear();
+            SynchronizeControls();
         }
+        protected override void ArrangeChildren()
+        {
+            base.ArrangeChildren();
+            var x = (float)DialogInset;
+            foreach (var button in new[] { _backButton, _forwardButton, _upButton })
+            {
+                button.Position = new Vector2(x, 32);
+                button.Size = new Vector2(NavigationButtonSize, ControlHeight);
+                x += NavigationButtonSize + NavigationButtonGap;
+            }
+            var trailingX = Size.X - DialogInset - NavigationButtonSize;
+            _refreshButton.Position = new Vector2(Math.Max(x, trailingX), 32);
+            _refreshButton.Size = new Vector2(NavigationButtonSize, ControlHeight);
+            trailingX -= NavigationButtonSize + NavigationButtonGap;
+            _favoriteButton.Position = new Vector2(Math.Max(x, trailingX), 32);
+            _favoriteButton.Size = new Vector2(NavigationButtonSize, ControlHeight);
+            trailingX -= NavigationButtonSize + NavigationButtonGap;
+            _createFolderButton.Position = new Vector2(Math.Max(x, trailingX), 32);
+            _createFolderButton.Size = new Vector2(NavigationButtonSize, ControlHeight);
+            UpdateDriveSelector();
+            _driveSelector.Position = new Vector2(x, 32);
+            _driveSelector.Size = new Vector2(_driveSelector.Visible ? 112 : 0, ControlHeight);
+            x += _driveSelector.Visible ? 112 + NavigationButtonGap : 0;
+            _directoryEdit.Position = new Vector2(x, 32);
+            var firstTrailingButton = _createFolderButton.Visible ? _createFolderButton : _favoriteButton.Visible ? _favoriteButton : _refreshButton;
+            _directoryEdit.Size = new Vector2(Math.Max(0, firstTrailingButton.Position.X - x - NavigationButtonGap), ControlHeight);
+
+            var toolbarY = 68f;
+            var toolbarX = (float)DialogInset;
+            foreach (var button in new[] { _showHiddenButton, _thumbnailModeButton, _listModeButton, _filenameFilterButton })
+            {
+                button.Position = new Vector2(toolbarX, toolbarY);
+                button.Size = new Vector2(ToolbarButtonWidth, ControlHeight);
+                if (button.Visible) toolbarX += ToolbarButtonWidth + NavigationButtonGap;
+            }
+            _sortSelector.Position = new Vector2(Math.Max(toolbarX, Size.X - 210), toolbarY);
+            _sortSelector.Size = new Vector2(Math.Min(200, Math.Max(0, Size.X - _sortSelector.Position.X - DialogInset)), ControlHeight);
+
+            var fileRowY = Math.Max(104, Size.Y - ButtonHeight - FooterInset - ControlHeight - 8);
+            var filterWidth = Math.Min(230, Math.Max(150, Size.X * .36f));
+            _filterSelector.Position = new Vector2(Size.X - DialogInset - filterWidth, fileRowY);
+            _filterSelector.Size = new Vector2(filterWidth, ControlHeight);
+            _filenameEdit.Position = new Vector2(DialogInset, fileRowY);
+            _filenameEdit.Size = new Vector2(Math.Max(0, _filterSelector.Position.X - DialogInset - NavigationButtonGap), ControlHeight);
+            _filenameFilterEdit.Position = new Vector2(DialogInset, fileRowY - ControlHeight - NavigationButtonGap);
+            _filenameFilterEdit.Size = new Vector2(Math.Max(0, Size.X - DialogInset * 2), ControlHeight);
+            ArrangeOptionControls(fileRowY - (_filenameFilterEdit.Visible ? ControlHeight + NavigationButtonGap : 0));
+            ArrangeDirectoryLists();
+            SynchronizeNavigationButtons();
+        }
+        protected override Rectangle OkButtonBounds => new Rectangle(
+            Bounds.Right - FooterInset - FooterButtonWidth,
+            Bounds.Bottom - (int)ButtonHeight - FooterInset,
+            FooterButtonWidth,
+            (int)ButtonHeight);
+        protected override Rectangle CancelButtonBounds => new Rectangle(
+            OkButtonBounds.Left - FooterButtonGap - FooterButtonWidth,
+            OkButtonBounds.Y,
+            FooterButtonWidth,
+            OkButtonBounds.Height);
         public override void Confirm()
         {
             // Godot's FileDialog constructor calls set_hide_on_ok(false) and connects its OWN
@@ -1776,26 +2119,98 @@ namespace Forma
         internal override void PointerPressed(Point point)
         {
             base.PointerPressed(point);
-            var index = (int)((point.Y - EntriesBounds.Top) / EntryHeight);
-            if (EntriesBounds.Contains(point) && index >= 0 && index < _entries.Count) SelectEntry(index, FileMode == FileDialogMode.OpenFiles);
+            var index = GetEntryIndexAt(point);
+            if (index < 0) { _doubleClickPending = false; return; }
+            var clickTime = Context?.CurrentTime ?? TimeSpan.Zero;
+            var withinTimeout = _lastClickTime != TimeSpan.MinValue && clickTime - _lastClickTime <= DoubleClickTimeout;
+            var withinTolerance = Vector2.DistanceSquared(point.ToVector2(), _lastClickPosition.ToVector2()) <= DoubleClickTolerance * DoubleClickTolerance;
+            _doubleClickPending = withinTimeout && withinTolerance && index == _lastClickIndex;
+            _lastClickTime = clickTime;
+            _lastClickPosition = point;
+            _lastClickIndex = index;
+            SelectEntry(index, FileMode == FileDialogMode.OpenFiles);
+        }
+        internal override void PointerReleased(Point point, bool isInside)
+        {
+            base.PointerReleased(point, isInside);
+            var index = GetEntryIndexAt(point);
+            if (isInside && _doubleClickPending && index >= 0 && index == _lastClickIndex) ActivateEntry(index);
+            _doubleClickPending = false;
+        }
+        internal override void PointerButtonPressed(Point point, PointerButton button)
+        {
+            base.PointerButtonPressed(point, button);
+            if (button != PointerButton.Right) return;
+            var index = GetEntryIndexAt(point);
+            if (index >= 0) SelectEntry(index, FileMode == FileDialogMode.OpenFiles);
+            _contextEntryIndex = index;
+            BuildItemMenu(index >= 0);
+            _itemMenu.PopupAt(point.ToVector2());
+        }
+        internal override void KeyPressed(Keys key)
+        {
+            if (key == Keys.Back)
+            {
+                GoUp();
+                ClearSelectionAfterDirectoryNavigation();
+                return;
+            }
+            if (key == Keys.Delete && IsCustomizationFlagEnabled(FileDialogCustomization.Delete) && !string.IsNullOrEmpty(CurrentFile))
+            {
+                _contextEntryIndex = _entries.IndexOf(CurrentFile);
+                ShowDeleteConfirmation();
+                return;
+            }
+            if (key == Keys.F5)
+            {
+                if (!string.IsNullOrEmpty(CurrentPath)) Refresh(CurrentPath);
+                return;
+            }
+            if (key == Keys.Enter && !string.IsNullOrEmpty(CurrentFile) && FileSystem.DirectoryExists(CurrentFile))
+            {
+                NavigateTo(CurrentFile);
+                ClearSelectionAfterDirectoryNavigation();
+                return;
+            }
+            base.KeyPressed(key);
         }
         internal override void DrawDialogBody(UIRenderContext context)
         {
-            var pathBounds = new Rectangle(Bounds.X + 8, Bounds.Y + 32, Math.Max(0, Bounds.Width - 16), 20);
-            context.Fill(pathBounds, context.Theme.BackgroundColor);
-            context.Border(pathBounds, context.Theme.PanelBorderColor);
-            if (EffectiveUIFont != null) context.Text(EffectiveUIFont, CurrentPath, new Vector2(pathBounds.X + 4, pathBounds.Y + Math.Max(1, (pathBounds.Height - TextMetrics.LineHeight(EffectiveUIFont)) / 2)), context.Theme.DisabledTextColor);
             var entriesBounds = EntriesBounds;
             context.Fill(entriesBounds, context.Theme.BackgroundColor);
             context.Border(entriesBounds, context.Theme.PanelBorderColor);
+            if (!string.IsNullOrEmpty(Message))
+            {
+                if (EffectiveUIFont != null) context.Text(EffectiveUIFont, Message, new Vector2(entriesBounds.X + 8, entriesBounds.Y + 8), context.Theme.DisabledTextColor);
+                return;
+            }
             for (var index = 0; index < _entries.Count; index++)
             {
                 var entry = _entries[index];
-                var row = new Rectangle(entriesBounds.X + 1, entriesBounds.Y + 1 + (int)(index * EntryHeight), Math.Max(0, entriesBounds.Width - 2), (int)EntryHeight);
-                if (row.Bottom > entriesBounds.Bottom) break;
+                var row = GetEntryRectangle(index);
+                if (row == Rectangle.Empty || row.Bottom > entriesBounds.Bottom) break;
                 if (_selectedFiles.Contains(entry)) context.Fill(row, context.Theme.AccentColor);
                 var isDirectory = FileSystem.DirectoryExists(entry);
-                var icon = GetThemeIcon(isDirectory ? "folder" : "file");
+                var icon = DisplayMode == FileDialogDisplayMode.Thumbnails ? GetThumbnailCallback?.Invoke(entry, ThumbnailIconSize) : null;
+                icon ??= GetIconCallback?.Invoke(entry);
+                icon ??= GetThemeIcon(isDirectory
+                    ? DisplayMode == FileDialogDisplayMode.Thumbnails ? "folder_thumbnail" : "folder"
+                    : DisplayMode == FileDialogDisplayMode.Thumbnails ? "file_thumbnail" : "file");
+                if (DisplayMode == FileDialogDisplayMode.Thumbnails)
+                {
+                    if (icon.HasValue)
+                    {
+                        var iconSize = Math.Min(ThumbnailIconSize, Math.Min(row.Width - 12, row.Height - 30));
+                        context.Icon(icon.Value, new Rectangle(row.Center.X - iconSize / 2, row.Y + 6, iconSize, iconSize), Color.White);
+                    }
+                    if (EffectiveUIFont != null)
+                    {
+                        var name = Path.GetFileName(entry);
+                        var textSize = TextMetrics.Measure(EffectiveUIFont, name);
+                        context.Text(EffectiveUIFont, name, new Vector2(Math.Max(row.X + 3, row.Center.X - textSize.X / 2), row.Bottom - TextMetrics.LineHeight(EffectiveUIFont) - 4), context.Theme.TextColor);
+                    }
+                    continue;
+                }
                 var textX = row.X + 4;
                 if (icon.HasValue)
                 {
@@ -1809,7 +2224,431 @@ namespace Forma
                 }
             }
         }
-        private Rectangle EntriesBounds => new Rectangle(Bounds.X + 8, Bounds.Y + 58, Math.Max(0, Bounds.Width - 16), Math.Max(0, OkButtonBounds.Top - Bounds.Y - 66));
+        private Rectangle EntriesBounds
+        {
+            get
+            {
+                var sidebarVisible = IsCustomizationFlagEnabled(FileDialogCustomization.Favorites) || IsCustomizationFlagEnabled(FileDialogCustomization.Recent);
+                var left = Bounds.X + (sidebarVisible ? DialogInset + SidebarWidth + 12 : DialogInset);
+                var bottom = GetEntriesBottom();
+                return new Rectangle(left, Bounds.Y + 104, Math.Max(0, Bounds.Right - DialogInset - left), Math.Max(0, bottom - Bounds.Y - 104));
+            }
+        }
+        private int GetEntryIndexAt(Point point)
+        {
+            if (!EntriesBounds.Contains(point)) return -1;
+            if (DisplayMode == FileDialogDisplayMode.Thumbnails)
+            {
+                var columns = Math.Max(1, (EntriesBounds.Width - 2) / ThumbnailWidth);
+                var column = (point.X - EntriesBounds.X - 1) / ThumbnailWidth;
+                var row = (point.Y - EntriesBounds.Y - 1) / ThumbnailHeight;
+                var index = row * columns + column;
+                return index >= 0 && index < _entries.Count && GetEntryRectangle(index).Contains(point) ? index : -1;
+            }
+            var listIndex = (int)((point.Y - EntriesBounds.Top - 1) / EntryHeight);
+            return listIndex >= 0 && listIndex < _entries.Count ? listIndex : -1;
+        }
+        private Rectangle GetEntryRectangle(int index)
+        {
+            var bounds = EntriesBounds;
+            if (DisplayMode == FileDialogDisplayMode.List)
+                return new Rectangle(bounds.X + 1, bounds.Y + 1 + (int)(index * EntryHeight), Math.Max(0, bounds.Width - 2), (int)EntryHeight);
+            var columns = Math.Max(1, (bounds.Width - 2) / ThumbnailWidth);
+            return new Rectangle(bounds.X + 1 + index % columns * ThumbnailWidth, bounds.Y + 1 + index / columns * ThumbnailHeight, ThumbnailWidth - 6, ThumbnailHeight - 6);
+        }
+        private void ClearSelectionAfterDirectoryNavigation()
+        {
+            if (FileMode != FileDialogMode.SaveFile) ClearSelection();
+        }
+        private void SynchronizeNavigationButtons()
+        {
+            _backButton.Enabled = CanGoBack;
+            _forwardButton.Enabled = CanGoForward;
+            _upButton.Enabled = IsFileSystemAvailable && !string.IsNullOrEmpty(CurrentPath) && FileSystem.GetParentDirectory(CurrentPath) != null;
+        }
+        private void SynchronizeControls()
+        {
+            if (_directoryEdit == null) return;
+            _synchronizingControls = true;
+            try
+            {
+                _directoryEdit.Text = CurrentPath ?? string.Empty;
+                _filenameEdit.Text = string.IsNullOrEmpty(CurrentFile) ? string.Empty : Path.GetFileName(CurrentFile);
+                _filenameEdit.Visible = FileMode != FileDialogMode.OpenDirectory;
+                _filterSelector.Visible = FileMode != FileDialogMode.OpenDirectory;
+                _showHiddenButton.Visible = IsCustomizationFlagEnabled(FileDialogCustomization.HiddenFiles);
+                _filenameFilterButton.Visible = IsCustomizationFlagEnabled(FileDialogCustomization.FileFilter);
+                _sortSelector.Visible = IsCustomizationFlagEnabled(FileDialogCustomization.FileSort);
+                _thumbnailModeButton.Visible = IsCustomizationFlagEnabled(FileDialogCustomization.Layout);
+                _listModeButton.Visible = IsCustomizationFlagEnabled(FileDialogCustomization.Layout);
+                _favoriteButton.Visible = IsCustomizationFlagEnabled(FileDialogCustomization.Favorites);
+                _createFolderButton.Visible = EffectiveCanCreateFolders;
+                _showHiddenButton.SetPressedNoSignal(ShowHiddenFiles);
+                _thumbnailModeButton.SetPressedNoSignal(DisplayMode == FileDialogDisplayMode.Thumbnails);
+                _listModeButton.SetPressedNoSignal(DisplayMode == FileDialogDisplayMode.List);
+                _filenameFilterButton.SetPressedNoSignal(ShowFilenameFilter);
+                _filenameFilterEdit.Visible = ShowFilenameFilter && IsCustomizationFlagEnabled(FileDialogCustomization.FileFilter);
+                _filenameFilterEdit.Text = FilenameFilter;
+                _sortSelector.Select((int)SortOption);
+                if (_filterSelector.GetItemCount() > 0) _filterSelector.Select(FilterIndex);
+                UpdateDirectoryLists();
+            }
+            finally
+            {
+                _synchronizingControls = false;
+            }
+        }
+        private void SubmitDirectoryPath()
+        {
+            if (!IsFileSystemAvailable || string.IsNullOrWhiteSpace(_directoryEdit.Text)) return;
+            var path = Path.GetFullPath(_directoryEdit.Text);
+            if (FileSystem.DirectoryExists(path))
+            {
+                NavigateTo(path);
+                ClearSelectionAfterDirectoryNavigation();
+            }
+            else
+            {
+                Message = "Folder does not exist.";
+                _directoryEdit.Text = CurrentPath;
+            }
+        }
+        public void SetRootSubfolder(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                _rootSubfolder = string.Empty;
+                return;
+            }
+            var root = Path.GetFullPath(path);
+            if (!FileSystem.DirectoryExists(root)) throw new DirectoryNotFoundException(root);
+            _rootSubfolder = root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (string.IsNullOrEmpty(CurrentPath) || !IsWithinRoot(CurrentPath)) NavigateTo(_rootSubfolder);
+            SynchronizeControls();
+        }
+        public string GetRootSubfolder() => RootSubfolder;
+        private bool IsWithinRoot(string path)
+        {
+            if (string.IsNullOrEmpty(_rootSubfolder)) return true;
+            var relative = Path.GetRelativePath(_rootSubfolder, Path.GetFullPath(path));
+            return relative == "." || !relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) && relative != ".." && !Path.IsPathRooted(relative);
+        }
+        private void EnsureWithinRoot(string path)
+        {
+            if (!IsWithinRoot(path)) throw new UnauthorizedAccessException($"Path '{path}' is outside the FileDialog root '{_rootSubfolder}'.");
+        }
+        private void UpdateDriveSelector()
+        {
+            if (_driveSelector == null) return;
+            var drives = Access == FileDialogAccess.FileSystem && IsFileSystemAvailable ? FileSystem.GetDrives() : Array.Empty<string>();
+            _synchronizingControls = true;
+            try
+            {
+                _driveSelector.Clear();
+                foreach (var drive in drives) _driveSelector.AddItem(drive);
+                _driveSelector.Visible = drives.Count > 1;
+                if (_driveSelector.Visible)
+                {
+                    var current = drives.ToList().FindIndex(drive => CurrentPath.StartsWith(drive, StringComparison.OrdinalIgnoreCase));
+                    _driveSelector.Select(Math.Max(0, current));
+                }
+            }
+            finally
+            {
+                _synchronizingControls = false;
+            }
+        }
+        private void SelectDrive(int index)
+        {
+            if (_synchronizingControls) return;
+            var drives = FileSystem.GetDrives();
+            if (index < 0 || index >= drives.Count) return;
+            NavigateTo(drives[index]);
+            ClearSelectionAfterDirectoryNavigation();
+        }
+        private void ShowCreateFolderDialog()
+        {
+            if (!EffectiveCanCreateFolders) return;
+            _newDirectoryEdit.Text = string.Empty;
+            _makeDirectoryDialog.PopupAt(new Vector2(
+                Bounds.X + Math.Max(0, (Bounds.Width - _makeDirectoryDialog.Size.X) / 2),
+                Bounds.Y + Math.Max(0, (Bounds.Height - _makeDirectoryDialog.Size.Y) / 2)));
+        }
+        private void ConfirmCreateFolder()
+        {
+            var name = _newDirectoryEdit.Text?.Trim();
+            if (string.IsNullOrEmpty(name)) return;
+            var path = CreateFolder(name);
+            _makeDirectoryDialog.Hide();
+            NavigateTo(path);
+            ClearSelectionAfterDirectoryNavigation();
+        }
+        private void UpdateDirectoryLists()
+        {
+            if (_favoritesList == null) return;
+            var wasSynchronizing = _synchronizingControls;
+            _synchronizingControls = true;
+            try
+            {
+                PopulateDirectoryList(_favoritesList, _favoriteList);
+                PopulateDirectoryList(_recentsList, _recentList);
+                var current = NormalizeDirectoryListPath(CurrentPath);
+                var favoriteIndex = _favoriteList.IndexOf(current);
+                _favoriteButton.SetPressedNoSignal(favoriteIndex >= 0);
+                if (favoriteIndex >= 0 && favoriteIndex < _favoritesList.ItemCount) _favoritesList.SetCurrent(favoriteIndex);
+                _favoriteUpButton.Enabled = favoriteIndex > 0;
+                _favoriteDownButton.Enabled = favoriteIndex >= 0 && favoriteIndex < _favoriteList.Count - 1;
+            }
+            finally
+            {
+                _synchronizingControls = wasSynchronizing;
+            }
+        }
+        private void PopulateDirectoryList(ItemList list, List<string> paths)
+        {
+            list.Clear();
+            foreach (var normalized in paths.ToArray())
+            {
+                var path = normalized.TrimEnd('/');
+                if (!IsFileSystemAvailable || !FileSystem.DirectoryExists(path)) continue;
+                var name = Path.GetFileName(path);
+                var index = list.AddItem(string.IsNullOrEmpty(name) ? path : name);
+                list.SetItemMetadata(index, path);
+                list.SetItemTooltip(index, normalized);
+            }
+        }
+        private void NavigateFromDirectoryList(ItemList list, int index)
+        {
+            if (_synchronizingControls) return;
+            if (list.GetItemMetadata(index) is not string path || !FileSystem.DirectoryExists(path)) return;
+            NavigateTo(path);
+            ClearSelectionAfterDirectoryNavigation();
+            UpdateDirectoryLists();
+        }
+        private void MoveSelectedFavorite(int direction)
+        {
+            var index = _favoritesList.Current;
+            if (index < 0 || _favoritesList.GetItemMetadata(index) is not string path) return;
+            var source = _favoriteList.FindIndex(candidate => string.Equals(candidate.TrimEnd('/'), path, StringComparison.OrdinalIgnoreCase));
+            var target = source + direction;
+            if (source < 0 || target < 0 || target >= _favoriteList.Count) return;
+            var value = _favoriteList[source];
+            _favoriteList.RemoveAt(source);
+            _favoriteList.Insert(target, value);
+            UpdateDirectoryLists();
+            _favoritesList.SetCurrent(target);
+        }
+        private void BuildItemMenu(bool hasEntry)
+        {
+            _itemMenu.Clear();
+            if (hasEntry) _itemMenu.AddItem("Copy Path", ContextCopyPath);
+            if (hasEntry && IsCustomizationFlagEnabled(FileDialogCustomization.Delete) && FileSystem.CanDelete) _itemMenu.AddItem("Delete", ContextDelete);
+            _itemMenu.AddItem("Refresh", ContextRefresh);
+            if (EffectiveCanCreateFolders) _itemMenu.AddItem("New Folder", ContextNewFolder);
+            if (hasEntry && FileSystem.CanShowInFileManager) _itemMenu.AddItem("Show in File Manager", ContextShowInFileManager);
+        }
+        private void HandleItemMenu(int id)
+        {
+            var path = _contextEntryIndex >= 0 && _contextEntryIndex < _entries.Count ? _entries[_contextEntryIndex] : null;
+            switch (id)
+            {
+                case ContextCopyPath:
+                    if (path != null) Context?.Clipboard?.SetText(Path.GetFullPath(path));
+                    break;
+                case ContextDelete:
+                    ShowDeleteConfirmation();
+                    break;
+                case ContextRefresh:
+                    if (!string.IsNullOrEmpty(CurrentPath)) Refresh(CurrentPath);
+                    break;
+                case ContextNewFolder:
+                    ShowCreateFolderDialog();
+                    break;
+                case ContextShowInFileManager:
+                    if (path != null) FileSystem.ShowInFileManager(path);
+                    break;
+            }
+        }
+        private void ShowDeleteConfirmation()
+        {
+            if (_contextEntryIndex < 0 || _contextEntryIndex >= _entries.Count || !FileSystem.CanDelete) return;
+            _deleteConfirmation.DialogText = $"Delete \"{Path.GetFileName(_entries[_contextEntryIndex])}\"?";
+            _deleteConfirmation.PopupAt(new Vector2(
+                Bounds.X + Math.Max(0, (Bounds.Width - _deleteConfirmation.Size.X) / 2),
+                Bounds.Y + Math.Max(0, (Bounds.Height - _deleteConfirmation.Size.Y) / 2)));
+        }
+        private void DeleteContextEntry()
+        {
+            if (_contextEntryIndex < 0 || _contextEntryIndex >= _entries.Count || !FileSystem.CanDelete) return;
+            var path = _entries[_contextEntryIndex];
+            if (FileSystem.DirectoryExists(path)) FileSystem.DeleteDirectory(path);
+            else FileSystem.DeleteFile(path);
+            _deleteConfirmation.Hide();
+            _contextEntryIndex = -1;
+            ClearSelection();
+            Refresh(CurrentPath);
+        }
+        private void ArrangeDirectoryLists()
+        {
+            var showFavorites = IsCustomizationFlagEnabled(FileDialogCustomization.Favorites);
+            var showRecents = IsCustomizationFlagEnabled(FileDialogCustomization.Recent);
+            _favoritesLabel.Visible = showFavorites;
+            _favoritesList.Visible = showFavorites;
+            _favoriteUpButton.Visible = showFavorites;
+            _favoriteDownButton.Visible = showFavorites;
+            _recentsLabel.Visible = showRecents;
+            _recentsList.Visible = showRecents;
+            if (!showFavorites && !showRecents) return;
+            const float width = SidebarWidth;
+            var top = 104f;
+            var bottom = Math.Max(top, GetEntriesBottom() - Bounds.Y);
+            var height = bottom - top;
+            var favoritesHeight = showFavorites && showRecents ? height * .55f : showFavorites ? height : 0;
+            if (showFavorites)
+            {
+                _favoritesLabel.Position = new Vector2(DialogInset, top);
+                _favoritesLabel.Size = new Vector2(width - NavigationButtonSize * 2 - NavigationButtonGap, ControlHeight);
+                _favoriteUpButton.Position = new Vector2(DialogInset + width - NavigationButtonSize * 2 - NavigationButtonGap, top);
+                _favoriteUpButton.Size = new Vector2(NavigationButtonSize, ControlHeight);
+                _favoriteDownButton.Position = new Vector2(DialogInset + width - NavigationButtonSize, top);
+                _favoriteDownButton.Size = new Vector2(NavigationButtonSize, ControlHeight);
+                _favoritesList.Position = new Vector2(DialogInset, top + ControlHeight + NavigationButtonGap);
+                _favoritesList.Size = new Vector2(width, Math.Max(0, favoritesHeight - ControlHeight - NavigationButtonGap));
+            }
+            if (showRecents)
+            {
+                var recentTop = top + favoritesHeight;
+                _recentsLabel.Position = new Vector2(DialogInset, recentTop);
+                _recentsLabel.Size = new Vector2(width, ControlHeight);
+                _recentsList.Position = new Vector2(DialogInset, recentTop + ControlHeight + NavigationButtonGap);
+                _recentsList.Size = new Vector2(width, Math.Max(0, height - favoritesHeight - ControlHeight - NavigationButtonGap));
+            }
+        }
+        private void RebuildOptionControls()
+        {
+            foreach (var control in _optionControls) RemoveChild(control);
+            _optionControls.Clear();
+            _selectedOptions.Clear();
+            for (var optionIndex = 0; optionIndex < _options.Count; optionIndex++)
+            {
+                var option = _options[optionIndex];
+                if (option.Values.Count == 0)
+                {
+                    var checkBox = new CheckBox { Name = $"FileDialogOption{optionIndex}", Text = option.Name, ButtonPressed = option.DefaultIndex != 0 };
+                    checkBox.Toggled += (_, enabled) => _selectedOptions[option.Name] = enabled;
+                    _selectedOptions[option.Name] = option.DefaultIndex != 0;
+                    _optionControls.Add(checkBox);
+                    AddChild(checkBox);
+                }
+                else
+                {
+                    var label = new Label { Name = $"FileDialogOptionLabel{optionIndex}", Text = option.Name };
+                    var selector = new OptionButton { Name = $"FileDialogOption{optionIndex}", FitToLongestItem = false };
+                    foreach (var value in option.Values) selector.AddItem(value);
+                    selector.Select(option.DefaultIndex);
+                    selector.ItemSelected += (_, index) => _selectedOptions[option.Name] = index;
+                    _selectedOptions[option.Name] = option.DefaultIndex;
+                    _optionControls.Add(label);
+                    _optionControls.Add(selector);
+                    AddChild(label);
+                    AddChild(selector);
+                }
+            }
+            QueueLayout();
+        }
+        private int OptionRowCount
+        {
+            get
+            {
+                var count = 0;
+                for (var index = 0; index < _optionControls.Count; index++) { count++; if (_optionControls[index] is Label) index++; }
+                return count;
+            }
+        }
+        private void ArrangeOptionControls(float bottom)
+        {
+            var y = bottom - OptionRowCount * (ControlHeight + NavigationButtonGap);
+            for (var index = 0; index < _optionControls.Count; index++)
+            {
+                var control = _optionControls[index];
+                if (control is CheckBox)
+                {
+                    control.Position = new Vector2(DialogInset, y);
+                    control.Size = new Vector2(Math.Max(0, Size.X - DialogInset * 2), ControlHeight);
+                }
+                else
+                {
+                    control.Position = new Vector2(DialogInset, y);
+                    control.Size = new Vector2(160, ControlHeight);
+                    var selector = _optionControls[++index];
+                    selector.Position = new Vector2(DialogInset + 166, y);
+                    selector.Size = new Vector2(Math.Max(0, Size.X - DialogInset * 2 - 166), ControlHeight);
+                }
+                y += ControlHeight + NavigationButtonGap;
+            }
+        }
+        private int GetEntriesBottom()
+        {
+            var bottom = Bounds.Y + (int)_filenameEdit.Position.Y - 6;
+            if (ShowFilenameFilter && _filenameFilterEdit.Visible) bottom = Bounds.Y + (int)_filenameFilterEdit.Position.Y - 6;
+            return bottom - OptionRowCount * (ControlHeight + NavigationButtonGap);
+        }
+        private void SetFilenameFromEditor(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                CurrentFile = string.Empty;
+                _selectedFiles.Clear();
+                return;
+            }
+            CurrentFile = Path.GetFullPath(Path.Combine(string.IsNullOrEmpty(CurrentPath) ? FileSystem.GetCurrentDirectory() : CurrentPath, text));
+            _selectedFiles.Clear();
+            _selectedFiles.Add(CurrentFile);
+        }
+        private void UpdateFilterSelector()
+        {
+            if (_filterSelector == null) return;
+            _synchronizingControls = true;
+            try
+            {
+                _filterSelector.Clear();
+                if (_filters.Count > 1) _filterSelector.AddItem("All Recognized");
+                foreach (var filter in _filters)
+                {
+                    var parts = filter.Split(';');
+                    _filterSelector.AddItem(parts.Length > 1 && !string.IsNullOrWhiteSpace(parts[1]) ? parts[1].Trim() : parts[0].Trim());
+                }
+                _filterSelector.AddItem("All Files");
+                _filterSelector.Select(FilterIndex);
+            }
+            finally
+            {
+                _synchronizingControls = false;
+            }
+        }
+        private static Button CreateNavigationButton(string name, string text, string tooltip) => new Button
+        {
+            Name = name,
+            Text = text,
+            TooltipText = tooltip,
+            Padding = new Thickness(2),
+            IconAlignment = HorizontalAlignment.Center,
+            VerticalIconAlignment = VerticalAlignment.Center,
+            CustomMinimumSize = new Vector2(NavigationButtonSize, ControlHeight),
+        };
+        private static Button CreateToolbarButton(string name, string text, string tooltip, bool toggle = false) => new Button
+        {
+            Name = name,
+            Text = text,
+            TooltipText = tooltip,
+            ToggleMode = toggle,
+            Padding = new Thickness(6, 2, 6, 2),
+        };
+        private void ConfigureNavigationIcon(BaseButton button, string iconName)
+        {
+            button.DecorativeIconProvider = () => GetThemeIcon(iconName);
+            button.HideTextWhenDecorativeIconAvailable = true;
+        }
         private FileDialogOption GetOption(int option, bool allowNegative = false)
         {
             if (allowNegative && option < 0) option += _options.Count;

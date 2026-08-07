@@ -22,7 +22,7 @@ fi
 projects=(Forma Forma.DynamicText Forma.Media Forma.Svg Forma.Svg.ThorVG Forma.Xaml.HotReload)
 for project in "${projects[@]}"; do
   dotnet build "src/$project/$project.csproj" \
-    --configuration Release -p:FormaRuntime=MonoGame --nologo
+    --configuration Release -p:FormaRuntime=MonoGame --no-incremental --nologo
 done
 
 rm -rf "$generated_root" "$api_root" "$site_root"

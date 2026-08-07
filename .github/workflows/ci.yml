@@ -18,6 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       FORMA_RUNTIME: ${{ matrix.runtime }}
+      MSBUILDDISABLENODEREUSE: 1
     steps:
       - uses: actions/checkout@v7
         with:

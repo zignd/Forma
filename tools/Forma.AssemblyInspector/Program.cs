@@ -12,6 +12,7 @@ return args.Length == 0 ? Usage() : args[0] switch
     "forbid-references" => ForbidReferences(args),
     "compare-api" => CompareApi(args),
     "docs-coverage" => CheckDocumentationCoverage(args),
+    "normalize-source-links" => NormalizeSourceLinks(args),
     _ => Usage(),
 };
 
@@ -22,7 +23,59 @@ static int Usage()
     Console.Error.WriteLine("  Forma.AssemblyInspector forbid-references <assembly> <forbidden-reference> [<forbidden-reference> ...]");
     Console.Error.WriteLine("  Forma.AssemblyInspector compare-api <left-assembly> <right-assembly>");
     Console.Error.WriteLine("  Forma.AssemblyInspector docs-coverage <api-yaml-directory> <site-directory> <control-story-directory> <minimum-type-percent> <minimum-member-percent> <report-path>");
+    Console.Error.WriteLine("  Forma.AssemblyInspector normalize-source-links <api-yaml-directory> <repository-url> <revision>");
     return 2;
+}
+
+static int NormalizeSourceLinks(string[] arguments)
+{
+    if (arguments.Length != 4 || arguments[3].Length != 40 || arguments[3].Any(character => !Uri.IsHexDigit(character)))
+        return Usage();
+
+    var apiDirectory = Path.GetFullPath(arguments[1]);
+    var repositoryUrl = arguments[2].TrimEnd('/');
+    var expectedPrefix = $"{repositoryUrl}/blob/";
+    var replacementPrefix = $"{expectedPrefix}{arguments[3]}/";
+    var updatedLinks = 0;
+    foreach (var yamlPath in Directory.EnumerateFiles(apiDirectory, "*.yml", SearchOption.TopDirectoryOnly))
+    {
+        var firstLine = File.ReadLines(yamlPath).FirstOrDefault();
+        using var input = File.OpenText(yamlPath);
+        var yaml = new YamlStream();
+        yaml.Load(input);
+        var changed = false;
+        foreach (var scalar in yaml.Documents.SelectMany(document => DescendantScalars(document.RootNode)))
+        {
+            if (scalar.Value is not { } value || !value.StartsWith(expectedPrefix, StringComparison.Ordinal)) continue;
+            var sourcePathIndex = value.IndexOf("/src/", expectedPrefix.Length, StringComparison.Ordinal);
+            if (sourcePathIndex < 0) continue;
+            scalar.Value = replacementPrefix + value[(sourcePathIndex + 1)..];
+            changed = true;
+            updatedLinks++;
+        }
+        if (!changed) continue;
+        using var output = File.CreateText(yamlPath);
+        if (firstLine?.StartsWith("### YamlMime:", StringComparison.Ordinal) == true)
+            output.WriteLine(firstLine);
+        yaml.Save(output, false);
+    }
+
+    if (updatedLinks == 0)
+    {
+        Console.Error.WriteLine($"No {repositoryUrl} source links were found in {apiDirectory}.");
+        return 1;
+    }
+    Console.WriteLine($"Normalized {updatedLinks} API source links to revision {arguments[3]}.");
+    return 0;
+}
+
+static IEnumerable<YamlScalarNode> DescendantScalars(YamlNode node)
+{
+    if (node is YamlScalarNode scalar) yield return scalar;
+    else if (node is YamlSequenceNode sequence)
+        foreach (var child in sequence.Children.SelectMany(DescendantScalars)) yield return child;
+    else if (node is YamlMappingNode mapping)
+        foreach (var child in mapping.Children.SelectMany(pair => DescendantScalars(pair.Key).Concat(DescendantScalars(pair.Value)))) yield return child;
 }
 
 static int CheckDocumentationCoverage(string[] arguments)

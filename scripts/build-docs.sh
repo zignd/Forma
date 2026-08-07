@@ -48,7 +48,10 @@ nvorbis_version="$(jq -r '.targets[] | keys[] | select(startswith("NVorbis/")) |
 cp "$nuget_root/nvorbis/$nvorbis_version/lib/netstandard2.0/NVorbis.dll" \
   "$generated_root/references/"
 
-dotnet docfx docs/docfx.json --warningsAsErrors
+dotnet docfx metadata docs/docfx.json --warningsAsErrors
+dotnet run --project tools/Forma.AssemblyInspector/Forma.AssemblyInspector.csproj -- \
+  normalize-source-links "$api_root" https://github.com/zigrok/Forma "$docs_revision"
+dotnet docfx build docs/docfx.json --warningsAsErrors
 
 dotnet run --project tools/Forma.AssemblyInspector/Forma.AssemblyInspector.csproj -- \
   docs-coverage "$api_root" "$site_root" samples/Forma.Catalog/Stories/Controls \

@@ -90,6 +90,8 @@
   items:
     - name: Architecture and validation
       href: contributor-architecture.md
+    - name: Release API review
+      href: release-api-review.md
     - name: Contribution guide
       href: https://github.com/zigrok/Forma/blob/main/CONTRIBUTING.md
     - name: Support

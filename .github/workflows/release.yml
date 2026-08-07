@@ -36,6 +36,8 @@ jobs:
         run: dotnet run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- verify
       - name: Validate runtime parity
         run: bash scripts/check-runtime-parity.sh
+      - name: Review release public API
+        run: bash scripts/check-release-api.sh
       - name: Validate XAML
         run: make CONFIGURATION=Release test-xaml
       - name: Validate package consumers

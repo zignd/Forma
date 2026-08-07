@@ -221,6 +221,8 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: bash scripts/check-runtime-parity.sh
+      - name: Review release public API
+        run: bash scripts/check-release-api.sh
 
   package-consumers:
     runs-on: ubuntu-latest

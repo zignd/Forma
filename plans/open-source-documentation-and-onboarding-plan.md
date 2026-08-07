@@ -554,7 +554,7 @@ Each curated control entry should include:
 - [x] Generate or validate the mapping among public controls, Catalog stories, and reference pages.
 - [x] Add default-value and support-limitation notes where generated signatures are insufficient.
 - [x] Add accessibility contracts to applicable control pages.
-- [ ] Introduce API diff review for releases so removed or changed public members require migration
+- [x] Introduce API diff review for releases so removed or changed public members require migration
   notes and reference updates.
 
 ### Exit Criteria

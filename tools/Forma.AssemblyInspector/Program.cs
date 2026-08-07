@@ -11,6 +11,8 @@ return args.Length == 0 ? Usage() : args[0] switch
     "references" => CheckReferences(args),
     "forbid-references" => ForbidReferences(args),
     "compare-api" => CompareApi(args),
+    "create-api-baseline" => CreateApiBaseline(args),
+    "review-api" => ReviewApi(args),
     "create-docs-baseline" => CreateDocumentationBaseline(args),
     "docs-coverage" => CheckDocumentationCoverage(args),
     "control-families" => CheckControlFamilies(args),
@@ -24,6 +26,8 @@ static int Usage()
     Console.Error.WriteLine("  Forma.AssemblyInspector references <assembly> <assembly-name> <runtime> <required-reference> <forbidden-reference>");
     Console.Error.WriteLine("  Forma.AssemblyInspector forbid-references <assembly> <forbidden-reference> [<forbidden-reference> ...]");
     Console.Error.WriteLine("  Forma.AssemblyInspector compare-api <left-assembly> <right-assembly>");
+    Console.Error.WriteLine("  Forma.AssemblyInspector create-api-baseline <output-path> <assembly> [<assembly> ...]");
+    Console.Error.WriteLine("  Forma.AssemblyInspector review-api <baseline-path> <migration-manifest> <release-notes> <repository-root> <assembly> [<assembly> ...]");
     Console.Error.WriteLine("  Forma.AssemblyInspector create-docs-baseline <api-yaml-directory> <output-path>");
     Console.Error.WriteLine("  Forma.AssemblyInspector docs-coverage <api-yaml-directory> <site-directory> <control-story-directory> <minimum-type-percent> <minimum-member-percent> <baseline-path> <report-path>");
     Console.Error.WriteLine("  Forma.AssemblyInspector control-families <api-yaml-directory> <site-directory> <manifest>");
@@ -296,6 +300,117 @@ static int CompareApi(string[] arguments)
     return 0;
 }
 
+static int CreateApiBaseline(string[] arguments)
+{
+    if (arguments.Length < 3) return Usage();
+    var assemblies = ReadApiAssemblies(arguments.Skip(2));
+    var outputPath = Path.GetFullPath(arguments[1]);
+    var baseline = new ApiBaseline(1, assemblies
+        .OrderBy(assembly => assembly.Key, StringComparer.Ordinal)
+        .Select(assembly => new ApiAssemblyBaseline(assembly.Key, assembly.Value.OrderBy(signature => signature, StringComparer.Ordinal).ToArray()))
+        .ToArray());
+    Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+    File.WriteAllText(outputPath, JsonSerializer.Serialize(baseline, new JsonSerializerOptions { WriteIndented = true }) + Environment.NewLine);
+    Console.WriteLine($"Public API baseline: {baseline.Assemblies.Sum(assembly => assembly.Signatures.Count)} signatures across {baseline.Assemblies.Count} assemblies written to {outputPath}.");
+    return 0;
+}
+
+static int ReviewApi(string[] arguments)
+{
+    if (arguments.Length < 6) return Usage();
+    var baselinePath = Path.GetFullPath(arguments[1]);
+    var migrationManifestPath = Path.GetFullPath(arguments[2]);
+    var releaseNotesPath = Path.GetFullPath(arguments[3]);
+    var repositoryRoot = Path.GetFullPath(arguments[4]);
+    var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+    var baseline = JsonSerializer.Deserialize<ApiBaseline>(File.ReadAllText(baselinePath), jsonOptions)
+        ?? throw new InvalidDataException("Public API baseline is empty.");
+    var migrations = JsonSerializer.Deserialize<ApiMigrationManifest>(File.ReadAllText(migrationManifestPath), jsonOptions)
+        ?? throw new InvalidDataException("API migration manifest is empty.");
+    var current = ReadApiAssemblies(arguments.Skip(5));
+    var errors = new List<string>();
+    if (baseline.SchemaVersion != 1) errors.Add($"Unsupported public API baseline schema version {baseline.SchemaVersion}.");
+    if (migrations.SchemaVersion != 1) errors.Add($"Unsupported API migration schema version {migrations.SchemaVersion}.");
+    if (!baseline.Assemblies.Select(assembly => assembly.Name).SequenceEqual(
+            baseline.Assemblies.Select(assembly => assembly.Name).OrderBy(name => name, StringComparer.Ordinal), StringComparer.Ordinal))
+        errors.Add("Public API baseline assemblies are not in ordinal order.");
+    if (baseline.Assemblies.Select(assembly => assembly.Name).Distinct(StringComparer.Ordinal).Count() != baseline.Assemblies.Count)
+        errors.Add("Public API baseline contains duplicate assembly names.");
+
+    var baselineByAssembly = baseline.Assemblies.ToDictionary(assembly => assembly.Name, StringComparer.Ordinal);
+    foreach (var assembly in baseline.Assemblies)
+    {
+        if (!assembly.Signatures.SequenceEqual(assembly.Signatures.OrderBy(signature => signature, StringComparer.Ordinal), StringComparer.Ordinal))
+            errors.Add($"Public API signatures for {assembly.Name} are not in ordinal order.");
+        if (assembly.Signatures.Distinct(StringComparer.Ordinal).Count() != assembly.Signatures.Count)
+            errors.Add($"Public API baseline contains duplicate signatures for {assembly.Name}.");
+    }
+    foreach (var name in baselineByAssembly.Keys.Except(current.Keys, StringComparer.Ordinal).OrderBy(name => name, StringComparer.Ordinal))
+        errors.Add($"Baseline assembly is missing from current release output: {name}");
+    foreach (var name in current.Keys.Except(baselineByAssembly.Keys, StringComparer.Ordinal).OrderBy(name => name, StringComparer.Ordinal))
+        errors.Add($"Current release assembly is missing from the public API baseline: {name}");
+
+    var removals = baseline.Assemblies
+        .Where(assembly => current.ContainsKey(assembly.Name))
+        .SelectMany(assembly => assembly.Signatures
+            .Except(current[assembly.Name], StringComparer.Ordinal)
+            .Select(signature => new ApiRemoval(assembly.Name, signature)))
+        .OrderBy(removal => removal.Assembly, StringComparer.Ordinal)
+        .ThenBy(removal => removal.Signature, StringComparer.Ordinal)
+        .ToArray();
+    var additions = current
+        .Where(assembly => baselineByAssembly.ContainsKey(assembly.Key))
+        .Sum(assembly => assembly.Value.Except(baselineByAssembly[assembly.Key].Signatures, StringComparer.Ordinal).Count());
+    var migrationKeys = new HashSet<string>(StringComparer.Ordinal);
+    foreach (var migration in migrations.Changes)
+    {
+        var key = $"{migration.Assembly}\n{migration.RemovedSignature}";
+        if (!migrationKeys.Add(key)) errors.Add($"Duplicate API migration acknowledgement: {migration.Assembly}: {migration.RemovedSignature}");
+    }
+    var orderedMigrations = migrations.Changes
+        .OrderBy(change => change.Assembly, StringComparer.Ordinal)
+        .ThenBy(change => change.RemovedSignature, StringComparer.Ordinal);
+    if (!migrations.Changes.SequenceEqual(orderedMigrations)) errors.Add("API migration acknowledgements are not in ordinal order.");
+
+    var removalKeys = removals.Select(removal => $"{removal.Assembly}\n{removal.Signature}").ToHashSet(StringComparer.Ordinal);
+    var releaseNotes = File.ReadAllText(releaseNotesPath);
+    foreach (var removal in removals)
+    {
+        var migration = migrations.Changes.SingleOrDefault(change =>
+            change.Assembly == removal.Assembly && change.RemovedSignature == removal.Signature);
+        if (migration is null)
+        {
+            errors.Add($"Unacknowledged public API removal or change in {removal.Assembly}: {removal.Signature}");
+            continue;
+        }
+        if (string.IsNullOrWhiteSpace(migration.ReleaseNoteText) || !releaseNotes.Contains(migration.ReleaseNoteText, StringComparison.Ordinal))
+            errors.Add($"Release note text is missing for {removal.Assembly}: {removal.Signature}");
+        var referencePath = Path.GetFullPath(Path.Combine(repositoryRoot, migration.ReferencePath));
+        if (!referencePath.StartsWith(repositoryRoot + Path.DirectorySeparatorChar, StringComparison.Ordinal) || !File.Exists(referencePath))
+            errors.Add($"Migration reference path is invalid for {removal.Assembly}: {migration.ReferencePath}");
+        else if (string.IsNullOrWhiteSpace(migration.ReferenceText) || !File.ReadAllText(referencePath).Contains(migration.ReferenceText, StringComparison.Ordinal))
+            errors.Add($"Migration reference text is missing from {migration.ReferencePath} for {removal.Assembly}: {removal.Signature}");
+    }
+    foreach (var migration in migrations.Changes.Where(change => !removalKeys.Contains($"{change.Assembly}\n{change.RemovedSignature}")))
+        errors.Add($"Stale API migration acknowledgement: {migration.Assembly}: {migration.RemovedSignature}");
+
+    foreach (var error in errors) Console.Error.WriteLine(error);
+    Console.WriteLine($"Public API review: {baseline.Assemblies.Sum(assembly => assembly.Signatures.Count)} baseline signatures, {additions} additions, {removals.Length} removals or changes.");
+    return errors.Count == 0 ? 0 : 1;
+}
+
+static IReadOnlyDictionary<string, HashSet<string>> ReadApiAssemblies(IEnumerable<string> assemblyPaths)
+{
+    var result = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+    foreach (var assemblyPath in assemblyPaths)
+    {
+        using var assembly = AssemblyDefinition.ReadAssembly(Path.GetFullPath(assemblyPath));
+        if (!result.TryAdd(assembly.Name.Name, GetPublicApi(assembly)))
+            throw new InvalidDataException($"Duplicate release assembly name: {assembly.Name.Name}");
+    }
+    return result;
+}
+
 static HashSet<string> GetPublicApi(AssemblyDefinition assembly)
 {
     var api = new HashSet<string>(StringComparer.Ordinal);
@@ -345,3 +460,8 @@ sealed record DocumentationCoverageReport(
     IReadOnlyList<ControlMapping> Controls);
 sealed record ControlFamilyManifest(int SchemaVersion, string RootUid, IReadOnlyList<ControlFamily> Families);
 sealed record ControlFamily(string Id, string Title, IReadOnlyList<string> Types);
+sealed record ApiBaseline(int SchemaVersion, IReadOnlyList<ApiAssemblyBaseline> Assemblies);
+sealed record ApiAssemblyBaseline(string Name, IReadOnlyList<string> Signatures);
+sealed record ApiMigrationManifest(int SchemaVersion, IReadOnlyList<ApiMigration> Changes);
+sealed record ApiMigration(string Assembly, string RemovedSignature, string ReleaseNoteText, string ReferencePath, string ReferenceText);
+sealed record ApiRemoval(string Assembly, string Signature);

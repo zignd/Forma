@@ -25,7 +25,7 @@ var resources = assembly.GetManifestResourceNames()
     .Where(name => name.StartsWith("Forma.ThemeIcons.Svg.", StringComparison.Ordinal) && name.EndsWith(".svg", StringComparison.Ordinal))
     .OrderBy(name => name, StringComparer.Ordinal)
     .ToArray();
-if (resources.Length != 67) throw new InvalidOperationException($"Expected 67 theme SVG resources, found {resources.Length}.");
+if (resources.Length != 79) throw new InvalidOperationException($"Expected 79 theme SVG resources, found {resources.Length}.");
 
 var sources = resources.Select(name => SvgImageSource.FromManifestResource(assembly, name)).ToArray();
 var allocatedBefore = GC.GetTotalAllocatedBytes(true);

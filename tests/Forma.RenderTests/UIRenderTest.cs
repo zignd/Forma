@@ -148,7 +148,7 @@ namespace Forma.RenderTests
             var first = new DefaultThemeIconResources(gd);
             var second = new DefaultThemeIconResources(gd);
             Assert.That(first.Diagnostics.AtlasCount, Is.Zero);
-            Assert.That(DefaultThemeIconResources.ManifestIconCount, Is.EqualTo(67));
+            Assert.That(DefaultThemeIconResources.ManifestIconCount, Is.EqualTo(79));
 
             first.Ensure(1f, ThemeIconRenderingPolicy.BitmapAtlas);
             var firstIcon = first.Theme.GetIcon("arrow", nameof(OptionButton)) ?? throw new AssertionException("Default OptionButton arrow is missing.");

@@ -1,6 +1,7 @@
-<Control xmlns="https://forma.dev/xaml"
-         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         xmlns:local="clr-namespace:Forma.Xaml.Build.Integration.Views"
-         x:Class="Forma.Xaml.Build.Integration.Views.SvgAssetView">
-  <Image x:Name="RuntimeSvg" ScalableSource="../Assets/runtime-icon.svg" />
+﻿<Control
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Xaml.Build.Integration.Views"
+    x:Class="Forma.Xaml.Build.Integration.Views.SvgAssetView">
+    <Image x:Name="RuntimeSvg" ScalableSource="../Assets/runtime-icon.svg" />
 </Control>

@@ -1,33 +1,77 @@
-<BoxContainer xmlns="https://forma.dev/xaml"
-                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                xmlns:local="clr-namespace:Forma.Xaml.Game"
-                x:Class="Forma.Xaml.Game.GameSettingsView"
-                x:DataType="local:GameSettingsViewModel"
-                x:Name="SettingsRoot"
-                Classes="settings"
-                Visible="False"
-                CustomMinimumSize="420,370">
+﻿<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Xaml.Game"
+    x:Class="Forma.Xaml.Game.GameSettingsView"
+    x:DataType="local:GameSettingsViewModel"
+    x:Name="SettingsRoot"
+    Classes="settings"
+    Visible="False"
+    CustomMinimumSize="420,370">
     <BoxContainer.Resources>
         <ResourceDictionary>
             <ControlTemplate x:Key="SettingsActionTemplate" TargetType="Button">
-                <Border Background="#FF2B3440" BorderBrush="#FFF6B949" BorderThickness="0,0,0,2" Padding="10,6" CornerRadius="3">
-                    <ContentPresenter x:Name="PART_ContentPresenter" Content="{Binding Content, RelativeSource=TemplatedParent}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                <Border
+                    Background="#FF2B3440"
+                    BorderBrush="#FFF6B949"
+                    BorderThickness="0,0,0,2"
+                    Padding="10,6"
+                    CornerRadius="3">
+                    <ContentPresenter
+                        x:Name="PART_ContentPresenter"
+                        Content="{Binding Content, RelativeSource=TemplatedParent}"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center" />
                 </Border>
             </ControlTemplate>
         </ResourceDictionary>
     </BoxContainer.Resources>
     <VBoxContainer Separation="10" Margins="28">
-        <Label x:Name="SettingsTitle" Text="PAUSED" FontColor="#FFF2F5F7" CustomMinimumSize="0,34" />
+        <Label
+            x:Name="SettingsTitle"
+            Text="PAUSED"
+            FontColor="#FFF2F5F7"
+            CustomMinimumSize="0,34" />
         <Label Text="Player name" />
-        <LineEdit x:Name="PlayerName" Text="{Binding PlayerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Classes="setting" CustomMinimumSize="340,36" />
+        <LineEdit
+            x:Name="PlayerName"
+            Text="{Binding PlayerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Classes="setting"
+            CustomMinimumSize="340,36" />
         <Label Text="Difficulty" />
-        <LineEdit x:Name="Difficulty" Text="{Binding Difficulty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Classes="setting" CustomMinimumSize="340,36" />
-        <CheckBox x:Name="SoundEnabled" Text="Sound enabled" ButtonPressed="{Binding SoundEnabled, Mode=TwoWay}" Classes="setting" CustomMinimumSize="220,34" />
+        <LineEdit
+            x:Name="Difficulty"
+            Text="{Binding Difficulty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Classes="setting"
+            CustomMinimumSize="340,36" />
+        <CheckBox
+            x:Name="SoundEnabled"
+            Text="Sound enabled"
+            ButtonPressed="{Binding SoundEnabled, Mode=TwoWay}"
+            Classes="setting"
+            CustomMinimumSize="220,34" />
         <Label Text="Volume" />
-        <HSlider x:Name="Volume" MinValue="0" MaxValue="100" Step="1" Value="{Binding Volume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Classes="setting" CustomMinimumSize="340,32" />
+        <HSlider
+            x:Name="Volume"
+            MinValue="0"
+            MaxValue="100"
+            Step="1"
+            Value="{Binding Volume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Classes="setting"
+            CustomMinimumSize="340,32" />
         <HBoxContainer Separation="10">
-            <Button x:Name="ResumeButton" Template="{StaticResource SettingsActionTemplate}" Text="Resume" Classes="action" CustomMinimumSize="148,38" />
-            <Button x:Name="RestartButton" Template="{StaticResource SettingsActionTemplate}" Text="Restart" Classes="action" CustomMinimumSize="148,38" />
+            <Button
+                x:Name="ResumeButton"
+                Template="{StaticResource SettingsActionTemplate}"
+                Text="Resume"
+                Classes="action"
+                CustomMinimumSize="148,38" />
+            <Button
+                x:Name="RestartButton"
+                Template="{StaticResource SettingsActionTemplate}"
+                Text="Restart"
+                Classes="action"
+                CustomMinimumSize="148,38" />
         </HBoxContainer>
     </VBoxContainer>
 </BoxContainer>

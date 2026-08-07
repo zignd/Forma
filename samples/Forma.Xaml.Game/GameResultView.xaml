@@ -1,24 +1,46 @@
-<BoxContainer xmlns="https://forma.dev/xaml"
-                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                xmlns:local="clr-namespace:Forma.Xaml.Game"
-                x:Class="Forma.Xaml.Game.GameResultView"
-                x:DataType="local:GameResultViewModel"
-                x:Name="ResultRoot"
-                Classes="result"
-                Visible="False"
-                CustomMinimumSize="420,220">
+﻿<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Xaml.Game"
+    x:Class="Forma.Xaml.Game.GameResultView"
+    x:DataType="local:GameResultViewModel"
+    x:Name="ResultRoot"
+    Classes="result"
+    Visible="False"
+    CustomMinimumSize="420,220">
     <BoxContainer.Resources>
         <ResourceDictionary>
             <ControlTemplate x:Key="ResultActionTemplate" TargetType="Button">
-                <Border Background="#FF3E2744" BorderBrush="#FFEB6F92" BorderThickness="2" Padding="12,7" CornerRadius="8">
-                    <ContentPresenter x:Name="PART_ContentPresenter" Content="{Binding Content, RelativeSource=TemplatedParent}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                <Border
+                    Background="#FF3E2744"
+                    BorderBrush="#FFEB6F92"
+                    BorderThickness="2"
+                    Padding="12,7"
+                    CornerRadius="8">
+                    <ContentPresenter
+                        x:Name="PART_ContentPresenter"
+                        Content="{Binding Content, RelativeSource=TemplatedParent}"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center" />
                 </Border>
             </ControlTemplate>
         </ResourceDictionary>
     </BoxContainer.Resources>
     <VBoxContainer Separation="14" Margins="30">
-        <Label Text="ROUND COMPLETE" FontColor="#FFF2F5F7" CustomMinimumSize="0,36" />
-        <Label x:Name="ResultText" Text="{Binding ResultText}" Classes="result-text" CustomMinimumSize="340,34" />
-        <Button x:Name="PlayAgainButton" Template="{StaticResource ResultActionTemplate}" Text="Play again" Classes="action" CustomMinimumSize="180,40" />
+        <Label
+            Text="ROUND COMPLETE"
+            FontColor="#FFF2F5F7"
+            CustomMinimumSize="0,36" />
+        <Label
+            x:Name="ResultText"
+            Text="{Binding ResultText}"
+            Classes="result-text"
+            CustomMinimumSize="340,34" />
+        <Button
+            x:Name="PlayAgainButton"
+            Template="{StaticResource ResultActionTemplate}"
+            Text="Play again"
+            Classes="action"
+            CustomMinimumSize="180,40" />
     </VBoxContainer>
 </BoxContainer>

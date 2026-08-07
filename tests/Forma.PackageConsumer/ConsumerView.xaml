@@ -1,72 +1,90 @@
-<Control xmlns="https://forma.dev/xaml"
-         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         xmlns:local="clr-namespace:Forma.PackageConsumer"
-         x:Class="Forma.PackageConsumer.ConsumerView"
-         x:DataType="local:ConsumerViewModel"
-         x:Name="ConsumerRoot">
-  <Control.Resources>
-    <ResourceDictionary>
-      <local:ConsumerResourceValue x:Key="StaticValue" Name="Static" />
-      <local:ConsumerResourceValue x:Key="DynamicValue" Name="Dynamic" />
-      <Style x:Key="TargetStyle" Selector="ConsumerTarget.styled">
-        <Setter Property="TooltipText" Value="Styled" />
-        <Setter Property="Value" Value="{StaticResource StaticValue}" />
-      </Style>
-      <Storyboard x:Key="AttachPulse" FillBehavior="HoldEnd">
-        <Vector2Timeline TargetName="StyleTarget" Property="CustomMinimumSize">
-          <KeyFrame Time="0:0:0" Value="2,3" />
-          <KeyFrame Time="0:0:0.1" Value="8,9" />
-        </Vector2Timeline>
-      </Storyboard>
-      <Storyboard x:Key="PropertyPulse" FillBehavior="HoldEnd" RepeatBehavior="2">
-        <Vector2Timeline TargetName="DynamicTarget" Property="CustomMinimumSize">
-          <KeyFrame Time="0:0:0" Value="1,2" />
-          <KeyFrame Time="0:0:0.05" Value="6,7" />
-        </Vector2Timeline>
-      </Storyboard>
-      <ResourceDictionary x:Key="LocalPalette" />
-      <ResourceDictionary x:Key="Winner">
-        <ResourceDictionary x:Key="LocalMarker" />
-      </ResourceDictionary>
-      <ResourceDictionary.MergedDictionaries>
+﻿<Control
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.PackageConsumer"
+    x:Class="Forma.PackageConsumer.ConsumerView"
+    x:DataType="local:ConsumerViewModel"
+    x:Name="ConsumerRoot">
+    <Control.Resources>
         <ResourceDictionary>
-          <ResourceDictionary x:Key="MergedPalette" />
-          <ResourceDictionary x:Key="Winner">
-            <ResourceDictionary x:Key="MergedMarker" />
-          </ResourceDictionary>
+            <local:ConsumerResourceValue x:Key="StaticValue" Name="Static" />
+            <local:ConsumerResourceValue x:Key="DynamicValue" Name="Dynamic" />
+            <Style x:Key="TargetStyle" Selector="ConsumerTarget.styled">
+                <Setter Property="TooltipText" Value="Styled" />
+                <Setter Property="Value" Value="{StaticResource StaticValue}" />
+            </Style>
+            <Storyboard x:Key="AttachPulse" FillBehavior="HoldEnd">
+                <Vector2Timeline TargetName="StyleTarget" Property="CustomMinimumSize">
+                    <KeyFrame Time="0:0:0" Value="2,3" />
+                    <KeyFrame Time="0:0:0.1" Value="8,9" />
+                </Vector2Timeline>
+            </Storyboard>
+            <Storyboard
+                x:Key="PropertyPulse"
+                FillBehavior="HoldEnd"
+                RepeatBehavior="2">
+                <Vector2Timeline TargetName="DynamicTarget" Property="CustomMinimumSize">
+                    <KeyFrame Time="0:0:0" Value="1,2" />
+                    <KeyFrame Time="0:0:0.05" Value="6,7" />
+                </Vector2Timeline>
+            </Storyboard>
+            <ResourceDictionary x:Key="LocalPalette" />
+            <ResourceDictionary x:Key="Winner">
+                <ResourceDictionary x:Key="LocalMarker" />
+            </ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <ResourceDictionary x:Key="MergedPalette" />
+                    <ResourceDictionary x:Key="Winner">
+                        <ResourceDictionary x:Key="MergedMarker" />
+                    </ResourceDictionary>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-      </ResourceDictionary.MergedDictionaries>
-    </ResourceDictionary>
-  </Control.Resources>
-  <EventTrigger SourceName="StyleTarget" Event="Attached">
-    <BeginStoryboard Storyboard="{StaticResource AttachPulse}" />
-  </EventTrigger>
-  <PropertyTrigger Binding="{Binding IsActive}" Value="True">
-    <BeginStoryboard Storyboard="{StaticResource PropertyPulse}" />
-  </PropertyTrigger>
-  <EventTrigger SourceName="DynamicTarget" Event="StopRequested">
-    <StopStoryboard Storyboard="{StaticResource PropertyPulse}" />
-  </EventTrigger>
-  <Label x:Name="Message" Text="{Binding Message}" />
-  <LineEdit x:Name="Editor" Text="{Binding Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-  <DataGrid x:Name="PackageGrid" ItemsSource="{Binding GridRows}" SelectionUnit="Cell" SelectionMode="Multi" Size="600,180">
-    <DataGrid.Columns>
-      <local:ConsumerGridNameColumn Header="Name" Width="2*">
-        <DataGridColumn.CellTemplate>
-          <DataTemplate x:DataType="local:ConsumerGridRow">
-            <TextBlock Text="{Binding Name}" />
-          </DataTemplate>
-        </DataGridColumn.CellTemplate>
-      </local:ConsumerGridNameColumn>
-      <local:ConsumerGridOrderColumn Header="Order" Width="80" />
-    </DataGrid.Columns>
-  </DataGrid>
-  <DataGrid x:Name="PackageTreeGrid" ItemsSource="{Binding TreeRows}" Mode="Hierarchical" SelectionMode="Multi" Size="600,180">
-    <DataGrid.Columns>
-      <local:ConsumerTreeColumn Header="Tree" Width="*" />
-    </DataGrid.Columns>
-  </DataGrid>
-  <local:ConsumerTarget x:Name="StaticTarget" Value="{StaticResource StaticValue}" />
-  <local:ConsumerTarget x:Name="DynamicTarget" Value="{DynamicResource DynamicValue}" />
-  <local:ConsumerTarget x:Name="StyleTarget" Classes="styled" TooltipText="Underlying" Attached="OnStyleTargetAttached" />
+    </Control.Resources>
+    <EventTrigger SourceName="StyleTarget" Event="Attached">
+        <BeginStoryboard Storyboard="{StaticResource AttachPulse}" />
+    </EventTrigger>
+    <PropertyTrigger Binding="{Binding IsActive}" Value="True">
+        <BeginStoryboard Storyboard="{StaticResource PropertyPulse}" />
+    </PropertyTrigger>
+    <EventTrigger SourceName="DynamicTarget" Event="StopRequested">
+        <StopStoryboard Storyboard="{StaticResource PropertyPulse}" />
+    </EventTrigger>
+    <Label x:Name="Message" Text="{Binding Message}" />
+    <LineEdit x:Name="Editor" Text="{Binding Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+    <DataGrid
+        x:Name="PackageGrid"
+        ItemsSource="{Binding GridRows}"
+        SelectionUnit="Cell"
+        SelectionMode="Multi"
+        Size="600,180">
+        <DataGrid.Columns>
+            <local:ConsumerGridNameColumn Header="Name" Width="2*">
+                <DataGridColumn.CellTemplate>
+                    <DataTemplate x:DataType="local:ConsumerGridRow">
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </DataGridColumn.CellTemplate>
+            </local:ConsumerGridNameColumn>
+            <local:ConsumerGridOrderColumn Header="Order" Width="80" />
+        </DataGrid.Columns>
+    </DataGrid>
+    <DataGrid
+        x:Name="PackageTreeGrid"
+        ItemsSource="{Binding TreeRows}"
+        Mode="Hierarchical"
+        SelectionMode="Multi"
+        Size="600,180">
+        <DataGrid.Columns>
+            <local:ConsumerTreeColumn Header="Tree" Width="*" />
+        </DataGrid.Columns>
+    </DataGrid>
+    <local:ConsumerTarget x:Name="StaticTarget" Value="{StaticResource StaticValue}" />
+    <local:ConsumerTarget x:Name="DynamicTarget" Value="{DynamicResource DynamicValue}" />
+    <local:ConsumerTarget
+        x:Name="StyleTarget"
+        Classes="styled"
+        TooltipText="Underlying"
+        Attached="OnStyleTargetAttached" />
 </Control>

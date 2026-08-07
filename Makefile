@@ -30,6 +30,7 @@ DOTNET_ARGS := --configuration "$(CONFIGURATION)" --nologo
 	catalog-monogame catalog-monogame-local catalog-fna catalog-fna-local \
 	xaml-game-monogame xaml-game-fna smoke smoke-monogame smoke-fna render-parity video-smoke \
 	text-spike text-spike-local text-baseline xaml-spike \
+	format-xaml format-xaml-check \
 	compliance backend-references parity packages aot-analyzers native-font-failures static-font-backend nativeaot check check-all \
 	svg-selection svg-benchmark svg-compare svg-packages thorvg-catalog thorvg-render thorvg-spike thorvg-linux thorvg-nativeaot thorvg-static-host icons icons-import icons-verify unicode unicode-verify track clean
 
@@ -83,6 +84,12 @@ test-xaml-fna: ## Run focused Forma XAML tests against FNA.
 
 xaml-build-fixtures: ## Validate compiled, invalid, incremental, PDB, and deterministic XAML builds.
 	bash scripts/test-xaml-build-fixtures.sh
+
+format-xaml: tools ## Format all repository XAML files.
+	DOTNET="$(DOTNET)" bash scripts/format-xaml.sh --write
+
+format-xaml-check: tools ## Check all repository XAML formatting without changing files.
+	DOTNET="$(DOTNET)" bash scripts/format-xaml.sh --check
 
 test-render: test-render-monogame test-render-fna ## Run render tests for both runtimes.
 

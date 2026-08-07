@@ -1,0 +1,13 @@
+{
+  "IndentSize": 4,
+  "IndentWithTabs": false,
+  "RemoveDesignTimeReferences": false,
+  "EnableAttributeReordering": false,
+  "ReorderVSM": 0,
+  "ReorderGridChildren": false,
+  "ReorderCanvasChildren": false,
+  "ReorderSetters": 0,
+  "FormatMarkupExtension": false,
+  "ThicknessAttributes": "",
+  "CommentPadding": 1
+}

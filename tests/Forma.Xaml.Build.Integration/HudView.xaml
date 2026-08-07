@@ -1,174 +1,198 @@
-<Control xmlns="https://forma.dev/xaml"
-         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         xmlns:local="clr-namespace:Forma.Xaml.Build.Integration"
-         x:Class="Forma.Xaml.Build.Integration.HudView"
-         x:DataType="local:HudViewModel"
-         x:Name="HudRoot"
-         Position="3,4">
-  <Control.Resources>
-    <ResourceDictionary>
-      <local:ResourceValue x:Key="StaticValue" Name="Static" />
-      <local:ResourceValue x:Key="DynamicValue" Name="Dynamic" />
-      <Style x:Key="TargetStyle" Selector="ResourceTarget.styled">
-        <Setter Property="TooltipText" Value="Styled" />
-        <Setter Property="Margins" Value="1,2,3,4" />
-        <Setter Property="Opacity" Value="0.4" />
-        <Setter Property="Value" Value="{StaticResource StaticValue}" />
-        <Style.Transitions>
-          <FloatTransition Property="Opacity" Duration="0:0:0.1" Easing="CubicOut" />
-        </Style.Transitions>
-      </Style>
-      <Style x:Key="AdaptiveButtonStyle" Selector="Control > Button.adaptive, Button#AdaptiveButton">
-        <Style.Condition>
-          <AdaptiveCondition MaxViewportWidth="720" InputModality="Touch" />
-        </Style.Condition>
-        <Setter Property="Text" Value="Adaptive" />
-      </Style>
-      <Style x:Key="ItemContainerStyle" Selector="ContentControl.item-container">
-        <Setter Property="TooltipText" Value="ItemContainer" />
-      </Style>
-      <Storyboard x:Key="AttachPulse" FillBehavior="HoldEnd">
-        <Vector2Timeline TargetName="StyleTarget" Property="CustomMinimumSize">
-          <KeyFrame Time="0:0:0" Value="2,3" />
-          <KeyFrame Time="0:0:0.1" Value="8,9" Easing="CubicOut" />
-        </Vector2Timeline>
-      </Storyboard>
-      <Storyboard x:Key="PropertyPulse" FillBehavior="HoldEnd" RepeatBehavior="2">
-        <Vector2Timeline TargetName="DynamicTarget" Property="CustomMinimumSize">
-          <KeyFrame Time="0:0:0" Value="1,2" />
-          <KeyFrame Time="0:0:0.05" Value="6,7" />
-        </Vector2Timeline>
-      </Storyboard>
-      <ResourceDictionary x:Key="LocalPalette" />
-      <ResourceDictionary x:Key="Winner">
-        <ResourceDictionary x:Key="LocalMarker" />
-      </ResourceDictionary>
-      <DataTemplate x:Key="RowTemplate" x:DataType="local:RowModel">
-        <local:ResourceTarget x:Name="RowTarget" Classes="templated" Value="{DynamicResource RowValue}">
-          <local:ResourceTarget.Resources>
-            <ResourceDictionary>
-              <local:ResourceValue x:Key="RowValue" Name="Initial" />
-              <Style x:Key="RowStyle" Selector="ResourceTarget.templated">
-                <Setter Property="TooltipText" Value="TemplateStyled" />
-              </Style>
-              <Storyboard x:Key="RowPulse" FillBehavior="HoldEnd">
-                <Vector2Timeline TargetName="RowTarget" Property="CustomMinimumSize">
-                  <KeyFrame Time="0:0:0" Value="4,5" />
-                </Vector2Timeline>
-              </Storyboard>
-            </ResourceDictionary>
-          </local:ResourceTarget.Resources>
-          <EventTrigger SourceName="RowTarget" Event="StopRequested">
-            <BeginStoryboard Storyboard="{StaticResource RowPulse}" />
-          </EventTrigger>
-          <TextBlock x:Name="RowText" Text="{Binding Name}" />
-          <LineEdit x:Name="RowEditor" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-        </local:ResourceTarget>
-      </DataTemplate>
-      <DataTemplate x:Key="EventfulRowTemplate" x:DataType="local:RowModel">
-        <local:EventfulRow />
-      </DataTemplate>
-      <ControlTemplate x:Key="ProbeTemplate" TargetType="TemplatedControl">
-        <Border x:Name="ProbeBorder">
-          <TextBlock x:Name="ProbeText" Text="{Binding Name, RelativeSource=TemplatedParent}" />
-        </Border>
-      </ControlTemplate>
-      <ItemsPanelTemplate x:Key="ItemsPanel">
-        <StackPanel x:Name="ItemsStack" />
-      </ItemsPanelTemplate>
-      <ResourceDictionary.MergedDictionaries>
+﻿<Control
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Xaml.Build.Integration"
+    x:Class="Forma.Xaml.Build.Integration.HudView"
+    x:DataType="local:HudViewModel"
+    x:Name="HudRoot"
+    Position="3,4">
+    <Control.Resources>
         <ResourceDictionary>
-          <ResourceDictionary x:Key="MergedPalette" />
-          <ResourceDictionary x:Key="Winner">
-            <ResourceDictionary x:Key="MergedMarker" />
-          </ResourceDictionary>
+            <local:ResourceValue x:Key="StaticValue" Name="Static" />
+            <local:ResourceValue x:Key="DynamicValue" Name="Dynamic" />
+            <Style x:Key="TargetStyle" Selector="ResourceTarget.styled">
+                <Setter Property="TooltipText" Value="Styled" />
+                <Setter Property="Margins" Value="1,2,3,4" />
+                <Setter Property="Opacity" Value="0.4" />
+                <Setter Property="Value" Value="{StaticResource StaticValue}" />
+                <Style.Transitions>
+                    <FloatTransition
+                        Property="Opacity"
+                        Duration="0:0:0.1"
+                        Easing="CubicOut" />
+                </Style.Transitions>
+            </Style>
+            <Style x:Key="AdaptiveButtonStyle" Selector="Control &gt; Button.adaptive, Button#AdaptiveButton">
+                <Style.Condition>
+                    <AdaptiveCondition MaxViewportWidth="720" InputModality="Touch" />
+                </Style.Condition>
+                <Setter Property="Text" Value="Adaptive" />
+            </Style>
+            <Style x:Key="ItemContainerStyle" Selector="ContentControl.item-container">
+                <Setter Property="TooltipText" Value="ItemContainer" />
+            </Style>
+            <Storyboard x:Key="AttachPulse" FillBehavior="HoldEnd">
+                <Vector2Timeline TargetName="StyleTarget" Property="CustomMinimumSize">
+                    <KeyFrame Time="0:0:0" Value="2,3" />
+                    <KeyFrame
+                        Time="0:0:0.1"
+                        Value="8,9"
+                        Easing="CubicOut" />
+                </Vector2Timeline>
+            </Storyboard>
+            <Storyboard
+                x:Key="PropertyPulse"
+                FillBehavior="HoldEnd"
+                RepeatBehavior="2">
+                <Vector2Timeline TargetName="DynamicTarget" Property="CustomMinimumSize">
+                    <KeyFrame Time="0:0:0" Value="1,2" />
+                    <KeyFrame Time="0:0:0.05" Value="6,7" />
+                </Vector2Timeline>
+            </Storyboard>
+            <ResourceDictionary x:Key="LocalPalette" />
+            <ResourceDictionary x:Key="Winner">
+                <ResourceDictionary x:Key="LocalMarker" />
+            </ResourceDictionary>
+            <DataTemplate x:Key="RowTemplate" x:DataType="local:RowModel">
+                <local:ResourceTarget
+                    x:Name="RowTarget"
+                    Classes="templated"
+                    Value="{DynamicResource RowValue}">
+                    <local:ResourceTarget.Resources>
+                        <ResourceDictionary>
+                            <local:ResourceValue x:Key="RowValue" Name="Initial" />
+                            <Style x:Key="RowStyle" Selector="ResourceTarget.templated">
+                                <Setter Property="TooltipText" Value="TemplateStyled" />
+                            </Style>
+                            <Storyboard x:Key="RowPulse" FillBehavior="HoldEnd">
+                                <Vector2Timeline TargetName="RowTarget" Property="CustomMinimumSize">
+                                    <KeyFrame Time="0:0:0" Value="4,5" />
+                                </Vector2Timeline>
+                            </Storyboard>
+                        </ResourceDictionary>
+                    </local:ResourceTarget.Resources>
+                    <EventTrigger SourceName="RowTarget" Event="StopRequested">
+                        <BeginStoryboard Storyboard="{StaticResource RowPulse}" />
+                    </EventTrigger>
+                    <TextBlock x:Name="RowText" Text="{Binding Name}" />
+                    <LineEdit x:Name="RowEditor" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </local:ResourceTarget>
+            </DataTemplate>
+            <DataTemplate x:Key="EventfulRowTemplate" x:DataType="local:RowModel">
+                <local:EventfulRow />
+            </DataTemplate>
+            <ControlTemplate x:Key="ProbeTemplate" TargetType="TemplatedControl">
+                <Border x:Name="ProbeBorder">
+                    <TextBlock x:Name="ProbeText" Text="{Binding Name, RelativeSource=TemplatedParent}" />
+                </Border>
+            </ControlTemplate>
+            <ItemsPanelTemplate x:Key="ItemsPanel">
+                <StackPanel x:Name="ItemsStack" />
+            </ItemsPanelTemplate>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <ResourceDictionary x:Key="MergedPalette" />
+                    <ResourceDictionary x:Key="Winner">
+                        <ResourceDictionary x:Key="MergedMarker" />
+                    </ResourceDictionary>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-      </ResourceDictionary.MergedDictionaries>
-    </ResourceDictionary>
-  </Control.Resources>
-  <EventTrigger SourceName="StyleTarget" Event="Attached">
-    <BeginStoryboard Storyboard="{StaticResource AttachPulse}" />
-  </EventTrigger>
-  <PropertyTrigger Binding="{Binding IsActive}" Value="True">
-    <BeginStoryboard Storyboard="{StaticResource PropertyPulse}" />
-  </PropertyTrigger>
-  <EventTrigger SourceName="DynamicTarget" Event="StopRequested">
-    <StopStoryboard Storyboard="{StaticResource PropertyPulse}" />
-  </EventTrigger>
-  <Label x:Name="Child" Text="{Binding Message}" />
-  <Label x:Name="SelfLabel" Text="{Binding Name, RelativeSource=Self}" />
-  <Label x:Name="AncestorLabel" Text="{Binding Name, RelativeSource=FindAncestor, AncestorType=Control}" />
-  <Label x:Name="OneTimeAncestorLabel" Text="{Binding Name, Mode=OneTime, RelativeSource=FindAncestor, AncestorType=Control}" />
-  <LineEdit x:Name="AncestorEditor" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, RelativeSource=FindAncestor, AncestorType=Control}" />
-  <LineEdit x:Name="Editor" Text="{Binding Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-  <local:ResourceTarget x:Name="StaticTarget" Value="{StaticResource StaticValue}" />
-  <local:ResourceTarget x:Name="DynamicTarget" Value="{DynamicResource DynamicValue}" />
-  <local:ResourceTarget x:Name="StyleTarget" Classes="styled" TooltipText="Underlying" Attached="OnStyleTargetAttached" />
-  <Button x:Name="AdaptiveButton" Classes="adaptive" Text="Underlying" />
-  <local:HudTemplateProbe x:Name="KeyedProbe" Template="{StaticResource ProbeTemplate}" />
-  <local:HudTemplateProbe x:Name="InlineProbe">
-    <TemplatedControl.Template>
-      <ControlTemplate TargetType="local:HudTemplateProbe">
-        <Border x:Name="InlineBorder">
-          <TextBlock x:Name="InlineText" Text="{Binding Name, RelativeSource=TemplatedParent}" />
-        </Border>
-      </ControlTemplate>
-    </TemplatedControl.Template>
-  </local:HudTemplateProbe>
-  <ContentPresenter x:Name="InlineContentPresenter">
-    <ContentPresenter.ContentTemplate>
-      <DataTemplate x:DataType="local:RowModel">
-        <TextBlock Text="{Binding Name}" />
-      </DataTemplate>
-    </ContentPresenter.ContentTemplate>
-  </ContentPresenter>
-  <ItemsPresenter x:Name="InlineItemsPresenter">
-    <ItemsPresenter.ItemsPanel>
-      <ItemsPanelTemplate>
-        <StackPanel x:Name="InlineItemsPanel" />
-      </ItemsPanelTemplate>
-    </ItemsPresenter.ItemsPanel>
-  </ItemsPresenter>
-  <ContentPresenter x:Name="KeyedContentPresenter" ContentTemplate="{StaticResource RowTemplate}" />
-  <ItemsPresenter x:Name="KeyedItemsPresenter" ItemsPanel="{StaticResource ItemsPanel}" />
-  <ItemsControl x:Name="CompiledItems"
-                ItemTemplate="{StaticResource RowTemplate}"
-                ItemsPanel="{StaticResource ItemsPanel}"
-                ItemContainerStyle="{StaticResource ItemContainerStyle}"
-                AlternationCount="2"
-                ItemsSource="{Binding Rows}" />
-  <ListBox x:Name="CompiledList"
-           ItemTemplate="{StaticResource RowTemplate}"
-           ItemsPanel="{StaticResource ItemsPanel}"
-           ItemsSource="{Binding Rows}"
-           SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" />
-  <DataGrid x:Name="CompiledDataGrid"
-            ItemsSource="{Binding Rows}"
-            SelectionUnit="Cell"
-            SelectionMode="Multi"
-            Width="240"
-            Height="100">
-    <DataGrid.Columns>
-      <local:HudNameColumn Header="Name">
-        <DataGridColumn.CellTemplate>
-          <DataTemplate x:DataType="local:RowModel">
-            <TextBlock Text="{Binding Name}" />
-          </DataTemplate>
-        </DataGridColumn.CellTemplate>
-      </local:HudNameColumn>
-      <local:HudLengthColumn Header="Length" />
-    </DataGrid.Columns>
-  </DataGrid>
-  <DataGrid x:Name="CompiledTreeGrid"
-            ItemsSource="{Binding TreeRows}"
-            Mode="Hierarchical"
-            Width="240"
-            Height="100">
-    <DataGrid.Columns>
-      <local:HudTreeColumn Header="Node" />
-    </DataGrid.Columns>
-  </DataGrid>
-  <Button x:Name="CompiledContentButton" HorizontalContentAlignment="Center">
-    <Border x:Name="CompiledButtonContent" />
-  </Button>
+    </Control.Resources>
+    <EventTrigger SourceName="StyleTarget" Event="Attached">
+        <BeginStoryboard Storyboard="{StaticResource AttachPulse}" />
+    </EventTrigger>
+    <PropertyTrigger Binding="{Binding IsActive}" Value="True">
+        <BeginStoryboard Storyboard="{StaticResource PropertyPulse}" />
+    </PropertyTrigger>
+    <EventTrigger SourceName="DynamicTarget" Event="StopRequested">
+        <StopStoryboard Storyboard="{StaticResource PropertyPulse}" />
+    </EventTrigger>
+    <Label x:Name="Child" Text="{Binding Message}" />
+    <Label x:Name="SelfLabel" Text="{Binding Name, RelativeSource=Self}" />
+    <Label x:Name="AncestorLabel" Text="{Binding Name, RelativeSource=FindAncestor, AncestorType=Control}" />
+    <Label x:Name="OneTimeAncestorLabel" Text="{Binding Name, Mode=OneTime, RelativeSource=FindAncestor, AncestorType=Control}" />
+    <LineEdit x:Name="AncestorEditor" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, RelativeSource=FindAncestor, AncestorType=Control}" />
+    <LineEdit x:Name="Editor" Text="{Binding Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+    <local:ResourceTarget x:Name="StaticTarget" Value="{StaticResource StaticValue}" />
+    <local:ResourceTarget x:Name="DynamicTarget" Value="{DynamicResource DynamicValue}" />
+    <local:ResourceTarget
+        x:Name="StyleTarget"
+        Classes="styled"
+        TooltipText="Underlying"
+        Attached="OnStyleTargetAttached" />
+    <Button
+        x:Name="AdaptiveButton"
+        Classes="adaptive"
+        Text="Underlying" />
+    <local:HudTemplateProbe x:Name="KeyedProbe" Template="{StaticResource ProbeTemplate}" />
+    <local:HudTemplateProbe x:Name="InlineProbe">
+        <TemplatedControl.Template>
+            <ControlTemplate TargetType="local:HudTemplateProbe">
+                <Border x:Name="InlineBorder">
+                    <TextBlock x:Name="InlineText" Text="{Binding Name, RelativeSource=TemplatedParent}" />
+                </Border>
+            </ControlTemplate>
+        </TemplatedControl.Template>
+    </local:HudTemplateProbe>
+    <ContentPresenter x:Name="InlineContentPresenter">
+        <ContentPresenter.ContentTemplate>
+            <DataTemplate x:DataType="local:RowModel">
+                <TextBlock Text="{Binding Name}" />
+            </DataTemplate>
+        </ContentPresenter.ContentTemplate>
+    </ContentPresenter>
+    <ItemsPresenter x:Name="InlineItemsPresenter">
+        <ItemsPresenter.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel x:Name="InlineItemsPanel" />
+            </ItemsPanelTemplate>
+        </ItemsPresenter.ItemsPanel>
+    </ItemsPresenter>
+    <ContentPresenter x:Name="KeyedContentPresenter" ContentTemplate="{StaticResource RowTemplate}" />
+    <ItemsPresenter x:Name="KeyedItemsPresenter" ItemsPanel="{StaticResource ItemsPanel}" />
+    <ItemsControl
+        x:Name="CompiledItems"
+        ItemTemplate="{StaticResource RowTemplate}"
+        ItemsPanel="{StaticResource ItemsPanel}"
+        ItemContainerStyle="{StaticResource ItemContainerStyle}"
+        AlternationCount="2"
+        ItemsSource="{Binding Rows}" />
+    <ListBox
+        x:Name="CompiledList"
+        ItemTemplate="{StaticResource RowTemplate}"
+        ItemsPanel="{StaticResource ItemsPanel}"
+        ItemsSource="{Binding Rows}"
+        SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" />
+    <DataGrid
+        x:Name="CompiledDataGrid"
+        ItemsSource="{Binding Rows}"
+        SelectionUnit="Cell"
+        SelectionMode="Multi"
+        Width="240"
+        Height="100">
+        <DataGrid.Columns>
+            <local:HudNameColumn Header="Name">
+                <DataGridColumn.CellTemplate>
+                    <DataTemplate x:DataType="local:RowModel">
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </DataGridColumn.CellTemplate>
+            </local:HudNameColumn>
+            <local:HudLengthColumn Header="Length" />
+        </DataGrid.Columns>
+    </DataGrid>
+    <DataGrid
+        x:Name="CompiledTreeGrid"
+        ItemsSource="{Binding TreeRows}"
+        Mode="Hierarchical"
+        Width="240"
+        Height="100">
+        <DataGrid.Columns>
+            <local:HudTreeColumn Header="Node" />
+        </DataGrid.Columns>
+    </DataGrid>
+    <Button x:Name="CompiledContentButton" HorizontalContentAlignment="Center">
+        <Border x:Name="CompiledButtonContent" />
+    </Button>
 </Control>

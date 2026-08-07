@@ -1,22 +1,23 @@
-<Control xmlns="https://forma.dev/xaml"
-         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         xmlns:local="clr-namespace:Forma.Xaml.Build.TemplateInvalid"
-         x:Class="Forma.Xaml.Build.TemplateInvalid.TemplateInvalidView">
-  <Control.Resources>
-    <ResourceDictionary>
-      <DataTemplate x:Key="Row" x:DataType="local:MissingModel">
-        <local:TemplateEventControl Triggered="OnTriggered" />
-      </DataTemplate>
-      <ControlTemplate x:Key="Foundation" TargetType="local:TemplateFoundation">
-        <Border />
-      </ControlTemplate>
-      <Style x:Key="InvalidTemplateCrossing" Selector="TemplateFoundation >> Border">
-        <Setter Property="TooltipText" Value="Invalid" />
-      </Style>
-      <Style x:Key="InvalidPseudoState" Selector="TemplateFoundation:unregistered">
-        <Setter Property="TooltipText" Value="Invalid" />
-      </Style>
-    </ResourceDictionary>
-  </Control.Resources>
-  <TemplatedControl Template="{StaticResource Row}" />
+﻿<Control
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Xaml.Build.TemplateInvalid"
+    x:Class="Forma.Xaml.Build.TemplateInvalid.TemplateInvalidView">
+    <Control.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="Row" x:DataType="local:MissingModel">
+                <local:TemplateEventControl Triggered="OnTriggered" />
+            </DataTemplate>
+            <ControlTemplate x:Key="Foundation" TargetType="local:TemplateFoundation">
+                <Border />
+            </ControlTemplate>
+            <Style x:Key="InvalidTemplateCrossing" Selector="TemplateFoundation &gt;&gt; Border">
+                <Setter Property="TooltipText" Value="Invalid" />
+            </Style>
+            <Style x:Key="InvalidPseudoState" Selector="TemplateFoundation:unregistered">
+                <Setter Property="TooltipText" Value="Invalid" />
+            </Style>
+        </ResourceDictionary>
+    </Control.Resources>
+    <TemplatedControl Template="{StaticResource Row}" />
 </Control>

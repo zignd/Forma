@@ -1,8 +1,9 @@
-<Control xmlns="https://forma.dev/xaml"
-         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         xmlns:local="clr-namespace:Forma.Xaml.Build.Integration"
-         x:Class="Forma.Xaml.Build.Integration.EventfulRow"
-         x:DataType="local:RowModel">
-  <local:ResourceTarget x:Name="RowEventTarget" StopRequested="OnRowStopRequested" />
-  <TextBlock x:Name="RowEventText" Text="{Binding Name}" />
+﻿<Control
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.Xaml.Build.Integration"
+    x:Class="Forma.Xaml.Build.Integration.EventfulRow"
+    x:DataType="local:RowModel">
+    <local:ResourceTarget x:Name="RowEventTarget" StopRequested="OnRowStopRequested" />
+    <TextBlock x:Name="RowEventText" Text="{Binding Name}" />
 </Control>

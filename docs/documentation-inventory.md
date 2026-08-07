@@ -97,6 +97,12 @@ the nine curated family pages. The documentation gate compares that manifest wit
 metadata and requires every page in the built site; fixed type totals are generated, not maintained
 in prose.
 
+`docs/reference/documentation-baseline.json` is the reviewed initial inventory of public Docfx UIDs.
+It records legacy XML-documentation debt, not an allow-list to extend: any public UID absent from the
+baseline must have a useful XML summary. The gate therefore rejects an undocumented API addition
+even when another documented addition would keep aggregate coverage above its floor. Remove baseline
+entries as existing APIs gain summaries.
+
 ## Audit Commands
 
 ```sh

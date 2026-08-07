@@ -11,6 +11,7 @@ return args.Length == 0 ? Usage() : args[0] switch
     "references" => CheckReferences(args),
     "forbid-references" => ForbidReferences(args),
     "compare-api" => CompareApi(args),
+    "create-docs-baseline" => CreateDocumentationBaseline(args),
     "docs-coverage" => CheckDocumentationCoverage(args),
     "control-families" => CheckControlFamilies(args),
     "normalize-source-links" => NormalizeSourceLinks(args),
@@ -23,7 +24,8 @@ static int Usage()
     Console.Error.WriteLine("  Forma.AssemblyInspector references <assembly> <assembly-name> <runtime> <required-reference> <forbidden-reference>");
     Console.Error.WriteLine("  Forma.AssemblyInspector forbid-references <assembly> <forbidden-reference> [<forbidden-reference> ...]");
     Console.Error.WriteLine("  Forma.AssemblyInspector compare-api <left-assembly> <right-assembly>");
-    Console.Error.WriteLine("  Forma.AssemblyInspector docs-coverage <api-yaml-directory> <site-directory> <control-story-directory> <minimum-type-percent> <minimum-member-percent> <report-path>");
+    Console.Error.WriteLine("  Forma.AssemblyInspector create-docs-baseline <api-yaml-directory> <output-path>");
+    Console.Error.WriteLine("  Forma.AssemblyInspector docs-coverage <api-yaml-directory> <site-directory> <control-story-directory> <minimum-type-percent> <minimum-member-percent> <baseline-path> <report-path>");
     Console.Error.WriteLine("  Forma.AssemblyInspector control-families <api-yaml-directory> <site-directory> <manifest>");
     Console.Error.WriteLine("  Forma.AssemblyInspector normalize-source-links <api-yaml-directory> <repository-url> <revision>");
     return 2;
@@ -136,9 +138,21 @@ static IEnumerable<YamlScalarNode> DescendantScalars(YamlNode node)
         foreach (var child in mapping.Children.SelectMany(pair => DescendantScalars(pair.Key).Concat(DescendantScalars(pair.Value)))) yield return child;
 }
 
+static int CreateDocumentationBaseline(string[] arguments)
+{
+    if (arguments.Length != 3) return Usage();
+    var items = ReadDocumentationItems(Path.GetFullPath(arguments[1]));
+    var outputPath = Path.GetFullPath(arguments[2]);
+    var baseline = new DocumentationBaseline(1, items.Select(item => item.Uid).OrderBy(uid => uid, StringComparer.Ordinal).ToArray());
+    Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+    File.WriteAllText(outputPath, JsonSerializer.Serialize(baseline, new JsonSerializerOptions { WriteIndented = true }) + Environment.NewLine);
+    Console.WriteLine($"Documentation baseline: {baseline.KnownPublicApiUids.Count} public API UIDs written to {outputPath}.");
+    return 0;
+}
+
 static int CheckDocumentationCoverage(string[] arguments)
 {
-    if (arguments.Length != 7 ||
+    if (arguments.Length != 8 ||
         !double.TryParse(arguments[4], NumberStyles.Float, CultureInfo.InvariantCulture, out var minimumTypePercent) ||
         !double.TryParse(arguments[5], NumberStyles.Float, CultureInfo.InvariantCulture, out var minimumMemberPercent))
         return Usage();
@@ -146,10 +160,61 @@ static int CheckDocumentationCoverage(string[] arguments)
     var apiDirectory = Path.GetFullPath(arguments[1]);
     var siteDirectory = Path.GetFullPath(arguments[2]);
     var storyDirectory = Path.GetFullPath(arguments[3]);
-    var reportPath = Path.GetFullPath(arguments[6]);
-    var types = new List<DocumentationItem>();
-    var members = new List<DocumentationItem>();
+    var baselinePath = Path.GetFullPath(arguments[6]);
+    var reportPath = Path.GetFullPath(arguments[7]);
+    var items = ReadDocumentationItems(apiDirectory);
+    var types = items.Where(item => item.IsType).ToArray();
+    var members = items.Where(item => !item.IsType).ToArray();
+    var baseline = JsonSerializer.Deserialize<DocumentationBaseline>(File.ReadAllText(baselinePath),
+        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new InvalidDataException("Documentation baseline is empty.");
+    var baselineUids = baseline.KnownPublicApiUids.ToHashSet(StringComparer.Ordinal);
+    var baselineErrors = new List<string>();
+    if (baseline.SchemaVersion != 1) baselineErrors.Add($"Unsupported documentation baseline schema version {baseline.SchemaVersion}.");
+    if (baselineUids.Count != baseline.KnownPublicApiUids.Count) baselineErrors.Add("Documentation baseline contains duplicate UIDs.");
+    if (!baseline.KnownPublicApiUids.SequenceEqual(baseline.KnownPublicApiUids.OrderBy(uid => uid, StringComparer.Ordinal), StringComparer.Ordinal))
+        baselineErrors.Add("Documentation baseline UIDs are not in ordinal order.");
+    var newlyUndocumented = items
+        .Where(item => !item.Documented && !baselineUids.Contains(item.Uid))
+        .Select(item => item.Uid)
+        .OrderBy(uid => uid, StringComparer.Ordinal)
+        .ToArray();
 
+    var typeCoverage = Percentage(types.Count(item => item.Documented), types.Length);
+    var memberCoverage = Percentage(members.Count(item => item.Documented), members.Length);
+    var missingMappings = new List<string>();
+    var mappings = new List<ControlMapping>();
+    foreach (var storyPath in Directory.EnumerateFiles(storyDirectory, "*.xaml", SearchOption.TopDirectoryOnly).OrderBy(path => path, StringComparer.Ordinal))
+    {
+        var controlName = Path.GetFileNameWithoutExtension(storyPath);
+        var uid = $"Forma.{controlName}";
+        var yamlExists = File.Exists(Path.Combine(apiDirectory, $"{uid}.yml"));
+        var htmlExists = File.Exists(Path.Combine(siteDirectory, "api", $"{uid}.html"));
+        mappings.Add(new ControlMapping(controlName, Path.GetRelativePath(Directory.GetParent(storyDirectory)!.Parent!.Parent!.FullName, storyPath), uid, yamlExists, htmlExists));
+        if (!yamlExists || !htmlExists) missingMappings.Add($"{controlName}: metadata={yamlExists}, page={htmlExists}");
+    }
+
+    var report = new DocumentationCoverageReport(
+        types.Length, types.Count(item => item.Documented), typeCoverage,
+        members.Length, members.Count(item => item.Documented), memberCoverage,
+        minimumTypePercent, minimumMemberPercent, mappings);
+    Directory.CreateDirectory(Path.GetDirectoryName(reportPath)!);
+    File.WriteAllText(reportPath, JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }) + Environment.NewLine);
+
+    foreach (var missing in missingMappings) Console.Error.WriteLine($"Missing control mapping: {missing}");
+    foreach (var error in baselineErrors) Console.Error.WriteLine(error);
+    foreach (var uid in newlyUndocumented) Console.Error.WriteLine($"New public API is missing XML documentation: {uid}");
+    if (typeCoverage < minimumTypePercent)
+        Console.Error.WriteLine($"Type documentation coverage {typeCoverage:F1}% is below {minimumTypePercent:F1}%.");
+    if (memberCoverage < minimumMemberPercent)
+        Console.Error.WriteLine($"Member documentation coverage {memberCoverage:F1}% is below {minimumMemberPercent:F1}%.");
+    Console.WriteLine($"Documentation coverage: {report.DocumentedTypes}/{report.PublicTypes} types ({typeCoverage:F1}%), {report.DocumentedMembers}/{report.PublicMembers} members ({memberCoverage:F1}%), {mappings.Count} control story/reference mappings.");
+    return missingMappings.Count == 0 && baselineErrors.Count == 0 && newlyUndocumented.Length == 0 &&
+        typeCoverage >= minimumTypePercent && memberCoverage >= minimumMemberPercent ? 0 : 1;
+}
+
+static IReadOnlyList<DocumentationItem> ReadDocumentationItems(string apiDirectory)
+{
+    var result = new List<DocumentationItem>();
     foreach (var yamlPath in Directory.EnumerateFiles(apiDirectory, "*.yml", SearchOption.TopDirectoryOnly))
     {
         using var input = File.OpenText(yamlPath);
@@ -164,40 +229,13 @@ static int CheckDocumentationCoverage(string[] arguments)
             var uid = Scalar(itemNode, "uid");
             var kind = Scalar(itemNode, "type");
             if (string.IsNullOrWhiteSpace(uid) || string.IsNullOrWhiteSpace(kind)) continue;
-            var item = new DocumentationItem(uid, !string.IsNullOrWhiteSpace(Scalar(itemNode, "summary")));
-            if (kind is "Class" or "Struct" or "Interface" or "Enum" or "Delegate") types.Add(item);
-            else if (kind is "Constructor" or "Method" or "Property" or "Field" or "Event" or "Operator") members.Add(item);
+            var isType = kind is "Class" or "Struct" or "Interface" or "Enum" or "Delegate";
+            var isMember = kind is "Constructor" or "Method" or "Property" or "Field" or "Event" or "Operator";
+            if (isType || isMember)
+                result.Add(new DocumentationItem(uid, !string.IsNullOrWhiteSpace(Scalar(itemNode, "summary")), isType));
         }
     }
-
-    var typeCoverage = Percentage(types.Count(item => item.Documented), types.Count);
-    var memberCoverage = Percentage(members.Count(item => item.Documented), members.Count);
-    var missingMappings = new List<string>();
-    var mappings = new List<ControlMapping>();
-    foreach (var storyPath in Directory.EnumerateFiles(storyDirectory, "*.xaml", SearchOption.TopDirectoryOnly).OrderBy(path => path, StringComparer.Ordinal))
-    {
-        var controlName = Path.GetFileNameWithoutExtension(storyPath);
-        var uid = $"Forma.{controlName}";
-        var yamlExists = File.Exists(Path.Combine(apiDirectory, $"{uid}.yml"));
-        var htmlExists = File.Exists(Path.Combine(siteDirectory, "api", $"{uid}.html"));
-        mappings.Add(new ControlMapping(controlName, Path.GetRelativePath(Directory.GetParent(storyDirectory)!.Parent!.Parent!.FullName, storyPath), uid, yamlExists, htmlExists));
-        if (!yamlExists || !htmlExists) missingMappings.Add($"{controlName}: metadata={yamlExists}, page={htmlExists}");
-    }
-
-    var report = new DocumentationCoverageReport(
-        types.Count, types.Count(item => item.Documented), typeCoverage,
-        members.Count, members.Count(item => item.Documented), memberCoverage,
-        minimumTypePercent, minimumMemberPercent, mappings);
-    Directory.CreateDirectory(Path.GetDirectoryName(reportPath)!);
-    File.WriteAllText(reportPath, JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }) + Environment.NewLine);
-
-    foreach (var missing in missingMappings) Console.Error.WriteLine($"Missing control mapping: {missing}");
-    if (typeCoverage < minimumTypePercent)
-        Console.Error.WriteLine($"Type documentation coverage {typeCoverage:F1}% is below {minimumTypePercent:F1}%.");
-    if (memberCoverage < minimumMemberPercent)
-        Console.Error.WriteLine($"Member documentation coverage {memberCoverage:F1}% is below {minimumMemberPercent:F1}%.");
-    Console.WriteLine($"Documentation coverage: {report.DocumentedTypes}/{report.PublicTypes} types ({typeCoverage:F1}%), {report.DocumentedMembers}/{report.PublicMembers} members ({memberCoverage:F1}%), {mappings.Count} control story/reference mappings.");
-    return missingMappings.Count == 0 && typeCoverage >= minimumTypePercent && memberCoverage >= minimumMemberPercent ? 0 : 1;
+    return result;
 }
 
 static string? Scalar(YamlMappingNode node, string key) =>
@@ -292,7 +330,8 @@ static string GenericSignature(GenericParameter parameter) => $"{parameter.Posit
 static string MethodSignature(TypeDefinition type, MethodDefinition method) =>
     $"method {MethodVisibility(method)} {(method.IsStatic ? "static " : "")}{(method.IsAbstract ? "abstract " : "")}{method.ReturnType.FullName} {type.FullName}::{method.Name}`{method.GenericParameters.Count}({string.Join(",", method.Parameters.Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}"))})";
 
-sealed record DocumentationItem(string Uid, bool Documented);
+sealed record DocumentationItem(string Uid, bool Documented, bool IsType);
+sealed record DocumentationBaseline(int SchemaVersion, IReadOnlyList<string> KnownPublicApiUids);
 sealed record ControlMapping(string Control, string Story, string ApiUid, bool MetadataExists, bool PageExists);
 sealed record DocumentationCoverageReport(
     int PublicTypes,

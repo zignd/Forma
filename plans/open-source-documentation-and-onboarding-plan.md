@@ -560,9 +560,9 @@ Each curated control entry should include:
 ### Exit Criteria
 
 - [x] Every public control appears in searchable generated reference and one curated family page.
-- [ ] Missing XML documentation fails the agreed coverage gate for newly added public APIs.
-- [ ] Runtime peer APIs resolve to one conceptual reference without obscuring package requirements.
-- [ ] Control-reference links and source links pass CI.
+- [x] Missing XML documentation fails the agreed coverage gate for newly added public APIs.
+- [x] Runtime peer APIs resolve to one conceptual reference without obscuring package requirements.
+- [x] Control-reference links and source links pass CI.
 
 ## Phase 5: Focused Example Gallery and Catalog Cross-Links
 
@@ -646,7 +646,7 @@ Each curated control entry should include:
 
 ### Exit Criteria
 
-- [ ] The documentation site builds deterministically from a clean checkout.
+- [x] The documentation site builds deterministically from a clean checkout.
 - [ ] CI fails on broken internal links, missing pages, failed snippets, failed quick starts, or
   incomplete control mappings.
 - [ ] Published pages visibly identify their Forma version and support maturity.

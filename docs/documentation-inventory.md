@@ -29,6 +29,10 @@ runtime/backend integrator (R), and contributor (C).
 | `docs/styling-and-themes.md` | G, X, A | Theme inheritance, selectors, icons, templates | Current conceptual guide |
 | `docs/data-binding.md` | G, X, A | Task-focused compiled binding workflow | Current conceptual guide; language contract owns syntax |
 | `docs/resource-lifetime.md` | G, X, A, R | Context, font, SVG, device, and attachment ownership | Current conceptual guide; specialist contracts own details |
+| `docs/troubleshooting/index.md` | G, X, A, R, C | Troubleshooting routes and report context | Current troubleshooting front door |
+| `docs/troubleshooting/runtime-and-packages.md` | G, R, C | Peer, restore, native asset, and capability failures | Current troubleshooting guide; runtime contracts own support |
+| `docs/troubleshooting/xaml-build-and-hot-reload.md` | X, A, C | XAML diagnostics, discovery, binding, and reload failures | Current troubleshooting guide; language contract owns semantics |
+| `docs/troubleshooting/rendering-and-assets.md` | G, A, R, C | Blank output, assets, SVG, scale, and device failures | Current troubleshooting guide; specialist guides own limits |
 | `docs/authorized-host-checklist.md` | R, C | Approved runtime-host requirements | Current specialist host-integration checklist |
 | `docs/dynamic-text.md` | G, A, R | Dynamic-font setup, shaping, caching, deployment | Current text and fonts guide |
 | `docs/runtime-acquisition.md` | R, C | Runtime dependency selection and pins | Current architecture decision; package manifest is machine-owned |

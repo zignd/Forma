@@ -20,6 +20,16 @@
       href: data-binding.md
     - name: Resource lifetime
       href: resource-lifetime.md
+- name: Troubleshooting
+  items:
+    - name: Start here
+      href: troubleshooting/index.md
+    - name: Runtime and packages
+      href: troubleshooting/runtime-and-packages.md
+    - name: XAML build and hot reload
+      href: troubleshooting/xaml-build-and-hot-reload.md
+    - name: Rendering and assets
+      href: troubleshooting/rendering-and-assets.md
 - name: XAML
   items:
     - name: Language contract

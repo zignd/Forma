@@ -524,7 +524,7 @@ Each curated control entry should include:
 - [x] Write `data-binding.md` as a task-focused companion to the XAML language contract.
 - [x] Write `resource-lifetime.md` covering `UIContext`, graphics resources, fonts, SVG providers,
   device reset, and disposal ownership.
-- [ ] Create focused troubleshooting pages from recurring diagnostics and support questions.
+- [x] Create focused troubleshooting pages from recurring diagnostics and support questions.
 - [x] Add reviewed diagrams only where they clarify ownership or layout behavior better than prose.
 - [x] Cross-link each guide to relevant existing specialist contracts and Catalog stories.
 

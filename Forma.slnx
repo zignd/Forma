@@ -3,6 +3,9 @@
     <Project Path="samples/Forma.Catalog/Forma.Catalog.csproj" />
     <Project Path="samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj" />
     <Project Path="samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj" />
+    <Project Path="samples/Forma.QuickStart.FNA/Forma.QuickStart.FNA.csproj" />
+    <Project Path="samples/Forma.QuickStart.MonoGame/Forma.QuickStart.MonoGame.csproj" />
+    <Project Path="samples/Forma.QuickStart/Forma.QuickStart.csproj" />
     <Project Path="samples/Forma.Xaml.Game.FNA/Forma.Xaml.Game.FNA.csproj" />
     <Project Path="samples/Forma.Xaml.Game.MonoGame/Forma.Xaml.Game.MonoGame.csproj" />
     <Project Path="samples/Forma.Xaml.Game/Forma.Xaml.Game.csproj" />

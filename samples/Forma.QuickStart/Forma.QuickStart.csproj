@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Forma.QuickStart</AssemblyName>
+    <RootNamespace>Forma.QuickStart</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <DefineConstants Condition="'$(FormaRuntime)' == 'FNA'">$(DefineConstants);FORMA_QUICKSTART_FNA</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' == ''" />
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' == ''" />
+    <ProjectReference Include="$(MonoGameProjectPath)" Condition="'$(FormaRuntime)' == 'MonoGame' and '$(MonoGameProjectPath)' != ''" />
+    <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''" />
+    <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.DynamicText/Forma.DynamicText.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Program.cs" />
+    <Compile Include="../../docs/examples/csharp-first-ui.cs" Link="QuickStartView.cs" />
+    <None Include="../../tests/Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../tests/Assets/Fonts/LICENSE.Inter.txt" Link="Fonts/LICENSE.Inter.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

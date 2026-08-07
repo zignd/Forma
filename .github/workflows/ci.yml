@@ -74,11 +74,13 @@ jobs:
         run: |
           if [[ "$FORMA_RUNTIME" == "FNA" ]]; then
             env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES SvgBackend=Skia FormaRuntime=FNA xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
+            env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-quick-start.sh
             env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=FNA --no-build --nologo
             env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=FNA -p:SvgBackend=Skia
           else
             xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' vulkaninfo --summary
             SvgBackend=Skia FormaRuntime=MonoGame xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
+            xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-quick-start.sh
             xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame --no-build --nologo
             xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame -p:SvgBackend=Skia
             SvgBackend=Skia MonoGamePlatform=DesktopVK FormaNativeRuntime=true CatalogBackend=Vulkan xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
@@ -109,10 +111,12 @@ jobs:
         run: |
           if [[ "$FORMA_RUNTIME" == "MonoGame" ]]; then
             SvgBackend=Skia MonoGamePlatform=Windows CatalogBackend=WindowsDX FormaRuntime=MonoGame bash scripts/check-catalog-smoke.sh
+            bash scripts/check-quick-start.sh
             dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=Windows --nologo
             dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=Windows -p:SvgBackend=Skia
           else
             SvgBackend=Skia FormaRuntime=FNA bash scripts/check-catalog-smoke.sh
+            bash scripts/check-quick-start.sh
             dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=FNA --no-build --nologo
             dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=FNA -p:SvgBackend=Skia
           fi
@@ -137,6 +141,7 @@ jobs:
           FormaCatalogViewportHeight: 900
         run: |
           SvgBackend=Skia FormaRuntime="$FORMA_RUNTIME" bash scripts/check-catalog-smoke.sh
+          bash scripts/check-quick-start.sh
           dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" -p:SvgBackend=Skia
       - name: Validate macOS render-test isolation
         if: runner.os == 'macOS'

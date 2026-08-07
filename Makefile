@@ -15,6 +15,8 @@ NATIVEAOT_MODE ?=
 
 MONOGAME_CATALOG := samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj
 FNA_CATALOG := samples/Forma.Catalog.FNA/Forma.Catalog.FNA.csproj
+MONOGAME_QUICK_START := samples/Forma.QuickStart.MonoGame/Forma.QuickStart.MonoGame.csproj
+FNA_QUICK_START := samples/Forma.QuickStart.FNA/Forma.QuickStart.FNA.csproj
 MONOGAME_XAML_GAME := samples/Forma.Xaml.Game.MonoGame/Forma.Xaml.Game.MonoGame.csproj
 FNA_XAML_GAME := samples/Forma.Xaml.Game.FNA/Forma.Xaml.Game.FNA.csproj
 UNIT_TESTS := tests/Forma.Tests/Forma.Tests.csproj
@@ -28,6 +30,7 @@ DOTNET_ARGS := --configuration "$(CONFIGURATION)" --nologo
 	test-render test-render-monogame test-render-fna \
 	performance performance-graphics \
 	catalog-monogame catalog-monogame-local catalog-fna catalog-fna-local \
+	quick-start quick-start-monogame quick-start-fna quick-start-check \
 	xaml-game-monogame xaml-game-fna smoke smoke-monogame smoke-fna render-parity video-smoke \
 	text-spike text-spike-local text-baseline xaml-spike \
 	format-xaml format-xaml-check \
@@ -128,6 +131,18 @@ catalog-fna: ## Launch the interactive FNA catalog.
 catalog-fna-local: ## Launch the catalog against a local FNA fork.
 	@test -f "$(FNA_PROJECT)" || { echo "FNA_PROJECT does not exist: $(FNA_PROJECT)" >&2; exit 2; }
 	DOTNET="$(DOTNET)" bash scripts/run-catalog-local.sh FNA "$(FNA_CATALOG)" "$(FNA_PROJECT)" "$(CONFIGURATION)" -- $(CATALOG_ARGS)
+
+quick-start: quick-start-monogame ## Launch the C# quick start with the default MonoGame peer.
+
+quick-start-monogame: ## Launch the C# quick start with MonoGame.
+	$(DOTNET) run --project $(MONOGAME_QUICK_START) --configuration "$(CONFIGURATION)" -p:FormaRuntime=MonoGame
+
+quick-start-fna: ## Launch the C# quick start with FNA.
+	$(DOTNET) run --project $(FNA_QUICK_START) --configuration "$(CONFIGURATION)" -p:FormaRuntime=FNA
+
+quick-start-check: ## Restore, build, and render both quick starts from empty package caches.
+	FORMA_RUNTIME=MonoGame bash scripts/check-quick-start.sh
+	FORMA_RUNTIME=FNA bash scripts/check-quick-start.sh
 
 xaml-game-monogame: ## Launch the shared XAML sample with MonoGame.
 	$(DOTNET) run --project $(MONOGAME_XAML_GAME) --configuration "$(CONFIGURATION)" -p:FormaRuntime=MonoGame

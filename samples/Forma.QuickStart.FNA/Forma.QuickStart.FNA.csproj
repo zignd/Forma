@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.QuickStart.FNA</AssemblyName>
+    <RootNamespace>Forma.QuickStart</RootNamespace>
+    <UseAppHost>false</UseAppHost>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <DefineConstants>$(DefineConstants);FORMA_QUICKSTART_FNA</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="$(FnaPackageId)" Version="$(FnaVersion)" Condition="'$(FnaProjectPath)' == ''" />
+    <PackageReference Include="FNA.NET.NativeAssets" Version="$(FnaNativeAssetsVersion)" Condition="'$(FnaProjectPath)' != ''" />
+    <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FnaProjectPath)' != ''" />
+    <ProjectReference Include="../Forma.QuickStart/Forma.QuickStart.csproj" AdditionalProperties="FormaRuntime=FNA" />
+    <Compile Include="../Forma.QuickStart/Program.cs" Link="Program.cs" />
+  </ItemGroup>
+
+</Project>

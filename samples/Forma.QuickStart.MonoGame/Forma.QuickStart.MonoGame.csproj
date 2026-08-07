@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Forma.QuickStart.MonoGame</AssemblyName>
+    <RootNamespace>Forma.QuickStart</RootNamespace>
+    <UseAppHost>false</UseAppHost>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(MonoGameProjectPath)' == ''" />
+    <ProjectReference Include="$(MonoGameProjectPath)" Condition="'$(MonoGameProjectPath)' != ''" />
+    <ProjectReference Include="../Forma.QuickStart/Forma.QuickStart.csproj" AdditionalProperties="FormaRuntime=MonoGame" />
+    <Compile Include="../Forma.QuickStart/Program.cs" Link="Program.cs" />
+  </ItemGroup>
+
+</Project>

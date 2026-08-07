@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 using Microsoft.Xna.Framework;
 
 namespace Forma.QuickStart;

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 using Forma.QuickStart;
 
 var maximumFrames = 0;

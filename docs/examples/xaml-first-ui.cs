@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Forma.Xaml;

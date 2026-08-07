@@ -25,7 +25,7 @@
   <Target Name="CopyFormaXamlTaskDependencies" AfterTargets="Build">
     <ItemGroup>
       <_FormaCecilDependency Include="$(PkgMono_Cecil)/lib/netstandard2.0/*.dll" />
-      <_FormaPeerDependency Include="$([System.IO.Path]::Combine('$(NuGetPackageRoot)', $([System.String]::Copy('$(MonoGamePackageId)').ToLowerInvariant()), '$(MonoGameVersion)', 'lib', '*', 'MonoGame.Framework.dll'))" Condition="'$(FormaRuntime)' == 'MonoGame'" />
+      <_FormaPeerDependency Include="$([System.IO.Path]::Combine('$(NuGetPackageRoot)', $([System.String]::Copy('$(MonoGamePackageId)').ToLowerInvariant()), '$(MonoGameVersion)', 'lib', 'net8.0', 'MonoGame.Framework.dll'))" Condition="'$(FormaRuntime)' == 'MonoGame'" />
       <_FormaPeerDependency Include="$([System.IO.Path]::Combine('$(NuGetPackageRoot)', $([System.String]::Copy('$(FnaPackageId)').ToLowerInvariant()), '$(FnaVersion)', 'lib', 'net9.0', 'FNA.NET.dll'))" Condition="'$(FormaRuntime)' == 'FNA'" />
     </ItemGroup>
     <Copy SourceFiles="@(_FormaCecilDependency);@(_FormaPeerDependency)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />

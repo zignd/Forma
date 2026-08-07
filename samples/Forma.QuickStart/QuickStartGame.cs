@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 #if FORMA_XAML_HOT_RELOAD

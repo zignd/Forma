@@ -512,29 +512,29 @@ Each curated control entry should include:
 
 ### Tasks
 
-- [ ] Write `layout-and-sizing.md` with diagrams and examples for direct sizing, minimum/maximum
+- [x] Write `layout-and-sizing.md` with diagrams and examples for direct sizing, minimum/maximum
   constraints, container allocation, size flags, margin, padding, content alignment, viewport size,
   and display scale.
-- [ ] Write `controls-and-containers.md` explaining retained trees, parent ownership, common
+- [x] Write `controls-and-containers.md` explaining retained trees, parent ownership, common
   containers, scrolling, overlays, and selection criteria.
-- [ ] Write `input-and-focus.md` covering pointer hit testing, mouse filters, focus modes, keyboard,
+- [x] Write `input-and-focus.md` covering pointer hit testing, mouse filters, focus modes, keyboard,
   text input, clipboard, and host adapters.
-- [ ] Write `styling-and-themes.md` covering defaults, overrides, selectors, icons, templates, and
+- [x] Write `styling-and-themes.md` covering defaults, overrides, selectors, icons, templates, and
   inheritance.
-- [ ] Write `data-binding.md` as a task-focused companion to the XAML language contract.
-- [ ] Write `resource-lifetime.md` covering `UIContext`, graphics resources, fonts, SVG providers,
+- [x] Write `data-binding.md` as a task-focused companion to the XAML language contract.
+- [x] Write `resource-lifetime.md` covering `UIContext`, graphics resources, fonts, SVG providers,
   device reset, and disposal ownership.
 - [ ] Create focused troubleshooting pages from recurring diagnostics and support questions.
-- [ ] Add reviewed diagrams only where they clarify ownership or layout behavior better than prose.
-- [ ] Cross-link each guide to relevant existing specialist contracts and Catalog stories.
+- [x] Add reviewed diagrams only where they clarify ownership or layout behavior better than prose.
+- [x] Cross-link each guide to relevant existing specialist contracts and Catalog stories.
 
 ### Exit Criteria
 
-- [ ] Every guide contains tested C# or XAML examples and documents defaults and common mistakes.
-- [ ] The layout guide directly answers when to use `Size`, `CustomMinimumSize`, maximum constraints,
+- [x] Every guide contains tested C# or XAML examples and documents defaults and common mistakes.
+- [x] The layout guide directly answers when to use `Size`, `CustomMinimumSize`, maximum constraints,
   and size flags.
-- [ ] Input setup is validated for both peer hosts rather than inferred from one runtime.
-- [ ] Specialist documents remain canonical for detailed contracts and do not conflict with guides.
+- [x] Input setup is validated for both peer hosts rather than inferred from one runtime.
+- [x] Specialist documents remain canonical for detailed contracts and do not conflict with guides.
 
 ## Phase 4: Control and API Reference
 

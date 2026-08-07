@@ -23,6 +23,12 @@ runtime/backend integrator (R), and contributor (C).
 | `external/ThorVG/README.md` | R, C | Upstream ThorVG documentation | Externally owned; link only from provenance documentation |
 | `external/XamlX/README.md` | X, C | Upstream XamlX architecture | Externally owned; link only from compiler architecture documentation |
 | `docs/index.md` | E, G, X, A, R, C | Documentation routes by task | Current site front door |
+| `docs/layout-and-sizing.md` | G, X, A | Layout constraints, allocation, spacing, viewport scaling | Current conceptual guide |
+| `docs/controls-and-containers.md` | G, X, A | Retained ownership, composition, projection, container choice | Current conceptual guide |
+| `docs/input-and-focus.md` | G, A, R | Pointer, focus, keyboard, text, clipboard, host adapters | Current conceptual guide |
+| `docs/styling-and-themes.md` | G, X, A | Theme inheritance, selectors, icons, templates | Current conceptual guide |
+| `docs/data-binding.md` | G, X, A | Task-focused compiled binding workflow | Current conceptual guide; language contract owns syntax |
+| `docs/resource-lifetime.md` | G, X, A, R | Context, font, SVG, device, and attachment ownership | Current conceptual guide; specialist contracts own details |
 | `docs/authorized-host-checklist.md` | R, C | Approved runtime-host requirements | Current specialist host-integration checklist |
 | `docs/dynamic-text.md` | G, A, R | Dynamic-font setup, shaping, caching, deployment | Current text and fonts guide |
 | `docs/runtime-acquisition.md` | R, C | Runtime dependency selection and pins | Current architecture decision; package manifest is machine-owned |

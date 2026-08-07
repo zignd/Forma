@@ -6,6 +6,20 @@
       href: getting-started/csharp-first-ui.md
     - name: First UI in XAML
       href: getting-started/xaml-first-ui.md
+- name: Concepts
+  items:
+    - name: Layout and sizing
+      href: layout-and-sizing.md
+    - name: Controls and containers
+      href: controls-and-containers.md
+    - name: Input and focus
+      href: input-and-focus.md
+    - name: Styling and themes
+      href: styling-and-themes.md
+    - name: Data binding
+      href: data-binding.md
+    - name: Resource lifetime
+      href: resource-lifetime.md
 - name: XAML
   items:
     - name: Language contract

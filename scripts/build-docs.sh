@@ -28,6 +28,8 @@ done
 rm -rf "$generated_root" "$api_root" "$site_root"
 mkdir -p "$generated_root/examples" "$generated_root/references"
 cp samples/Forma.QuickStart/FirstView.xaml "$generated_root/examples/FirstView.xaml"
+cp samples/Forma.QuickStart/QuickStartGame.cs "$generated_root/examples/QuickStartGame.cs"
+cp samples/Forma.Catalog/StylesStoryView.xaml "$generated_root/examples/StylesStoryView.xaml"
 for project in "${projects[@]}"; do
   find "src/$project/bin/MonoGame/Release/net10.0" -maxdepth 1 -type f -name '*.dll' \
     -exec cp {} "$generated_root/references/" \;

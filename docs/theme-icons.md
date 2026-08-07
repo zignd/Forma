@@ -1,9 +1,10 @@
 # Default Theme Icons
 
-Forma embeds the same 67 logical default icons in its MonoGame and FNA packages. Applications do
-not need MGCB, XNB files, an SVG parser, or copied content assets. The PNG atlases remain the
-native-free default and fallback. The matching optional `Forma.Svg` companion also packages the
-authoritative SVG sources for exact-scale runtime rendering.
+Forma embeds the same default icon manifest in its MonoGame and FNA packages. Applications do not
+need MGCB, XNB files, an SVG parser, or copied content assets. The PNG atlases remain the native-free
+default and fallback. A matching explicit SVG backend companion also packages the authoritative SVG
+sources for exact-scale runtime rendering. `assets/theme-icons/imports.json` owns the current icon
+inventory; this guide intentionally does not duplicate its count.
 
 Set `UIContext.ThemeIconRenderingPolicy` to `BitmapAtlas`, `RuntimeSvg`, or `Auto`. Runtime SVG keeps
 the selected PNG atlas available as a per-icon fallback, so a missing backend or unsupported source

@@ -23,12 +23,9 @@ Forma's Catalog and SVG smoke hosts default to ThorVG on validated macOS arm64 a
 systems. Pass `-p:SvgBackend=Skia` for explicit rollback. Windows remains on explicit Skia until
 ThorVG Windows native assets are qualified and distributed.
 
-Existing `Forma.Svg.MonoGame` and `Forma.Svg.FNA` packages remain one-window compatibility packages.
-They emit a build warning, depend on explicit Skia, and preserve existing output. Migrate by removing
-the compatibility package, adding one explicit package, cleaning lock/output directories, and
-confirming the publish contains only the chosen engine. Build guards reject mixed peers/backends.
-The compatibility package IDs remain available throughout the `0.x` release line and are scheduled
-for removal in Forma `1.0.0`, after at least one published release has carried the migration warning.
+The unused `Forma.Svg.MonoGame` and `Forma.Svg.FNA` compatibility identities have no prior public
+release to support and are excluded from the initial package manifest. Choose an explicit backend
+package directly. Build guards reject mixed runtime peers and mixed SVG backends.
 
 `SvgRuntime.Health` exposes `BackendId`, `Version`, `ProfileVersion`, `NativeAvailability`,
 `LinkMode`, tested features, and a bounded diagnostic. Missing native assets, ABI mismatch, conflict,

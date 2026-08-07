@@ -34,10 +34,24 @@ checks, package inspection, and clean consumer restores before the pins change.
 
 ## Package IDs
 
-The peer package IDs are `Forma.MonoGame`, `Forma.FNA`, `Forma.DynamicText.MonoGame`,
-`Forma.DynamicText.FNA`, `Forma.Media.MonoGame`, and `Forma.Media.FNA`. The original core and media
-IDs were unavailable on NuGet when checked during Phase 0. No reservation or publication was
-performed. All six packages use the same Forma version and commit.
+The initial public release contains fourteen peer package IDs. The machine-readable authority is
+[`scripts/release-packages.json`](https://github.com/zigrok/Forma/blob/main/scripts/release-packages.json),
+which the release workflow uses for package construction, artifact validation, publication, and
+post-publication restore checks. All manifest packages use the same Forma version and commit.
+
+| Capability | MonoGame | FNA |
+| --- | --- | --- |
+| Core | `Forma.MonoGame` | `Forma.FNA` |
+| Dynamic text | `Forma.DynamicText.MonoGame` | `Forma.DynamicText.FNA` |
+| Media | `Forma.Media.MonoGame` | `Forma.Media.FNA` |
+| SVG with Skia | `Forma.Svg.Skia.MonoGame` | `Forma.Svg.Skia.FNA` |
+| SVG with ThorVG | `Forma.Svg.ThorVG.MonoGame` | `Forma.Svg.ThorVG.FNA` |
+| Compiled XAML build | `Forma.Xaml.Build.MonoGame` | `Forma.Xaml.Build.FNA` |
+| XAML hot reload | `Forma.Xaml.HotReload.MonoGame` | `Forma.Xaml.HotReload.FNA` |
+
+The unused `Forma.Svg.MonoGame` and `Forma.Svg.FNA` compatibility identities are intentionally
+excluded. Package availability is rechecked immediately before publication rather than asserted by
+this decision record.
 
 ## Local Overrides
 

@@ -5,8 +5,9 @@ the same `Forma` namespace, controls, layout behavior, styling model, and catalo
 artifact is compiled against exactly one runtime because the framework assemblies are source
 compatible in many places but are not binary substitutes.
 
-NuGet publication is disabled. CI and the manual release workflow produce reviewable package
-artifacts without publishing them.
+The first NuGet preview is being prepared. CI produces reviewable package artifacts, and tagged
+releases are configured to publish the exact validated artifact after protected-environment
+approval. Until that first release is indexed, use the source build route below.
 
 Run `make help` for the common build, test, catalog, validation, packaging, and plan-tracking
 commands.
@@ -19,6 +20,7 @@ Use one matching package pair and one framework implementation. Never mix runtim
 | --- | --- |
 | `Forma.MonoGame` | `Forma.FNA` |
 | `Forma.Xaml.Build.MonoGame` (compiled XAML) | `Forma.Xaml.Build.FNA` (compiled XAML) |
+| `Forma.Xaml.HotReload.MonoGame` (optional, Debug only) | `Forma.Xaml.HotReload.FNA` (optional, Debug only) |
 | `Forma.DynamicText.MonoGame` (optional) | `Forma.DynamicText.FNA` (optional) |
 | `Forma.Svg.Skia.MonoGame` or `Forma.Svg.ThorVG.MonoGame` (optional) | `Forma.Svg.Skia.FNA` or `Forma.Svg.ThorVG.FNA` (optional) |
 | `Forma.Media.MonoGame` (optional) | `Forma.Media.FNA` (optional) |
@@ -31,8 +33,8 @@ loading, shaping, or rasterization; `SpriteFontAdapter` consumers remain native-
 Package-owned build guards reject mixed variants with an actionable error.
 
 Add exactly one matching explicit `Forma.Svg.Skia` or `Forma.Svg.ThorVG` companion for bounded
-runtime SVG rendering. The legacy `Forma.Svg.*` identities are warning-producing Skia compatibility
-packages for one migration window. Core packages remain free of both backends. See
+runtime SVG rendering. The unused `Forma.Svg.MonoGame` and `Forma.Svg.FNA` compatibility identities
+are excluded from the first public release. Core packages remain free of both backends. See
 [docs/runtime-svg.md](docs/runtime-svg.md) for
 source loading, compiled XAML assets, scaling, cache diagnostics, security limits, theme policy,
 deployment, and rollback.
@@ -112,7 +114,7 @@ dotnet build src/Forma/Forma.csproj -p:FormaRuntime=FNA \
 
 ## Catalog
 
-Launch either thin host over the same 79-story catalog:
+Launch either thin host over the same runtime-neutral catalog:
 
 ```sh
 dotnet run --project samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj \
@@ -160,7 +162,7 @@ ownership, density selection, overrides, suppression, diagnostics, and determini
 ## Validation
 
 ```sh
-# Unit and catalog inventory tests (815+ per peer, including 41 SVG tests)
+# Unit and catalog inventory tests
 dotnet test tests/Forma.Tests/Forma.Tests.csproj -p:FormaRuntime=MonoGame
 dotnet test tests/Forma.Tests/Forma.Tests.csproj -p:FormaRuntime=FNA
 
@@ -176,9 +178,11 @@ bash scripts/check-catalog-render-parity.sh
 # FNA Theora decoding
 bash scripts/check-fna-video-smoke.sh
 
-# Ten peer packages (eight core/media/text companions + two SVG companions), compiled-XAML
-# empty-cache consumers, determinism, and conflict guards
+# Core package consumers, compiled-XAML empty-cache consumers, determinism, and conflict guards
 bash scripts/test-package-consumer.sh
+
+# Complete fourteen-package release manifest, package inspection, and hot-reload consumers
+bash scripts/pack-release-packages.sh
 
 # macOS arm64 trim and NativeAOT compiled-XAML consumers (includes SVG companion cells)
 bash scripts/test-nativeaot-package-consumer.sh
@@ -193,9 +197,12 @@ native dependency, trimming, AOT, CI, and manual-gate matrix. See
 
 ## Release and Migration
 
-The manual `Release` workflow validates both runtime graphs and uploads all eight peer packages from
-one commit and version. It has no publication job, NuGet credential, or push command. Enabling
-publication requires separate explicit user approval.
+The `Release` workflow validates the fourteen-package manifest and NativeAOT evidence before its
+protected publish job can obtain a short-lived NuGet credential through GitHub OIDC. It downloads
+and revalidates the reviewed artifact instead of rebuilding, publishes without accepting duplicate
+versions, verifies NuGet.org indexing and clean restores, and only then creates the GitHub release.
+The first publication remains blocked until the NuGet.org trusted-publishing policy and GitHub
+environment reviewers are configured.
 
 Before the first public peer release, replace unqualified `Forma` and `Forma.Media` package
 references with one matching peer pair. The unqualified IDs are not aliases and must not select a

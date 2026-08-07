@@ -410,7 +410,7 @@ Each curated control entry should include:
 
 ### Tasks
 
-- [ ] Define primary audiences: evaluator, game developer, XAML user, control author, runtime/backend
+- [x] Define primary audiences: evaluator, game developer, XAML user, control author, runtime/backend
   integrator, and contributor.
 - [ ] Write one representative first-success task and one failure-recovery task for each audience.
 - [ ] Use the source-reference route only as a clearly labeled pre-publication fallback; make
@@ -436,10 +436,10 @@ Each curated control entry should include:
   NuGet.org without rebuilding or skipping duplicate versions.
 - [x] Add post-publication indexing and clean-cache restore checks for every manifest package.
 - [ ] Document correction, unlisting, ownership, symbol-package, and credential-compromise procedures.
-- [ ] Inventory every current README and `docs/` page with audience, canonical topic, status, and
+- [x] Inventory every current README and `docs/` page with audience, canonical topic, status, and
   intended destination.
-- [ ] Inventory volatile values and duplicated package/platform claims across documentation.
-- [ ] Inventory public controls and map each to XML summary coverage, Catalog story, curated reference
+- [x] Inventory volatile values and duplicated package/platform claims across documentation.
+- [x] Inventory public controls and map each to XML summary coverage, Catalog story, curated reference
   status, and example status.
 - [x] Validate the Docfx decision with a minimal local spike that generates one API page from a
   release assembly/XML/PDB set, resolves its Source Link URL, builds the modern template, serves the
@@ -448,7 +448,7 @@ Each curated control entry should include:
 
 ### Exit Criteria
 
-- [ ] The audience and content inventory is committed and has no unowned documentation page.
+- [x] The audience and content inventory is committed and has no unowned documentation page.
 - [ ] The NuGet.org organization, trusted-publishing policy, protected environment, and backup
   ownership path are active and tested without a long-lived API key.
 - [ ] One approved workflow run publishes the exact manifest at one version, including both ThorVG
@@ -457,7 +457,7 @@ Each curated control entry should include:
   ThorVG consumers receive only supported RID assets and no Skia dependency.
 - [ ] The installation route used by quick starts is executable from a clean environment.
 - [ ] The documentation toolchain decision records alternatives, tradeoffs, and maintenance cost.
-- [ ] Every duplicated volatile claim has one proposed canonical source or a removal decision.
+- [x] Every duplicated volatile claim has one proposed canonical source or a removal decision.
 
 ## Phase 1: README and Documentation Front Door
 

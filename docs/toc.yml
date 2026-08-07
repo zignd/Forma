@@ -1,0 +1,38 @@
+- name: Overview
+  href: index.md
+- name: XAML
+  items:
+    - name: Language contract
+      href: xaml-language.md
+    - name: Templates and visual tree
+      href: xaml-templates-migration.md
+    - name: Control template migration
+      href: control-template-migration-manifest.md
+- name: Text and media
+  items:
+    - name: Dynamic text
+      href: dynamic-text.md
+    - name: Default theme icons
+      href: theme-icons.md
+- name: SVG
+  items:
+    - name: Runtime SVG
+      href: runtime-svg.md
+    - name: Runtime SVG profile
+      href: runtime-svg-profile-v1.md
+    - name: Backend migration
+      href: svg-backend-migration.md
+    - name: Backend rollout
+      href: svg-backend-rollout.md
+    - name: ThorVG build and provenance
+      href: thorvg-build-and-provenance.md
+- name: Runtime and hosting
+  items:
+    - name: Runtime support
+      href: runtime-support.md
+    - name: Runtime acquisition
+      href: runtime-acquisition.md
+    - name: Authorized host checklist
+      href: authorized-host-checklist.md
+- name: API reference
+  href: api/toc.yml

@@ -185,7 +185,7 @@ by its packed SpriteFont.
 This validation does not cover media codec playback, other RIDs, iOS, Android, or any console. Those
 modes remain unsupported until their own packed consumers execute. NativeAOT compatibility is not console
 support; authorized hardware and platform-holder validation remain separate. Further work is tracked
-in the [NativeAOT and console readiness plan](../plans/nativeaot-console-readiness-plan.md).
+in the [NativeAOT and console readiness plan](https://github.com/zigrok/Forma/blob/main/plans/nativeaot-console-readiness-plan.md).
 
 Release XAML injection is built and stamp-verified with .NET 10 on current GitHub-hosted Ubuntu,
 Windows, and macOS runners for both peers. The Cecil rewrite is build-host-neutral and must complete

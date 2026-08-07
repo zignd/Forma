@@ -1,0 +1,65 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../",
+          "files": [
+            "src/Forma/bin/MonoGame/Release/net10.0/Forma.dll",
+            "src/Forma.DynamicText/bin/MonoGame/Release/net10.0/Forma.DynamicText.dll",
+            "src/Forma.Media/bin/MonoGame/Release/net10.0/Forma.Media.dll",
+            "src/Forma.Svg/bin/MonoGame/Release/net10.0/Forma.Svg.Skia.dll",
+            "src/Forma.Svg.ThorVG/bin/MonoGame/Release/net10.0/Forma.Svg.ThorVG.dll",
+            "src/Forma.Xaml.HotReload/bin/MonoGame/Release/net10.0/Forma.Xaml.HotReload.dll"
+          ]
+        }
+      ],
+      "dest": "api",
+      "references": [
+        "_generated/references/*.dll"
+      ],
+      "memberLayout": "samePage",
+      "namespaceLayout": "flattened"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "baselines/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**",
+          "examples/**"
+        ]
+      }
+    ],
+    "output": "../Artifacts/docs/site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "Forma",
+      "_appTitle": "Forma Documentation",
+      "_enableSearch": true,
+      "_lang": "en",
+      "_gitContribute": {
+        "repo": "https://github.com/zigrok/Forma",
+        "branch": "main"
+      }
+    },
+    "sitemap": {
+      "baseUrl": "https://zigrok.github.io/Forma/",
+      "changefreq": "weekly",
+      "priority": 0.5
+    }
+  }
+}

@@ -35,7 +35,7 @@ public sealed class CatalogShell : BoxContainer
     private readonly SpriteFont _compatibilityFont;
     private readonly SpriteFont _compatibilityCodeFont;
     private LineEdit _search;
-    private ItemList _navigation;
+    private Tree _navigation;
     private Label _storyTitle;
     private Label _storyCategory;
     private RichTextLabel _description;
@@ -48,6 +48,7 @@ public sealed class CatalogShell : BoxContainer
     private readonly CatalogShellViewModel _viewModel;
     private CheckBox _dynamicTextToggle;
     private List<ComponentStory> _filteredStories;
+    private readonly Dictionary<ComponentStory, TreeItem> _navigationItems = new Dictionary<ComponentStory, TreeItem>();
     private ComponentStory _currentStory;
     private Control _currentControl;
     private IDisposable _authoredStyles;
@@ -108,7 +109,7 @@ public sealed class CatalogShell : BoxContainer
         if (selectedStory != null)
         {
             var story = _stories.First(candidate => candidate.Name == selectedStory);
-            _navigation.Select(_filteredStories.IndexOf(story));
+            SelectNavigationStory(story);
             LoadStory(story, storyDataContext);
         }
     }
@@ -143,7 +144,7 @@ public sealed class CatalogShell : BoxContainer
     {
         var scope = NameScope.GetNameScope(this) ?? throw new InvalidOperationException("CatalogShell XAML did not create a namescope.");
         _search = scope.Find<LineEdit>("Search") ?? throw MissingName("Search");
-        _navigation = scope.Find<ItemList>("Navigation") ?? throw MissingName("Navigation");
+        _navigation = scope.Find<Tree>("Navigation") ?? throw MissingName("Navigation");
         _storyTitle = scope.Find<Label>("StoryTitle") ?? throw MissingName("StoryTitle");
         _storyCategory = scope.Find<Label>("StoryCategory") ?? throw MissingName("StoryCategory");
         _description = scope.Find<RichTextLabel>("Description") ?? throw MissingName("Description");
@@ -161,7 +162,7 @@ public sealed class CatalogShell : BoxContainer
         _hotReloadDiagnosticsPanel.Visible = _viewModel.HasHotReloadIssues;
         _hotReloadDetails.Text = _viewModel.HotReloadDetails;
         _search.TextChanged += (_, _) => RefreshNavigation();
-        _navigation.ItemSelected += (_, index) => SelectStory(index);
+        _navigation.ItemSelected += (_, item) => SelectStory(item.Metadata as ComponentStory);
         var reset = scope.Find<Button>("Reset") ?? throw MissingName("Reset");
         reset.Pressed += (_, _) => LoadStory(_currentStory);
         var copyHotReloadDetails = scope.Find<Button>("CopyHotReloadDetails") ?? throw MissingName("CopyHotReloadDetails");
@@ -208,26 +209,65 @@ public sealed class CatalogShell : BoxContainer
             .ToList();
 
         _navigation.Clear();
-        foreach (var story in _filteredStories) _navigation.AddItem($"{story.Category}  /  {story.Name}");
+        _navigationItems.Clear();
+        var root = _navigation.CreateItem();
+        root.Text = "Components";
+        root.Selectable = false;
+        var categories = new Dictionary<string, TreeItem>(StringComparer.Ordinal);
+        foreach (var story in _filteredStories)
+        {
+            var parent = root;
+            var categoryPath = string.Empty;
+            foreach (var segment in story.Category.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                categoryPath = string.IsNullOrEmpty(categoryPath) ? segment : $"{categoryPath}/{segment}";
+                if (!categories.TryGetValue(categoryPath, out var category))
+                {
+                    category = parent.CreateChild();
+                    category.Text = segment;
+                    category.Selectable = false;
+                    category.SetCollapsed(false);
+                    categories.Add(categoryPath, category);
+                }
+                parent = category;
+            }
+            var item = parent.CreateChild();
+            item.Text = story.Name;
+            item.Metadata = story;
+            _navigationItems.Add(story, item);
+        }
         _viewModel.CountText = $"{_filteredStories.Count} of {_stories.Count} controls";
         _count.Text = _viewModel.CountText;
         if (selectFirst && _filteredStories.Count > 0)
         {
-            _navigation.Select(0);
-            SelectStory(0);
+            var story = _filteredStories[0];
+            SelectNavigationStory(story);
+            LoadStory(story);
+        }
+        else if (_currentStory != null)
+        {
+            SelectNavigationStory(_currentStory);
         }
     }
 
-    private void SelectStory(int filteredIndex)
+    private void SelectStory(ComponentStory story)
     {
-        if (filteredIndex < 0 || filteredIndex >= _filteredStories.Count) return;
-        LoadStory(_filteredStories[filteredIndex]);
+        if (story != null) LoadStory(story);
+    }
+
+    private void SelectNavigationStory(ComponentStory story)
+    {
+        if (story == null || !_navigationItems.TryGetValue(story, out var item)) return;
+        item.UncollapseTree();
+        _navigation.SetSelected(item);
+        _navigation.ScrollToItem(item);
     }
 
     public bool SelectStory(string storyName)
     {
         var story = _stories.FirstOrDefault(candidate => string.Equals(candidate.Name, storyName, StringComparison.Ordinal));
         if (story == null) return false;
+        SelectNavigationStory(story);
         LoadStory(story);
         return true;
     }

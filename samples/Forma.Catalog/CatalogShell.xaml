@@ -74,7 +74,11 @@
                 HorizontalSizeFlags="Fill, Expand" />
         </VBoxContainer>
     </PanelContainer>
-    <HBoxContainer Separation="0" VerticalSizeFlags="Fill, Expand">
+    <HBoxContainer
+        x:Name="Workspace"
+        Separation="0"
+        HorizontalSizeFlags="Fill, Expand"
+        VerticalSizeFlags="Fill, Expand">
         <PanelContainer x:Name="NavigationPanel" CustomMinimumSize="340,0">
             <VBoxContainer Separation="8" Margins="14">
                 <LineEdit
@@ -83,15 +87,14 @@
                     ClearButtonEnabled="True"
                     CustomMinimumSize="0,36"
                     Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                <ScrollContainer VerticalSizeFlags="Fill, Expand" HorizontalScrollMode="Never">
-                    <ItemList
-                        x:Name="Navigation"
-                        AllowSearch="True"
-                        AutoWidth="True"
-                        AutoHeight="True"
-                        HorizontalSizeFlags="Fill, Expand"
-                        VerticalSizeFlags="Fill, Expand" />
-                </ScrollContainer>
+                <Tree
+                    x:Name="Navigation"
+                    HideRoot="True"
+                    AllowSearch="True"
+                    ItemHeight="26"
+                    Indent="18"
+                    HorizontalSizeFlags="Fill, Expand"
+                    VerticalSizeFlags="Fill, Expand" />
                 <Label
                     x:Name="Count"
                     Text="{Binding CountText}"

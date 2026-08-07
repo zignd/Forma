@@ -643,18 +643,17 @@ public sealed class CatalogInventoryTest
         using var context = new UIContext { ViewportSize = shell.Size };
         context.Add(shell);
         context.Layout();
-        var navigation = NameScope.GetNameScope(shell).Find<ItemList>("Navigation");
-        var scroll = navigation.Parent as ScrollContainer;
+        var navigation = NameScope.GetNameScope(shell).Find<Tree>("Navigation");
 
-        Assert.That(scroll, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(scroll.Viewport.Y, Is.GreaterThan(0));
-            Assert.That(scroll.Extent.Y, Is.GreaterThan(scroll.Viewport.Y));
-            Assert.That(scroll.MaxScrollOffset.Y, Is.GreaterThan(0));
+            Assert.That(navigation, Is.Not.Null);
+            Assert.That(navigation.IsVerticalScrollBarVisible, Is.True);
+            Assert.That(navigation.GetVScrollBar().MaxValue, Is.GreaterThan(0));
         });
 
-        var point = new Point(scroll.Bounds.Center.X, scroll.Bounds.Top + 10);
+        var navigationPosition = navigation.Position;
+        var point = new Point(navigation.Bounds.Center.X, navigation.Bounds.Top + 10);
         context.Update(new GameTime(), new Microsoft.Xna.Framework.Input.MouseState(
             point.X, point.Y, 0,
             Microsoft.Xna.Framework.Input.ButtonState.Released,
@@ -675,8 +674,75 @@ public sealed class CatalogInventoryTest
 
         Assert.Multiple(() =>
         {
-            Assert.That(scroll.VerticalScroll, Is.GreaterThan(0));
-            Assert.That(navigation.Position.Y, Is.LessThan(0));
+            Assert.That(navigation.GetScroll().Y, Is.GreaterThan(0));
+            Assert.That(navigation.Position, Is.EqualTo(navigationPosition));
+        });
+    }
+
+    [Test]
+    public void CatalogNavigationGroupsStoriesBySlashDelimitedCategoryInTree()
+    {
+        var font = CreateTestFont();
+        var stories = new[]
+        {
+            new ComponentStory("Inputs", "Button", string.Empty, () => new Button()),
+            new ComponentStory("Data / Collections", "Tree", string.Empty, () => new Tree()),
+            new ComponentStory("Data / Collections", "ItemList", string.Empty, () => new ItemList()),
+        };
+        var shell = new CatalogShell(stories, font, font) { Size = new Vector2(1280, 720) };
+        using var context = new UIContext { ViewportSize = shell.Size };
+        context.Add(shell);
+        context.Layout();
+        var scope = NameScope.GetNameScope(shell);
+        var navigation = scope.Find<Tree>("Navigation");
+        var root = navigation.GetRoot();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(navigation.HideRoot, Is.True);
+            Assert.That(root.Selectable, Is.False);
+            Assert.That(root.Children.Select(item => item.Text), Is.EqualTo(new[] { "Inputs", "Data" }));
+            Assert.That(root.Children[1].Children.Single().Text, Is.EqualTo("Collections"));
+            Assert.That(root.Children[1].Children.Single().Children.Select(item => item.Text), Is.EqualTo(new[] { "Tree", "ItemList" }));
+            Assert.That(root.Children[1].Children.Single().Children, Has.All.Property(nameof(TreeItem.Metadata)).TypeOf<ComponentStory>());
+        });
+
+        var treeLeaf = root.Children[1].Children.Single().Children[0];
+        navigation.Select(treeLeaf);
+        Assert.That(shell.ActiveStory.Name, Is.EqualTo("Tree"));
+
+        scope.Find<LineEdit>("Search").Text = "ItemList";
+        context.Layout();
+        root = navigation.GetRoot();
+        Assert.Multiple(() =>
+        {
+            Assert.That(root.Children.Select(item => item.Text), Is.EqualTo(new[] { "Data" }));
+            Assert.That(root.Children.Single().Children.Single().Children.Select(item => item.Text), Is.EqualTo(new[] { "ItemList" }));
+        });
+    }
+
+    [Test]
+    public void CatalogWorkspaceFillsAvailableWidthAfterWindowResize()
+    {
+        var font = CreateTestFont();
+        var shell = new CatalogShell(StoryCatalog.Create(null), font, font) { Size = new Vector2(1000, 720) };
+        using var context = new UIContext { ViewportSize = shell.Size };
+        context.Add(shell);
+        context.Layout();
+        var scope = NameScope.GetNameScope(shell);
+        var workspace = scope.Find<PanelContainer>("NavigationPanel").Parent as BoxContainer;
+        var previewPanel = scope.Find<PanelContainer>("PreviewPanel");
+        var initialPreviewWidth = previewPanel.Size.X;
+
+        shell.Size = new Vector2(1280, 720);
+        context.ViewportSize = shell.Size;
+        context.Layout();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workspace.Size.X, Is.EqualTo(shell.Size.X));
+            Assert.That(previewPanel.Size.X, Is.EqualTo(initialPreviewWidth + 280));
+            Assert.That(workspace.Bounds.Right, Is.EqualTo(shell.Bounds.Right));
         });
     }
 

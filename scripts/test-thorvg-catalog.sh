@@ -21,7 +21,7 @@ for runtime in MonoGame FNA; do
         .svgBackendNativeAvailability == "Packaged" and
         .svgBackendLinkMode == "Dynamic" and
         .svgBackendAvailable == true and
-        .themeIconRuntimeSvgCount == 67 and
+        .themeIconRuntimeSvgCount == 79 and
         .themeIconBitmapFallbackCount == 0 and
         .svgRasterEntries > 0 and
         .svgRasterBytes > 0

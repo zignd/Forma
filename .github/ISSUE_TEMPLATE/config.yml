@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/zigrok/Forma/security/advisories/new
+    about: Report suspected vulnerabilities privately.
+  - name: Support routes
+    url: https://github.com/zigrok/Forma/blob/main/SUPPORT.md
+    about: Choose the right route for questions, upstream issues, and unsupported platforms.

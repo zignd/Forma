@@ -34,5 +34,15 @@
       href: runtime-acquisition.md
     - name: Authorized host checklist
       href: authorized-host-checklist.md
+- name: Contributing
+  items:
+    - name: Architecture and validation
+      href: contributor-architecture.md
+    - name: Contribution guide
+      href: https://github.com/zigrok/Forma/blob/main/CONTRIBUTING.md
+    - name: Support
+      href: https://github.com/zigrok/Forma/blob/main/SUPPORT.md
+    - name: Security
+      href: https://github.com/zigrok/Forma/blob/main/SECURITY.md
 - name: API reference
   href: api/toc.yml

@@ -195,6 +195,18 @@ See [docs/runtime-support.md](docs/runtime-support.md) for the graphics, content
 native dependency, trimming, AOT, CI, and manual-gate matrix. See
 [docs/runtime-acquisition.md](docs/runtime-acquisition.md) for pinned distribution ownership.
 
+## Contributing and Support
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) for setup, repository ownership boundaries, focused
+validation, generated assets, and pull-request expectations. Use [SUPPORT.md](SUPPORT.md) to choose
+between bug, documentation, feature, platform, security, and conduct routes.
+
+Security reports use GitHub's private vulnerability-reporting flow described in
+[SECURITY.md](SECURITY.md). Community participation is governed by
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Current compatibility and release changes are recorded in
+[RELEASE_NOTES.md](RELEASE_NOTES.md); Forma-authored code is available under the
+[MIT License](LICENSE).
+
 ## Release and Migration
 
 The `Release` workflow validates the fourteen-package manifest and NativeAOT evidence before its

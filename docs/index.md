@@ -18,8 +18,9 @@ installation path after the approved packages are published to NuGet.org.
 - **Add text or SVG:** choose [dynamic text](dynamic-text.md) or a
   [runtime SVG backend](runtime-svg.md) after the core UI is working.
 - **Find an API:** use the <xref:Forma> reference for public types and members.
-- **Contribute:** follow the repository build and validation commands until the dedicated contributor
-  guide is available.
+- **Contribute:** start with the
+  [contribution guide](https://github.com/zigrok/Forma/blob/main/CONTRIBUTING.md), then use the
+  [architecture map](contributor-architecture.md) to choose focused validation.
 
 ## Choose a runtime
 

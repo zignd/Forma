@@ -1,0 +1,46 @@
+name: Feature request
+description: Propose a focused capability or API change.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the user task or limitation, not only the proposed API.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include a small C# or XAML usage example when the public surface matters.
+    validations:
+      required: true
+  - type: dropdown
+    id: runtime-impact
+    attributes:
+      label: Runtime impact
+      options: [Runtime-neutral, MonoGame-specific, FNA-specific, Native/backend-specific, Unknown]
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and ownership
+      description: Note API/XAML compatibility, resource lifetime, dependencies, native assets, or migration needs.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and plans for the same request.
+          required: true
+        - label: I understand that a proposal is not a release commitment.
+          required: true

@@ -470,9 +470,9 @@ Each curated control entry should include:
 - [ ] Retain Catalog screenshots and add concise captions describing what users can inspect.
 - [x] Create `docs/index.md` with task-oriented navigation and clear experience levels.
 - [ ] Add “choose C# or XAML” and “choose MonoGame or FNA” decision points.
-- [ ] Link support, security, contribution, release notes, license, and compatibility status from the
+- [x] Link support, security, contribution, release notes, license, and compatibility status from the
   repository front door.
-- [ ] Remove stale manually maintained totals unless generated and contractually useful.
+- [x] Remove stale manually maintained totals unless generated and contractually useful.
 - [x] Add a local documentation preview command to `make help` after the site tool is selected.
 
 ### Exit Criteria
@@ -594,19 +594,19 @@ Each curated control entry should include:
 
 ### Tasks
 
-- [ ] Add `CONTRIBUTING.md` covering setup, repository structure, runtime parity, focused/full tests,
+- [x] Add `CONTRIBUTING.md` covering setup, repository structure, runtime parity, focused/full tests,
   XAML formatting, generated assets, documentation, commit expectations, and pull-request scope.
-- [ ] Add a maintainer-reviewed `CODE_OF_CONDUCT.md` and enforcement contact/process.
-- [ ] Add `SECURITY.md` with supported versions, private reporting channel, response expectations, and
+- [x] Add a maintainer-reviewed `CODE_OF_CONDUCT.md` and enforcement contact/process.
+- [x] Add `SECURITY.md` with supported versions, private reporting channel, response expectations, and
   disclosure policy.
-- [ ] Add `SUPPORT.md` distinguishing usage questions, bugs, security reports, runtime upstream
+- [x] Add `SUPPORT.md` distinguishing usage questions, bugs, security reports, runtime upstream
   issues, and unsupported platform requests.
-- [ ] Add bug, feature, documentation, and platform/backend issue forms.
-- [ ] Add a pull-request template with runtime/backend impact, tests, visual evidence, API changes,
+- [x] Add bug, feature, documentation, and platform/backend issue forms.
+- [x] Add a pull-request template with runtime/backend impact, tests, visual evidence, API changes,
   documentation, licensing/provenance, and generated-output checks.
 - [ ] Document good-first-issue and help-wanted labeling criteria.
-- [ ] Document release-note expectations and public API compatibility review.
-- [ ] Add an architecture/contributor map linking code ownership boundaries to focused validation
+- [x] Document release-note expectations and public API compatibility review.
+- [x] Add an architecture/contributor map linking code ownership boundaries to focused validation
   commands.
 
 ### Exit Criteria

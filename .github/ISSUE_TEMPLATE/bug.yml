@@ -1,0 +1,76 @@
+name: Bug report
+description: Report a reproducible Forma defect.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not report security vulnerabilities here. Use the private security route instead.
+  - type: input
+    id: version
+    attributes:
+      label: Forma version or commit
+      placeholder: 0.1.0-alpha.1 or commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Runtime peer
+      options: [MonoGame, FNA, Both, Unknown]
+    validations:
+      required: true
+  - type: input
+    id: runtime-package
+    attributes:
+      label: Runtime package and version
+      placeholder: MonoGame.Framework.DesktopGL 3.8.5
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, RID, .NET SDK, graphics backend, and build configuration.
+      placeholder: macOS 15, osx-arm64, .NET SDK 10.0.103, DesktopGL, Debug
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide a repository/link or the smallest code and exact commands needed to reproduce.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and logs
+      description: Include exception text and XAML diagnostic codes. Remove secrets and personal data.
+    validations:
+      required: true
+  - type: textarea
+    id: catalog
+    attributes:
+      label: Catalog comparison
+      description: Does the equivalent Catalog story reproduce it? Include the category/story name.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Visual evidence
+      description: Attach screenshots or rendering artifacts when relevant and permitted.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I used one consistent MonoGame or FNA package family.
+          required: true
+        - label: I checked the runtime support matrix and searched existing issues.
+          required: true

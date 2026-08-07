@@ -1,0 +1,45 @@
+name: Platform or backend proposal
+description: Propose support for a runtime, platform, RID, graphics backend, or native integration.
+title: "[Platform]: "
+labels: [platform]
+body:
+  - type: input
+    id: target
+    attributes:
+      label: Target
+      placeholder: Runtime, OS/platform, architecture/RID, and graphics backend
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: User need and deployment model
+    validations:
+      required: true
+  - type: textarea
+    id: access
+    attributes:
+      label: Validation access and owner
+      description: Who can build, run, capture evidence, and maintain this target?
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: SDK, native, licensing, and redistribution constraints
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Existing evidence
+      description: Link prototypes, logs, upstream support statements, or package/native asset inventories.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I reviewed the current runtime support matrix and authorized-host checklist.
+          required: true
+        - label: I am not treating source/static integration as platform qualification.
+          required: true

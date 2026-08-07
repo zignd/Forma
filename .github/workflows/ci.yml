@@ -74,15 +74,15 @@ jobs:
         run: |
           xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' vulkaninfo --summary
           if [[ "$FORMA_RUNTIME" == "FNA" ]]; then
-            env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES FormaRuntime=FNA xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
+            env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES SvgBackend=Skia FormaRuntime=FNA xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
             env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=FNA --no-build --nologo
-            env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=FNA
+            env -u VK_ICD_FILENAMES -u VK_DRIVER_FILES xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=FNA -p:SvgBackend=Skia
           else
-            FormaRuntime=MonoGame xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
+            SvgBackend=Skia FormaRuntime=MonoGame xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
             xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet test tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime=MonoGame --no-build --nologo
-            xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame
-            MonoGamePlatform=DesktopVK FormaNativeRuntime=true CatalogBackend=Vulkan xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
-            MonoGamePlatform=DesktopVK FormaNativeRuntime=true xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=DesktopVK -p:FormaNativeRuntime=true
+            xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame -p:SvgBackend=Skia
+            SvgBackend=Skia MonoGamePlatform=DesktopVK FormaNativeRuntime=true CatalogBackend=Vulkan xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-smoke.sh
+            MonoGamePlatform=DesktopVK FormaNativeRuntime=true xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime=MonoGame -p:MonoGamePlatform=DesktopVK -p:FormaNativeRuntime=true -p:SvgBackend=Skia
           fi
       - name: Validate Linux FNA video
         if: runner.os == 'Linux' && matrix.runtime == 'FNA'
@@ -102,7 +102,7 @@ jobs:
           SDL_VIDEODRIVER: x11
           FormaCatalogViewportWidth: 800
           FormaCatalogViewportHeight: 480
-        run: xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-render-parity.sh
+        run: SvgBackend=Skia xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-render-parity.sh
       - name: Validate Windows selected runtime
         if: runner.os == 'Windows'
         shell: bash
@@ -136,8 +136,8 @@ jobs:
           FormaCatalogViewportWidth: 1440
           FormaCatalogViewportHeight: 900
         run: |
-          FormaRuntime="$FORMA_RUNTIME" bash scripts/check-catalog-smoke.sh
-          dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME"
+          SvgBackend=Skia FormaRuntime="$FORMA_RUNTIME" bash scripts/check-catalog-smoke.sh
+          dotnet run --project tests/Forma.SvgRenderSmoke/Forma.SvgRenderSmoke.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" -p:SvgBackend=Skia
       - name: Validate macOS render-test isolation
         if: runner.os == 'macOS'
         shell: bash
@@ -152,7 +152,7 @@ jobs:
         env:
           FormaCatalogViewportWidth: 1024
           FormaCatalogViewportHeight: 646
-        run: bash scripts/check-catalog-render-parity.sh
+        run: SvgBackend=Skia bash scripts/check-catalog-render-parity.sh
       - name: Install macOS Metal build prerequisites
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
         uses: humbletim/install-vulkan-sdk@v1.2
@@ -196,7 +196,7 @@ jobs:
           FormaNativeRuntime: true
           CatalogBackend: Metal
           NativeRuntimePath: ${{ github.workspace }}/.native/MonoGame/Artifacts/native/mgruntime/desktopmetal/macosx/Release/libmgruntime.dylib
-        run: bash scripts/check-catalog-smoke.sh
+        run: SvgBackend=Skia bash scripts/check-catalog-smoke.sh
 
   parity:
     runs-on: ubuntu-latest

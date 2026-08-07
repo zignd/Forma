@@ -6,13 +6,17 @@ set -euo pipefail
 # are required. Set `FormaRuntime=FNA` for the FNA host; MonoGame is the default.
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-baseline="$repository_root/samples/Forma.Catalog/catalog-metrics-baseline.json"
 stage_directory="$(mktemp -d "${TMPDIR:-/tmp}/forma-catalog.XXXXXX")"
 actual="$stage_directory/catalog.json"
 stable_baseline="$stage_directory/baseline-stable.json"
 stable_actual="$stage_directory/actual-stable.json"
 runtime="${FormaRuntime:-MonoGame}"
 svg_backend="${SvgBackend:-ThorVG}"
+case "$svg_backend" in
+  ThorVG) baseline="$repository_root/samples/Forma.Catalog/catalog-metrics-baseline.json" ;;
+  Skia) baseline="$repository_root/samples/Forma.Catalog/catalog-metrics-skia-baseline.json" ;;
+  *) printf 'SvgBackend must be either ThorVG or Skia.\n' >&2; exit 2 ;;
+esac
 catalog_options=()
 if [[ -n "${FormaCatalogViewportWidth:-}" && -n "${FormaCatalogViewportHeight:-}" ]]; then
   catalog_options+=(--viewport-width "$FormaCatalogViewportWidth" --viewport-height "$FormaCatalogViewportHeight")

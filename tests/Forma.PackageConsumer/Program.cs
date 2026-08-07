@@ -261,11 +261,11 @@ if (!string.IsNullOrWhiteSpace(diagnosticsPath)) File.WriteAllText(diagnosticsPa
 if (context.Theme.FontFamily is not null) return 1;
 #endif
 #if FORMA_SVG
-var svgHealth = SvgBackendDefaults.Verify();
+var svgHealth = SvgSkiaBackendDefaults.Verify();
 if (!svgHealth.IsAvailable || svgHealth.Name != "Svg.Skia" || !svgHealth.Version.StartsWith("5.2.0", StringComparison.Ordinal))
     throw new InvalidOperationException($"SVG backend health did not match the packaged contract: {svgHealth.Diagnostic}");
-if (typeof(SvgBackendDefaults).Assembly.GetName().Name != "Forma.Svg")
-    throw new InvalidOperationException("SVG backend was not loaded from Forma.Svg.");
+if (typeof(SvgSkiaBackendDefaults).Assembly.GetName().Name != "Forma.Svg.Skia")
+    throw new InvalidOperationException("SVG backend was not loaded from Forma.Svg.Skia.");
 var svgOutputDirectory = Path.GetFullPath(AppContext.BaseDirectory);
 var svgModules = NativeModuleInspector.GetLoadedModulePaths()
     .Select(Path.GetFullPath)
@@ -276,7 +276,7 @@ var skiaModuleName = OperatingSystem.IsWindows() ? "libSkiaSharp.dll" : Operatin
 if (svgModules.Count(fileName => string.Equals(fileName, skiaModuleName, StringComparison.OrdinalIgnoreCase)) != 1)
     throw new InvalidOperationException($"Expected one packaged SkiaSharp module; loaded: {string.Join(", ", svgModules)}");
 #else
-if (SvgRuntime.Health.IsRegistered || !SvgRuntime.Health.Diagnostic.Contains("runtime-matched Forma.Svg package", StringComparison.Ordinal))
+if (SvgRuntime.Health.IsRegistered || !SvgRuntime.Health.Diagnostic.Contains("runtime-matched Forma SVG backend package", StringComparison.Ordinal))
     throw new InvalidOperationException("Core-only consumer did not report the actionable missing SVG backend setup diagnostic.");
 #endif
 #if !FORMA_CORE_ONLY

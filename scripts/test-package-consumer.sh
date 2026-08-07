@@ -132,22 +132,22 @@ inspect_dynamic_package FNA MonoGame
 inspect_svg_package() {
   local runtime="$1"
   local opposite_runtime="$2"
-  local package_id="Forma.Svg.$runtime"
+  local package_id="Forma.Svg.Skia.$runtime"
   local package_path="$package_root/$runtime/$package_id.$version.nupkg"
   local symbol_path="$package_root/$runtime/$package_id.$version.snupkg"
   local entries
   local manifest
 
   entries="$(unzip -Z1 "$package_path")"
-  for required_entry in lib/net10.0/Forma.Svg.dll lib/net10.0/Forma.Svg.xml "buildTransitive/$package_id.targets" buildTransitive/Forma.Svg.PackageInitializer.cs.txt LICENSE NOTICE.md README.md THIRD-PARTY-NOTICES.md; do
+  for required_entry in lib/net10.0/Forma.Svg.Skia.dll lib/net10.0/Forma.Svg.Skia.xml "buildTransitive/$package_id.targets" buildTransitive/Forma.Svg.PackageInitializer.cs.txt LICENSE NOTICE.md README.md THIRD-PARTY-NOTICES.md; do
     grep -Fxq "$required_entry" <<<"$entries"
   done
-  assembly_bytes="$(unzip -p "$package_path" lib/net10.0/Forma.Svg.dll | wc -c | tr -d ' ')"
+  assembly_bytes="$(unzip -p "$package_path" lib/net10.0/Forma.Svg.Skia.dll | wc -c | tr -d ' ')"
   if (( assembly_bytes > 256 * 1024 )); then
     printf '%s exceeds the 256 KiB SVG managed assembly budget (%s bytes).\n' "$package_id" "$assembly_bytes" >&2
     exit 1
   fi
-  unzip -p "$symbol_path" lib/net10.0/Forma.Svg.pdb |
+  unzip -p "$symbol_path" lib/net10.0/Forma.Svg.Skia.pdb |
     strings |
     grep -F "raw.githubusercontent.com/zignd/Forma/$commit_sha" >/dev/null
   manifest="$(unzip -p "$package_path" "$package_id.nuspec")"
@@ -246,7 +246,7 @@ for runtime in MonoGame FNA; do
     -p:FormaRuntime="$runtime" \
     -p:PackageOutputPath="$repro_root/$runtime" \
     --nologo
-  for package_id in "Forma.$runtime" "Forma.DynamicText.$runtime" "Forma.Media.$runtime" "Forma.Svg.$runtime"; do
+  for package_id in "Forma.$runtime" "Forma.DynamicText.$runtime" "Forma.Media.$runtime" "Forma.Svg.Skia.$runtime"; do
     for extension in nupkg snupkg; do
       printf 'Comparing deterministic contents: %s.%s\n' "$package_id" "$extension"
       diff \

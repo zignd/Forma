@@ -21,7 +21,7 @@ The hosts use the pinned public runtime packages by default. Set `MonoGameProjec
 graph. For example, the Retina-enabled MonoGame fork can be used directly from a local clone:
 
 ```sh
-git clone --recurse-submodules --branch develop https://github.com/zignd/MonoGame.git ../MonoGame
+git clone --branch develop https://github.com/zigrok/MonoGame.git ../MonoGame
 MONOGAME_PROJECT="$(pwd)/../MonoGame/MonoGame.Framework/MonoGame.Framework.DesktopGL.csproj"
 dotnet run --project samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj \
   -p:FormaRuntime=MonoGame -p:MonoGameProjectPath="$MONOGAME_PROJECT"

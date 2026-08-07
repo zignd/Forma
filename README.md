@@ -145,7 +145,7 @@ To run the catalog against the opt-in Retina support in the MonoGame fork instea
 package:
 
 ```sh
-git clone --recurse-submodules --branch develop https://github.com/zignd/MonoGame.git ../MonoGame
+git clone --branch develop https://github.com/zigrok/MonoGame.git ../MonoGame
 MONOGAME_PROJECT="$(pwd)/../MonoGame/MonoGame.Framework/MonoGame.Framework.DesktopGL.csproj"
 dotnet run --project samples/Forma.Catalog.MonoGame/Forma.Catalog.MonoGame.csproj \
   -p:FormaRuntime=MonoGame -p:MonoGameProjectPath="$MONOGAME_PROJECT"

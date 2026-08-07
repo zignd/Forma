@@ -184,10 +184,18 @@ jobs:
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
         uses: actions/checkout@v7
         with:
-          repository: zignd/MonoGame
+          repository: zigrok/MonoGame
           ref: 99716f1b02ba9db2130c754606d6b0303d039d15
           path: .native/MonoGame
-          submodules: recursive
+          submodules: false
+      - name: Initialize MonoGame Metal runtime submodules
+        if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
+        working-directory: .native/MonoGame
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git config submodule.external/MonoGame.Templates.url https://github.com/MonoGame/MonoGame.Templates.git
+          git submodule update --init --recursive
       - name: Build MonoGame Metal runtime
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
         working-directory: .native/MonoGame

@@ -35,7 +35,8 @@ for image in "$screenshot" "$xaml_screenshot"; do
   }
 done
 
-release_output="$repository_root/samples/Forma.QuickStart.$runtime/bin/$runtime/Release/net10.0"
+target_framework="$(dotnet msbuild "$project" -getProperty:TargetFramework -p:FormaRuntime="$runtime" --nologo)"
+release_output="$repository_root/samples/Forma.QuickStart.$runtime/bin/$runtime/Release/$target_framework"
 for forbidden in Forma.Xaml.HotReload.dll Forma.Xaml.Compiler.dll XamlX.dll XamlX.IL.Cecil.dll; do
   [[ ! -e "$release_output/$forbidden" ]] || {
     printf 'Release quick start contains development assembly: %s\n' "$forbidden" >&2

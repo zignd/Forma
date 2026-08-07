@@ -5,7 +5,7 @@
     <RootNamespace>Forma.QuickStart</RootNamespace>
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
-    <FormaXamlBuildAssembly>$(MSBuildThisFileDirectory)../../src/Forma.Xaml.Build/bin/$(FormaRuntime)/$(Configuration)/net10.0/Forma.Xaml.Build.dll</FormaXamlBuildAssembly>
+    <FormaXamlBuildAssembly>$(MSBuildThisFileDirectory)../../src/Forma.Xaml.Build/bin/$(FormaRuntime)/$(Configuration)/$(TargetFramework)/Forma.Xaml.Build.dll</FormaXamlBuildAssembly>
     <FormaXamlHotReload Condition="'$(FormaXamlHotReload)' == '' And '$(Configuration)' == 'Debug'">true</FormaXamlHotReload>
     <FormaXamlHotReload Condition="'$(FormaXamlHotReload)' == ''">false</FormaXamlHotReload>
     <DefineConstants Condition="'$(FormaXamlHotReload)' == 'true'">$(DefineConstants);FORMA_XAML_HOT_RELOAD</DefineConstants>

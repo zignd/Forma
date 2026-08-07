@@ -59,7 +59,7 @@ console-ready architecture, not console-qualified support. Qualification require
 evidence as defined in [the migration/support guide](svg-backend-migration.md).
 
 The complete hosted SVG matrix passed in
-[CI run 31110056321](https://github.com/zignd/Forma/actions/runs/31110056321) at exact implementation
+[CI run 31110056321](https://github.com/zigrok/Forma/actions/runs/31110056321) at exact implementation
 snapshot `cd94582436e3ad8065262d8f5c9507ea03d98abe`. It executed the Windows Direct3D, Linux
 OpenGL/Vulkan, and macOS OpenGL/Metal lifecycle gates for their selected peers. Package consumers in
 the same run verified official NuGet provenance, RID-native selection, and the absence of Svg.Skia

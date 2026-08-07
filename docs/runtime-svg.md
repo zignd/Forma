@@ -177,7 +177,7 @@ The normative feature list, fixtures, and cross-backend tolerances are documente
 | Linux Vulkan | MonoGame Native | `scripts/check-runtime-svg-linux.sh` on native x64 |
 | Windows Direct3D | MonoGame and FNA | Windows CI focused lifecycle smoke |
 
-The full matrix passed in [CI run 31110056321](https://github.com/zignd/Forma/actions/runs/31110056321)
+The full matrix passed in [CI run 31110056321](https://github.com/zigrok/Forma/actions/runs/31110056321)
 at implementation snapshot `cd94582436e3ad8065262d8f5c9507ea03d98abe`. The same run validated
 official NuGet provenance, package consumers, runtime parity, trim-only publishing, and NativeAOT.
 

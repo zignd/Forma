@@ -84,10 +84,10 @@ inspect_package() {
   fi
 
   unzip -p "$package_path" "$package_id.nuspec" |
-    grep -Fq "repository type=\"git\" url=\"https://github.com/zignd/Forma\" commit=\"$commit_sha\""
+    grep -Fq "repository type=\"git\" url=\"https://github.com/zigrok/Forma\" commit=\"$commit_sha\""
   unzip -p "$symbol_path" "lib/net10.0/$assembly_name.pdb" |
     strings |
-    grep -F "raw.githubusercontent.com/zignd/Forma/$commit_sha" >/dev/null
+      LC_ALL=C grep -F "raw.githubusercontent.com/zigrok/Forma/$commit_sha" >/dev/null
 }
 
 inspect_package MonoGame Forma.MonoGame Forma Forma.MonoGame.targets
@@ -115,7 +115,7 @@ inspect_dynamic_package() {
   fi
   unzip -p "$symbol_path" lib/net10.0/Forma.DynamicText.pdb |
     strings |
-    grep -F "raw.githubusercontent.com/zignd/Forma/$commit_sha" >/dev/null
+      LC_ALL=C grep -F "raw.githubusercontent.com/zigrok/Forma/$commit_sha" >/dev/null
   manifest="$(unzip -p "$package_path" "$package_id.nuspec")"
   for dependency in "Forma.$runtime" FreeTypeSharp HarfBuzzSharp HarfBuzzSharp.NativeAssets.Linux; do
     grep -Fq "dependency id=\"$dependency\"" <<<"$manifest"
@@ -149,7 +149,7 @@ inspect_svg_package() {
   fi
   unzip -p "$symbol_path" lib/net10.0/Forma.Svg.Skia.pdb |
     strings |
-    grep -F "raw.githubusercontent.com/zignd/Forma/$commit_sha" >/dev/null
+      LC_ALL=C grep -F "raw.githubusercontent.com/zigrok/Forma/$commit_sha" >/dev/null
   manifest="$(unzip -p "$package_path" "$package_id.nuspec")"
   for dependency in "Forma.$runtime" Svg.Skia SkiaSharp.NativeAssets.Linux.NoDependencies; do
     grep -Fq "dependency id=\"$dependency\"" <<<"$manifest"

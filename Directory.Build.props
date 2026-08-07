@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    <RepositoryUrl>https://github.com/zignd/Forma</RepositoryUrl>
+    <RepositoryUrl>https://github.com/zigrok/Forma</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Igor Hipólito Vieira</Authors>
     <Copyright>Copyright (c) 2026 Igor Hipólito Vieira</Copyright>

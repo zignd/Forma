@@ -659,7 +659,7 @@ single-assignment because the spike found no realistic replacement requirement.
 ### Final Validation Evidence
 
 - Exact implementation snapshot: `cd94582436e3ad8065262d8f5c9507ea03d98abe`.
-- GitHub Actions run: [CI 31110056321](https://github.com/zignd/Forma/actions/runs/31110056321),
+- GitHub Actions run: [CI 31110056321](https://github.com/zigrok/Forma/actions/runs/31110056321),
   successful on 2026-08-06.
 - Native execution passed for MonoGame OpenGL, WindowsDX, Native Vulkan, and Native Metal plus FNA
   OpenGL, D3D11, and Metal across hosted Linux x64, Windows x64, and macOS arm64 cells.

@@ -1,0 +1,20 @@
+<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.QuickStart"
+    x:Class="Forma.QuickStart.FirstView"
+    x:DataType="local:FirstViewModel"
+    x:Name="QuickStartRoot"
+    Separation="12">
+    <Label Text="Your first Forma XAML UI" />
+    <LineEdit
+        x:Name="NameInput"
+        Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+        PlaceholderText="Your name"
+        CustomMinimumSize="320,44" />
+    <Button
+        x:Name="GreetButton"
+        Text="Greet"
+        CustomMinimumSize="120,44" />
+    <Label Text="{Binding Greeting}" />
+</BoxContainer>

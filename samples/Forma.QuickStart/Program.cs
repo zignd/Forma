@@ -2,6 +2,7 @@ using Forma.QuickStart;
 
 var maximumFrames = 0;
 string? screenshotPath = null;
+var useXaml = false;
 for (var index = 0; index < args.Length; index++)
 {
     switch (args[index])
@@ -12,6 +13,9 @@ for (var index = 0; index < args.Length; index++)
         case "--screenshot" when index + 1 < args.Length:
             screenshotPath = args[++index];
             break;
+        case "--xaml":
+            useXaml = true;
+            break;
         default:
             throw new ArgumentException($"Unknown or invalid argument: {args[index]}");
     }
@@ -20,5 +24,5 @@ for (var index = 0; index < args.Length; index++)
 #if FORMA_QUICKSTART_FNA
 Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
 #endif
-using var game = new QuickStartGame(maximumFrames, screenshotPath);
+using var game = new QuickStartGame(maximumFrames, screenshotPath, useXaml);
 game.Run();

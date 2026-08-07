@@ -5,6 +5,10 @@
     <RootNamespace>Forma.QuickStart</RootNamespace>
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
+    <FormaXamlBuildAssembly>$(MSBuildThisFileDirectory)../../src/Forma.Xaml.Build/bin/$(FormaRuntime)/$(Configuration)/net10.0/Forma.Xaml.Build.dll</FormaXamlBuildAssembly>
+    <FormaXamlHotReload Condition="'$(FormaXamlHotReload)' == '' And '$(Configuration)' == 'Debug'">true</FormaXamlHotReload>
+    <FormaXamlHotReload Condition="'$(FormaXamlHotReload)' == ''">false</FormaXamlHotReload>
+    <DefineConstants Condition="'$(FormaXamlHotReload)' == 'true'">$(DefineConstants);FORMA_XAML_HOT_RELOAD</DefineConstants>
     <DefineConstants Condition="'$(FormaRuntime)' == 'FNA'">$(DefineConstants);FORMA_QUICKSTART_FNA</DefineConstants>
   </PropertyGroup>
 
@@ -15,13 +19,19 @@
     <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FormaRuntime)' == 'FNA' and '$(FnaProjectPath)' != ''" />
     <ProjectReference Include="../../src/Forma/Forma.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
     <ProjectReference Include="../../src/Forma.DynamicText/Forma.DynamicText.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" />
+    <ProjectReference Include="../../src/Forma.Xaml.Build/Forma.Xaml.Build.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../src/Forma.Xaml.HotReload/Forma.Xaml.HotReload.csproj" AdditionalProperties="FormaRuntime=$(FormaRuntime)" Condition="'$(FormaXamlHotReload)' == 'true'" />
+    <AssemblyMetadata Include="FormaQuickStartXamlRoot" Value="$(MSBuildProjectDirectory)" Condition="'$(FormaXamlHotReload)' == 'true'" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Program.cs" />
     <Compile Include="../../docs/examples/csharp-first-ui.cs" Link="QuickStartView.cs" />
+    <Compile Include="../../docs/examples/xaml-first-ui.cs" Link="FirstView.cs" />
     <None Include="../../tests/Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../tests/Assets/Fonts/LICENSE.Inter.txt" Link="Fonts/LICENSE.Inter.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Import Project="../../src/Forma.Xaml.Build/buildTransitive/Forma.Xaml.Build.targets" />
 
 </Project>

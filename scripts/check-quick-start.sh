@@ -14,14 +14,38 @@ esac
 
 export NUGET_PACKAGES="$stage_directory/packages"
 screenshot="$stage_directory/quick-start.png"
-dotnet restore "$project" -p:FormaRuntime="$runtime" --nologo
+xaml_screenshot="$stage_directory/xaml-quick-start.png"
+rm -rf \
+  "$repository_root/samples/Forma.QuickStart/bin" \
+  "$repository_root/samples/Forma.QuickStart/obj" \
+  "$repository_root/samples/Forma.QuickStart.$runtime/bin" \
+  "$repository_root/samples/Forma.QuickStart.$runtime/obj"
+dotnet restore "$project" -p:FormaRuntime="$runtime" -p:Configuration=Release --nologo
 dotnet build "$project" --configuration Release -p:FormaRuntime="$runtime" --no-restore --nologo
 dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime" --no-build -- \
   --frames 3 --screenshot "$screenshot"
+dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime" --no-build -- \
+  --xaml --frames 3 --screenshot "$xaml_screenshot"
 
-signature="$(od -An -tx1 -N8 "$screenshot" | tr -d ' \n')"
-[[ "$signature" == "89504e470d0a1a0a" ]] || {
-  printf 'Quick-start screenshot is not a valid PNG: %s\n' "$screenshot" >&2
-  exit 1
-}
-printf 'Quick start passed for %s from an empty package cache.\n' "$runtime"
+for image in "$screenshot" "$xaml_screenshot"; do
+  signature="$(od -An -tx1 -N8 "$image" | tr -d ' \n')"
+  [[ "$signature" == "89504e470d0a1a0a" ]] || {
+    printf 'Quick-start screenshot is not a valid PNG: %s\n' "$image" >&2
+    exit 1
+  }
+done
+
+release_output="$repository_root/samples/Forma.QuickStart.$runtime/bin/$runtime/Release/net10.0"
+for forbidden in Forma.Xaml.HotReload.dll Forma.Xaml.Compiler.dll XamlX.dll XamlX.IL.Cecil.dll; do
+  [[ ! -e "$release_output/$forbidden" ]] || {
+    printf 'Release quick start contains development assembly: %s\n' "$forbidden" >&2
+    exit 1
+  }
+done
+
+dotnet restore "$project" -p:FormaRuntime="$runtime" -p:Configuration=Debug --nologo
+dotnet build "$project" --configuration Debug -p:FormaRuntime="$runtime" --no-restore --nologo
+dotnet run --project "$project" --configuration Debug -p:FormaRuntime="$runtime" --no-build -- \
+  --xaml --frames 3
+
+printf 'C# and XAML quick starts passed for %s from an empty package cache.\n' "$runtime"

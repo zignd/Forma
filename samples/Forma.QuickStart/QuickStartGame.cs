@@ -1,5 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+#if FORMA_XAML_HOT_RELOAD
+using System.Reflection;
+using Forma.Xaml.HotReload;
+#endif
 
 namespace Forma.QuickStart;
 
@@ -9,14 +13,20 @@ public sealed class QuickStartGame : Game
     private readonly UIContext _ui;
     private readonly int _maximumFrames;
     private readonly string? _screenshotPath;
-    private VBoxContainer? _root;
+    private readonly bool _useXaml;
+    private Control? _root;
     private UIFontFace? _fontFace;
     private int _renderedFrames;
+#if FORMA_XAML_HOT_RELOAD
+    private FormaXamlHotReloadService? _xamlHotReload;
+    private IDisposable? _xamlHotReloadRegistration;
+#endif
 
-    public QuickStartGame(int maximumFrames = 0, string? screenshotPath = null)
+    public QuickStartGame(int maximumFrames = 0, string? screenshotPath = null, bool useXaml = false)
     {
         _maximumFrames = maximumFrames;
         _screenshotPath = screenshotPath;
+        _useXaml = useXaml;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 800,
@@ -40,8 +50,11 @@ public sealed class QuickStartGame : Game
         _ui.Theme.FontFamily = new UIFontFamily(new[] { font });
         _ui.TooltipUIFont = font;
 
-        _root = QuickStartView.Create();
+        _root = _useXaml ? new FirstView() : QuickStartView.Create();
         _ui.Add(_root);
+    #if FORMA_XAML_HOT_RELOAD
+        if (_useXaml) StartXamlHotReload();
+    #endif
 
         base.LoadContent();
     }
@@ -83,8 +96,37 @@ public sealed class QuickStartGame : Game
         screenshot.SaveAsPng(stream, viewport.Width, viewport.Height);
     }
 
+#if FORMA_XAML_HOT_RELOAD
+    private void StartXamlHotReload()
+    {
+        var sourceRoot = typeof(QuickStartGame).Assembly
+            .GetCustomAttributes<AssemblyMetadataAttribute>()
+            .Single(metadata => metadata.Key == "FormaQuickStartXamlRoot")
+            .Value ?? throw new InvalidOperationException("Debug XAML source metadata is empty.");
+        _xamlHotReload = new FormaXamlHotReloadService(_ui, sourceRoot);
+        _xamlHotReloadRegistration = _xamlHotReload.Register<Control>(
+            "FirstView.xaml",
+            () => _root ?? throw new InvalidOperationException("The XAML root is not loaded."),
+            (oldRoot, replacement) =>
+            {
+                if (replacement is not BoxContainer root)
+                    throw new InvalidOperationException("FirstView must have a BoxContainer root.");
+                _ui.Remove(oldRoot);
+                _root = root;
+                _ui.Add(root);
+            });
+    }
+#endif
+
     protected override void Dispose(bool disposing)
     {
+#if FORMA_XAML_HOT_RELOAD
+        if (disposing)
+        {
+            _xamlHotReloadRegistration?.Dispose();
+            _xamlHotReload?.Dispose();
+        }
+#endif
         base.Dispose(disposing);
         if (disposing) _fontFace?.Dispose();
     }

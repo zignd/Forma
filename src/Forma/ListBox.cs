@@ -40,6 +40,7 @@ namespace Forma
         public object Item { get; }
     }
 
+    /// <summary>Hosts one selectable list item and exposes its selected and current interaction states.</summary>
     public class ListBoxItem : ContentControl, IRecyclableItemContainer
     {
         private bool _isSelected;
@@ -85,6 +86,7 @@ namespace Forma
         void IRecyclableItemContainer.OnReused(object item) { }
     }
 
+    /// <summary>Presents a scrollable item collection with single or multiple selection, keyboard navigation, and incremental search.</summary>
     [TemplatePart(ScrollPresenterPartName, typeof(ScrollPresenter))]
     [TemplatePart(ItemsPresenterPartName, typeof(ItemsPresenter))]
     public class ListBox : ItemsControl, IScrollViewportOwner

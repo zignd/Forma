@@ -1668,6 +1668,7 @@ namespace Forma
         private StrokeStyle GetStrokeStyle() => StrokeStyle ??= new StrokeStyle();
     }
 
+    /// <summary>Draws a fillable and strokeable rectangle with optional uniform or per-corner rounding.</summary>
     public sealed class RectangleShape : Shape
     {
         public float RadiusX { get; set; }
@@ -1676,11 +1677,13 @@ namespace Forma
         protected override DrawingPath CreatePath() => GeometryPaths.Rectangle(Size, CornerRadius == default ? new CornerRadius(MathF.Max(RadiusX, RadiusY)) : CornerRadius);
     }
 
+    /// <summary>Draws a fillable and strokeable ellipse fitted to its bounds.</summary>
     public sealed class EllipseShape : Shape
     {
         protected override DrawingPath CreatePath() => GeometryPaths.Ellipse(Size);
     }
 
+    /// <summary>Draws a stroked line segment between configurable local endpoints.</summary>
     public sealed class LineShape : Shape
     {
         public Vector2 StartPoint { get; set; }
@@ -1689,6 +1692,7 @@ namespace Forma
         protected override DrawingPath CreatePath() => new DrawingPath().MoveTo(StartPoint).LineTo(EndPoint);
     }
 
+    /// <summary>Draws an open path that connects a sequence of local points.</summary>
     public class PolylineShape : Shape
     {
         private IReadOnlyList<Vector2> _points = Array.Empty<Vector2>();
@@ -1704,6 +1708,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Draws a closed polygonal path through a sequence of local points.</summary>
     public sealed class PolygonShape : PolylineShape
     {
         protected override DrawingPath CreatePath()
@@ -1714,6 +1719,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Draws fill and stroke geometry supplied by a reusable <see cref="Geometry"/> object.</summary>
     public sealed class PathShape : Shape
     {
         public Geometry Data { get; set; }

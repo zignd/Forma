@@ -447,6 +447,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Presents one row value for a column and tracks its selected, current, and selectable states.</summary>
     public class DataGridCell : ContentControl
     {
         private readonly List<IDisposable> _attachments = new List<IDisposable>();
@@ -512,6 +513,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Presents a column heading and activates supported column sorting when clicked.</summary>
     public class DataGridColumnHeader : ContentControl
     {
         private DataGridSortDirection? _sortDirection;
@@ -543,6 +545,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Builds a row of column-aligned cells and tracks hierarchical expansion state.</summary>
     public class DataGridRow : ListBoxItem
     {
         private readonly List<DataGridCell> _cells = new List<DataGridCell>();
@@ -626,6 +629,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Displays tabular data with virtualized rows, configurable columns, sorting, filtering, and row or cell selection.</summary>
     [TemplatePart(ScrollPresenterPartName, typeof(ScrollPresenter))]
     [TemplatePart(ItemsPresenterPartName, typeof(ItemsPresenter))]
     [TemplatePart(ColumnHeadersPartName, typeof(GridPanel))]

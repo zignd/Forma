@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Forma
 {
+    /// <summary>Draws a themed panel surface with configurable fallback background and border colors.</summary>
     public class Panel : Control
     {
         public Color? BackgroundColor { get; set; }
@@ -76,6 +77,7 @@ namespace Forma
         DoNotSkipSingleLine = 128,
     }
 
+    /// <summary>Displays shaped text with alignment, wrapping, trimming, casing, and visible-character controls.</summary>
     public class Label : Control
     {
         private static readonly TextLayoutEngine DynamicLayoutEngine = new TextLayoutEngine();
@@ -774,6 +776,7 @@ namespace Forma
         Release,
     }
 
+    /// <summary>Provides pointer, keyboard, shortcut, toggle, and button-group activation behavior for button controls.</summary>
     public class BaseButton : ContentControl
     {
         public override AccessibilityRole AccessibilityRole => AccessibilityRole.Button;
@@ -1121,8 +1124,10 @@ namespace Forma
         public event Action<ButtonGroup, BaseButton> Pressed;
     }
 
+    /// <summary>Presents clickable text, icon, or custom content using the standard button appearance.</summary>
     public sealed class Button : BaseButton { }
 
+    /// <summary>Toggles a persistent checked state and displays a check-box or radio-group state icon.</summary>
     public class CheckBox : BaseButton
     {
         public override AccessibilityRole AccessibilityRole => AccessibilityRole.CheckBox;
@@ -1232,6 +1237,7 @@ namespace Forma
 
     public enum SliderTickPosition { BottomRight, TopLeft, Both, Center }
 
+    /// <summary>Adjusts a numeric range by dragging a thumb or using the keyboard or mouse wheel.</summary>
     public class Slider : Range
     {
         public override AccessibilityRole AccessibilityRole => AccessibilityRole.Slider;
@@ -1357,11 +1363,14 @@ namespace Forma
             }
         }
     }
+    /// <summary>Adjusts a numeric range along a horizontal track, mirroring direction under RTL layout.</summary>
     public sealed class HSlider : Slider { public HSlider() : base(Orientation.Horizontal) { } }
+    /// <summary>Adjusts a numeric range along a vertical track with larger values toward the top.</summary>
     public sealed class VSlider : Slider { public VSlider() : base(Orientation.Vertical) { } }
 
     public enum ProgressBarFillMode { BeginToEnd, EndToBegin, TopToBottom, BottomToTop }
 
+    /// <summary>Visualizes determinate or animated indeterminate progress with directional fill and optional percentage text.</summary>
     public sealed class ProgressBar : Range
     {
         public override AccessibilityRole AccessibilityRole => AccessibilityRole.ProgressBar;

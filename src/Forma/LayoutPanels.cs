@@ -134,6 +134,7 @@ namespace Forma
         internal event Action Changed;
     }
 
+    /// <summary>Positions children by attached edge offsets or normalized anchors without imposing sequential layout.</summary>
     public sealed class CanvasPanel : Container, IDisplayScaleLayout
     {
         private sealed class Placement
@@ -227,6 +228,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Overlays children in one shared area and aligns each child independently within it.</summary>
     public sealed class OverlayPanel : Container, IDisplayScaleLayout
     {
         public static HorizontalAlignment GetHorizontalAlignment(Control child) => child?.HorizontalAlignment ?? throw new ArgumentNullException(nameof(child));
@@ -278,6 +280,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Arranges children in a single horizontal or vertical sequence with fixed gaps and cross-axis alignment.</summary>
     public sealed class StackPanel : Container, IDisplayScaleLayout
     {
         private Orientation _orientation = Orientation.Vertical;
@@ -387,6 +390,7 @@ namespace Forma
         };
     }
 
+    /// <summary>Arranges children sequentially and wraps overflowing items onto additional rows or columns.</summary>
     public sealed class WrapPanel : Container, IDisplayScaleLayout
     {
         private Orientation _orientation = Orientation.Horizontal;
@@ -544,6 +548,7 @@ namespace Forma
     public enum FlexAlign { Auto, Start, Center, End, Stretch }
     public enum FlexAlignContent { Start, Center, End, Stretch, SpaceBetween, SpaceAround, SpaceEvenly }
 
+    /// <summary>Arranges ordered, growable, and shrinkable children in flex lines with wrapping, justification, and alignment.</summary>
     public sealed class FlexPanel : Container, IDisplayScaleLayout
     {
         private sealed class Item
@@ -807,6 +812,7 @@ namespace Forma
         private static void ValidateEnum<T>(T value, string parameterName) where T : struct, Enum { if (!Enum.IsDefined(typeof(T), value)) throw new ArgumentOutOfRangeException(parameterName); }
     }
 
+    /// <summary>Arranges children in spanning grid cells resolved from content, pixel, percentage, and star-sized tracks.</summary>
     public sealed class GridPanel : Container, IDisplayScaleLayout
     {
         private sealed class Placement
@@ -1058,6 +1064,7 @@ namespace Forma
         private static void ValidateEnum<T>(T value, string parameterName) where T : struct, Enum { if (!Enum.IsDefined(typeof(T), value)) throw new ArgumentOutOfRangeException(parameterName); }
     }
 
+    /// <summary>Scales one visual child for contained, covered, or stretched drawing with configurable alignment and sampling.</summary>
     public sealed class Viewbox : Container
     {
         private ImageStretch _stretch = ImageStretch.Contain;

@@ -1414,6 +1414,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Adds a configurable cancel action alongside the accept action of an <see cref="AcceptDialog"/>.</summary>
     public class ConfirmationDialog : AcceptDialog
     {
         public string CancelText { get; set; } = "Cancel";

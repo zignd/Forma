@@ -360,6 +360,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Realizes only the visible portion of a linear item sequence while correcting estimated item extents and scroll anchors.</summary>
     public sealed class VirtualizingStackPanel : VirtualizingPanel
     {
         /// <summary>The finite default used when no item estimate is supplied by a theme or application.</summary>
@@ -585,6 +586,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Realizes visible rows of fixed-width cells while adapting column count and estimated row heights to the viewport.</summary>
     public sealed class VirtualizingGridPanel : VirtualizingPanel
     {
         public const float DefaultCellWidth = 100;

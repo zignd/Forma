@@ -49,6 +49,7 @@ namespace Forma
         public static bool operator !=(ScrollMetrics left, ScrollMetrics right) => !left.Equals(right);
     }
 
+    /// <summary>Realizes a content object as a control or data template and aligns the resulting visual.</summary>
     public sealed class ContentPresenter : Control, IDisposable
     {
         private object _content;
@@ -1011,6 +1012,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Instantiates an owner's items panel template and attaches the generated panel for item realization.</summary>
     public sealed class ItemsPresenter : Control, IDisposable
     {
         private IItemsPresenterOwner _owner;
@@ -1156,6 +1158,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Clips and offsets scroll content while reporting viewport, extent, and constrained offset metrics.</summary>
     public sealed class ScrollPresenter : Control, IDisposable
     {
         private IScrollViewportOwner _owner;
@@ -1278,6 +1281,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Measures and draws the editable text surface owned by a <see cref="LineEdit"/>.</summary>
     public sealed class LineEditPresenter : Control
     {
         private LineEdit _owner;
@@ -1621,6 +1625,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Projects a tree's logical child controls and draws its retained hierarchical content.</summary>
     public sealed class TreePresenter : Container, IDisposable
     {
         private Tree _owner;

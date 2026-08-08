@@ -13,6 +13,7 @@
     <PackageReference Include="$(MonoGamePackageId)" Version="$(MonoGameVersion)" Condition="'$(MonoGameProjectPath)' == ''" />
     <ProjectReference Include="$(MonoGameProjectPath)" Condition="'$(MonoGameProjectPath)' != ''" />
     <ProjectReference Include="../Forma.QuickStart/Forma.QuickStart.csproj" AdditionalProperties="FormaRuntime=MonoGame" />
+    <ProjectReference Include="../../src/Forma.Svg/Forma.Svg.csproj" AdditionalProperties="FormaRuntime=MonoGame" />
     <Compile Include="../Forma.QuickStart/Program.cs" Link="Program.cs" />
   </ItemGroup>
 

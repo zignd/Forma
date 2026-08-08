@@ -1,0 +1,23 @@
+<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.QuickStart"
+    x:Class="Forma.QuickStart.DialogWorkflowView"
+    Separation="12">
+    <Label Text="Save-slot maintenance" />
+    <Button
+        x:Name="OpenDialogButton"
+        Text="Delete save slot"
+        CustomMinimumSize="180,44" />
+    <Label x:Name="DialogStatus" Text="No action selected." />
+    <ConfirmationDialog
+        x:Name="DeleteDialog"
+        Title="Delete save slot?"
+        DialogText="This operation cannot be undone."
+        OkText="Delete"
+        CancelText="Keep"
+        Exclusive="True"
+        HideOnOutsideClick="False"
+        CustomMinimumSize="420,180"
+        Visible="False" />
+</BoxContainer>

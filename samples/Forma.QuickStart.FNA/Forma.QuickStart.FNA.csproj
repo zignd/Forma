@@ -15,6 +15,7 @@
     <PackageReference Include="FNA.NET.NativeAssets" Version="$(FnaNativeAssetsVersion)" Condition="'$(FnaProjectPath)' != ''" />
     <ProjectReference Include="$(FnaProjectPath)" Condition="'$(FnaProjectPath)' != ''" />
     <ProjectReference Include="../Forma.QuickStart/Forma.QuickStart.csproj" AdditionalProperties="FormaRuntime=FNA" />
+    <ProjectReference Include="../../src/Forma.Svg/Forma.Svg.csproj" AdditionalProperties="FormaRuntime=FNA" />
     <Compile Include="../Forma.QuickStart/Program.cs" Link="Program.cs" />
   </ItemGroup>
 

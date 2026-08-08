@@ -16,6 +16,11 @@ public enum QuickStartViewKind
     SettingsForm,
     ResponsiveHud,
     InventoryList,
+    DialogWorkflow,
+    DataGrid,
+    ThemeControl,
+    DynamicText,
+    RuntimeSvg,
 }
 
 public sealed class QuickStartGame : Game
@@ -74,6 +79,11 @@ public sealed class QuickStartGame : Game
             QuickStartViewKind.SettingsForm => new SettingsFormView(),
             QuickStartViewKind.ResponsiveHud => ResponsiveHudView.Create(_displayScale),
             QuickStartViewKind.InventoryList => new InventoryListView(),
+            QuickStartViewKind.DialogWorkflow => new DialogWorkflowView(),
+            QuickStartViewKind.DataGrid => new DataGridExampleView(),
+            QuickStartViewKind.ThemeControl => new ThemeControlView(),
+            QuickStartViewKind.DynamicText => DynamicTextExampleView.Create(_fontFace),
+            QuickStartViewKind.RuntimeSvg => RuntimeSvgExampleView.Create(),
             _ => QuickStartView.Create(),
         };
         _ui.Add(_root);

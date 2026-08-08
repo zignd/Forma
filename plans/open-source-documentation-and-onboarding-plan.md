@@ -197,12 +197,12 @@ documentation requirements.
 ## Progress Dashboard
 
 - [ ] Phase 0: Audience, NuGet Publication Contract, and Documentation Inventory
-- [ ] Phase 1: README and Documentation Front Door
+- [x] Phase 1: README and Documentation Front Door
 - [ ] Phase 2: Tested MonoGame and FNA Quick Starts
-- [ ] Phase 3: Core Conceptual Guides
+- [x] Phase 3: Core Conceptual Guides
 - [ ] Phase 4: Control and API Reference
 - [ ] Phase 5: Focused Example Gallery and Catalog Cross-Links
-- [ ] Phase 6: Contributor and Community Health
+- [x] Phase 6: Contributor and Community Health
 - [ ] Phase 7: Documentation Site, Versioning, and CI Quality Gates
 
 Check a phase only after every task and exit criterion in that phase is complete.
@@ -282,40 +282,40 @@ validation criteria.
 
 ### Existing Strengths
 
-- `README.md` documents runtime package pairing, compiled XAML, build commands, Catalog hosts,
-  validation, runtime support, migration, and licensing.
+- `README.md` is a user-facing front door for source quick starts, runtime selection, documentation,
+  Catalog, support, contribution, release status, migration, and licensing.
+- `docs/index.md` routes readers through C#/XAML onboarding, concepts, troubleshooting, optional
+  features, curated control reference, generated API reference, and contribution material.
 - `docs/xaml-language.md` is a detailed language and tooling contract.
-- `docs/dynamic-text.md`, `docs/runtime-svg.md`, `docs/theme-icons.md`, and
-  `docs/runtime-support.md` contain substantial deployment and support guidance.
+- The core conceptual guides document layout, controls, input, styling, binding, resource lifetime,
+  and recurring troubleshooting with validated examples and explicit defaults.
+- `docs/dynamic-text.md`, `docs/runtime-svg.md`, `docs/theme-icons.md`, and `docs/runtime-support.md`
+  own detailed deployment, optional-feature, and support contracts.
 - The Catalog provides a searchable interactive inventory shared by MonoGame and FNA.
 - Signal Run demonstrates a realistic compiled-XAML application with peer hosts and Debug hot
   reload.
-- The public source includes significant XML documentation that can seed generated API reference.
+- Docfx publishes a searchable runtime-neutral API reference with immutable Source Link URLs and
+  nine curated control-family pages.
 - The Makefile exposes discoverable build, test, Catalog, packaging, formatting, compliance, and
   validation commands through `make help`.
-- The manual release workflow already validates peer versions, compliance, runtime parity, XAML,
-  package consumers, and NativeAOT evidence before uploading reviewable package artifacts.
+- The tag-triggered release workflow validates peer versions, compliance, runtime parity, XAML,
+  package consumers, NativeAOT, package checksums, and symbol-package selection before OIDC
+  publication.
 - `scripts/test-svg-package-consumers.sh` already packs and validates the MonoGame and FNA ThorVG
   companions in isolated consumers, including native failure modes and mixed-backend rejection.
+- Project-owned contribution, conduct, security, support, issue, and pull-request guidance is live
+  and linked from the repository front door.
 
 ### Gaps
 
-- The README leads with architecture and package constraints instead of a minimal successful use.
 - No tagged preview has been published, so package artifacts are auditable but not yet available
   through the default public .NET package source.
 - Post-publication indexing and restore verification have not been exercised yet.
-- `docs/` has no landing page or navigation hierarchy.
-- There are no dedicated first-UI, layout/sizing, input/focus, controls/containers, styling/theme,
-  or troubleshooting guides.
-- There is no generated searchable API site despite existing XML comments.
-- Only the Catalog and Signal Run have sample READMEs; there is no progression of small examples.
-- The repository has no project-level `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`,
-  `SUPPORT.md`, issue templates, or pull-request template.
-- Numeric claims can drift. For example, release material still refers to a 67-icon corpus while
-  current validation classifies 79 theme icons. README test/package totals are similarly expensive
-  to keep correct by hand.
-- Existing specialist documentation is linked from the README but not organized around reader
-  journeys or experience levels.
+- The focused example gallery and its bounded sample CI do not exist yet.
+- Existing public XML documentation debt remains below full type/member coverage even though new
+  undocumented public APIs are rejected.
+- Documentation deployment does not yet preserve immutable release snapshots or a version manifest.
+- Package-based quick starts cannot become canonical until the first NuGet.org preview is indexed.
 
 ## Target Information Architecture
 
@@ -413,7 +413,7 @@ Each curated control entry should include:
 
 - [x] Define primary audiences: evaluator, game developer, XAML user, control author, runtime/backend
   integrator, and contributor.
-- [ ] Write one representative first-success task and one failure-recovery task for each audience.
+- [x] Write one representative first-success task and one failure-recovery task for each audience.
 - [ ] Use the source-reference route only as a clearly labeled pre-publication fallback; make
   NuGet.org package references canonical after the first tagged preview is indexed.
 - [x] Create the Zigrok NuGet.org organization with the project owner as its sole administrator for the current
@@ -437,7 +437,7 @@ Each curated control entry should include:
   release manifest/version, obtains a short-lived credential through `NuGet/login`, and pushes to
   NuGet.org without rebuilding or skipping duplicate versions.
 - [x] Add post-publication indexing and clean-cache restore checks for every manifest package.
-- [ ] Document correction, unlisting, ownership, symbol-package, and credential-compromise procedures.
+- [x] Document correction, unlisting, ownership, symbol-package, and credential-compromise procedures.
 - [x] Inventory every current README and `docs/` page with audience, canonical topic, status, and
   intended destination.
 - [x] Inventory volatile values and duplicated package/platform claims across documentation.
@@ -446,7 +446,7 @@ Each curated control entry should include:
 - [x] Validate the Docfx decision with a minimal local spike that generates one API page from a
   release assembly/XML/PDB set, resolves its Source Link URL, builds the modern template, serves the
   site locally, and produces a deployable static artifact.
-- [ ] Establish terminology for stable, preview, experimental, platform-validated, and unsupported.
+- [x] Establish terminology for stable, preview, experimental, platform-validated, and unsupported.
 
 ### Exit Criteria
 
@@ -458,7 +458,7 @@ Each curated control entry should include:
 - [ ] Every published package restores from NuGet.org in a clean consumer without authentication;
   ThorVG consumers receive only supported RID assets and no Skia dependency.
 - [ ] The installation route used by quick starts is executable from a clean environment.
-- [ ] The documentation toolchain decision records alternatives, tradeoffs, and maintenance cost.
+- [x] The documentation toolchain decision records alternatives, tradeoffs, and maintenance cost.
 - [x] Every duplicated volatile claim has one proposed canonical source or a removal decision.
 
 ## Phase 1: README and Documentation Front Door
@@ -468,7 +468,7 @@ Each curated control entry should include:
 - [x] Rewrite the README opening around product purpose, maturity, supported runtimes, and a minimal
   visible result.
 - [x] Add a short “Try Forma” route for MonoGame and FNA without embedding the entire quick start.
-- [ ] Keep runtime pairing and optional package warnings, but move detailed matrices behind links.
+- [x] Keep runtime pairing and optional package warnings, but move detailed matrices behind links.
 - [x] Retain Catalog screenshots and add concise captions describing what users can inspect.
 - [x] Create `docs/index.md` with task-oriented navigation and clear experience levels.
 - [x] Add “choose C# or XAML” and “choose MonoGame or FNA” decision points.
@@ -479,10 +479,10 @@ Each curated control entry should include:
 
 ### Exit Criteria
 
-- [ ] A reader can reach any primary documentation journey from the README in two link selections or
+- [x] A reader can reach any primary documentation journey from the README in two link selections or
   fewer.
-- [ ] The README contains no unavailable package command presented as generally usable.
-- [ ] Internal links pass automated validation.
+- [x] The README contains no unavailable package command presented as generally usable.
+- [x] Internal links pass automated validation.
 
 ## Phase 2: Tested MonoGame and FNA Quick Starts
 

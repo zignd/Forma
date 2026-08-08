@@ -53,12 +53,14 @@ scrollers
 SFNT
 Skia
 slnx
+snupkg
 spritefont
 styleable
 symbolication
 Theora
 Theorafile
 thorvg
+unlist
 unlisting
 unreviewed
 Viewbox

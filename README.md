@@ -27,22 +27,16 @@ make quick-start-fna
 The [C# first-UI guide](docs/getting-started/csharp-first-ui.md) explains the shared control tree,
 font setup, viewport resizing, input forwarding, disposal, clean-cache smoke check, and expected
 result. Choose the peer already used by the host game; the public APIs match, but binaries cannot be
-mixed.
+mixed. Use the [documentation home](docs/index.md) to choose XAML, concepts, troubleshooting,
+control reference, optional features, or contributor guidance.
 
 ## Choose a Runtime
 
 Use one matching package pair and one framework implementation. Never mix runtime variants.
 
-| MonoGame application | FNA application |
-| --- | --- |
-| `Forma.MonoGame` | `Forma.FNA` |
-| `Forma.Xaml.Build.MonoGame` (compiled XAML) | `Forma.Xaml.Build.FNA` (compiled XAML) |
-| `Forma.Xaml.HotReload.MonoGame` (optional, Debug only) | `Forma.Xaml.HotReload.FNA` (optional, Debug only) |
-| `Forma.DynamicText.MonoGame` (optional) | `Forma.DynamicText.FNA` (optional) |
-| `Forma.Svg.Skia.MonoGame` or `Forma.Svg.ThorVG.MonoGame` (optional) | `Forma.Svg.Skia.FNA` or `Forma.Svg.ThorVG.FNA` (optional) |
-| `Forma.Media.MonoGame` (optional) | `Forma.Media.FNA` (optional) |
-| `MonoGame.Framework.<backend>` 3.8.5 | `FNA.NET` 2.2.11.2602 |
-| Application selects the MonoGame backend | Application supplies `FNA.NET.NativeAssets` 2.1.2.2602 |
+Use `Forma.MonoGame` with MonoGame or `Forma.FNA` with FNA. Every optional Forma package must carry
+the same runtime suffix and version as core. The detailed peer, backend, and platform matrices live
+in [runtime support](docs/runtime-support.md).
 
 The core and media packages contain assemblies named `Forma` and `Forma.Media` with public types in
 the `Forma` namespace. Add the matching `Forma.DynamicText` companion only when using runtime font
@@ -233,10 +227,12 @@ Security reports use GitHub's private vulnerability-reporting flow described in
 
 The `Release` workflow validates the fourteen-package manifest and NativeAOT evidence before its
 protected publish job can obtain a short-lived NuGet credential through GitHub OIDC. It downloads
-and revalidates the reviewed artifact instead of rebuilding, publishes without accepting duplicate
+and revalidates the auditable artifact instead of rebuilding, publishes without accepting duplicate
 versions, verifies NuGet.org indexing and clean restores, and only then creates the GitHub release.
-The first publication remains blocked until the NuGet.org trusted-publishing policy and GitHub
-environment reviewers are configured.
+The `nuget-production` environment accepts only `v*` tags; creating a release tag authorizes
+automatic publication after every required job passes. See the
+[release operations runbook](docs/release-operations.md) for preflight, correction, symbols,
+ownership, and credential recovery.
 
 Before the first public peer release, replace unqualified `Forma` and `Forma.Media` package
 references with one matching peer pair. The unqualified IDs are not aliases and must not select a

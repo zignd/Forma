@@ -90,6 +90,8 @@
   items:
     - name: Architecture and validation
       href: contributor-architecture.md
+    - name: Release operations
+      href: release-operations.md
     - name: Release API review
       href: release-api-review.md
     - name: Contribution guide

@@ -6,11 +6,35 @@ declared supported.
 
 ## Status Terms
 
-- **Validated:** the repository check has passed on the named platform/runtime.
+- **Stable:** a supported contract intended to preserve compatibility across non-breaking releases.
+- **Preview:** publicly consumable but still subject to documented breaking changes before the first
+  stable release.
+- **Experimental:** available for evaluation behind an explicit opt-in, with a narrower support
+  matrix and no compatibility commitment yet.
+- **Platform-validated:** the release gate has executed successfully on the named operating system,
+  architecture, runtime, and backend combination.
+- **Validated:** the owning repository check has passed for the exact scope named by the claim.
 - **CI gate:** automated on every push and required to pass before release review.
 - **Manual gate:** reproducible instructions exist because a hosted runner or licensed tool is not
   available.
 - **Unsupported:** no compatibility claim is made.
+
+## Package Pairing
+
+Use one column consistently throughout an application. All Forma peers must use one shared version;
+package-owned build guards reject mixed runtime families.
+
+| Capability | MonoGame application | FNA application |
+| --- | --- | --- |
+| Core | `Forma.MonoGame` | `Forma.FNA` |
+| Compiled XAML | `Forma.Xaml.Build.MonoGame` | `Forma.Xaml.Build.FNA` |
+| Debug hot reload | `Forma.Xaml.HotReload.MonoGame` | `Forma.Xaml.HotReload.FNA` |
+| Dynamic text | `Forma.DynamicText.MonoGame` | `Forma.DynamicText.FNA` |
+| Skia SVG | `Forma.Svg.Skia.MonoGame` | `Forma.Svg.Skia.FNA` |
+| ThorVG SVG | `Forma.Svg.ThorVG.MonoGame` | `Forma.Svg.ThorVG.FNA` |
+| Media | `Forma.Media.MonoGame` | `Forma.Media.FNA` |
+| Runtime | `MonoGame.Framework` 3.8.5 | `FNA.NET` 2.2.11.2602 |
+| Native host assets | Selected MonoGame backend | `FNA.NET.NativeAssets` 2.1.2.2602 |
 
 ## Graphics and Catalog Matrix
 

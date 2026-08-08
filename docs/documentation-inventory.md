@@ -9,6 +9,17 @@ READMEs are listed but remain externally owned.
 Audience abbreviations: evaluator (E), game developer (G), XAML user (X), control author (A),
 runtime/backend integrator (R), and contributor (C).
 
+## Audience Tasks
+
+| Audience | Representative first success | Representative failure recovery |
+| --- | --- | --- |
+| Evaluator | Run either first-UI route and see the documented editable form. | Use rendering troubleshooting to identify an unavailable graphics device or missing asset. |
+| Game developer | Add one matching runtime family, forward host input and viewport size, and render a control tree. | Diagnose a mixed runtime package or missing native dependency without changing unrelated packages. |
+| XAML user | Compile a typed view, resolve a named control, and observe a two-way binding update. | Use the stable `FXAML` diagnostic and project-relative source location to correct an invalid view. |
+| Control author | Add a documented control or template with one Catalog story and focused behavioral coverage. | Resolve a control-story-reference mapping or XML documentation gate without lowering its baseline. |
+| Runtime/backend integrator | Execute the declared host checks and record the exact platform/runtime/backend scope. | Convert an unavailable capability into the documented stable result instead of overstating support. |
+| Contributor | Build one runtime, run the owning focused test, and prepare a scoped pull request. | Follow the architecture map to repair parity, generated-output, formatting, or documentation drift. |
+
 ## Page Ownership
 
 | Page | Audience | Canonical topic | Status and destination |
@@ -34,6 +45,7 @@ runtime/backend integrator (R), and contributor (C).
 | `docs/troubleshooting/xaml-build-and-hot-reload.md` | X, A, C | XAML diagnostics, discovery, binding, and reload failures | Current troubleshooting guide; language contract owns semantics |
 | `docs/troubleshooting/rendering-and-assets.md` | G, A, R, C | Blank output, assets, SVG, scale, and device failures | Current troubleshooting guide; specialist guides own limits |
 | `docs/reference/controls/` | G, X, A | Nine curated control families, defaults, limits, accessibility, Catalog/API routes | Current curated reference; JSON manifest owns complete mapping |
+| `docs/release-operations.md` | C | Tagged publication, correction, symbols, ownership, and credential recovery | Canonical release operations runbook |
 | `docs/release-api-review.md` | C | Release public-API baseline, migration acknowledgements, and baseline rollover | Current maintainer/release procedure |
 | `docs/authorized-host-checklist.md` | R, C | Approved runtime-host requirements | Current specialist host-integration checklist |
 | `docs/dynamic-text.md` | G, A, R | Dynamic-font setup, shaping, caching, deployment | Current text and fonts guide |

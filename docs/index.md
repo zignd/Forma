@@ -21,6 +21,8 @@ installation path after the approved packages are published to NuGet.org.
 - **Contribute:** start with the
   [contribution guide](https://github.com/zigrok/Forma/blob/main/CONTRIBUTING.md), then use the
   [architecture map](contributor-architecture.md) to choose focused validation.
+- **Prepare a release:** follow [release operations](release-operations.md) for tagged publication,
+  correction, symbols, ownership, and credential recovery.
 
 ## Choose a runtime
 

@@ -118,17 +118,26 @@ try {
   if (error.code !== "ENOENT") throw error;
 }
 
-const defaultPath = releases[0]?.path ?? development?.path;
-if (!defaultPath) throw new Error("The staged site has neither a release nor development channel.");
+const newestRelease = releases[0];
+if (!newestRelease && !development) {
+  throw new Error("The staged site has neither a release nor development channel.");
+}
 const redirectPage = (target, title) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=${target}">
 <link rel="canonical" href="${target}"><title>${escapeHtml(title)}</title></head>
 <body><p><a href="${target}">Continue to ${escapeHtml(title)}</a></p></body></html>
 `;
 
-await mkdir(path.join(pagesRoot, "latest"), { recursive: true });
+// `latest/` mirrors the newest release in full so unversioned deep links resolve and stay stable.
+await rm(path.join(pagesRoot, "latest"), { recursive: true, force: true });
+if (newestRelease) {
+  await cp(path.join(pagesRoot, newestRelease.channel), path.join(pagesRoot, "latest"), { recursive: true });
+} else {
+  await mkdir(path.join(pagesRoot, "latest"), { recursive: true });
+  await writeFile(path.join(pagesRoot, "latest/index.html"), redirectPage(development.path, "development Forma documentation"));
+}
+const defaultPath = newestRelease ? "/Forma/latest/" : development.path;
 await writeFile(path.join(pagesRoot, "index.html"), redirectPage(defaultPath, "Forma documentation"));
-await writeFile(path.join(pagesRoot, "latest/index.html"), redirectPage(defaultPath, "latest Forma documentation"));
 await writeFile(path.join(pagesRoot, ".nojekyll"), "");
 await writeFile(
   path.join(pagesRoot, "versions.json"),

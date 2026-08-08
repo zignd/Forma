@@ -56,11 +56,13 @@ versioned nightly or private builds.
 - Add a shared first-UI guide and a first-XAML-view guide; neither should require the Catalog or the
   Signal Run sample to understand the basic path.
 - Treat public package availability as a prerequisite for a canonical package quick start. Until
-  publication is approved, document and test a clearly marked source-reference preview path.
-- Publish approved public packages to NuGet.org through GitHub Actions trusted publishing with OIDC,
-  a protected GitHub `nuget-production` environment, and explicit maintainer approval. Do not store
-  a long-lived NuGet API key when trusted publishing is available.
-- Publish the complete approved runtime-peer manifest as one release operation, including
+  the first tagged publication succeeds, document and test a clearly marked source-reference preview
+  path.
+- Publish tagged public packages to NuGet.org through GitHub Actions trusted publishing with OIDC
+  and a protected GitHub `nuget-production` environment restricted to `v*` tags. Creating and
+  pushing a release tag authorizes publication after validation; no manual environment reviewer is
+  required. Do not store a long-lived NuGet API key when trusted publishing is available.
+- Publish the complete validated runtime-peer manifest as one release operation, including
   `Forma.Svg.ThorVG.MonoGame`, `Forma.Svg.ThorVG.FNA`, `Forma.Xaml.HotReload.MonoGame`, and
   `Forma.Xaml.HotReload.FNA`; do not leave one runtime family or optional backend at a different
   Forma version.
@@ -87,15 +89,19 @@ versioned nightly or private builds.
 ### Registry and Ownership
 
 - NuGet.org is the source of record for public preview and stable packages.
-- The Zigrok NuGet.org organization should own every package, with at least two administrators before
-  the project depends on publication for onboarding.
+- The Zigrok NuGet.org organization owns every package. While Forma is a single-maintainer project,
+  the project owner is intentionally its sole administrator.
+- Keep Microsoft/NuGet.org account recovery methods and MFA recovery material outside the repository.
+  Recover lost access through the account provider and NuGet.org support. If project maintenance is
+  transferred, add the successor to the organization and transfer package ownership before removing
+  the original administrator.
 - The canonical source repository is `zigrok/Forma`; package metadata, Source Link, trusted
   publishing, release links, and documentation must use that owner and repository identity.
 - Exact package IDs must be checked immediately before the first push. Publishing claims an ID, but
   availability checks do not reserve it.
 - Request a `Forma.*` ID-prefix reservation after the initial packages and project identity provide
   sufficient evidence for NuGet.org review. Prefix reservation is desirable but does not block the
-  first approved preview.
+  first tagged preview.
 - GitHub Packages, if introduced, must use versions such as `0.1.0-nightly.YYYYMMDD.N` that cannot
   collide with NuGet.org preview or stable versions.
 
@@ -132,11 +138,12 @@ job with these controls:
    identical across every manifest entry.
 2. Run compliance, runtime parity, XAML, package-consumer, SVG-package-consumer, ThorVG native-asset,
    and applicable NativeAOT release gates.
-3. Upload the exact `.nupkg` and `.snupkg` set as a reviewable GitHub Actions artifact.
-4. Require approval through the protected `nuget-production` GitHub environment.
+3. Upload the exact `.nupkg` and `.snupkg` set as an auditable GitHub Actions artifact.
+4. Restrict the protected `nuget-production` GitHub environment to `v*` tags. Creating and pushing
+  the tag authorizes automatic publication after all required jobs pass.
 5. Request `id-token: write` only in the publish job and exchange GitHub's OIDC token through
    `NuGet/login` for a short-lived NuGet.org API key.
-6. Download and publish the previously validated artifact; never rebuild packages after approval.
+6. Download and publish the previously validated artifact; never rebuild packages after validation.
 7. Push an explicit manifest rather than a broad wildcard, fail on missing or extra packages, and
    treat an existing version as an error rather than silently using `--skip-duplicate`.
 8. Verify NuGet.org validation/indexing and restore every published package from an empty cache.
@@ -197,7 +204,6 @@ documentation requirements.
 - [ ] Phase 5: Focused Example Gallery and Catalog Cross-Links
 - [ ] Phase 6: Contributor and Community Health
 - [ ] Phase 7: Documentation Site, Versioning, and CI Quality Gates
-- [ ] Phase 8: Public Preview Readiness and Feedback Loop
 
 Check a phase only after every task and exit criterion in that phase is complete.
 
@@ -251,14 +257,12 @@ validation criteria.
   missing required reference metadata, and unclassified documentation drift.
 - [ ] Documentation is versioned with releases so users can distinguish the default branch from the
   latest stable or preview package contract.
-- [ ] A first-time-user feedback pass produces tracked improvements before the first public preview
-  is described as easy to adopt.
 
 ## Non-Goals
 
 - Rewrite specialist contracts that are already authoritative and current.
 - Promise compatibility with WPF, Avalonia, MAUI, WinUI, Godot, or another XAML/UI framework.
-- Publish NuGet packages without the repository's separate explicit release approval.
+- Publish NuGet packages without an explicit `v*` release tag.
 - Use GitHub Packages as a required public source or publish the same package version to competing
   feeds with ambiguous restore behavior.
 - Claim support for runtimes, backends, operating systems, AOT modes, or consoles that have not
@@ -297,10 +301,9 @@ validation criteria.
 ### Gaps
 
 - The README leads with architecture and package constraints instead of a minimal successful use.
-- No approved preview has been published, so package artifacts are reviewable but not yet available
+- No tagged preview has been published, so package artifacts are auditable but not yet available
   through the default public .NET package source.
-- Backup NuGet.org ownership and post-publication indexing and restore verification have not been
-  exercised yet.
+- Post-publication indexing and restore verification have not been exercised yet.
 - `docs/` has no landing page or navigation hierarchy.
 - There are no dedicated first-UI, layout/sizing, input/focus, controls/containers, styling/theme,
   or troubleshooting guides.
@@ -412,9 +415,10 @@ Each curated control entry should include:
   integrator, and contributor.
 - [ ] Write one representative first-success task and one failure-recovery task for each audience.
 - [ ] Use the source-reference route only as a clearly labeled pre-publication fallback; make
-  NuGet.org package references canonical after the first approved preview is indexed.
-- [ ] Create the Zigrok NuGet.org organization, assign administrators, and record the recovery and
-  ownership-transfer procedure without committing account credentials.
+  NuGet.org package references canonical after the first tagged preview is indexed.
+- [x] Create the Zigrok NuGet.org organization with the project owner as its sole administrator for the current
+  single-maintainer project, and record account recovery and future ownership-transfer procedures
+  without committing credentials.
 - [ ] Recheck every initial package ID immediately before publication and record the result in the
   release evidence.
 - [x] Finalize the fourteen-package initial public manifest, including both ThorVG and XAML
@@ -422,15 +426,15 @@ Each curated control entry should include:
 - [x] Configure a NuGet.org trusted-publishing policy for GitHub owner `zigrok`, repository `Forma`,
   and workflow `.github/workflows/release.yml`, owned by the Zigrok NuGet.org organization and
   restricted to the protected `nuget-production` environment.
-- [x] Configure required maintainers for the GitHub `nuget-production` environment so validation and
-  artifact review complete before publication approval.
+- [x] Restrict the GitHub `nuget-production` environment to `v*` tags without a manual reviewer so a
+  release tag proceeds automatically only after validation succeeds.
 - [x] Extend the release package job to pack, inspect, and upload both ThorVG peers, both XAML
   hot-reload peers, and their symbol packages where produced.
 - [x] Run `scripts/test-svg-package-consumers.sh` or an equivalent release gate before publication,
   including native RID selection, absent/mismatched ABI failures, no-Skia checks, single-file
   behavior, and mixed-backend rejection.
 - [x] Add a publish job that downloads the validated artifact, verifies it exactly matches the
-  approved manifest/version, obtains a short-lived credential through `NuGet/login`, and pushes to
+  release manifest/version, obtains a short-lived credential through `NuGet/login`, and pushes to
   NuGet.org without rebuilding or skipping duplicate versions.
 - [x] Add post-publication indexing and clean-cache restore checks for every manifest package.
 - [ ] Document correction, unlisting, ownership, symbol-package, and credential-compromise procedures.
@@ -447,10 +451,10 @@ Each curated control entry should include:
 ### Exit Criteria
 
 - [x] The audience and content inventory is committed and has no unowned documentation page.
-- [ ] The NuGet.org organization, trusted-publishing policy, protected environment, and backup
-  ownership path are active and tested without a long-lived API key.
-- [ ] One approved workflow run publishes the exact manifest at one version, including both ThorVG
-  and both XAML hot-reload peers, and attaches the same reviewed artifacts to its GitHub release.
+- [ ] The sole-administrator recovery procedure, NuGet.org organization, trusted-publishing policy,
+  and tag-restricted protected environment are active and tested without a long-lived API key.
+- [ ] One tagged workflow run publishes the exact manifest at one version, including both ThorVG
+  and both XAML hot-reload peers, and attaches the same validated artifacts to its GitHub release.
 - [ ] Every published package restores from NuGet.org in a clean consumer without authentication;
   ThorVG consumers receive only supported RID assets and no Skia dependency.
 - [ ] The installation route used by quick starts is executable from a clean environment.
@@ -479,8 +483,6 @@ Each curated control entry should include:
   fewer.
 - [ ] The README contains no unavailable package command presented as generally usable.
 - [ ] Internal links pass automated validation.
-- [ ] A maintainer unfamiliar with the new structure can locate installation, layout, XAML,
-  troubleshooting, and contribution guidance in a timed navigation check.
 
 ## Phase 2: Tested MonoGame and FNA Quick Starts
 
@@ -504,7 +506,6 @@ Each curated control entry should include:
 - [x] Both XAML quick starts compile in Debug and Release, and Release output excludes development
   compiler/hot-reload artifacts according to existing XAML gates.
 - [ ] Package-based instructions restore from an empty cache when public packages become canonical.
-- [ ] A first-time tester completes one runtime path without repository-author assistance.
 
 ## Phase 3: Core Conceptual Guides
 
@@ -651,31 +652,6 @@ Each curated control entry should include:
 - [ ] API source links resolve to the release commit in `zigrok/Forma`, and GitHub Pages versioned
   navigation resolves correctly for a release tag and the default development preview.
 
-## Phase 8: Public Preview Readiness and Feedback Loop
-
-### Tasks
-
-- [ ] Run moderated onboarding sessions with developers who have not contributed to Forma.
-- [ ] Record time to first rendered UI, points of confusion, failed commands, and unanswered
-  questions without coaching the participant past documentation defects.
-- [ ] Test at least one MonoGame and one FNA path on clean supported environments.
-- [ ] Test both a C#-first user and an XAML-first user journey.
-- [ ] Resolve all blocking onboarding findings and classify lower-priority feedback.
-- [ ] Establish a lightweight documentation feedback issue route on every published page.
-- [ ] Define quarterly or release-based audits for links, screenshots, support matrices, package
-  versions, and quick starts.
-- [ ] Review search terms and issue trends to prioritize missing guides and reference improvements.
-- [ ] Publish a public roadmap or milestone policy describing how users can understand near-term
-  priorities without treating plans as release promises.
-
-### Exit Criteria
-
-- [ ] New users complete the supported first-run path without maintainer intervention.
-- [ ] Median time to first rendered UI meets an agreed target measured from clean prerequisites.
-- [ ] No known documentation blocker prevents package restore, build, startup, input, resize, or
-  disposal in the supported quick starts.
-- [ ] Feedback ownership and recurring audit cadence are assigned before declaring onboarding ready.
-
 ## Validation Matrix
 
 | Surface | Local validation | CI validation | Release evidence |
@@ -696,14 +672,14 @@ Each curated control entry should include:
 
 ### Package Availability Blocks the Canonical Quick Start
 
-Mitigation: publish approved previews to NuGet.org through the protected trusted-publishing workflow.
+Mitigation: publish tagged previews to NuGet.org through the protected trusted-publishing workflow.
 Until that succeeds, test and clearly label a source-reference path without presenting it as the
-final installation experience. Keep publication approval explicit rather than silently coupling it
-to documentation work.
+final installation experience. Treat creation of an explicit `v*` tag as publication authorization
+rather than coupling publication to ordinary branch or documentation work.
 
 ### An Incorrect or Partial NuGet Release Becomes Permanent History
 
-Mitigation: validate one explicit package manifest, review the produced artifact before approval,
+Mitigation: validate one explicit package manifest and produce an auditable artifact before publishing,
 publish without rebuilding, reject duplicate versions, and verify every peer afterward. Correct a
 bad release with a new version and unlist the affected version when necessary; never assume a NuGet
 package can be overwritten or routinely deleted.
@@ -753,4 +729,3 @@ expectations before checking the phase complete.
 8. Add focused examples and Catalog/reference cross-links.
 9. Add contributor/community-health documentation.
 10. Enforce documentation correctness and versioning in CI.
-11. Validate the experience with first-time users before the public preview readiness claim.

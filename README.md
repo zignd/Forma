@@ -5,9 +5,10 @@ the same `Forma` namespace, controls, layout behavior, styling model, and catalo
 artifact is compiled against exactly one runtime because the framework assemblies are source
 compatible in many places but are not binary substitutes.
 
-The first NuGet preview is being prepared. CI produces reviewable package artifacts, and tagged
-releases are configured to publish the exact validated artifact after protected-environment
-approval. Until that first release is indexed, use the source build route below.
+The first NuGet preview is being prepared. CI produces auditable package artifacts, and `v*` tagged
+releases are configured to publish the exact validated artifact automatically through the protected
+trusted-publishing environment. Until that first release is indexed, use the source build route
+below.
 
 Run `make help` for the common build, test, catalog, validation, packaging, and plan-tracking
 commands.

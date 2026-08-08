@@ -28,3 +28,7 @@ Catalog: [Image](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog
 [TextureRect](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/TextureRect.xaml),
 [SubViewportContainer](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/SubViewportContainer.xaml),
 [VideoStreamPlayer](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/VideoStreamPlayer.xaml).
+
+Every public type in the table has a Catalog story with the exact unqualified type name. Its stable
+identifier is `catalog-` plus the kebab-case type name, such as `catalog-theme-icon-view`; the
+Catalog's **Open reference** link returns to this page.

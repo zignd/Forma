@@ -24,3 +24,7 @@ Catalog: [CodeEdit](https://github.com/zigrok/Forma/blob/main/samples/Forma.Cata
 [GraphEdit](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/GraphEdit.xaml),
 [GraphNode](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/GraphNode.xaml),
 [GraphFrame](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/GraphFrame.xaml).
+
+Every public type in the table has a Catalog story with the exact unqualified type name. Its stable
+identifier is `catalog-` plus the kebab-case type name, such as `catalog-graph-edit`; the Catalog's
+**Open reference** link returns to this page.

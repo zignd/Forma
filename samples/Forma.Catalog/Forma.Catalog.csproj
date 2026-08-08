@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <Content Include="Assets/runtime-catalog.svg" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="../../docs/reference/control-families.json" LogicalName="Forma.Catalog.control-families.json" />
     <None Include="../../tests/Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../tests/Assets/Fonts/NotoSansCJK_Subset.ttf" Link="Fonts/NotoSansCJK_Subset.ttf" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../tests/Assets/Fonts/NotoSansArabic_Variable.ttf" Link="Fonts/NotoSansArabic_Variable.ttf" CopyToOutputDirectory="PreserveNewest" />

@@ -32,3 +32,7 @@ Catalog: [LineEdit](https://github.com/zigrok/Forma/blob/main/samples/Forma.Cata
 [TextEdit](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/TextEdit.xaml),
 [SpinBox](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/SpinBox.xaml).
 See [Input and focus](../../input-and-focus.md) and [Data binding](../../data-binding.md).
+
+Every public type in the table has a Catalog story with the exact unqualified type name. Its stable
+identifier is `catalog-` plus the kebab-case type name, such as `catalog-line-edit`; the Catalog's
+**Open reference** link returns to this page.

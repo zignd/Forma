@@ -218,3 +218,10 @@ contracts are minor-version changes. Existing `Font` members will not be silentl
 removed; any future obsoletion forwards through `SpriteFontAdapter` for at least one minor release,
 and removal requires a documented major-version decision. Assigning both properties remains
 last-assignment-wins.
+
+## Catalog Stories
+
+The exact typography story names are **Dynamic Sizes**, **Letter Spacing**, **Display Density**,
+**Fallback Chain**, **Shaping and Features**, **Bidirectional Text**, **Wrapping and Selection**,
+**SpriteFont Compatibility**, **Atlas Inspector**, and **Failure States**. Their stable identifiers
+are the kebab-case names prefixed with `catalog-`, such as `catalog-fallback-chain`.

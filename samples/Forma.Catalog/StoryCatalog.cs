@@ -16,7 +16,15 @@ namespace Forma.Catalog;
 
 public sealed class ComponentStory
 {
-    public ComponentStory(string category, string name, string description, Func<Control> factory, Action<Control> attached = null, string xamlPath = null)
+    public ComponentStory(
+        string category,
+        string name,
+        string description,
+        Func<Control> factory,
+        Action<Control> attached = null,
+        string xamlPath = null,
+        string documentationId = null,
+        string referenceUrl = null)
     {
         Category = category;
         Name = name;
@@ -24,6 +32,8 @@ public sealed class ComponentStory
         Factory = factory;
         Attached = attached;
         XamlPath = xamlPath;
+        DocumentationId = documentationId ?? CatalogDocumentation.CreateStoryId(name);
+        ReferenceUrl = referenceUrl ?? CatalogDocumentation.GetFeatureReferenceUrl(category);
     }
 
     public string Category { get; }
@@ -32,6 +42,73 @@ public sealed class ComponentStory
     public Func<Control> Factory { get; }
     public Action<Control> Attached { get; }
     public string XamlPath { get; }
+    public string DocumentationId { get; }
+    public string ReferenceUrl { get; }
+}
+
+internal static class CatalogDocumentation
+{
+    private const string DocumentationRoot = "https://zigrok.github.io/Forma/";
+    private static readonly IReadOnlyDictionary<string, string> ControlFamilies = LoadControlFamilies();
+
+    public static string CreateStoryId(string name) => $"catalog-{Slug(name)}";
+
+    public static string GetControlReferenceUrl(Type type)
+    {
+        if (!ControlFamilies.TryGetValue(type.FullName ?? string.Empty, out var family))
+            throw new InvalidDataException($"Public control '{type.FullName}' is missing from the documentation family manifest.");
+        return $"{DocumentationRoot}reference/controls/{family}.html";
+    }
+
+    public static string GetFeatureReferenceUrl(string category) => category switch
+    {
+        "Collections" => $"{DocumentationRoot}reference/controls/collections.html",
+        "Theme icons" => $"{DocumentationRoot}theme-icons.html",
+        "Typography" => $"{DocumentationRoot}dynamic-text.html",
+        "XAML" => $"{DocumentationRoot}xaml-language.html",
+        _ => DocumentationRoot,
+    };
+
+    private static IReadOnlyDictionary<string, string> LoadControlFamilies()
+    {
+        using var stream = typeof(StoryCatalog).Assembly.GetManifestResourceStream("Forma.Catalog.control-families.json")
+            ?? throw new InvalidDataException("Embedded control-family manifest is missing.");
+        var manifest = JsonSerializer.Deserialize<ControlFamilyManifest>(stream, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+        }) ?? throw new InvalidDataException("Embedded control-family manifest is empty.");
+        return manifest.Families
+            .SelectMany(family => family.Types.Select(type => (Type: type, family.Id)))
+            .ToDictionary(entry => entry.Type, entry => entry.Id, StringComparer.Ordinal);
+    }
+
+    private static string Slug(string value)
+    {
+        var result = new System.Text.StringBuilder(value.Length);
+        var separatorPending = false;
+        foreach (var character in value)
+        {
+            if (char.IsAsciiLetterOrDigit(character))
+            {
+                if (separatorPending && result.Length > 0) result.Append('-');
+                result.Append(char.ToLowerInvariant(character));
+                separatorPending = false;
+            }
+            else separatorPending = true;
+        }
+        return result.ToString();
+    }
+
+    private sealed class ControlFamilyManifest
+    {
+        public List<ControlFamily> Families { get; set; } = new();
+    }
+
+    private sealed class ControlFamily
+    {
+        public string Id { get; set; } = string.Empty;
+        public List<string> Types { get; set; } = new();
+    }
 }
 
 public static class StoryCatalog
@@ -64,7 +141,8 @@ public static class StoryCatalog
                 () => (Control)FormaXamlLoader.Load(
                     xamlRootTypes.TryGetValue(type, out var xamlRootType) ? xamlRootType : type),
                 root => AttachExample(root, texture),
-                $"Stories/Controls/{type.Name}.xaml"));
+                $"Stories/Controls/{type.Name}.xaml",
+                referenceUrl: CatalogDocumentation.GetControlReferenceUrl(type)));
         }
         stories.Add(new ComponentStory(
             "XAML",

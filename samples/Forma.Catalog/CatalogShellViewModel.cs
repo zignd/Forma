@@ -12,6 +12,8 @@ public sealed class CatalogShellViewModel : INotifyPropertyChanged
     private string _storyTitle = string.Empty;
     private string _storyCategory = string.Empty;
     private string _description = string.Empty;
+    private string _documentationId = string.Empty;
+    private string _referenceUrl = string.Empty;
     private string _countText = string.Empty;
     private string _hotReloadStatus = "XAML compiled";
     private string _hotReloadDetails = string.Empty;
@@ -23,6 +25,8 @@ public sealed class CatalogShellViewModel : INotifyPropertyChanged
     public string StoryTitle { get => _storyTitle; set => Set(ref _storyTitle, value); }
     public string StoryCategory { get => _storyCategory; set => Set(ref _storyCategory, value); }
     public string Description { get => _description; set => Set(ref _description, value); }
+    public string DocumentationId { get => _documentationId; set => Set(ref _documentationId, value); }
+    public string ReferenceUrl { get => _referenceUrl; set => Set(ref _referenceUrl, value); }
     public string CountText { get => _countText; set => Set(ref _countText, value); }
     public string HotReloadStatus { get => _hotReloadStatus; set => Set(ref _hotReloadStatus, value); }
     public string HotReloadDetails { get => _hotReloadDetails; set => Set(ref _hotReloadDetails, value); }

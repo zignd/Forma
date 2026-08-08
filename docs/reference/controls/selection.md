@@ -24,3 +24,7 @@ Catalog: [OptionButton](https://github.com/zigrok/Forma/blob/main/samples/Forma.
 [TabBar](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/TabBar.xaml),
 [ColorPicker](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/ColorPicker.xaml),
 [VirtualJoystick](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/VirtualJoystick.xaml).
+
+Every public type in the table has a Catalog story with the exact unqualified type name. Its stable
+identifier is `catalog-` plus the kebab-case type name, such as `catalog-option-button`; the
+Catalog's **Open reference** link returns to this page.

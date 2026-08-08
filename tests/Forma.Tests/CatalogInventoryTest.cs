@@ -79,6 +79,22 @@ public sealed class CatalogInventoryTest
         Assert.That(storyNames, Does.Contain("Hierarchical Data Grid"));
     }
 
+    [Test]
+    public void EveryCatalogStoryHasStableDocumentationMetadata()
+    {
+        var stories = StoryCatalog.Create(null);
+
+        Assert.That(stories.Select(story => story.DocumentationId), Is.Unique);
+        foreach (var story in stories)
+        {
+            Assert.That(story.DocumentationId, Does.StartWith("catalog-"), story.Name);
+            Assert.That(story.DocumentationId, Does.Not.Contain(" "), story.Name);
+            Assert.That(Uri.TryCreate(story.ReferenceUrl, UriKind.Absolute, out var reference), Is.True, story.Name);
+            Assert.That(reference.Scheme, Is.EqualTo(Uri.UriSchemeHttps), story.Name);
+            Assert.That(reference.Host, Is.EqualTo("zigrok.github.io"), story.Name);
+        }
+    }
+
     [TestCase(nameof(Viewbox))]
     [TestCase(nameof(Border))]
     public void SingleChildContainerStoriesCanBeConstructed(string storyName)

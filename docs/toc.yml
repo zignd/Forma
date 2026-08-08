@@ -86,6 +86,8 @@
       href: runtime-acquisition.md
     - name: Authorized host checklist
       href: authorized-host-checklist.md
+- name: Documentation versions
+  href: versioning.md
 - name: Contributing
   items:
     - name: Architecture and validation

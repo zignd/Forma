@@ -59,8 +59,8 @@ XAML, XamlX, Cecil, a reflection binding engine, or a runtime XAML reader. Pair 
 package with the selected runtime:
 
 ```xml
-<PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.1" />
-<PackageReference Include="Forma.Xaml.Build.MonoGame" Version="0.1.0-alpha.1" PrivateAssets="All" />
+<PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.2" />
+<PackageReference Include="Forma.Xaml.Build.MonoGame" Version="0.1.0-alpha.2" PrivateAssets="All" />
 ```
 
 Use the `.FNA` peers for an FNA application. Project `.xaml` files are discovered automatically.

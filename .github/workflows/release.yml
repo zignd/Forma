@@ -171,11 +171,14 @@ jobs:
           while IFS=$'\t' read -r package_id publish_symbols; do
             dotnet nuget push "Artifacts/release-packages/$package_id.$version.nupkg" \
               --api-key "$NUGET_API_KEY" \
-              --source https://api.nuget.org/v3/index.json
+              --source https://api.nuget.org/v3/index.json \
+              --no-symbols \
+              --skip-duplicate
             if [[ "$publish_symbols" == "true" ]]; then
               dotnet nuget push "Artifacts/release-packages/$package_id.$version.snupkg" \
                 --api-key "$NUGET_API_KEY" \
-                --source https://api.nuget.org/v3/index.json
+                --source https://api.nuget.org/v3/index.json \
+                --skip-duplicate
             fi
           done < <(jq -r '.packages[] | [.id, (if has("symbols") then .symbols else true end)] | @tsv' scripts/release-packages.json)
       - name: Verify NuGet.org indexing and clean restores

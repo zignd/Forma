@@ -9,6 +9,8 @@ namespace Forma
 {
     internal static class Alpha8CoverageEffect
     {
+        public static bool RequiresColorGlyphAtlas => false;
+
         public static Effect Create(GraphicsDevice graphicsDevice)
         {
             using var stream = typeof(Alpha8CoverageEffect).Assembly.GetManifestResourceStream("Forma.Alpha8Coverage.fxb.b64")

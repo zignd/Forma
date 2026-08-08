@@ -10,6 +10,9 @@ namespace Forma
 {
     internal static class Alpha8CoverageEffect
     {
+        public static bool RequiresColorGlyphAtlas =>
+            PlatformInfo.GraphicsBackend is GraphicsBackend.Vulkan or GraphicsBackend.Metal;
+
         public static Effect Create(GraphicsDevice graphicsDevice)
         {
             var resourceName = PlatformInfo.GraphicsBackend switch

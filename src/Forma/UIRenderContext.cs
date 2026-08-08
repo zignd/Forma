@@ -15,6 +15,7 @@ namespace Forma
         private readonly Texture2D _pixel;
         private readonly BasicEffect _basicEffect;
         private readonly Effect _alpha8CoverageEffect;
+        private readonly bool _dynamicGlyphsUseColorTexture;
         private readonly RasterizerState _scissorRasterizer;
         private readonly SamplerState[] _imageSamplers;
         private readonly DynamicGlyphCache _dynamicGlyphCache;
@@ -40,9 +41,13 @@ namespace Forma
             _pixel.SetData(new[] { Color.White });
             _basicEffect = new BasicEffect(graphicsDevice) { TextureEnabled = true, VertexColorEnabled = true };
             _alpha8CoverageEffect = Alpha8CoverageEffect.Create(graphicsDevice);
+            _dynamicGlyphsUseColorTexture = Alpha8CoverageEffect.RequiresColorGlyphAtlas;
             _scissorRasterizer = new RasterizerState { ScissorTestEnable = true };
             _imageSamplers = CreateImageSamplers();
-            _dynamicGlyphCache = new DynamicGlyphCache(graphicsDevice);
+            _dynamicGlyphCache = new DynamicGlyphCache(
+                graphicsDevice,
+                _dynamicGlyphsUseColorTexture ? new DynamicGlyphCacheOptions(1024, 1024, 8) : null,
+                useColorTextures: _dynamicGlyphsUseColorTexture);
             _svgRasterCacheLease = SvgRasterCacheLease.Acquire(graphicsDevice);
             _svgRasterCache = _svgRasterCacheLease.Cache;
             Drawing = new DrawingContext(this);
@@ -254,6 +259,7 @@ namespace Forma
         internal void BeginDynamicGlyphs()
         {
             if (!_begun) throw new InvalidOperationException("Begin must be called before drawing dynamic glyphs.");
+            if (_dynamicGlyphsUseColorTexture) return;
             _spriteBatch.End();
             var transform = Math.Abs(DisplayScale - 1f) < .0001f ? Matrix.Identity : Matrix.CreateScale(DisplayScale, DisplayScale, 1f);
             var viewport = GraphicsDevice.Viewport;
@@ -264,6 +270,7 @@ namespace Forma
         }
         internal void EndDynamicGlyphs()
         {
+            if (_dynamicGlyphsUseColorTexture) return;
             _spriteBatch.End();
             BeginBatch();
         }

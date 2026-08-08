@@ -366,14 +366,16 @@ namespace Forma
         private readonly GraphicsDevice _graphicsDevice;
         private readonly DynamicGlyphCacheOptions _options;
         private readonly DynamicGlyphAtlasStore _store;
+        private readonly bool _useColorTextures;
         private readonly List<Texture2D> _textures = new List<Texture2D>();
         private bool _disposed;
 
-        public DynamicGlyphCache(GraphicsDevice graphicsDevice, DynamicGlyphCacheOptions options = null)
+        public DynamicGlyphCache(GraphicsDevice graphicsDevice, DynamicGlyphCacheOptions options = null, bool useColorTextures = false)
         {
             _graphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
             _options = options ?? new DynamicGlyphCacheOptions();
             _store = new DynamicGlyphAtlasStore(_options);
+            _useColorTextures = useColorTextures;
             _graphicsDevice.DeviceReset += OnDeviceReset;
             _graphicsDevice.Disposing += OnGraphicsDeviceDisposing;
         }
@@ -414,14 +416,32 @@ namespace Forma
         {
             ThrowIfDisposed();
             while (_textures.Count < _store.PageCount)
-                _textures.Add(new Texture2D(_graphicsDevice, _options.PageWidth, _options.PageHeight, false, SurfaceFormat.Alpha8));
+                _textures.Add(new Texture2D(
+                    _graphicsDevice,
+                    _options.PageWidth,
+                    _options.PageHeight,
+                    false,
+                    _useColorTextures ? SurfaceFormat.Color : SurfaceFormat.Alpha8));
             for (var pageIndex = 0; pageIndex < _store.PageCount; pageIndex++)
             {
                 if (!_store.IsPageDirty(pageIndex)) continue;
                 var pixels = _store.GetPagePixels(pageIndex).ToArray();
                 for (var pixelIndex = 0; pixelIndex < pixels.Length; pixelIndex++)
                     if (pixels[pixelIndex] == byte.MaxValue) pixels[pixelIndex]--;
-                _textures[pageIndex].SetData(pixels);
+                if (_useColorTextures)
+                {
+                    var colors = new Color[pixels.Length];
+                    for (var pixelIndex = 0; pixelIndex < pixels.Length; pixelIndex++)
+                    {
+                        var coverage = pixels[pixelIndex];
+                        colors[pixelIndex] = new Color(coverage, coverage, coverage, coverage);
+                    }
+                    _textures[pageIndex].SetData(colors);
+                }
+                else
+                {
+                    _textures[pageIndex].SetData(pixels);
+                }
                 _store.MarkPageUploaded(pageIndex);
             }
         }

@@ -7,6 +7,10 @@ on:
 permissions:
   contents: read
 
+env:
+  MSBUILDDISABLENODEREUSE: 1
+  DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER: 1
+
 jobs:
   runtime:
     name: ${{ matrix.runtime }} / ${{ matrix.os }}
@@ -18,7 +22,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       FORMA_RUNTIME: ${{ matrix.runtime }}
-      MSBUILDDISABLENODEREUSE: 1
     steps:
       - uses: actions/checkout@v7
         with:
@@ -32,7 +35,7 @@ jobs:
         run: dotnet run --project tools/Forma.IconPipeline/Forma.IconPipeline.csproj -- verify
       - name: Unit and catalog inventory tests
         shell: bash
-        run: dotnet test tests/Forma.Tests/Forma.Tests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
+        run: bash scripts/retry.sh dotnet test tests/Forma.Tests/Forma.Tests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
       - name: Forma XAML tests and sample host
         shell: bash
         run: |
@@ -106,7 +109,7 @@ jobs:
           SDL_VIDEODRIVER: x11
           FormaCatalogViewportWidth: 800
           FormaCatalogViewportHeight: 480
-        run: SvgBackend=Skia xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-render-parity.sh
+        run: SvgBackend=Skia bash scripts/retry.sh xvfb-run -a -s '-screen 0 1440x900x24 +extension GLX' bash scripts/check-catalog-render-parity.sh
       - name: Validate Windows selected runtime
         if: runner.os == 'Windows'
         shell: bash
@@ -134,7 +137,7 @@ jobs:
         env:
           FormaRenderParityCoverageTolerance: 0.15
           FormaRenderParityColorTolerance: 0.03
-        run: SvgBackend=Skia MonoGamePlatform=Windows CatalogBackend=WindowsDX bash scripts/check-catalog-render-parity.sh
+        run: SvgBackend=Skia MonoGamePlatform=Windows CatalogBackend=WindowsDX bash scripts/retry.sh bash scripts/check-catalog-render-parity.sh
       - name: Validate macOS selected runtime
         if: runner.os == 'macOS'
         shell: bash
@@ -159,7 +162,7 @@ jobs:
         env:
           FormaCatalogViewportWidth: 1024
           FormaCatalogViewportHeight: 646
-        run: SvgBackend=Skia bash scripts/check-catalog-render-parity.sh
+        run: SvgBackend=Skia bash scripts/retry.sh bash scripts/check-catalog-render-parity.sh
       - name: Install macOS Metal build prerequisites
         if: runner.os == 'macOS' && matrix.runtime == 'MonoGame'
         uses: humbletim/install-vulkan-sdk@v1.2

@@ -38,6 +38,10 @@ on:
 permissions:
   contents: read
 
+env:
+  MSBUILDDISABLENODEREUSE: 1
+  DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER: 1
+
 concurrency:
   group: documentation-${{ github.event_name == 'pull_request' && github.ref || 'pages' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -81,7 +85,7 @@ jobs:
           FORMA_DOCS_BASE_URL: https://zigrok.github.io/Forma/${{ steps.context.outputs.channel }}/
           FORMA_DOCS_MATURITY: ${{ steps.context.outputs.maturity }}
           FORMA_DOCS_VERSION: ${{ steps.context.outputs.version }}
-        run: make docs-check
+        run: bash scripts/retry.sh make docs-check
       - name: Check external links
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:

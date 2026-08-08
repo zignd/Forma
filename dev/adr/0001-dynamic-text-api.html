@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>ADR 0001: Dynamic Text API and Ownership | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="ADR 0001: Dynamic Text API and Ownership | Forma Documentation ">
+      
+      
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/adr/0001-dynamic-text-api.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="adr-0001-dynamic-text-api-and-ownership">ADR 0001: Dynamic Text API and Ownership</h1>
+
+<ul>
+<li>Status: Accepted provisionally for implementation</li>
+<li>Date: 2026-08-01</li>
+<li>Owners: Forma maintainers</li>
+<li>Related plan: <code>plans/dynamic-text-rendering-plan.md</code></li>
+</ul>
+<h2 id="context">Context</h2>
+<p>Forma currently exposes <code>SpriteFont</code> directly from controls and performs measurement, wrapping,
+hit testing, caret placement, and drawing through separate <code>SpriteFont</code> operations. This works for
+precompiled bitmap fonts, but it cannot represent shaped runs, fallback, grapheme boundaries,
+bidirectional ordering, arbitrary runtime sizes, or density-specific glyph caches.</p>
+<p>MonoGame and FNA must expose the same Forma API. Native shaping and rasterization dependencies must
+remain implementation details and must not introduce runtime-branded public types.</p>
+<h2 id="decision">Decision</h2>
+<h3 id="public-concepts">Public concepts</h3>
+<p>The dynamic text API will use these framework-neutral concepts in the <code>Forma</code> namespace:</p>
+<ul>
+<li><code>UIFont</code>: immutable logical font selection. It identifies one face or a fallback family plus
+logical size, variation coordinates, OpenType features, hinting policy, and rendering mode.</li>
+<li><code>UIFontFamily</code>: an ordered, immutable fallback collection. It owns references to font faces but
+does not own controls or graphics resources.</li>
+<li><code>TextLayoutOptions</code>: an immutable value describing width, wrapping, alignment, locale, direction,
+line spacing, tab stops, trimming, and visible-range behavior.</li>
+<li><code>TextLayout</code>: immutable lines, runs, glyph placements, logical bounds, baselines, UTF-16 ranges,
+grapheme/cluster maps, caret positions, and selection geometry.</li>
+<li><code>TextLayoutEngine</code>: the service that segments, resolves fallback, shapes, orders, breaks, and
+caches layouts.</li>
+<li><code>DynamicGlyphCache</code>: a graphics-device-scoped service that rasterizes glyphs, allocates bounded
+atlas pages, queues render-thread uploads, and exposes read-only diagnostics.</li>
+<li><code>ITextRenderer</code>: an internal rendering service that consumes <code>TextLayout</code>; controls never draw
+dynamic text from raw strings.</li>
+</ul>
+<p>The first implementation may keep constructors internal while the contracts stabilize. Public
+members must remain identical in MonoGame and FNA package builds.</p>
+<h3 id="compatibility-shape">Compatibility shape</h3>
+<p>Controls gain a parallel <code>UIFont</code> property while retaining their existing <code>SpriteFont Font</code>
+property during migration.</p>
+<ul>
+<li>Assigning <code>Font</code> installs or updates a cached <code>SpriteFontAdapter</code> in the control's effective
+<code>UIFont</code> slot.</li>
+<li>Assigning <code>UIFont</code> selects the new layout path and does not mutate the legacy <code>Font</code> value.</li>
+<li>If both are assigned, the most recently assigned property is effective. This rule is observable
+and covered by tests.</li>
+<li>Theme inheritance resolves <code>UIFont</code> first, then adapts a legacy <code>SpriteFont</code>.</li>
+<li>Existing source continues to compile. Existing binaries are not promised compatibility while
+Forma remains <code>0.x</code>, but avoidable member removal is still prohibited.</li>
+<li>Phase 8 may obsolete, but will not silently reinterpret, legacy <code>Font</code> properties. Removal
+requires a separately documented major-version decision.</li>
+</ul>
+<p><code>SpriteFontAdapter</code> produces the same <code>TextLayout</code> shape as dynamic fonts. It may support only the
+character map and metrics available from <code>SpriteFont</code>, but measurement, drawing, hit testing, and
+selection still consume one retained layout.</p>
+<h3 id="ownership-and-disposal">Ownership and disposal</h3>
+<ul>
+<li>Controls never own or dispose fonts, layouts, font families, native faces, atlas pages, or
+textures.</li>
+<li>Applications or a <code>UIContext</code>-owned text service own <code>UIFont</code> and <code>UIFontFamily</code> lifetimes.</li>
+<li>A dynamic face owns an immutable copy or explicitly retained owner of its source bytes for as
+long as native FreeType/HarfBuzz objects may reference them.</li>
+<li>Native handles use idempotent safe-handle wrappers. Disposal rejects new work and waits for or
+cancels bounded pending CPU work before releasing handles.</li>
+<li><code>TextLayout</code> is immutable managed data and is not disposable.</li>
+<li><code>DynamicGlyphCache</code> is scoped to one <code>GraphicsDevice</code>, owns its textures, handles device reset,
+and is disposed by its owning text service.</li>
+<li>Cached layouts and glyph metadata may reference stable font identities, never disposed native
+pointers.</li>
+</ul>
+<h3 id="coordinates-and-cache-identity">Coordinates and cache identity</h3>
+<p>Layout uses logical UI units. Glyph raster size is derived from logical size, display scale, and
+rendering policy. A display-scale change selects or creates raster entries without reshaping text
+unless an option affecting logical layout also changed.</p>
+<p>Font, layout-option, variation, feature, and raster keys use value equality. Cache identity must not
+depend on object reference or native pointer values.</p>
+<h3 id="error-behavior-and-limits">Error behavior and limits</h3>
+<ul>
+<li>Null required arguments throw <code>ArgumentNullException</code>.</li>
+<li>Invalid sizes, face indices, variation values, and limits throw <code>ArgumentOutOfRangeException</code>.</li>
+<li>Unsupported or malformed font data throws <code>FontLoadException</code> with a stable Forma error code and
+an inner native diagnostic when available.</li>
+<li>Missing glyphs are data, not exceptions. Fallback is attempted per grapheme cluster, then a
+deterministic final replacement glyph is emitted.</li>
+<li>Malformed UTF-16 is converted to replacement scalars without out-of-bounds reads or unbounded
+retry.</li>
+<li>Atlas exhaustion returns a bounded failure result and diagnostic; it does not allocate beyond the
+configured budget.</li>
+<li>Native library loading failure reports the library, runtime identifier, and expected packaging
+path without exposing implementation types in public signatures.</li>
+</ul>
+<p>Security limits are explicit configuration with conservative defaults: source byte length, face
+count, table count and size, glyph bitmap dimensions, atlas pages and bytes, fallback depth, input
+length, lines, glyphs, and synchronous shaping/rasterization work.</p>
+<h2 id="migration-map">Migration map</h2>
+<table>
+<thead>
+<tr>
+<th>Current usage</th>
+<th>Migration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SpriteFont Font</code> control property</td>
+<td>Retain; forward through cached <code>SpriteFontAdapter</code>; add parallel <code>UIFont</code> property.</td>
+</tr>
+<tr>
+<td><code>SpriteFont.MeasureString</code></td>
+<td>Replace with <code>TextLayoutEngine.Layout(...).Bounds</code>.</td>
+</tr>
+<tr>
+<td><code>SpriteFont.LineSpacing</code></td>
+<td>Replace with retained layout line metrics or <code>UIFont</code> logical metrics.</td>
+</tr>
+<tr>
+<td>Prefix/sub-string width loops</td>
+<td>Replace with <code>TextLayout.HitTest</code> and cluster/caret maps.</td>
+</tr>
+<tr>
+<td>Manual wrapping and ellipsis</td>
+<td>Replace with <code>TextLayoutOptions</code> and retained lines.</td>
+</tr>
+<tr>
+<td>Selection rectangles and caret X</td>
+<td>Replace with layout selection geometry and caret positions.</td>
+</tr>
+<tr>
+<td><code>UIRenderContext.Text</code></td>
+<td>Preserve compatibility overload; adapt and render a <code>TextLayout</code>. Add layout-rendering overload.</td>
+</tr>
+<tr>
+<td><code>DisplayFontResolver</code></td>
+<td>Preserve through <code>SpriteFontAdapter</code> until dynamic raster density is the default.</td>
+</tr>
+<tr>
+<td>Per-cell <code>TreeItem</code> custom fonts</td>
+<td>Add <code>UIFont</code> equivalents; preserve SpriteFont setters through adapters.</td>
+</tr>
+<tr>
+<td>Catalog 1x/2x XNB pair</td>
+<td>Keep until dynamic rendering passes Phase 8 gates, then remove.</td>
+</tr>
+</tbody>
+</table>
+<p>The detailed source inventory is maintained in <code>plans/dynamic-text-callsite-inventory.md</code>.</p>
+<h2 id="rejected-alternatives">Rejected alternatives</h2>
+<ul>
+<li>Exposing only <code>MeasureString</code> and <code>DrawString</code>: rejected because complex-script layout, hit
+testing, selection, and rendering would still disagree.</li>
+<li>Replacing every <code>Font</code> property immediately: rejected because it causes unnecessary source churn
+before the adapter proves compatibility.</li>
+<li>Runtime-specific public APIs: rejected because MonoGame and FNA are peer package variants.</li>
+<li>Letting controls own fonts or atlases: rejected because shared resources and device reset require
+service-level lifetime management.</li>
+<li>Using display pixels as layout units: rejected because moving a window between densities must not
+change logical layout.</li>
+</ul>
+<h2 id="consequences">Consequences</h2>
+<p>The migration temporarily carries parallel font properties and compatibility adapters. In return,
+all text behavior converges on one immutable layout representation, native dependencies remain
+replaceable, and both runtime variants can share the same controls, tests, and public contracts.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/adr/0001-dynamic-text-api.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

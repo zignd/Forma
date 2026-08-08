@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Class TextBlock | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class TextBlock | Forma Documentation ">
+      
+      <meta name="description" content="Template-free read-only text foundation backed by the retained text layout path.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="Forma.TextBlock">
+
+
+
+  <h1 id="Forma_TextBlock" data-uid="Forma.TextBlock" class="text-break">
+Class TextBlock  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="Forma.html">Forma</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>Forma.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Template-free read-only text foundation backed by the retained text layout path.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class TextBlock : Label, IAddChild&lt;Control&gt;, IAddChild, INotifyPropertyChanged</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="Forma.Control.html">Control</a></div>
+      <div><a class="xref" href="Forma.Label.html">Label</a></div>
+      <div><span class="xref">TextBlock</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="Forma.Xaml.IAddChild-1.html">IAddChild</a>&lt;<a class="xref" href="Forma.Control.html">Control</a>&gt;</div>
+      <div><a class="xref" href="Forma.Xaml.IAddChild.html">IAddChild</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.componentmodel.inotifypropertychanged">INotifyPropertyChanged</a></div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist inheritedMembers">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetHorizontalAlignment_Forma_HorizontalAlignment_">Label.SetHorizontalAlignment(HorizontalAlignment)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetHorizontalAlignment">Label.GetHorizontalAlignment()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetVerticalAlignment_Forma_VerticalAlignment_">Label.SetVerticalAlignment(VerticalAlignment)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetVerticalAlignment">Label.GetVerticalAlignment()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetText_System_String_">Label.SetText(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetText">Label.GetText()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetAutowrapMode_Forma_LabelAutowrapMode_">Label.SetAutowrapMode(LabelAutowrapMode)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetAutowrapMode">Label.GetAutowrapMode()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetJustificationFlags_Forma_LabelJustificationFlags_">Label.SetJustificationFlags(LabelJustificationFlags)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetJustificationFlags">Label.GetJustificationFlags()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetClipText_System_Boolean_">Label.SetClipText(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_IsClippingText">Label.IsClippingText()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetTextOverrunBehavior_Forma_LabelTextOverrunBehavior_">Label.SetTextOverrunBehavior(LabelTextOverrunBehavior)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetTextOverrunBehavior">Label.GetTextOverrunBehavior()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetEllipsisChar_System_String_">Label.SetEllipsisChar(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetEllipsisChar">Label.GetEllipsisChar()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetUppercase_System_Boolean_">Label.SetUppercase(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_IsUppercase">Label.IsUppercase()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetVisibleCharacters_System_Int32_">Label.SetVisibleCharacters(int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetVisibleCharacters">Label.GetVisibleCharacters()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetVisibleRatio_System_Single_">Label.SetVisibleRatio(float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetVisibleRatio">Label.GetVisibleRatio()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetVisibleCharactersBehavior_Forma_LabelVisibleCharactersBehavior_">Label.SetVisibleCharactersBehavior(LabelVisibleCharactersBehavior)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetVisibleCharactersBehavior">Label.GetVisibleCharactersBehavior()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetLinesSkipped_System_Int32_">Label.SetLinesSkipped(int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetLinesSkipped">Label.GetLinesSkipped()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetMaxLinesVisible_System_Int32_">Label.SetMaxLinesVisible(int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetMaxLinesVisible">Label.GetMaxLinesVisible()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetLineCount">Label.GetLineCount()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetVisibleLineCount">Label.GetVisibleLineCount()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetTotalCharacterCount">Label.GetTotalCharacterCount()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetTextDirection_Forma_TextDirection_">Label.SetTextDirection(TextDirection)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetTextDirection">Label.GetTextDirection()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetLanguage_System_String_">Label.SetLanguage(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetLanguage">Label.GetLanguage()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetParagraphSeparator_System_String_">Label.SetParagraphSeparator(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetParagraphSeparator">Label.GetParagraphSeparator()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetParagraphSpacing_System_Single_">Label.SetParagraphSpacing(float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetParagraphSpacing">Label.GetParagraphSpacing()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetStructuredTextBidiOverride_Forma_StructuredTextParser_">Label.SetStructuredTextBidiOverride(StructuredTextParser)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetStructuredTextBidiOverride">Label.GetStructuredTextBidiOverride()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetStructuredTextBidiOverrideOptions_System_Collections_Generic_IEnumerable_System_Object__">Label.SetStructuredTextBidiOverrideOptions(IEnumerable&lt;object&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetStructuredTextBidiOverrideOptions">Label.GetStructuredTextBidiOverrideOptions()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetTabStops_System_Collections_Generic_IEnumerable_System_Single__">Label.SetTabStops(IEnumerable&lt;float&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetTabStops">Label.GetTabStops()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_SetOpenTypeFeatures_System_Collections_Generic_IEnumerable_Forma_UIFontOpenTypeFeature__">Label.SetOpenTypeFeatures(IEnumerable&lt;UIFontOpenTypeFeature&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetOpenTypeFeatures">Label.GetOpenTypeFeatures()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetLineHeight_System_Int32_">Label.GetLineHeight(int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_DrawLabelChildren_Forma_UIRenderContext_">Label.DrawLabelChildren(UIRenderContext)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_GetDisplayLines">Label.GetDisplayLines()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_Font">Label.Font</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_UIFont">Label.UIFont</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_FontColor">Label.FontColor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_HorizontalAlignment">Label.HorizontalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_VerticalAlignment">Label.VerticalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_Autowrap">Label.Autowrap</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_AutowrapMode">Label.AutowrapMode</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_TextOverrunBehavior">Label.TextOverrunBehavior</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_EllipsisCharacter">Label.EllipsisCharacter</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_Uppercase">Label.Uppercase</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_ClipText">Label.ClipText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_VisibleCharacters">Label.VisibleCharacters</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_VisibleRatio">Label.VisibleRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_VisibleCharactersBehavior">Label.VisibleCharactersBehavior</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_LinesSkipped">Label.LinesSkipped</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_MaxLinesVisible">Label.MaxLinesVisible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_ParagraphSeparator">Label.ParagraphSeparator</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_ParagraphSpacing">Label.ParagraphSpacing</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_TextDirection">Label.TextDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_StructuredTextBidiOverride">Label.StructuredTextBidiOverride</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_JustificationFlags">Label.JustificationFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Label.html#Forma_Label_Padding">Label.Padding</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPseudoStateActive_System_String_">Control.IsPseudoStateActive(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsLayoutRtl">Control.IsLayoutRtl()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddChild_Forma_Control_">Control.AddChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CreateAccessibilityPeer">Control.CreateAccessibilityPeer()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetAccessibilityChildren">Control.GetAccessibilityChildren()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveChild_Forma_Control_">Control.RemoveChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClearDataContext">Control.ClearDataContext()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TryFindResource_System_String_System_Object__">Control.TryFindResource(string, out object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FindName__1_System_String_">Control.FindName&lt;T&gt;(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MoveChild_Forma_Control_System_Int32_">Control.MoveChild(Control, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveFromParent">Control.RemoveFromParent()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetNodeOrNull_System_String_">Control.GetNodeOrNull(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeStyleOverride_System_String_Forma_StyleBox_">Control.AddThemeStyleOverride(string, StyleBox)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeStyleOverride_System_String_">Control.RemoveThemeStyleOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeStyleBox_System_String_">Control.GetThemeStyleBox(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeIconOverride_System_String_Forma_ThemeIcon_">Control.AddThemeIconOverride(string, ThemeIcon)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeIconOverride_System_String_">Control.RemoveThemeIconOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SuppressThemeIcon_System_String_">Control.SuppressThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeIcon_System_String_">Control.GetThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeIcon_System_String_System_String_">Control.GetThemeIcon(string, string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchor_Forma_Side_System_Single_System_Boolean_System_Boolean_">Control.SetAnchor(Side, float, bool, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetOffset_Forma_Side_System_Single_">Control.SetOffset(Side, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchorsAndOffsets_System_Single_System_Single_System_Single_System_Single_">Control.SetAnchorsAndOffsets(float, float, float, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AcceptEvent">Control.AcceptEvent()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetDesiredSize">Control.GetDesiredSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetMaximumSize">Control.GetMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetCombinedMaximumSize">Control.GetCombinedMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetBoundDesiredSize">Control.GetBoundDesiredSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ContainsPoint_Microsoft_Xna_Framework_Point_">Control.ContainsPoint(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetTooltip_Microsoft_Xna_Framework_Point_">Control.GetTooltip(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GrabFocus">Control.GrabFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ReleaseFocus">Control.ReleaseFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoView_System_Nullable_Microsoft_Xna_Framework_Rectangle__">Control.BringIntoView(Rectangle?)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_QueueLayout">Control.QueueLayout()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OnPropertyChanged_System_String_">Control.OnPropertyChanged(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OnThemeChanged">Control.OnThemeChanged()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OnContextChanged_Forma_UIContext_Forma_UIContext_">Control.OnContextChanged(UIContext, UIContext)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ArrangeChildren">Control.ArrangeChildren()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetPseudoState_System_String_System_Boolean_">Control.SetPseudoState(string, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_NotifyPseudoStateChanged_System_String_">Control.NotifyPseudoStateChanged(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetDragData_Microsoft_Xna_Framework_Point_">Control.GetDragData(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CanDropData_Microsoft_Xna_Framework_Point_System_Object_">Control.CanDropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DropData_Microsoft_Xna_Framework_Point_System_Object_">Control.DropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Name">Control.Name</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Parent">Control.Parent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualParent">Control.VisualParent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Children">Control.Children</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Context">Control.Context</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Resources">Control.Resources</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Classes">Control.Classes</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeStyleOverrides">Control.ThemeStyleOverrides</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HasLocalDataContext">Control.HasLocalDataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContext">Control.DataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeOverride">Control.ThemeOverride</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TooltipText">Control.TooltipText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visible">Control.Visible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visibility">Control.Visibility</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Enabled">Control.Enabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsEffectivelyEnabled">Control.IsEffectivelyEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseFilter">Control.MouseFilter</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusMode">Control.FocusMode</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNext">Control.FocusNext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusPrevious">Control.FocusPrevious</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborLeft">Control.FocusNeighborLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborTop">Control.FocusNeighborTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborRight">Control.FocusNeighborRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborBottom">Control.FocusNeighborBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipContents">Control.ClipContents</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipToBounds">Control.ClipToBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Clip">Control.Clip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OpacityMask">Control.OpacityMask</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Effect">Control.Effect</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RenderTransform">Control.RenderTransform</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TransformOrigin">Control.TransformOrigin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Opacity">Control.Opacity</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsHitTestVisible">Control.IsHitTestVisible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PixelSnapping">Control.PixelSnapping</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPixelSnappingEnabled">Control.IsPixelSnappingEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Cursor">Control.Cursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveCursor">Control.EffectiveCursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ToolTip">Control.ToolTip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Foreground">Control.Foreground</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontFamily">Control.FontFamily</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontSize">Control.FontSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontWeight">Control.FontWeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStyle">Control.FontStyle</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStretch">Control.FontStretch</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Language">Control.Language</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutDirection">Control.LayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveLayoutDirection">Control.EffectiveLayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ZIndex">Control.ZIndex</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HorizontalSizeFlags">Control.HorizontalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VerticalSizeFlags">Control.VerticalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SizeFlagsStretchRatio">Control.SizeFlagsStretchRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margins">Control.Margins</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margin">Control.Margin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Width">Control.Width</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Height">Control.Height</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinWidth">Control.MinWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinHeight">Control.MinHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxWidth">Control.MaxWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxHeight">Control.MaxHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AspectRatio">Control.AspectRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMinimumSize">Control.CustomMinimumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMaximumSize">Control.CustomMaximumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Position">Control.Position</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Size">Control.Size</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorLeft">Control.AnchorLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorTop">Control.AnchorTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorRight">Control.AnchorRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorBottom">Control.AnchorBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetLeft">Control.OffsetLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetTop">Control.OffsetTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetRight">Control.OffsetRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetBottom">Control.OffsetBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HGrowDirection">Control.HGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VGrowDirection">Control.VGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Bounds">Control.Bounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualBounds">Control.VisualBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusBounds">Control.FocusBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityBounds">Control.AccessibilityBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityPeer">Control.AccessibilityPeer</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityLabel">Control.AccessibilityLabel</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityRole">Control.AccessibilityRole</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityName">Control.AccessibilityName</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityValue">Control.AccessibilityValue</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityActions">Control.AccessibilityActions</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityStates">Control.AccessibilityStates</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GlobalPosition">Control.GlobalPosition</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutChanged">Control.LayoutChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PropertyChanged">Control.PropertyChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseEntered">Control.MouseEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseExited">Control.MouseExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusEntered">Control.FocusEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusExited">Control.FocusExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Attached">Control.Attached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Detached">Control.Detached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EnabledChanged">Control.EnabledChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PseudoStateChanged">Control.PseudoStateChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_NameChanged">Control.NameChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContextChanged">Control.DataContextChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ParentChanged">Control.ParentChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoViewRequested">Control.BringIntoViewRequested</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityChanged">Control.AccessibilityChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildAdded">Control.ChildAdded</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildRemoved">Control.ChildRemoved</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragStarted">Control.DragStarted</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragEnded">Control.DragEnded</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="Forma_TextBlock__ctor_" data-uid="Forma.TextBlock.#ctor*"></a>
+
+  <h3 id="Forma_TextBlock__ctor" data-uid="Forma.TextBlock.#ctor">
+  TextBlock()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextBlock()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="Forma_TextBlock_Decoration_" data-uid="Forma.TextBlock.Decoration*"></a>
+
+  <h3 id="Forma_TextBlock_Decoration" data-uid="Forma.TextBlock.Decoration">
+  Decoration
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextDecoration Decoration { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.TextDecoration.html">TextDecoration</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextBlock_Inlines_" data-uid="Forma.TextBlock.Inlines*"></a>
+
+  <h3 id="Forma_TextBlock_Inlines" data-uid="Forma.TextBlock.Inlines">
+  Inlines
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IList&lt;Inline&gt; Inlines { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ilist-1">IList</a>&lt;<a class="xref" href="Forma.Inline.html">Inline</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextBlock_LetterSpacing_" data-uid="Forma.TextBlock.LetterSpacing*"></a>
+
+  <h3 id="Forma_TextBlock_LetterSpacing" data-uid="Forma.TextBlock.LetterSpacing">
+  LetterSpacing
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float LetterSpacing { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextBlock_LineHeight_" data-uid="Forma.TextBlock.LineHeight*"></a>
+
+  <h3 id="Forma_TextBlock_LineHeight" data-uid="Forma.TextBlock.LineHeight">
+  LineHeight
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float LineHeight { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextBlock_Text_" data-uid="Forma.TextBlock.Text*"></a>
+
+  <h3 id="Forma_TextBlock_Text" data-uid="Forma.TextBlock.Text">
+  Text
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Text { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextBlock_UsesInlineContent_" data-uid="Forma.TextBlock.UsesInlineContent*"></a>
+
+  <h3 id="Forma_TextBlock_UsesInlineContent" data-uid="Forma.TextBlock.UsesInlineContent">
+  UsesInlineContent
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool UsesInlineContent { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="Forma_TextBlock_AdjustTextLayout_" data-uid="Forma.TextBlock.AdjustTextLayout*"></a>
+
+  <h3 id="Forma_TextBlock_AdjustTextLayout_Forma_TextLayout_" data-uid="Forma.TextBlock.AdjustTextLayout(Forma.TextLayout)">
+  AdjustTextLayout(TextLayout)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override TextLayout AdjustTextLayout(TextLayout layout)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>layout</code> <a class="xref" href="Forma.TextLayout.html">TextLayout</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.TextLayout.html">TextLayout</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextBlock_DrawLabelText_" data-uid="Forma.TextBlock.DrawLabelText*"></a>
+
+  <h3 id="Forma_TextBlock_DrawLabelText_Forma_UIRenderContext_" data-uid="Forma.TextBlock.DrawLabelText(Forma.UIRenderContext)">
+  DrawLabelText(UIRenderContext)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Draws this label's text. Rich-text derived controls can replace this while retaining child rendering.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override void DrawLabelText(UIRenderContext context)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>context</code> <a class="xref" href="Forma.UIRenderContext.html">UIRenderContext</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextBlock_GetCharacterBounds_" data-uid="Forma.TextBlock.GetCharacterBounds*"></a>
+
+  <h3 id="Forma_TextBlock_GetCharacterBounds_System_Int32_" data-uid="Forma.TextBlock.GetCharacterBounds(System.Int32)">
+  GetCharacterBounds(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Rectangle GetCharacterBounds(int position)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>position</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Rectangle</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextBlock_GetMinimumSize_" data-uid="Forma.TextBlock.GetMinimumSize*"></a>
+
+  <h3 id="Forma_TextBlock_GetMinimumSize" data-uid="Forma.TextBlock.GetMinimumSize">
+  GetMinimumSize()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Vector2 GetMinimumSize()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Vector2</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextBlock_GetTextLineSpacing_" data-uid="Forma.TextBlock.GetTextLineSpacing*"></a>
+
+  <h3 id="Forma_TextBlock_GetTextLineSpacing_Forma_UIFont_" data-uid="Forma.TextBlock.GetTextLineSpacing(Forma.UIFont)">
+  GetTextLineSpacing(UIFont)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override float GetTextLineSpacing(UIFont font)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>font</code> <a class="xref" href="Forma.UIFont.html">UIFont</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/VisualPrimitives.cs" class="edit-link">Edit this page</a>
+        </div>
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

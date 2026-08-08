@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Container controls | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Container controls | Forma Documentation ">
+      
+      <meta name="description" content="Choose Forma layout, content, scrolling, split, and view containers.">
+      <link rel="icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="../../toc.html">
+      <meta name="docfx:tocrel" content="../../toc.html">
+      
+      <meta name="docfx:rel" content="../../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/reference/controls/containers.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="container-controls">Container controls</h1>
+
+<p>Use the smallest container that states the allocation rule. The <a href="../../layout-and-sizing.html">layout guide</a>
+explains constraints and size flags; the <a href="../../controls-and-containers.html">ownership guide</a> explains
+logical versus visual parentage.</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Types</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base ownership/template</td>
+<td><a class="xref" href="../../api/Forma.Control.html">Control</a>, <a class="xref" href="../../api/Forma.Container.html">Container</a>, <a class="xref" href="../../api/Forma.TemplatedControl.html">TemplatedControl</a>, <a class="xref" href="../../api/Forma.Panel.html">Panel</a>, <a class="xref" href="../../api/Forma.PanelContainer.html">PanelContainer</a></td>
+</tr>
+<tr>
+<td>Axis and flow</td>
+<td><a class="xref" href="../../api/Forma.BoxContainer.html">BoxContainer</a>, <a class="xref" href="../../api/Forma.HBoxContainer.html">HBoxContainer</a>, <a class="xref" href="../../api/Forma.VBoxContainer.html">VBoxContainer</a>, <a class="xref" href="../../api/Forma.FlowContainer.html">FlowContainer</a>, <a class="xref" href="../../api/Forma.HFlowContainer.html">HFlowContainer</a>, <a class="xref" href="../../api/Forma.VFlowContainer.html">VFlowContainer</a>, <a class="xref" href="../../api/Forma.StackPanel.html">StackPanel</a>, <a class="xref" href="../../api/Forma.WrapPanel.html">WrapPanel</a>, <a class="xref" href="../../api/Forma.FlexPanel.html">FlexPanel</a></td>
+</tr>
+<tr>
+<td>Grid and placement</td>
+<td><a class="xref" href="../../api/Forma.GridContainer.html">GridContainer</a>, <a class="xref" href="../../api/Forma.GridPanel.html">GridPanel</a>, <a class="xref" href="../../api/Forma.CanvasPanel.html">CanvasPanel</a>, <a class="xref" href="../../api/Forma.OverlayPanel.html">OverlayPanel</a>, <a class="xref" href="../../api/Forma.CenterContainer.html">CenterContainer</a></td>
+</tr>
+<tr>
+<td>Insets and transforms</td>
+<td><a class="xref" href="../../api/Forma.MarginContainer.html">MarginContainer</a>, <a class="xref" href="../../api/Forma.Border.html">Border</a>, <a class="xref" href="../../api/Forma.AspectRatioContainer.html">AspectRatioContainer</a>, <a class="xref" href="../../api/Forma.Viewbox.html">Viewbox</a></td>
+</tr>
+<tr>
+<td>Content and projection</td>
+<td><a class="xref" href="../../api/Forma.ContentControl.html">ContentControl</a>, <a class="xref" href="../../api/Forma.ContentPresenter.html">ContentPresenter</a></td>
+</tr>
+<tr>
+<td>Scrolling</td>
+<td><a class="xref" href="../../api/Forma.ScrollContainer.html">ScrollContainer</a>, <a class="xref" href="../../api/Forma.ScrollPresenter.html">ScrollPresenter</a>, <a class="xref" href="../../api/Forma.ScrollBar.html">ScrollBar</a>, <a class="xref" href="../../api/Forma.HScrollBar.html">HScrollBar</a>, <a class="xref" href="../../api/Forma.VScrollBar.html">VScrollBar</a></td>
+</tr>
+<tr>
+<td>Splitting</td>
+<td><a class="xref" href="../../api/Forma.SplitContainer.html">SplitContainer</a>, <a class="xref" href="../../api/Forma.HSplitContainer.html">HSplitContainer</a>, <a class="xref" href="../../api/Forma.VSplitContainer.html">VSplitContainer</a>, <a class="xref" href="../../api/Forma.SplitContainerDragger.html">SplitContainerDragger</a>, <a class="xref" href="../../api/Forma.SplitContainerMultiDragger.html">SplitContainerMultiDragger</a></td>
+</tr>
+<tr>
+<td>Disclosure/pages</td>
+<td><a class="xref" href="../../api/Forma.FoldableContainer.html">FoldableContainer</a>, <a class="xref" href="../../api/Forma.TabContainer.html">TabContainer</a></td>
+</tr>
+</tbody>
+</table>
+<p><code>GridContainer.Columns</code> clamps to at least one. <code>BoxContainer</code> defaults to vertical orientation and
+theme-derived separation. <code>ContentControl</code> accepts one content value. Presenter and dragger types are
+primarily template parts, not first-choice application roots. Avoid nested same-axis scroll owners.</p>
+<p>Containers expose their logical child peers. Scroll, tab, and foldable controls add scroll-view,
+tab-panel, or group semantics. Base accessible naming falls back from <code>AccessibilityLabel</code> to
+<code>Name</code>; assign a user-facing label when an internal name is not meaningful.</p>
+<p>Catalog: <a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/GridPanel.xaml">GridPanel</a>,
+<a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/ScrollContainer.xaml">ScrollContainer</a>,
+<a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/SplitContainer.xaml">SplitContainer</a>,
+<a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/WrapPanel.xaml">WrapPanel</a>.</p>
+<p>Every public type in the tables has a Catalog story with the exact unqualified type name. Its stable
+identifier is <code>catalog-</code> plus the kebab-case type name, such as <code>catalog-grid-panel</code>; the Catalog's
+<strong>Open reference</strong> link returns to this page.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/reference/controls/containers.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

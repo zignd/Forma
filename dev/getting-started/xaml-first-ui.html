@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Build your first UI in XAML | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Build your first UI in XAML | Forma Documentation ">
+      
+      <meta name="description" content="Compile a typed Forma XAML view and run it on MonoGame or FNA.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/getting-started/xaml-first-ui.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="build-your-first-ui-in-xaml">Build your first UI in XAML</h1>
+
+<p>This route renders the same first interface through Forma's build-time XAML compiler. It uses an
+<code>x:Class</code> root, typed one-way and two-way bindings, namescope lookup, and a button event. Release
+builds contain injected view construction and binding code, not source XAML or a runtime reader.</p>
+<h2 id="run-the-compiled-view">Run the compiled view</h2>
+<pre><code class="lang-sh"># MonoGame
+dotnet run --project samples/Forma.QuickStart.MonoGame/Forma.QuickStart.MonoGame.csproj \
+  --configuration Release -p:FormaRuntime=MonoGame -- --xaml
+
+# FNA
+dotnet run --project samples/Forma.QuickStart.FNA/Forma.QuickStart.FNA.csproj \
+  --configuration Release -p:FormaRuntime=FNA -- --xaml
+</code></pre>
+<p>The source checkout references <code>Forma.Xaml.Build</code> as a private build project. After the first NuGet
+preview is indexed, package consumers will pair <code>Forma.Xaml.Build.MonoGame</code> or
+<code>Forma.Xaml.Build.FNA</code> with the matching core package and version.</p>
+<h2 id="define-the-view">Define the view</h2>
+<p>Docfx stages this block from <code>samples/Forma.QuickStart/FirstView.xaml</code>, the file compiled by both
+runtime hosts:</p>
+<pre><code class="lang-xml">&lt;BoxContainer
+    xmlns=&quot;https://forma.dev/xaml&quot;
+    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+    xmlns:local=&quot;clr-namespace:Forma.QuickStart&quot;
+    x:Class=&quot;Forma.QuickStart.FirstView&quot;
+    x:DataType=&quot;local:FirstViewModel&quot;
+    x:Name=&quot;QuickStartRoot&quot;
+    Separation=&quot;12&quot;&gt;
+    &lt;Label Text=&quot;Your first Forma XAML UI&quot; /&gt;
+    &lt;LineEdit
+        x:Name=&quot;NameInput&quot;
+        Text=&quot;{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}&quot;
+        PlaceholderText=&quot;Your name&quot;
+        CustomMinimumSize=&quot;320,44&quot; /&gt;
+    &lt;Button
+        x:Name=&quot;GreetButton&quot;
+        Text=&quot;Greet&quot;
+        CustomMinimumSize=&quot;120,44&quot; /&gt;
+    &lt;Label Text=&quot;{Binding Greeting}&quot; /&gt;
+&lt;/BoxContainer&gt;
+</code></pre>
+<p><code>x:DataType</code> makes every binding compile against <code>FirstViewModel</code>. The <code>Name</code> field updates on each
+text change through a two-way binding. <code>Greeting</code> is one-way and refreshes when the view model raises
+<code>PropertyChanged</code>.</p>
+<h2 id="load-and-wire-the-class">Load and wire the class</h2>
+<p>The code-behind and view model are also compiled directly by both hosts:</p>
+<pre><code class="lang-csharp">// SPDX-License-Identifier: MIT
+
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Forma.Xaml;
+
+namespace Forma.QuickStart;
+
+public sealed class FirstView : BoxContainer
+{
+    public FirstView() : this(new FirstViewModel()) { }
+
+    public FirstView(FirstViewModel viewModel) : base(Orientation.Vertical)
+    {
+        DataContext = viewModel;
+        FormaXamlLoader.Load(this);
+        var scope = NameScope.GetNameScope(this)
+            ?? throw new InvalidOperationException(&quot;FirstView did not create a namescope.&quot;);
+        scope.Find&lt;Button&gt;(&quot;GreetButton&quot;).Pressed += (_, _) =&gt; viewModel.Greet();
+    }
+}
+
+public sealed class FirstViewModel : INotifyPropertyChanged
+{
+    private string _name = &quot;Player&quot;;
+    private string _greeting = &quot;Ready.&quot;;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public string Name
+    {
+        get =&gt; _name;
+        set =&gt; Set(ref _name, value);
+    }
+
+    public string Greeting
+    {
+        get =&gt; _greeting;
+        private set =&gt; Set(ref _greeting, value);
+    }
+
+    public void Greet() =&gt; Greeting = $&quot;Hello, {Name.Trim()}!&quot;;
+
+    private void Set&lt;T&gt;(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer&lt;T&gt;.Default.Equals(field, value)) return;
+        field = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
+</code></pre>
+<p><code>FirstView</code> derives from non-sealed <code>BoxContainer</code>; its constructor chooses vertical orientation
+before <code>FormaXamlLoader.Load(this)</code> populates it. XAML cannot set <code>Orientation</code> because that property
+is constructor-owned. The generated namescope resolves <code>GreetButton</code>, and the event calls the typed
+view model.</p>
+<h2 id="debug-hot-reload">Debug hot reload</h2>
+<p>Debug builds reference <code>Forma.Xaml.HotReload</code> and copy development XAML beside the executable. Run:</p>
+<pre><code class="lang-sh">dotnet run --project samples/Forma.QuickStart.MonoGame/Forma.QuickStart.MonoGame.csproj \
+  --configuration Debug -p:FormaRuntime=MonoGame -- --xaml
+</code></pre>
+<p>Use the FNA host and <code>FormaRuntime=FNA</code> for its peer. While the process runs, edit
+<code>samples/Forma.QuickStart/FirstView.xaml</code>; the registered service recompiles and replaces the root at
+a frame boundary. Diagnostics are written by the service/compiler instead of being deferred to
+Release.</p>
+<p>Hot reload is a development aid, not the production loading model. The clean-cache gate separately
+builds and starts Debug, then verifies Release output excludes <code>Forma.Xaml.HotReload.dll</code>,
+<code>Forma.Xaml.Compiler.dll</code>, <code>XamlX.dll</code>, and <code>XamlX.IL.Cecil.dll</code>:</p>
+<pre><code class="lang-sh">FORMA_RUNTIME=MonoGame bash scripts/check-quick-start.sh
+FORMA_RUNTIME=FNA bash scripts/check-quick-start.sh
+</code></pre>
+<p>For namespaces, resources, templates, selectors, binding modes, diagnostics, command-line tooling,
+and compatibility rules, continue with the <a href="../xaml-language.html">Forma XAML language contract</a>.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/getting-started/xaml-first-ui.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

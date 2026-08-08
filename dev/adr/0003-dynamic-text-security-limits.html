@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>ADR 0003: Dynamic Text Security Limits | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="ADR 0003: Dynamic Text Security Limits | Forma Documentation ">
+      
+      
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/adr/0003-dynamic-text-security-limits.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="adr-0003-dynamic-text-security-limits">ADR 0003: Dynamic Text Security Limits</h1>
+
+<ul>
+<li>Status: Accepted</li>
+<li>Date: 2026-08-01</li>
+<li>Owners: Forma maintainers</li>
+</ul>
+<h2 id="decision">Decision</h2>
+<p>Dynamic text rejects work before native calls or allocation when any limit below is exceeded. All
+limits apply independently to MonoGame and FNA builds and produce the same Forma exception type and
+error code.</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th style="text-align: right;">Initial limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Font source bytes</td>
+<td style="text-align: right;">64 MiB per source</td>
+</tr>
+<tr>
+<td>Faces in a font collection</td>
+<td style="text-align: right;">256</td>
+</tr>
+<tr>
+<td>SFNT tables</td>
+<td style="text-align: right;">4,096 per face</td>
+</tr>
+<tr>
+<td>Single SFNT table</td>
+<td style="text-align: right;">32 MiB</td>
+</tr>
+<tr>
+<td>Aggregate declared SFNT table bytes</td>
+<td style="text-align: right;">64 MiB per face</td>
+</tr>
+<tr>
+<td>Glyph bitmap dimension</td>
+<td style="text-align: right;">4,096 pixels per axis</td>
+</tr>
+<tr>
+<td>Glyph bitmap area</td>
+<td style="text-align: right;">16,777,216 pixels</td>
+</tr>
+<tr>
+<td>Alpha8 atlas page dimension</td>
+<td style="text-align: right;">2,048 pixels per axis</td>
+</tr>
+<tr>
+<td>Alpha8 atlas pages</td>
+<td style="text-align: right;">8 per graphics device</td>
+</tr>
+<tr>
+<td>Alpha8 atlas memory</td>
+<td style="text-align: right;">32 MiB per graphics device</td>
+</tr>
+<tr>
+<td>Fallback faces examined</td>
+<td style="text-align: right;">16 per grapheme cluster</td>
+</tr>
+<tr>
+<td>Layout input</td>
+<td style="text-align: right;">1,000,000 UTF-16 code units</td>
+</tr>
+<tr>
+<td>Shaped glyphs</td>
+<td style="text-align: right;">1,000,000 per layout</td>
+</tr>
+<tr>
+<td>Lines</td>
+<td style="text-align: right;">100,000 per layout</td>
+</tr>
+<tr>
+<td>Raster requests</td>
+<td style="text-align: right;">65,536 distinct glyph keys per layout</td>
+</tr>
+<tr>
+<td>Shaping budget</td>
+<td style="text-align: right;">500 ms per layout</td>
+</tr>
+<tr>
+<td>Rasterization budget</td>
+<td style="text-align: right;">100 ms per glyph and 2 s per layout</td>
+</tr>
+</tbody>
+</table>
+<p>Checked arithmetic is mandatory for every byte count, row pitch, rectangle, and texture-size
+calculation. Zero and negative dimensions, offsets outside the source buffer, overlapping SFNT
+table ranges, and glyph bitmaps whose pitch cannot contain one row are invalid data.</p>
+<p>The page and memory limits are both enforced. A future color atlas has a separate explicit budget;
+it cannot consume the Alpha8 allowance implicitly. Eviction may recover from a full cache, but one
+layout cannot bypass raster-request or fallback limits by causing repeated eviction.</p>
+<h2 id="time-budgets">Time Budgets</h2>
+<p>The implementation checks a monotonic deadline before and after each HarfBuzz run and FreeType
+glyph operation. Exceeding a budget aborts remaining work and returns a deterministic limit error.
+Cancellation is cooperative between native calls; managed code cannot safely interrupt one active
+FreeType or HarfBuzz call.</p>
+<p>Consequently, arbitrary adversarial fonts are not accepted as a fully sandboxed in-process input.
+Applications that ingest untrusted uploads must validate them out of process with operating-system
+CPU and memory limits before passing bytes to Forma. Forma's structural, count, allocation, and
+deadline checks remain defense in depth for trusted application assets and damaged files.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Public APIs may allow applications to lower limits. Raising hard font, bitmap, atlas, fallback, or
+layout limits requires an explicit advanced configuration object created before the text service;
+controls cannot mutate limits. Package defaults and error behavior remain identical between peers.</p>
+<h2 id="validation">Validation</h2>
+<p>Boundary tests cover exactly-at-limit and one-over-limit values without allocating the rejected
+size. Malformed-font fuzzing records the seed, binding/native versions, runtime peer, platform, and
+failure category. Time-budget tests use injected clocks around managed orchestration; native hangs
+are covered by process-level CI watchdogs.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/adr/0003-dynamic-text-security-limits.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

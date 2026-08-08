@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Dynamic Text | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Dynamic Text | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/dynamic-text.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="dynamic-text">Dynamic Text</h1>
+
+<p>Forma exposes the same text contracts in its MonoGame and FNA variants. Runtime-loaded text uses
+<code>UIFontFace</code>, <code>DynamicUIFont</code>, <code>TextLayoutEngine</code>, and device-scoped glyph atlases. Existing
+<code>SpriteFont</code> applications remain supported through <code>SpriteFontAdapter</code>.</p>
+<p>Installing the runtime-matched dynamic package gives each new <code>UIContext</code> a packaged Inter
+<code>DynamicUIFont</code> at 16 logical pixels. Set <code>FormaDynamicTextDefaultEnabled=false</code> in the application
+project to disable this initializer. Core-only and opted-out applications continue to resolve only
+explicitly assigned fonts. Applications can replace the default through <code>UIContext.Theme.FontFamily</code>
+or call <code>DynamicTextDefaults.Install</code> before constructing contexts.</p>
+<h2 id="packages-and-deployment">Packages and Deployment</h2>
+<p>Use the package matching the application's framework:</p>
+<table>
+<thead>
+<tr>
+<th>Runtime</th>
+<th>Native-free compatibility</th>
+<th>Dynamic text</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MonoGame</td>
+<td><code>Forma.MonoGame</code></td>
+<td><code>Forma.DynamicText.MonoGame</code></td>
+</tr>
+<tr>
+<td>FNA</td>
+<td><code>Forma.FNA</code></td>
+<td><code>Forma.DynamicText.FNA</code></td>
+</tr>
+</tbody>
+</table>
+<p>The core package is the native-free compatibility profile for restricted platforms and authorized
+console ports. It does not include FreeType, HarfBuzz, or their native libraries. Trim-only and
+NativeAOT package consumers are validated for both peers on macOS arm64, including native-free
+SpriteFont and optional dynamic-text graphical profiles. Run
+<code>bash scripts/test-nativeaot-package-consumer.sh</code> to reproduce the packed-artifact gate. Other RIDs
+remain unsupported until equivalent executable gates pass. Actual console support remains
+conditional on the selected MonoGame/FNA platform port, platform-holder approval, and validation on
+authorized hardware.</p>
+<p>The optional dynamic package resolves FreeType and HarfBuzz native assets for its declared runtime
+identifiers. Publish and test every target RID in a clean environment; do not rely on system-installed
+libraries. Ship font licenses and the repository third-party notices with redistributed fonts.
+Forma selects the permissive FreeType License and HarfBuzz's MIT license. Binary redistribution
+requires retaining their acknowledgments and notices, which <code>make compliance</code> enforces; neither
+selected license requires a source offer. Modified or source redistribution must be reviewed against
+the corresponding upstream terms rather than inferred from this binary-package conclusion.</p>
+<h3 id="internal-backend-boundary">Internal Backend Boundary</h3>
+<p><code>UIFontFace</code>, <code>DynamicUIFont</code>, and <code>TextLayoutEngine</code> do not expose FreeTypeSharp, HarfBuzzSharp,
+native handles, or platform font types. <code>UIFontFace</code> delegates face metadata, character/glyph lookup,
+metrics, variations, shaping, rasterization, diagnostics, and disposal to an internal backend
+contract. The normal <code>Forma.DynamicText.&lt;Runtime&gt;</code> build selects <code>FreeTypeHarfBuzz</code> and preserves
+the existing desktop package behavior.</p>
+<p>Authorized source builds may set <code>FormaDynamicTextBackend=External</code> and provide
+<code>FormaDynamicTextBackendSource</code> pointing to a source file compiled into <code>Forma.DynamicText</code>. That
+file defines the internal <code>ExternalDynamicTextBackend</code> implementation. Selection is compile-time:
+there is no assembly scanning, reflection activation, runtime generic construction, or public
+backend API. The source remains in authorized infrastructure when it contains platform SDK details.</p>
+<p>Run <code>make static-font-backend</code> to publish and execute the NDA-neutral platform-adapter spike for both
+runtime peers. The gate verifies the unchanged public face API and rejects FreeType/HarfBuzz managed
+dependencies and sidecar libraries from the spike output. This proves the replacement boundary and
+packaging shape; target-specific font quality, lifecycle, and policy remain platform validation work.</p>
+<p><code>DynamicTextNativeDiagnostics.Current</code> reports the target RID, logical native library names, and
+NuGet packaging sources without scanning loaded modules or exposing handles. Forma owns one direct
+entry point, <code>FT_Set_Var_Design_Coordinates</code>, against FreeTypeSharp's <code>freetype</code> library name. All
+other FreeType calls use FreeTypeSharp; shaping uses HarfBuzzSharp and its <code>libHarfBuzzSharp</code> native
+assets. Forma owns pinned-memory, FreeType-library, and FreeType-face safe handles. HarfBuzzSharp owns
+its blob, face, font, and buffer handles. This path registers no unmanaged callbacks and uses no
+runtime-generated marshalling.</p>
+<p>Missing, incompatible, or rejected native font libraries fail face creation with
+<code>FontLoadException</code> and <code>FontLoadErrorCode.NativeFailure</code>. The public message is bounded and stable;
+loader details remain available through <code>InnerException</code> for host diagnostics. Run
+<code>make native-font-failures</code> to exercise missing files, invalid binaries, and valid libraries with
+missing FreeType exports in fresh processes for both peers. Packed dynamic consumers also require
+exactly one loaded FreeType and HarfBuzz module from their publish directory.</p>
+<p>MGCB/XNB is not required for dynamic text. MonoGame MGCB SpriteFonts and FNA-compatible XNB
+SpriteFonts are optional offline compatibility routes.</p>
+<h2 id="release-budgets">Release Budgets</h2>
+<p>The dual-runtime render smoke enforces these deliberately conservative ceilings on supported
+graphical CI hosts. The August 2026 Apple M4 Max baseline measured MonoGame/FNA respectively at
+1.9/9.7 ms cold face load, 0.19/0.24 ms first shape, 0.24/0.27 ms first raster plus upload,
+1.0/1.1 ms per 1,000 warm layout lookups, 6.4/2.5 ms per 100 warm draws, 4.6/5.5 ms fallback-heavy
+layout, and 2.5/3.3 ms atlas churn.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th style="text-align: right;">Release ceiling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cold face load</td>
+<td style="text-align: right;">1,000 ms</td>
+</tr>
+<tr>
+<td>First shape</td>
+<td style="text-align: right;">500 ms</td>
+</tr>
+<tr>
+<td>First glyph raster and upload</td>
+<td style="text-align: right;">500 ms</td>
+</tr>
+<tr>
+<td>1,000 warm layout lookups</td>
+<td style="text-align: right;">500 ms</td>
+</tr>
+<tr>
+<td>Warm layout cache hit rate</td>
+<td style="text-align: right;">at least 99%</td>
+</tr>
+<tr>
+<td>100 unchanged warm draws</td>
+<td style="text-align: right;">1,000 ms and zero managed allocation</td>
+</tr>
+<tr>
+<td>Fallback-heavy layout</td>
+<td style="text-align: right;">500 ms</td>
+</tr>
+<tr>
+<td>One-page atlas churn</td>
+<td style="text-align: right;">2,000 ms</td>
+</tr>
+<tr>
+<td>Core managed assembly</td>
+<td style="text-align: right;">2 MiB</td>
+</tr>
+<tr>
+<td>Dynamic-text managed assembly</td>
+<td style="text-align: right;">256 KiB</td>
+</tr>
+</tbody>
+</table>
+<p>The retained layout cache is bounded at 512 entries. Device-scoped Alpha8 atlases are bounded at
+eight 2048x2048 pages and 32 MiB. Budget failures block release; measurements are performance gates,
+not cross-machine throughput promises.</p>
+<h2 id="loading-and-ownership">Loading and Ownership</h2>
+<pre><code class="lang-csharp">using var latinFace = UIFontFace.FromProjectFile(projectDirectory, &quot;Fonts/Inter-Regular.ttf&quot;);
+using var arabicFace = UIFontFace.FromStream(File.OpenRead(&quot;Fonts/NotoSansArabic.ttf&quot;));
+var font = new DynamicUIFont(latinFace, 18, UIFontHinting.Default, arabicFace);
+
+var label = new Label
+{
+    Text = &quot;Forma مرحبا&quot;,
+    UIFont = font,
+    Language = &quot;ar&quot;,
+};
+</code></pre>
+<p>Faces can also be loaded from <code>ReadOnlyMemory&lt;byte&gt;</code>. Forma copies and pins bounded source bytes for
+the native face lifetime. The application owns faces and must keep them alive while fonts or layouts
+can use them, then dispose them idempotently. Controls, <code>DynamicUIFont</code>, and immutable <code>TextLayout</code>
+instances do not own faces.</p>
+<p>Fallback order is deterministic and resolved per grapheme cluster. Put the normal UI face first,
+then script and emoji faces. Unsupported input reaches glyph 0 (<code>.notdef</code>) after the chain is
+exhausted; it is not replaced with <code>?</code> and does not throw.</p>
+<p>Use <code>UIFontHinting.Light</code> for small grayscale UI text that needs vertical pixel alignment while
+preserving fractional horizontal advances and inter-glyph spacing. Dynamic glyphs rasterize at a
+minimum 2x density and downsample linearly on 1x displays, avoiding low-resolution spacing artifacts
+without changing HarfBuzz layout metrics.</p>
+<h2 id="layout-and-display-density">Layout and Display Density</h2>
+<p>Font sizes and all <code>TextLayout</code> geometry use logical UI units. <code>UIContext.DisplayScale</code> controls the
+physical glyph raster size. Moving from 1x to 2x rerasterizes or reuses density-specific cache entries
+without changing line breaks, caret positions, or logical bounds.</p>
+<pre><code class="lang-csharp">var options = new TextLayoutOptions(
+    maxWidth: 320,
+    wrapping: TextWrapping.Word,
+    direction: TextDirection.Auto,
+    locale: &quot;he&quot;);
+var layout = ui.TextLayoutEngine.Layout(font, text, options);
+var caret = layout.GetCaretPosition(utf16Index);
+var hit = layout.HitTest(pointerInLayout);
+var selection = layout.GetSelectionRectangles(startUtf16, lengthUtf16);
+</code></pre>
+<p>UTF-16 offsets, grapheme clusters, visual clusters, and glyph IDs are distinct. Use layout movement,
+hit-testing, word-boundary, and selection APIs instead of incrementing code units or measuring
+substrings.</p>
+<h2 id="opentype-and-variable-fonts">OpenType and Variable Fonts</h2>
+<p><code>TextLayoutOptions.OpenTypeFeatures</code> accepts immutable four-character OpenType tags. Label forwards
+features with <code>SetOpenTypeFeatures</code>. Variable coordinates belong to <code>DynamicUIFont</code> identity:</p>
+<pre><code class="lang-csharp">var variable = new DynamicUIFont(
+    face,
+    24,
+    UIFontHinting.Default,
+    new[] { new UIFontVariationCoordinate(&quot;wght&quot;, 650) });
+label.UIFont = variable;
+label.SetOpenTypeFeatures(new[]
+{
+    new UIFontOpenTypeFeature(&quot;liga&quot;, 1),
+    new UIFontOpenTypeFeature(&quot;kern&quot;, 1),
+});
+</code></pre>
+<h2 id="cache-budget-and-recovery">Cache Budget and Recovery</h2>
+<p>Each <code>UIContext</code> owns a glyph cache per <code>GraphicsDevice</code>. The default hard limits are eight
+2048x2048 Alpha8 pages and 32 MB. <code>UIContext.DynamicGlyphDiagnostics</code> reports pages, glyphs,
+occupancy, hits, misses, uploads, evictions, failures, and bytes. Immutable page snapshots are
+available through <code>GetDynamicGlyphAtlasPages</code>; <code>ClearDynamicGlyphCache</code> clears pages between draws.
+Device reset recreates textures from retained grayscale pages. Active-frame budget exhaustion skips
+the unavailable glyph, records a diagnostic, and retries normally on later frames instead of
+allocating beyond the budget or terminating the process.</p>
+<h2 id="spritefont-compatibility">SpriteFont Compatibility</h2>
+<p>Keep <code>SpriteFont</code> when the application needs a fixed glyph set, pixel-art sampling, a deterministic
+offline atlas, minimal native dependencies, or legacy XNA-compatible deployment. Assigning a
+control's existing <code>Font</code> property installs a cached <code>SpriteFontAdapter</code>; no source rewrite is
+required.</p>
+<p>Migrate without changing layout intent:</p>
+<pre><code class="lang-csharp">// Before: offline SpriteFont.
+var column = new VBoxContainer { Separation = 8 };
+column.AddChild(new Label { Font = content.Load&lt;SpriteFont&gt;(&quot;UI&quot;), Text = &quot;Settings&quot; });
+column.AddChild(new Button { Font = content.Load&lt;SpriteFont&gt;(&quot;UI&quot;), Text = &quot;Apply&quot; });
+
+// After: retain the same controls and layout properties; change only font selection.
+using var face = UIFontFace.FromProjectFile(projectDirectory, &quot;Fonts/Inter-Regular.ttf&quot;);
+var uiFont = new DynamicUIFont(face, 16);
+column.Children.OfType&lt;Label&gt;().Single().UIFont = uiFont;
+column.Children.OfType&lt;Button&gt;().Single().UIFont = uiFont;
+</code></pre>
+<p>During rollout, keep the original SpriteFont loaded and expose an application switch:</p>
+<pre><code class="lang-csharp">void SelectCompatibility(bool compatibility)
+{
+    label.UIFont = compatibility ? new SpriteFontAdapter(spriteFont, 16) : dynamicFont;
+}
+</code></pre>
+<p>The catalog header demonstrates this rollback path in both runtime hosts.</p>
+<h2 id="compatibility-policy">Compatibility Policy</h2>
+<p>Forma 0.x preserves the parallel <code>Font</code> and <code>UIFont</code> properties during migration. Additive text
+contracts are minor-version changes. Existing <code>Font</code> members will not be silently reinterpreted or
+removed; any future obsoletion forwards through <code>SpriteFontAdapter</code> for at least one minor release,
+and removal requires a documented major-version decision. Assigning both properties remains
+last-assignment-wins.</p>
+<h2 id="catalog-stories">Catalog Stories</h2>
+<p>The exact typography story names are <strong>Dynamic Sizes</strong>, <strong>Letter Spacing</strong>, <strong>Display Density</strong>,
+<strong>Fallback Chain</strong>, <strong>Shaping and Features</strong>, <strong>Bidirectional Text</strong>, <strong>Wrapping and Selection</strong>,
+<strong>SpriteFont Compatibility</strong>, <strong>Atlas Inspector</strong>, and <strong>Failure States</strong>. Their stable identifiers
+are the kebab-case names prefixed with <code>catalog-</code>, such as <code>catalog-fallback-chain</code>.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/dynamic-text.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

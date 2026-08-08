@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Class CompiledBinding | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class CompiledBinding | Forma Documentation ">
+      
+      
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="Forma.Xaml.CompiledBinding">
+
+
+
+  <h1 id="Forma_Xaml_CompiledBinding" data-uid="Forma.Xaml.CompiledBinding" class="text-break">
+Class CompiledBinding  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="Forma.html">Forma</a>.<a class="xref" href="Forma.Xaml.html">Xaml</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>Forma.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"></div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class CompiledBinding</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">CompiledBinding</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist inheritedMembers">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="Forma_Xaml_CompiledBinding_AttachOneTime_" data-uid="Forma.Xaml.CompiledBinding.AttachOneTime*"></a>
+
+  <h3 id="Forma_Xaml_CompiledBinding_AttachOneTime__2_Forma_Control_System_Object_System_Func_Forma_Control___0__System_Func___0___1__System_String_System_Func_System_Object___1__System_Action_System_Object___1__" data-uid="Forma.Xaml.CompiledBinding.AttachOneTime``2(Forma.Control,System.Object,System.Func{Forma.Control,``0},System.Func{``0,``1},System.String,System.Func{System.Object,``1},System.Action{System.Object,``1})">
+  AttachOneTime&lt;TSource, TValue&gt;(Control, object, Func&lt;Control, TSource&gt;, Func&lt;TSource, TValue&gt;, string, Func&lt;object, TValue&gt;, Action&lt;object, TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IDisposable AttachOneTime&lt;TSource, TValue&gt;(Control root, object target, Func&lt;Control, TSource&gt; resolveSource, Func&lt;TSource, TValue&gt; read, string sourcePropertyName, Func&lt;object, TValue&gt; getTarget, Action&lt;object, TValue&gt; setTarget) where TSource : class</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>root</code> <a class="xref" href="Forma.Control.html">Control</a></dt>
+    <dd></dd>
+    <dt><code>target</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+    <dt><code>resolveSource</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="Forma.Control.html">Control</a>, TSource&gt;</dt>
+    <dd></dd>
+    <dt><code>read</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>sourcePropertyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>getTarget</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>setTarget</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>, TValue&gt;</dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd></dd>
+    <dt><code>TValue</code></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_Xaml_CompiledBinding_AttachOneTime_" data-uid="Forma.Xaml.CompiledBinding.AttachOneTime*"></a>
+
+  <h3 id="Forma_Xaml_CompiledBinding_AttachOneTime__2_Forma_Control_System_Object_System_Func___0___1__System_String_System_Func_System_Object___1__System_Action_System_Object___1__" data-uid="Forma.Xaml.CompiledBinding.AttachOneTime``2(Forma.Control,System.Object,System.Func{``0,``1},System.String,System.Func{System.Object,``1},System.Action{System.Object,``1})">
+  AttachOneTime&lt;TSource, TValue&gt;(Control, object, Func&lt;TSource, TValue&gt;, string, Func&lt;object, TValue&gt;, Action&lt;object, TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IDisposable AttachOneTime&lt;TSource, TValue&gt;(Control root, object target, Func&lt;TSource, TValue&gt; read, string sourcePropertyName, Func&lt;object, TValue&gt; getTarget, Action&lt;object, TValue&gt; setTarget) where TSource : class</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>root</code> <a class="xref" href="Forma.Control.html">Control</a></dt>
+    <dd></dd>
+    <dt><code>target</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+    <dt><code>read</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>sourcePropertyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>getTarget</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>setTarget</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>, TValue&gt;</dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd></dd>
+    <dt><code>TValue</code></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_Xaml_CompiledBinding_AttachOneWay_" data-uid="Forma.Xaml.CompiledBinding.AttachOneWay*"></a>
+
+  <h3 id="Forma_Xaml_CompiledBinding_AttachOneWay__2_Forma_Control_System_Object_System_Func_Forma_Control___0__System_Func___0___1__System_String_System_Func_System_Object___1__System_Action_System_Object___1__" data-uid="Forma.Xaml.CompiledBinding.AttachOneWay``2(Forma.Control,System.Object,System.Func{Forma.Control,``0},System.Func{``0,``1},System.String,System.Func{System.Object,``1},System.Action{System.Object,``1})">
+  AttachOneWay&lt;TSource, TValue&gt;(Control, object, Func&lt;Control, TSource&gt;, Func&lt;TSource, TValue&gt;, string, Func&lt;object, TValue&gt;, Action&lt;object, TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IDisposable AttachOneWay&lt;TSource, TValue&gt;(Control root, object target, Func&lt;Control, TSource&gt; resolveSource, Func&lt;TSource, TValue&gt; read, string sourcePropertyName, Func&lt;object, TValue&gt; getTarget, Action&lt;object, TValue&gt; setTarget) where TSource : class</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>root</code> <a class="xref" href="Forma.Control.html">Control</a></dt>
+    <dd></dd>
+    <dt><code>target</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+    <dt><code>resolveSource</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="Forma.Control.html">Control</a>, TSource&gt;</dt>
+    <dd></dd>
+    <dt><code>read</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>sourcePropertyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>getTarget</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>setTarget</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>, TValue&gt;</dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd></dd>
+    <dt><code>TValue</code></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_Xaml_CompiledBinding_AttachOneWay_" data-uid="Forma.Xaml.CompiledBinding.AttachOneWay*"></a>
+
+  <h3 id="Forma_Xaml_CompiledBinding_AttachOneWay__2_Forma_Control_System_Object_System_Func___0___1__System_String_System_Func_System_Object___1__System_Action_System_Object___1__" data-uid="Forma.Xaml.CompiledBinding.AttachOneWay``2(Forma.Control,System.Object,System.Func{``0,``1},System.String,System.Func{System.Object,``1},System.Action{System.Object,``1})">
+  AttachOneWay&lt;TSource, TValue&gt;(Control, object, Func&lt;TSource, TValue&gt;, string, Func&lt;object, TValue&gt;, Action&lt;object, TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IDisposable AttachOneWay&lt;TSource, TValue&gt;(Control root, object target, Func&lt;TSource, TValue&gt; read, string sourcePropertyName, Func&lt;object, TValue&gt; getTarget, Action&lt;object, TValue&gt; setTarget) where TSource : class</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>root</code> <a class="xref" href="Forma.Control.html">Control</a></dt>
+    <dd></dd>
+    <dt><code>target</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+    <dt><code>read</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>sourcePropertyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>getTarget</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>setTarget</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>, TValue&gt;</dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd></dd>
+    <dt><code>TValue</code></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_Xaml_CompiledBinding_AttachTwoWay_" data-uid="Forma.Xaml.CompiledBinding.AttachTwoWay*"></a>
+
+  <h3 id="Forma_Xaml_CompiledBinding_AttachTwoWay__2_Forma_Control_System_Object_System_Func_Forma_Control___0__System_Func___0___1__System_Action___0___1__System_String_Forma_Xaml_BindingTargetAdapter___1__Forma_Xaml_UpdateSourceTrigger_" data-uid="Forma.Xaml.CompiledBinding.AttachTwoWay``2(Forma.Control,System.Object,System.Func{Forma.Control,``0},System.Func{``0,``1},System.Action{``0,``1},System.String,Forma.Xaml.BindingTargetAdapter{``1},Forma.Xaml.UpdateSourceTrigger)">
+  AttachTwoWay&lt;TSource, TValue&gt;(Control, object, Func&lt;Control, TSource&gt;, Func&lt;TSource, TValue&gt;, Action&lt;TSource, TValue&gt;, string, BindingTargetAdapter&lt;TValue&gt;, UpdateSourceTrigger)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IDisposable AttachTwoWay&lt;TSource, TValue&gt;(Control root, object target, Func&lt;Control, TSource&gt; resolveSource, Func&lt;TSource, TValue&gt; read, Action&lt;TSource, TValue&gt; write, string sourcePropertyName, BindingTargetAdapter&lt;TValue&gt; targetAdapter, UpdateSourceTrigger updateSourceTrigger = UpdateSourceTrigger.Default) where TSource : class</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>root</code> <a class="xref" href="Forma.Control.html">Control</a></dt>
+    <dd></dd>
+    <dt><code>target</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+    <dt><code>resolveSource</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="Forma.Control.html">Control</a>, TSource&gt;</dt>
+    <dd></dd>
+    <dt><code>read</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>write</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;TSource, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>sourcePropertyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>targetAdapter</code> <a class="xref" href="Forma.Xaml.BindingTargetAdapter-1.html">BindingTargetAdapter</a>&lt;TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>updateSourceTrigger</code> <a class="xref" href="Forma.Xaml.UpdateSourceTrigger.html">UpdateSourceTrigger</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd></dd>
+    <dt><code>TValue</code></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_Xaml_CompiledBinding_AttachTwoWay_" data-uid="Forma.Xaml.CompiledBinding.AttachTwoWay*"></a>
+
+  <h3 id="Forma_Xaml_CompiledBinding_AttachTwoWay__2_Forma_Control_System_Object_System_Func___0___1__System_Action___0___1__System_String_Forma_Xaml_BindingTargetAdapter___1__Forma_Xaml_UpdateSourceTrigger_" data-uid="Forma.Xaml.CompiledBinding.AttachTwoWay``2(Forma.Control,System.Object,System.Func{``0,``1},System.Action{``0,``1},System.String,Forma.Xaml.BindingTargetAdapter{``1},Forma.Xaml.UpdateSourceTrigger)">
+  AttachTwoWay&lt;TSource, TValue&gt;(Control, object, Func&lt;TSource, TValue&gt;, Action&lt;TSource, TValue&gt;, string, BindingTargetAdapter&lt;TValue&gt;, UpdateSourceTrigger)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IDisposable AttachTwoWay&lt;TSource, TValue&gt;(Control root, object target, Func&lt;TSource, TValue&gt; read, Action&lt;TSource, TValue&gt; write, string sourcePropertyName, BindingTargetAdapter&lt;TValue&gt; targetAdapter, UpdateSourceTrigger updateSourceTrigger = UpdateSourceTrigger.Default) where TSource : class</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>root</code> <a class="xref" href="Forma.Control.html">Control</a></dt>
+    <dd></dd>
+    <dt><code>target</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+    <dt><code>read</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>write</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;TSource, TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>sourcePropertyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>targetAdapter</code> <a class="xref" href="Forma.Xaml.BindingTargetAdapter-1.html">BindingTargetAdapter</a>&lt;TValue&gt;</dt>
+    <dd></dd>
+    <dt><code>updateSourceTrigger</code> <a class="xref" href="Forma.Xaml.UpdateSourceTrigger.html">UpdateSourceTrigger</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd></dd>
+    <dt><code>TValue</code></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_Xaml_CompiledBinding_Attach_" data-uid="Forma.Xaml.CompiledBinding.Attach*"></a>
+
+  <h3 id="Forma_Xaml_CompiledBinding_Attach__3_Forma_Control_System_Object_Forma_Xaml_CompiledBindingPath___0___1__Forma_Xaml_BindingTargetAdapter___2__System_Func___1___2__System_Func___2___1__Forma_Xaml_BindingOptions___2__" data-uid="Forma.Xaml.CompiledBinding.Attach``3(Forma.Control,System.Object,Forma.Xaml.CompiledBindingPath{``0,``1},Forma.Xaml.BindingTargetAdapter{``2},System.Func{``1,``2},System.Func{``2,``1},Forma.Xaml.BindingOptions{``2})">
+  Attach&lt;TSource, TSourceValue, TTargetValue&gt;(Control, object, CompiledBindingPath&lt;TSource, TSourceValue&gt;, BindingTargetAdapter&lt;TTargetValue&gt;, Func&lt;TSourceValue, TTargetValue&gt;, Func&lt;TTargetValue, TSourceValue&gt;, BindingOptions&lt;TTargetValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IDisposable Attach&lt;TSource, TSourceValue, TTargetValue&gt;(Control root, object target, CompiledBindingPath&lt;TSource, TSourceValue&gt; path, BindingTargetAdapter&lt;TTargetValue&gt; targetAdapter, Func&lt;TSourceValue, TTargetValue&gt; convert, Func&lt;TTargetValue, TSourceValue&gt; convertBack = null, BindingOptions&lt;TTargetValue&gt; options = null) where TSource : class</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>root</code> <a class="xref" href="Forma.Control.html">Control</a></dt>
+    <dd></dd>
+    <dt><code>target</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+    <dt><code>path</code> <a class="xref" href="Forma.Xaml.CompiledBindingPath-2.html">CompiledBindingPath</a>&lt;TSource, TSourceValue&gt;</dt>
+    <dd></dd>
+    <dt><code>targetAdapter</code> <a class="xref" href="Forma.Xaml.BindingTargetAdapter-1.html">BindingTargetAdapter</a>&lt;TTargetValue&gt;</dt>
+    <dd></dd>
+    <dt><code>convert</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSourceValue, TTargetValue&gt;</dt>
+    <dd></dd>
+    <dt><code>convertBack</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TTargetValue, TSourceValue&gt;</dt>
+    <dd></dd>
+    <dt><code>options</code> <a class="xref" href="Forma.Xaml.BindingOptions-1.html">BindingOptions</a>&lt;TTargetValue&gt;</dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd></dd>
+    <dt><code>TSourceValue</code></dt>
+    <dd></dd>
+    <dt><code>TTargetValue</code></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_Xaml_CompiledBinding_Attach_" data-uid="Forma.Xaml.CompiledBinding.Attach*"></a>
+
+  <h3 id="Forma_Xaml_CompiledBinding_Attach__3_Forma_Control_System_Object_System_Func_Forma_Control___0__Forma_Xaml_CompiledBindingPath___0___1__Forma_Xaml_BindingTargetAdapter___2__System_Func___1___2__System_Func___2___1__Forma_Xaml_BindingOptions___2__" data-uid="Forma.Xaml.CompiledBinding.Attach``3(Forma.Control,System.Object,System.Func{Forma.Control,``0},Forma.Xaml.CompiledBindingPath{``0,``1},Forma.Xaml.BindingTargetAdapter{``2},System.Func{``1,``2},System.Func{``2,``1},Forma.Xaml.BindingOptions{``2})">
+  Attach&lt;TSource, TSourceValue, TTargetValue&gt;(Control, object, Func&lt;Control, TSource&gt;, CompiledBindingPath&lt;TSource, TSourceValue&gt;, BindingTargetAdapter&lt;TTargetValue&gt;, Func&lt;TSourceValue, TTargetValue&gt;, Func&lt;TTargetValue, TSourceValue&gt;, BindingOptions&lt;TTargetValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IDisposable Attach&lt;TSource, TSourceValue, TTargetValue&gt;(Control root, object target, Func&lt;Control, TSource&gt; resolveSource, CompiledBindingPath&lt;TSource, TSourceValue&gt; path, BindingTargetAdapter&lt;TTargetValue&gt; targetAdapter, Func&lt;TSourceValue, TTargetValue&gt; convert, Func&lt;TTargetValue, TSourceValue&gt; convertBack = null, BindingOptions&lt;TTargetValue&gt; options = null) where TSource : class</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>root</code> <a class="xref" href="Forma.Control.html">Control</a></dt>
+    <dd></dd>
+    <dt><code>target</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+    <dt><code>resolveSource</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="Forma.Control.html">Control</a>, TSource&gt;</dt>
+    <dd></dd>
+    <dt><code>path</code> <a class="xref" href="Forma.Xaml.CompiledBindingPath-2.html">CompiledBindingPath</a>&lt;TSource, TSourceValue&gt;</dt>
+    <dd></dd>
+    <dt><code>targetAdapter</code> <a class="xref" href="Forma.Xaml.BindingTargetAdapter-1.html">BindingTargetAdapter</a>&lt;TTargetValue&gt;</dt>
+    <dd></dd>
+    <dt><code>convert</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSourceValue, TTargetValue&gt;</dt>
+    <dd></dd>
+    <dt><code>convertBack</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TTargetValue, TSourceValue&gt;</dt>
+    <dd></dd>
+    <dt><code>options</code> <a class="xref" href="Forma.Xaml.BindingOptions-1.html">BindingOptions</a>&lt;TTargetValue&gt;</dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd></dd>
+    <dt><code>TSourceValue</code></dt>
+    <dd></dd>
+    <dt><code>TTargetValue</code></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Xaml/Binding.cs" class="edit-link">Edit this page</a>
+        </div>
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

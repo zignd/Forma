@@ -1,0 +1,5899 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Class TextEdit | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class TextEdit | Forma Documentation ">
+      
+      <meta name="description" content="Edits multiline text with wrapping, multiple carets, gutters, syntax highlighting, and undo history.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="Forma.TextEdit">
+
+
+
+  <h1 id="Forma_TextEdit" data-uid="Forma.TextEdit" class="text-break">
+Class TextEdit  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="Forma.html">Forma</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>Forma.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Edits multiline text with wrapping, multiple carets, gutters, syntax highlighting, and undo history.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class TextEdit : LineEdit, IAddChild&lt;Control&gt;, IAddChild, INotifyPropertyChanged, IDisposable</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="Forma.Control.html">Control</a></div>
+      <div><a class="xref" href="Forma.TemplatedControl.html">TemplatedControl</a></div>
+      <div><a class="xref" href="Forma.LineEdit.html">LineEdit</a></div>
+      <div><span class="xref">TextEdit</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="Forma.Xaml.IAddChild-1.html">IAddChild</a>&lt;<a class="xref" href="Forma.Control.html">Control</a>&gt;</div>
+      <div><a class="xref" href="Forma.Xaml.IAddChild.html">IAddChild</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.componentmodel.inotifypropertychanged">INotifyPropertyChanged</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist derived">
+    <dt>Derived</dt>
+    <dd>
+      <div><a class="xref" href="Forma.CodeEdit.html">CodeEdit</a></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist inheritedMembers">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_EditorPresenterPartName">LineEdit.EditorPresenterPartName</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_OnTemplateApplied">LineEdit.OnTemplateApplied()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetScrollOffset">LineEdit.GetScrollOffset()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetTextDirectionMenu">LineEdit.GetTextDirectionMenu()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetControlCharacterMenu">LineEdit.GetControlCharacterMenu()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SetContextMenuEnabled_System_Boolean_">LineEdit.SetContextMenuEnabled(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_IsContextMenuEnabled">LineEdit.IsContextMenuEnabled()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SetSelectAllOnFocus_System_Boolean_">LineEdit.SetSelectAllOnFocus(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_IsSelectAllOnFocus">LineEdit.IsSelectAllOnFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SetSelectingEnabled_System_Boolean_">LineEdit.SetSelectingEnabled(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_IsSelectingEnabled">LineEdit.IsSelectingEnabled()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SetTextDirection_Forma_TextDirection_">LineEdit.SetTextDirection(TextDirection)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetTextDirection">LineEdit.GetTextDirection()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SetLanguage_System_String_">LineEdit.SetLanguage(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetLanguage">LineEdit.GetLanguage()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SetDrawControlChars_System_Boolean_">LineEdit.SetDrawControlChars(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetDrawControlChars">LineEdit.GetDrawControlChars()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SetStructuredTextBidiOverride_Forma_StructuredTextParser_">LineEdit.SetStructuredTextBidiOverride(StructuredTextParser)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetStructuredTextBidiOverride">LineEdit.GetStructuredTextBidiOverride()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SetStructuredTextBidiOverrideOptions_System_Collections_Generic_IEnumerable_System_Object__">LineEdit.SetStructuredTextBidiOverrideOptions(IEnumerable&lt;object&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetStructuredTextBidiOverrideOptions">LineEdit.GetStructuredTextBidiOverrideOptions()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetClearButtonRectangle">LineEdit.GetClearButtonRectangle()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SetImeComposition_System_String_System_Int32_System_Int32_">LineEdit.SetImeComposition(string, int, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_CommitImeComposition_System_String_">LineEdit.CommitImeComposition(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_CancelImeComposition">LineEdit.CancelImeComposition()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Select_System_Int32_System_Int32_">LineEdit.Select(int, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Deselect">LineEdit.Deselect()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_DeleteSelection">LineEdit.DeleteSelection()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_DeleteText_System_Int32_System_Int32_">LineEdit.DeleteText(int, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Copy">LineEdit.Copy()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Cut">LineEdit.Cut()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Paste">LineEdit.Paste()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Paste_System_String_">LineEdit.Paste(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_MenuOption_Forma_LineEditMenuOption_">LineEdit.MenuOption(LineEditMenuOption)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_GetMinimumSize">LineEdit.GetMinimumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_AccessibilityRole">LineEdit.AccessibilityRole</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_AccessibilityName">LineEdit.AccessibilityName</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_AccessibilityValue">LineEdit.AccessibilityValue</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_AccessibilityActions">LineEdit.AccessibilityActions</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_AccessibilityStates">LineEdit.AccessibilityStates</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Text">LineEdit.Text</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_PlaceholderText">LineEdit.PlaceholderText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SecretCharacter">LineEdit.SecretCharacter</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Editable">LineEdit.Editable</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_MaxLength">LineEdit.MaxLength</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_ClearButtonEnabled">LineEdit.ClearButtonEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SubmitOnFocusExit">LineEdit.SubmitOnFocusExit</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_DeselectOnFocusLoss">LineEdit.DeselectOnFocusLoss</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_ContextMenuEnabled">LineEdit.ContextMenuEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SelectAllOnFocus">LineEdit.SelectAllOnFocus</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SelectingEnabled">LineEdit.SelectingEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_TextDirection">LineEdit.TextDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_DrawControlCharacters">LineEdit.DrawControlCharacters</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_StructuredTextBidiOverride">LineEdit.StructuredTextBidiOverride</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_CaretColumn">LineEdit.CaretColumn</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_HasImeComposition">LineEdit.HasImeComposition</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_ImeCompositionText">LineEdit.ImeCompositionText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_ImeCompositionSelection">LineEdit.ImeCompositionSelection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_HasSelection">LineEdit.HasSelection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SelectionFrom">LineEdit.SelectionFrom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SelectionTo">LineEdit.SelectionTo</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_SelectedText">LineEdit.SelectedText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Font">LineEdit.Font</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_UIFont">LineEdit.UIFont</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_Padding">LineEdit.Padding</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_TextVerticalAlignment">LineEdit.TextVerticalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_TextChanged">LineEdit.TextChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_TextChangeRejected">LineEdit.TextChangeRejected</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_TextSubmitted">LineEdit.TextSubmitted</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_ApplyTemplate">TemplatedControl.ApplyTemplate()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_GetTemplateChild_System_String_">TemplatedControl.GetTemplateChild(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_ArrangeChildren">TemplatedControl.ArrangeChildren()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_InvalidateTemplate">TemplatedControl.InvalidateTemplate()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_OnThemeChanged">TemplatedControl.OnThemeChanged()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_OnContextChanged_Forma_UIContext_Forma_UIContext_">TemplatedControl.OnContextChanged(UIContext, UIContext)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_Dispose">TemplatedControl.Dispose()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_Template">TemplatedControl.Template</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_TemplateRoot">TemplatedControl.TemplateRoot</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPseudoStateActive_System_String_">Control.IsPseudoStateActive(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsLayoutRtl">Control.IsLayoutRtl()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddChild_Forma_Control_">Control.AddChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CreateAccessibilityPeer">Control.CreateAccessibilityPeer()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetAccessibilityChildren">Control.GetAccessibilityChildren()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveChild_Forma_Control_">Control.RemoveChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClearDataContext">Control.ClearDataContext()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TryFindResource_System_String_System_Object__">Control.TryFindResource(string, out object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FindName__1_System_String_">Control.FindName&lt;T&gt;(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MoveChild_Forma_Control_System_Int32_">Control.MoveChild(Control, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveFromParent">Control.RemoveFromParent()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetNodeOrNull_System_String_">Control.GetNodeOrNull(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeStyleOverride_System_String_Forma_StyleBox_">Control.AddThemeStyleOverride(string, StyleBox)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeStyleOverride_System_String_">Control.RemoveThemeStyleOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeStyleBox_System_String_">Control.GetThemeStyleBox(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeIconOverride_System_String_Forma_ThemeIcon_">Control.AddThemeIconOverride(string, ThemeIcon)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeIconOverride_System_String_">Control.RemoveThemeIconOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SuppressThemeIcon_System_String_">Control.SuppressThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeIcon_System_String_">Control.GetThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeIcon_System_String_System_String_">Control.GetThemeIcon(string, string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchor_Forma_Side_System_Single_System_Boolean_System_Boolean_">Control.SetAnchor(Side, float, bool, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetOffset_Forma_Side_System_Single_">Control.SetOffset(Side, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchorsAndOffsets_System_Single_System_Single_System_Single_System_Single_">Control.SetAnchorsAndOffsets(float, float, float, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AcceptEvent">Control.AcceptEvent()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetDesiredSize">Control.GetDesiredSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetMaximumSize">Control.GetMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetCombinedMaximumSize">Control.GetCombinedMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetBoundDesiredSize">Control.GetBoundDesiredSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ContainsPoint_Microsoft_Xna_Framework_Point_">Control.ContainsPoint(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetTooltip_Microsoft_Xna_Framework_Point_">Control.GetTooltip(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GrabFocus">Control.GrabFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ReleaseFocus">Control.ReleaseFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoView_System_Nullable_Microsoft_Xna_Framework_Rectangle__">Control.BringIntoView(Rectangle?)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_QueueLayout">Control.QueueLayout()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OnPropertyChanged_System_String_">Control.OnPropertyChanged(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetPseudoState_System_String_System_Boolean_">Control.SetPseudoState(string, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_NotifyPseudoStateChanged_System_String_">Control.NotifyPseudoStateChanged(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetDragData_Microsoft_Xna_Framework_Point_">Control.GetDragData(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CanDropData_Microsoft_Xna_Framework_Point_System_Object_">Control.CanDropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DropData_Microsoft_Xna_Framework_Point_System_Object_">Control.DropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Name">Control.Name</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Parent">Control.Parent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualParent">Control.VisualParent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Children">Control.Children</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Context">Control.Context</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Resources">Control.Resources</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Classes">Control.Classes</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeStyleOverrides">Control.ThemeStyleOverrides</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HasLocalDataContext">Control.HasLocalDataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContext">Control.DataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeOverride">Control.ThemeOverride</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TooltipText">Control.TooltipText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visible">Control.Visible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visibility">Control.Visibility</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Enabled">Control.Enabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsEffectivelyEnabled">Control.IsEffectivelyEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseFilter">Control.MouseFilter</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusMode">Control.FocusMode</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNext">Control.FocusNext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusPrevious">Control.FocusPrevious</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborLeft">Control.FocusNeighborLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborTop">Control.FocusNeighborTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborRight">Control.FocusNeighborRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborBottom">Control.FocusNeighborBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipContents">Control.ClipContents</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipToBounds">Control.ClipToBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Clip">Control.Clip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OpacityMask">Control.OpacityMask</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Effect">Control.Effect</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RenderTransform">Control.RenderTransform</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TransformOrigin">Control.TransformOrigin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Opacity">Control.Opacity</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsHitTestVisible">Control.IsHitTestVisible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PixelSnapping">Control.PixelSnapping</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPixelSnappingEnabled">Control.IsPixelSnappingEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Cursor">Control.Cursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveCursor">Control.EffectiveCursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ToolTip">Control.ToolTip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Foreground">Control.Foreground</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontFamily">Control.FontFamily</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontSize">Control.FontSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontWeight">Control.FontWeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStyle">Control.FontStyle</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStretch">Control.FontStretch</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Language">Control.Language</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutDirection">Control.LayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveLayoutDirection">Control.EffectiveLayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ZIndex">Control.ZIndex</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HorizontalSizeFlags">Control.HorizontalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VerticalSizeFlags">Control.VerticalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HorizontalAlignment">Control.HorizontalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VerticalAlignment">Control.VerticalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SizeFlagsStretchRatio">Control.SizeFlagsStretchRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margins">Control.Margins</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margin">Control.Margin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Width">Control.Width</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Height">Control.Height</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinWidth">Control.MinWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinHeight">Control.MinHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxWidth">Control.MaxWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxHeight">Control.MaxHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AspectRatio">Control.AspectRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMinimumSize">Control.CustomMinimumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMaximumSize">Control.CustomMaximumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Position">Control.Position</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Size">Control.Size</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorLeft">Control.AnchorLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorTop">Control.AnchorTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorRight">Control.AnchorRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorBottom">Control.AnchorBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetLeft">Control.OffsetLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetTop">Control.OffsetTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetRight">Control.OffsetRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetBottom">Control.OffsetBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HGrowDirection">Control.HGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VGrowDirection">Control.VGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Bounds">Control.Bounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualBounds">Control.VisualBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusBounds">Control.FocusBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityBounds">Control.AccessibilityBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityPeer">Control.AccessibilityPeer</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityLabel">Control.AccessibilityLabel</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GlobalPosition">Control.GlobalPosition</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutChanged">Control.LayoutChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PropertyChanged">Control.PropertyChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseEntered">Control.MouseEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseExited">Control.MouseExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusEntered">Control.FocusEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusExited">Control.FocusExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Attached">Control.Attached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Detached">Control.Detached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EnabledChanged">Control.EnabledChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PseudoStateChanged">Control.PseudoStateChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_NameChanged">Control.NameChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContextChanged">Control.DataContextChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ParentChanged">Control.ParentChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoViewRequested">Control.BringIntoViewRequested</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityChanged">Control.AccessibilityChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildAdded">Control.ChildAdded</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildRemoved">Control.ChildRemoved</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragStarted">Control.DragStarted</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragEnded">Control.DragEnded</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="Forma_TextEdit__ctor_" data-uid="Forma.TextEdit.#ctor*"></a>
+
+  <h3 id="Forma_TextEdit__ctor" data-uid="Forma.TextEdit.#ctor">
+  TextEdit()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextEdit()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="Forma_TextEdit_CaretColumnInLine_" data-uid="Forma.TextEdit.CaretColumnInLine*"></a>
+
+  <h3 id="Forma_TextEdit_CaretColumnInLine" data-uid="Forma.TextEdit.CaretColumnInLine">
+  CaretColumnInLine
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int CaretColumnInLine { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_CaretCount_" data-uid="Forma.TextEdit.CaretCount*"></a>
+
+  <h3 id="Forma_TextEdit_CaretCount" data-uid="Forma.TextEdit.CaretCount">
+  CaretCount
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int CaretCount { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_CaretLine_" data-uid="Forma.TextEdit.CaretLine*"></a>
+
+  <h3 id="Forma_TextEdit_CaretLine" data-uid="Forma.TextEdit.CaretLine">
+  CaretLine
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int CaretLine { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_ClipboardTextProvider_" data-uid="Forma.TextEdit.ClipboardTextProvider*"></a>
+
+  <h3 id="Forma_TextEdit_ClipboardTextProvider" data-uid="Forma.TextEdit.ClipboardTextProvider">
+  ClipboardTextProvider
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Optional per-control override used by <a class="xref" href="Forma.TextEdit.html#Forma_TextEdit_Paste_System_Int32_">Paste(int)</a> before <a class="xref" href="Forma.UIContext.html#Forma_UIContext_Clipboard">Clipboard</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Func&lt;TextEdit, string&gt; ClipboardTextProvider { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="Forma.TextEdit.html">TextEdit</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_CurrentAction_" data-uid="Forma.TextEdit.CurrentAction*"></a>
+
+  <h3 id="Forma_TextEdit_CurrentAction" data-uid="Forma.TextEdit.CurrentAction">
+  CurrentAction
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextEditEditAction CurrentAction { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.TextEditEditAction.html">TextEditEditAction</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_EmptySelectionClipboardEnabled_" data-uid="Forma.TextEdit.EmptySelectionClipboardEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_EmptySelectionClipboardEnabled" data-uid="Forma.TextEdit.EmptySelectionClipboardEnabled">
+  EmptySelectionClipboardEnabled
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Allows copying/cutting whole caret line ranges when no caret has a selection, matching Godot's <code>empty_selection_clipboard_enabled</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool EmptySelectionClipboardEnabled { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_FirstVisibleLine_" data-uid="Forma.TextEdit.FirstVisibleLine*"></a>
+
+  <h3 id="Forma_TextEdit_FirstVisibleLine" data-uid="Forma.TextEdit.FirstVisibleLine">
+  FirstVisibleLine
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>First visible source line, corresponding to Godot's get_first_visible_line().</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int FirstVisibleLine { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_FirstVisibleLineWrapIndex_" data-uid="Forma.TextEdit.FirstVisibleLineWrapIndex*"></a>
+
+  <h3 id="Forma_TextEdit_FirstVisibleLineWrapIndex" data-uid="Forma.TextEdit.FirstVisibleLineWrapIndex">
+  FirstVisibleLineWrapIndex
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Visual wrap-row offset within <a class="xref" href="Forma.TextEdit.html#Forma_TextEdit_FirstVisibleLine">FirstVisibleLine</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int FirstVisibleLineWrapIndex { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GutterCount_" data-uid="Forma.TextEdit.GutterCount*"></a>
+
+  <h3 id="Forma_TextEdit_GutterCount" data-uid="Forma.TextEdit.GutterCount">
+  GutterCount
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GutterCount { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_HasRedo_" data-uid="Forma.TextEdit.HasRedo*"></a>
+
+  <h3 id="Forma_TextEdit_HasRedo" data-uid="Forma.TextEdit.HasRedo">
+  HasRedo
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasRedo { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_HasUndo_" data-uid="Forma.TextEdit.HasUndo*"></a>
+
+  <h3 id="Forma_TextEdit_HasUndo" data-uid="Forma.TextEdit.HasUndo">
+  HasUndo
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasUndo { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_LineCount_" data-uid="Forma.TextEdit.LineCount*"></a>
+
+  <h3 id="Forma_TextEdit_LineCount" data-uid="Forma.TextEdit.LineCount">
+  LineCount
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int LineCount { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_LineWrappingMode_" data-uid="Forma.TextEdit.LineWrappingMode*"></a>
+
+  <h3 id="Forma_TextEdit_LineWrappingMode" data-uid="Forma.TextEdit.LineWrappingMode">
+  LineWrappingMode
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextEditLineWrappingMode LineWrappingMode { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.TextEditLineWrappingMode.html">TextEditLineWrappingMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_MultipleCaretsEnabled_" data-uid="Forma.TextEdit.MultipleCaretsEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_MultipleCaretsEnabled" data-uid="Forma.TextEdit.MultipleCaretsEnabled">
+  MultipleCaretsEnabled
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Enables Godot-style secondary caret creation and multi-caret text input.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool MultipleCaretsEnabled { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SearchFlags_" data-uid="Forma.TextEdit.SearchFlags*"></a>
+
+  <h3 id="Forma_TextEdit_SearchFlags" data-uid="Forma.TextEdit.SearchFlags">
+  SearchFlags
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextSearchFlags SearchFlags { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.TextSearchFlags.html">TextSearchFlags</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SearchText_" data-uid="Forma.TextEdit.SearchText*"></a>
+
+  <h3 id="Forma_TextEdit_SearchText" data-uid="Forma.TextEdit.SearchText">
+  SearchText
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string SearchText { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_ShortcutKeysEnabled_" data-uid="Forma.TextEdit.ShortcutKeysEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_ShortcutKeysEnabled" data-uid="Forma.TextEdit.ShortcutKeysEnabled">
+  ShortcutKeysEnabled
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Enables Control/Command copy, cut, paste, and select-all dispatch, matching Godot's <code>shortcut_keys_enabled</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ShortcutKeysEnabled { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_TextContentLeftInset_" data-uid="Forma.TextEdit.TextContentLeftInset*"></a>
+
+  <h3 id="Forma_TextEdit_TextContentLeftInset" data-uid="Forma.TextEdit.TextContentLeftInset">
+  TextContentLeftInset
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Extra horizontal space reserved by specialized text editors before their editable content.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual float TextContentLeftInset { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_UndoEnabled_" data-uid="Forma.TextEdit.UndoEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_UndoEnabled" data-uid="Forma.TextEdit.UndoEnabled">
+  UndoEnabled
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool UndoEnabled { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_UndoStackMaxSize_" data-uid="Forma.TextEdit.UndoStackMaxSize*"></a>
+
+  <h3 id="Forma_TextEdit_UndoStackMaxSize" data-uid="Forma.TextEdit.UndoStackMaxSize">
+  UndoStackMaxSize
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int UndoStackMaxSize { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_WrapAtColumn_" data-uid="Forma.TextEdit.WrapAtColumn*"></a>
+
+  <h3 id="Forma_TextEdit_WrapAtColumn" data-uid="Forma.TextEdit.WrapAtColumn">
+  WrapAtColumn
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Optional deterministic wrap width in source columns; zero derives a width from the editor viewport.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int WrapAtColumn { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_WrapMode_" data-uid="Forma.TextEdit.WrapMode*"></a>
+
+  <h3 id="Forma_TextEdit_WrapMode" data-uid="Forma.TextEdit.WrapMode">
+  WrapMode
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Compatibility alias for enabling or disabling <a class="xref" href="Forma.TextEdit.html#Forma_TextEdit_LineWrappingMode">LineWrappingMode</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool WrapMode { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="Forma_TextEdit_AddCaret_" data-uid="Forma.TextEdit.AddCaret*"></a>
+
+  <h3 id="Forma_TextEdit_AddCaret_System_Int32_System_Int32_" data-uid="Forma.TextEdit.AddCaret(System.Int32,System.Int32)">
+  AddCaret(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds a non-overlapping secondary caret and returns its Godot-compatible index, or -1 when unavailable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int AddCaret(int line, int column)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>column</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_AddCaretAtCarets_" data-uid="Forma.TextEdit.AddCaretAtCarets*"></a>
+
+  <h3 id="Forma_TextEdit_AddCaretAtCarets_System_Boolean_" data-uid="Forma.TextEdit.AddCaretAtCarets(System.Boolean)">
+  AddCaretAtCarets(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds one caret above or below every existing caret where the adjacent visible source line exists.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddCaretAtCarets(bool below)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>below</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_AddGutter_" data-uid="Forma.TextEdit.AddGutter*"></a>
+
+  <h3 id="Forma_TextEdit_AddGutter_System_Int32_" data-uid="Forma.TextEdit.AddGutter(System.Int32)">
+  AddGutter(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddGutter(int at = -1)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>at</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_AddSelectionForNextOccurrence_" data-uid="Forma.TextEdit.AddSelectionForNextOccurrence*"></a>
+
+  <h3 id="Forma_TextEdit_AddSelectionForNextOccurrence" data-uid="Forma.TextEdit.AddSelectionForNextOccurrence">
+  AddSelectionForNextOccurrence()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds a selected secondary caret at the next case-sensitive occurrence of the final caret's selected word.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddSelectionForNextOccurrence()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_AdjustViewportToCaret_" data-uid="Forma.TextEdit.AdjustViewportToCaret*"></a>
+
+  <h3 id="Forma_TextEdit_AdjustViewportToCaret" data-uid="Forma.TextEdit.AdjustViewportToCaret">
+  AdjustViewportToCaret()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Moves the text viewport only when the caret would otherwise be outside it.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AdjustViewportToCaret()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_CenterViewportToCaret_" data-uid="Forma.TextEdit.CenterViewportToCaret*"></a>
+
+  <h3 id="Forma_TextEdit_CenterViewportToCaret" data-uid="Forma.TextEdit.CenterViewportToCaret">
+  CenterViewportToCaret()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Centers the active caret line in the text viewport where possible.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void CenterViewportToCaret()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Clear_" data-uid="Forma.TextEdit.Clear*"></a>
+
+  <h3 id="Forma_TextEdit_Clear" data-uid="Forma.TextEdit.Clear">
+  Clear()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Clears the retained document and secondary carets, matching Godot's <code>clear</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Clear()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_ClearLineBackgroundColor_" data-uid="Forma.TextEdit.ClearLineBackgroundColor*"></a>
+
+  <h3 id="Forma_TextEdit_ClearLineBackgroundColor_System_Int32_" data-uid="Forma.TextEdit.ClearLineBackgroundColor(System.Int32)">
+  ClearLineBackgroundColor(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearLineBackgroundColor(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_ClearUndoHistory_" data-uid="Forma.TextEdit.ClearUndoHistory*"></a>
+
+  <h3 id="Forma_TextEdit_ClearUndoHistory" data-uid="Forma.TextEdit.ClearUndoHistory">
+  ClearUndoHistory()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearUndoHistory()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Copy_" data-uid="Forma.TextEdit.Copy*"></a>
+
+  <h3 id="Forma_TextEdit_Copy_System_Int32_" data-uid="Forma.TextEdit.Copy(System.Int32)">
+  Copy(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Requests a host clipboard write using Godot's selection-or-whole-line copy policy.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Copy(int caret = -1)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Cut_" data-uid="Forma.TextEdit.Cut*"></a>
+
+  <h3 id="Forma_TextEdit_Cut_System_Int32_" data-uid="Forma.TextEdit.Cut(System.Int32)">
+  Cut(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Copies text using <a class="xref" href="Forma.TextEdit.html#Forma_TextEdit_Copy_System_Int32_">Copy(int)</a> then removes selections or whole caret line ranges when editable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Cut(int caret = -1)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_DeleteAllSelections_" data-uid="Forma.TextEdit.DeleteAllSelections*"></a>
+
+  <h3 id="Forma_TextEdit_DeleteAllSelections" data-uid="Forma.TextEdit.DeleteAllSelections">
+  DeleteAllSelections()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DeleteAllSelections()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_DeleteSelection_" data-uid="Forma.TextEdit.DeleteSelection*"></a>
+
+  <h3 id="Forma_TextEdit_DeleteSelection_System_Int32_" data-uid="Forma.TextEdit.DeleteSelection(System.Int32)">
+  DeleteSelection(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Deletes selections at one caret, or every selected caret when <code class="paramref">caret</code> is -1.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DeleteSelection(int caret)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Deselect_" data-uid="Forma.TextEdit.Deselect*"></a>
+
+  <h3 id="Forma_TextEdit_Deselect_System_Int32_" data-uid="Forma.TextEdit.Deselect(System.Int32)">
+  Deselect(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Clears selection state at one caret, or all carets when <code class="paramref">caret</code> is -1.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Deselect(int caret)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_DeselectAll_" data-uid="Forma.TextEdit.DeselectAll*"></a>
+
+  <h3 id="Forma_TextEdit_DeselectAll" data-uid="Forma.TextEdit.DeselectAll">
+  DeselectAll()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DeselectAll()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_EndAction_" data-uid="Forma.TextEdit.EndAction*"></a>
+
+  <h3 id="Forma_TextEdit_EndAction" data-uid="Forma.TextEdit.EndAction">
+  EndAction()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Finishes the active action and commits its grouped undo/version entry.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void EndAction()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_FindVisibleLineAtOrAfter_" data-uid="Forma.TextEdit.FindVisibleLineAtOrAfter*"></a>
+
+  <h3 id="Forma_TextEdit_FindVisibleLineAtOrAfter_System_Int32_" data-uid="Forma.TextEdit.FindVisibleLineAtOrAfter(System.Int32)">
+  FindVisibleLineAtOrAfter(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected int FindVisibleLineAtOrAfter(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_FindVisibleLineAtOrBefore_" data-uid="Forma.TextEdit.FindVisibleLineAtOrBefore*"></a>
+
+  <h3 id="Forma_TextEdit_FindVisibleLineAtOrBefore_System_Int32_System_Int32_" data-uid="Forma.TextEdit.FindVisibleLineAtOrBefore(System.Int32,System.Int32)">
+  FindVisibleLineAtOrBefore(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected int FindVisibleLineAtOrBefore(int line, int fallback)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>fallback</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetCaretColumn_" data-uid="Forma.TextEdit.GetCaretColumn*"></a>
+
+  <h3 id="Forma_TextEdit_GetCaretColumn_System_Int32_" data-uid="Forma.TextEdit.GetCaretColumn(System.Int32)">
+  GetCaretColumn(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetCaretColumn(int caret = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetCaretColumnAtPosition_" data-uid="Forma.TextEdit.GetCaretColumnAtPosition*"></a>
+
+  <h3 id="Forma_TextEdit_GetCaretColumnAtPosition_Microsoft_Xna_Framework_Point_" data-uid="Forma.TextEdit.GetCaretColumnAtPosition(Microsoft.Xna.Framework.Point)">
+  GetCaretColumnAtPosition(Point)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override int GetCaretColumnAtPosition(Point position)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>position</code> <span class="xref">Point</span></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetCaretCount_" data-uid="Forma.TextEdit.GetCaretCount*"></a>
+
+  <h3 id="Forma_TextEdit_GetCaretCount" data-uid="Forma.TextEdit.GetCaretCount">
+  GetCaretCount()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetCaretCount()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetCaretLine_" data-uid="Forma.TextEdit.GetCaretLine*"></a>
+
+  <h3 id="Forma_TextEdit_GetCaretLine_System_Int32_" data-uid="Forma.TextEdit.GetCaretLine(System.Int32)">
+  GetCaretLine(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetCaretLine(int caret = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetCarets_" data-uid="Forma.TextEdit.GetCarets*"></a>
+
+  <h3 id="Forma_TextEdit_GetCarets" data-uid="Forma.TextEdit.GetCarets">
+  GetCarets()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;TextEditCaret&gt; GetCarets()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="Forma.TextEditCaret.html">TextEditCaret</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetCurrentAction_" data-uid="Forma.TextEdit.GetCurrentAction*"></a>
+
+  <h3 id="Forma_TextEdit_GetCurrentAction" data-uid="Forma.TextEdit.GetCurrentAction">
+  GetCurrentAction()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextEditEditAction GetCurrentAction()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.TextEditEditAction.html">TextEditEditAction</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetFirstNonWhitespaceColumn_" data-uid="Forma.TextEdit.GetFirstNonWhitespaceColumn*"></a>
+
+  <h3 id="Forma_TextEdit_GetFirstNonWhitespaceColumn_System_Int32_" data-uid="Forma.TextEdit.GetFirstNonWhitespaceColumn(System.Int32)">
+  GetFirstNonWhitespaceColumn(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the first non-whitespace source column, or the line length when a line is blank.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetFirstNonWhitespaceColumn(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetFirstVisibleLine_" data-uid="Forma.TextEdit.GetFirstVisibleLine*"></a>
+
+  <h3 id="Forma_TextEdit_GetFirstVisibleLine" data-uid="Forma.TextEdit.GetFirstVisibleLine">
+  GetFirstVisibleLine()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetFirstVisibleLine()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetGutterName_" data-uid="Forma.TextEdit.GetGutterName*"></a>
+
+  <h3 id="Forma_TextEdit_GetGutterName_System_Int32_" data-uid="Forma.TextEdit.GetGutterName(System.Int32)">
+  GetGutterName(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetGutterName(int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetGutterType_" data-uid="Forma.TextEdit.GetGutterType*"></a>
+
+  <h3 id="Forma_TextEdit_GetGutterType_System_Int32_" data-uid="Forma.TextEdit.GetGutterType(System.Int32)">
+  GetGutterType(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextEditGutterType GetGutterType(int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.TextEditGutterType.html">TextEditGutterType</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetGutterWidth_" data-uid="Forma.TextEdit.GetGutterWidth*"></a>
+
+  <h3 id="Forma_TextEdit_GetGutterWidth_System_Int32_" data-uid="Forma.TextEdit.GetGutterWidth(System.Int32)">
+  GetGutterWidth(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetGutterWidth(int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetIndentLevel_" data-uid="Forma.TextEdit.GetIndentLevel*"></a>
+
+  <h3 id="Forma_TextEdit_GetIndentLevel_System_Int32_" data-uid="Forma.TextEdit.GetIndentLevel(System.Int32)">
+  GetIndentLevel(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns leading indentation measured with Godot-compatible tab width of four columns.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetIndentLevel(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLastFullVisibleLine_" data-uid="Forma.TextEdit.GetLastFullVisibleLine*"></a>
+
+  <h3 id="Forma_TextEdit_GetLastFullVisibleLine" data-uid="Forma.TextEdit.GetLastFullVisibleLine">
+  GetLastFullVisibleLine()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetLastFullVisibleLine()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLastFullVisibleLineWrapIndex_" data-uid="Forma.TextEdit.GetLastFullVisibleLineWrapIndex*"></a>
+
+  <h3 id="Forma_TextEdit_GetLastFullVisibleLineWrapIndex" data-uid="Forma.TextEdit.GetLastFullVisibleLineWrapIndex">
+  GetLastFullVisibleLineWrapIndex()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetLastFullVisibleLineWrapIndex()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLine_" data-uid="Forma.TextEdit.GetLine*"></a>
+
+  <h3 id="Forma_TextEdit_GetLine_System_Int32_" data-uid="Forma.TextEdit.GetLine(System.Int32)">
+  GetLine(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetLine(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineAtVisibleRow_" data-uid="Forma.TextEdit.GetLineAtVisibleRow*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineAtVisibleRow_System_Int32_" data-uid="Forma.TextEdit.GetLineAtVisibleRow(System.Int32)">
+  GetLineAtVisibleRow(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected int GetLineAtVisibleRow(int row)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>row</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineBackgroundColor_" data-uid="Forma.TextEdit.GetLineBackgroundColor*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineBackgroundColor_System_Int32_" data-uid="Forma.TextEdit.GetLineBackgroundColor(System.Int32)">
+  GetLineBackgroundColor(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color? GetLineBackgroundColor(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineGutterIcon_" data-uid="Forma.TextEdit.GetLineGutterIcon*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineGutterIcon_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetLineGutterIcon(System.Int32,System.Int32)">
+  GetLineGutterIcon(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Texture2D GetLineGutterIcon(int line, int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineGutterItemColor_" data-uid="Forma.TextEdit.GetLineGutterItemColor*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineGutterItemColor_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetLineGutterItemColor(System.Int32,System.Int32)">
+  GetLineGutterItemColor(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetLineGutterItemColor(int line, int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineGutterMetadata_" data-uid="Forma.TextEdit.GetLineGutterMetadata*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineGutterMetadata_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetLineGutterMetadata(System.Int32,System.Int32)">
+  GetLineGutterMetadata(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public object GetLineGutterMetadata(int line, int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineGutterText_" data-uid="Forma.TextEdit.GetLineGutterText*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineGutterText_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetLineGutterText(System.Int32,System.Int32)">
+  GetLineGutterText(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetLineGutterText(int line, int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineSyntaxHighlighting_" data-uid="Forma.TextEdit.GetLineSyntaxHighlighting*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineSyntaxHighlighting_System_Int32_" data-uid="Forma.TextEdit.GetLineSyntaxHighlighting(System.Int32)">
+  GetLineSyntaxHighlighting(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the retained highlighter output for a line. Empty when no provider is assigned.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;SyntaxHighlightSpan&gt; GetLineSyntaxHighlighting(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="Forma.SyntaxHighlightSpan.html">SyntaxHighlightSpan</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineWidth_" data-uid="Forma.TextEdit.GetLineWidth*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineWidth_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetLineWidth(System.Int32,System.Int32)">
+  GetLineWidth(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the width of a source line or one of its visual wrap rows.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float GetLineWidth(int line, int wrapIndex = -1)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>wrapIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineWrapCount_" data-uid="Forma.TextEdit.GetLineWrapCount*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineWrapCount_System_Int32_" data-uid="Forma.TextEdit.GetLineWrapCount(System.Int32)">
+  GetLineWrapCount(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the number of continuation rows after the first visual row for a source line.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetLineWrapCount(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineWrapIndexAtColumn_" data-uid="Forma.TextEdit.GetLineWrapIndexAtColumn*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineWrapIndexAtColumn_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetLineWrapIndexAtColumn(System.Int32,System.Int32)">
+  GetLineWrapIndexAtColumn(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetLineWrapIndexAtColumn(int line, int column)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>column</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineWrapIndexAtVisibleRow_" data-uid="Forma.TextEdit.GetLineWrapIndexAtVisibleRow*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineWrapIndexAtVisibleRow_System_Int32_" data-uid="Forma.TextEdit.GetLineWrapIndexAtVisibleRow(System.Int32)">
+  GetLineWrapIndexAtVisibleRow(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the source-line wrap row represented by a viewport-relative visual row.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected int GetLineWrapIndexAtVisibleRow(int row)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>row</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineWrapLength_" data-uid="Forma.TextEdit.GetLineWrapLength*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineWrapLength_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetLineWrapLength(System.Int32,System.Int32)">
+  GetLineWrapLength(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected int GetLineWrapLength(int line, int wrapIndex)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>wrapIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineWrapStartColumn_" data-uid="Forma.TextEdit.GetLineWrapStartColumn*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineWrapStartColumn_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetLineWrapStartColumn(System.Int32,System.Int32)">
+  GetLineWrapStartColumn(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected int GetLineWrapStartColumn(int line, int wrapIndex)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>wrapIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineWrappedText_" data-uid="Forma.TextEdit.GetLineWrappedText*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineWrappedText_System_Int32_" data-uid="Forma.TextEdit.GetLineWrappedText(System.Int32)">
+  GetLineWrappedText(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; GetLineWrappedText(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetLineWrappingMode_" data-uid="Forma.TextEdit.GetLineWrappingMode*"></a>
+
+  <h3 id="Forma_TextEdit_GetLineWrappingMode" data-uid="Forma.TextEdit.GetLineWrappingMode">
+  GetLineWrappingMode()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextEditLineWrappingMode GetLineWrappingMode()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.TextEditLineWrappingMode.html">TextEditLineWrappingMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetMenu_" data-uid="Forma.TextEdit.GetMenu*"></a>
+
+  <h3 id="Forma_TextEdit_GetMenu" data-uid="Forma.TextEdit.GetMenu">
+  GetMenu()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the retained context popup, equivalent to Godot's <code>get_menu()</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override PopupMenu GetMenu()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.PopupMenu.html">PopupMenu</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetSavedVersion_" data-uid="Forma.TextEdit.GetSavedVersion*"></a>
+
+  <h3 id="Forma_TextEdit_GetSavedVersion" data-uid="Forma.TextEdit.GetSavedVersion">
+  GetSavedVersion()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public uint GetSavedVersion()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetScrollPosForLine_" data-uid="Forma.TextEdit.GetScrollPosForLine*"></a>
+
+  <h3 id="Forma_TextEdit_GetScrollPosForLine_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetScrollPosForLine(System.Int32,System.Int32)">
+  GetScrollPosForLine(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the visual-row scroll position for a source line and wrap row.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetScrollPosForLine(int line, int wrapIndex = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>wrapIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetSelectedText_" data-uid="Forma.TextEdit.GetSelectedText*"></a>
+
+  <h3 id="Forma_TextEdit_GetSelectedText_System_Int32_" data-uid="Forma.TextEdit.GetSelectedText(System.Int32)">
+  GetSelectedText(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns Godot-style selected text, or newline-joined selected fragments from all carets when <code class="paramref">caret</code> is -1.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetSelectedText(int caret = -1)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetSelectionFrom_" data-uid="Forma.TextEdit.GetSelectionFrom*"></a>
+
+  <h3 id="Forma_TextEdit_GetSelectionFrom_System_Int32_" data-uid="Forma.TextEdit.GetSelectionFrom(System.Int32)">
+  GetSelectionFrom(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetSelectionFrom(int caret)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetSelectionOriginColumn_" data-uid="Forma.TextEdit.GetSelectionOriginColumn*"></a>
+
+  <h3 id="Forma_TextEdit_GetSelectionOriginColumn_System_Int32_" data-uid="Forma.TextEdit.GetSelectionOriginColumn(System.Int32)">
+  GetSelectionOriginColumn(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetSelectionOriginColumn(int caret = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetSelectionOriginLine_" data-uid="Forma.TextEdit.GetSelectionOriginLine*"></a>
+
+  <h3 id="Forma_TextEdit_GetSelectionOriginLine_System_Int32_" data-uid="Forma.TextEdit.GetSelectionOriginLine(System.Int32)">
+  GetSelectionOriginLine(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetSelectionOriginLine(int caret = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetSelectionRectangles_" data-uid="Forma.TextEdit.GetSelectionRectangles*"></a>
+
+  <h3 id="Forma_TextEdit_GetSelectionRectangles_System_Int32_" data-uid="Forma.TextEdit.GetSelectionRectangles(System.Int32)">
+  GetSelectionRectangles(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns screen-space visual-row rectangles for a caret selection, including wrapped source rows.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;Rectangle&gt; GetSelectionRectangles(int caret = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<span class="xref">Rectangle</span>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetSelectionTo_" data-uid="Forma.TextEdit.GetSelectionTo*"></a>
+
+  <h3 id="Forma_TextEdit_GetSelectionTo_System_Int32_" data-uid="Forma.TextEdit.GetSelectionTo(System.Int32)">
+  GetSelectionTo(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetSelectionTo(int caret)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetSyntaxHighlighter_" data-uid="Forma.TextEdit.GetSyntaxHighlighter*"></a>
+
+  <h3 id="Forma_TextEdit_GetSyntaxHighlighter" data-uid="Forma.TextEdit.GetSyntaxHighlighter">
+  GetSyntaxHighlighter()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public SyntaxHighlighter GetSyntaxHighlighter()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.SyntaxHighlighter.html">SyntaxHighlighter</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetTotalGutterWidth_" data-uid="Forma.TextEdit.GetTotalGutterWidth*"></a>
+
+  <h3 id="Forma_TextEdit_GetTotalGutterWidth" data-uid="Forma.TextEdit.GetTotalGutterWidth">
+  GetTotalGutterWidth()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetTotalGutterWidth()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetTotalVisibleLineCount_" data-uid="Forma.TextEdit.GetTotalVisibleLineCount*"></a>
+
+  <h3 id="Forma_TextEdit_GetTotalVisibleLineCount" data-uid="Forma.TextEdit.GetTotalVisibleLineCount">
+  GetTotalVisibleLineCount()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetTotalVisibleLineCount()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetVersion_" data-uid="Forma.TextEdit.GetVersion*"></a>
+
+  <h3 id="Forma_TextEdit_GetVersion" data-uid="Forma.TextEdit.GetVersion">
+  GetVersion()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public uint GetVersion()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetVisibleLineCount_" data-uid="Forma.TextEdit.GetVisibleLineCount*"></a>
+
+  <h3 id="Forma_TextEdit_GetVisibleLineCount" data-uid="Forma.TextEdit.GetVisibleLineCount">
+  GetVisibleLineCount()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the visible line capacity of the current text viewport.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetVisibleLineCount()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetVisibleLineCountInRange_" data-uid="Forma.TextEdit.GetVisibleLineCountInRange*"></a>
+
+  <h3 id="Forma_TextEdit_GetVisibleLineCountInRange_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetVisibleLineCountInRange(System.Int32,System.Int32)">
+  GetVisibleLineCountInRange(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetVisibleLineCountInRange(int fromLine, int toLine)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fromLine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>toLine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_GetVisibleRow_" data-uid="Forma.TextEdit.GetVisibleRow*"></a>
+
+  <h3 id="Forma_TextEdit_GetVisibleRow_System_Int32_System_Int32_" data-uid="Forma.TextEdit.GetVisibleRow(System.Int32,System.Int32)">
+  GetVisibleRow(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected int GetVisibleRow(int line, int wrapIndex = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>wrapIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_HasCaretSelection_" data-uid="Forma.TextEdit.HasCaretSelection*"></a>
+
+  <h3 id="Forma_TextEdit_HasCaretSelection_System_Int32_" data-uid="Forma.TextEdit.HasCaretSelection(System.Int32)">
+  HasCaretSelection(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns selection state for a specific caret without shadowing LineEdit's primary <a class="xref" href="Forma.LineEdit.html#Forma_LineEdit_HasSelection">HasSelection</a> property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasCaretSelection(int caret)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_InsertLineAt_" data-uid="Forma.TextEdit.InsertLineAt*"></a>
+
+  <h3 id="Forma_TextEdit_InsertLineAt_System_Int32_System_String_" data-uid="Forma.TextEdit.InsertLineAt(System.Int32,System.String)">
+  InsertLineAt(int, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void InsertLineAt(int line, string text)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>text</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_InsertNewline_" data-uid="Forma.TextEdit.InsertNewline*"></a>
+
+  <h3 id="Forma_TextEdit_InsertNewline" data-uid="Forma.TextEdit.InsertNewline">
+  InsertNewline()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void InsertNewline()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_InsertText_" data-uid="Forma.TextEdit.InsertText*"></a>
+
+  <h3 id="Forma_TextEdit_InsertText_System_String_" data-uid="Forma.TextEdit.InsertText(System.String)">
+  InsertText(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void InsertText(string text)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>text</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_InsertText_" data-uid="Forma.TextEdit.InsertText*"></a>
+
+  <h3 id="Forma_TextEdit_InsertText_System_String_System_Int32_System_Int32_System_Boolean_System_Boolean_" data-uid="Forma.TextEdit.InsertText(System.String,System.Int32,System.Int32,System.Boolean,System.Boolean)">
+  InsertText(string, int, int, bool, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Inserts text at a source line and column, retaining all caret and selection positions relative to the inserted range.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void InsertText(string text, int line, int column, bool beforeSelectionBegin = true, bool beforeSelectionEnd = false)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>text</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>column</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>beforeSelectionBegin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+    <dt><code>beforeSelectionEnd</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_InsertTextAtCaret_" data-uid="Forma.TextEdit.InsertTextAtCaret*"></a>
+
+  <h3 id="Forma_TextEdit_InsertTextAtCaret_System_String_System_Int32_" data-uid="Forma.TextEdit.InsertTextAtCaret(System.String,System.Int32)">
+  InsertTextAtCaret(string, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Inserts text at one caret, or all carets when <code class="paramref">caret</code> is -1, matching Godot's <code>insert_text_at_caret</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void InsertTextAtCaret(string text, int caret = -1)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>text</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsEmptySelectionClipboardEnabled_" data-uid="Forma.TextEdit.IsEmptySelectionClipboardEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_IsEmptySelectionClipboardEnabled" data-uid="Forma.TextEdit.IsEmptySelectionClipboardEnabled">
+  IsEmptySelectionClipboardEnabled()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsEmptySelectionClipboardEnabled()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsGutterClickable_" data-uid="Forma.TextEdit.IsGutterClickable*"></a>
+
+  <h3 id="Forma_TextEdit_IsGutterClickable_System_Int32_" data-uid="Forma.TextEdit.IsGutterClickable(System.Int32)">
+  IsGutterClickable(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsGutterClickable(int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsGutterDrawn_" data-uid="Forma.TextEdit.IsGutterDrawn*"></a>
+
+  <h3 id="Forma_TextEdit_IsGutterDrawn_System_Int32_" data-uid="Forma.TextEdit.IsGutterDrawn(System.Int32)">
+  IsGutterDrawn(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsGutterDrawn(int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsGutterOverwritable_" data-uid="Forma.TextEdit.IsGutterOverwritable*"></a>
+
+  <h3 id="Forma_TextEdit_IsGutterOverwritable_System_Int32_" data-uid="Forma.TextEdit.IsGutterOverwritable(System.Int32)">
+  IsGutterOverwritable(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsGutterOverwritable(int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsLineGutterClickable_" data-uid="Forma.TextEdit.IsLineGutterClickable*"></a>
+
+  <h3 id="Forma_TextEdit_IsLineGutterClickable_System_Int32_System_Int32_" data-uid="Forma.TextEdit.IsLineGutterClickable(System.Int32,System.Int32)">
+  IsLineGutterClickable(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsLineGutterClickable(int line, int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsLineHiddenForDisplay_" data-uid="Forma.TextEdit.IsLineHiddenForDisplay*"></a>
+
+  <h3 id="Forma_TextEdit_IsLineHiddenForDisplay_System_Int32_" data-uid="Forma.TextEdit.IsLineHiddenForDisplay(System.Int32)">
+  IsLineHiddenForDisplay(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Allows specialized editors to hide document lines without mutating the underlying text.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual bool IsLineHiddenForDisplay(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsLineInViewport_" data-uid="Forma.TextEdit.IsLineInViewport*"></a>
+
+  <h3 id="Forma_TextEdit_IsLineInViewport_System_Int32_" data-uid="Forma.TextEdit.IsLineInViewport(System.Int32)">
+  IsLineInViewport(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsLineInViewport(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsLineWrapped_" data-uid="Forma.TextEdit.IsLineWrapped*"></a>
+
+  <h3 id="Forma_TextEdit_IsLineWrapped_System_Int32_" data-uid="Forma.TextEdit.IsLineWrapped(System.Int32)">
+  IsLineWrapped(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsLineWrapped(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsMenuVisible_" data-uid="Forma.TextEdit.IsMenuVisible*"></a>
+
+  <h3 id="Forma_TextEdit_IsMenuVisible" data-uid="Forma.TextEdit.IsMenuVisible">
+  IsMenuVisible()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool IsMenuVisible()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsMultipleCaretsEnabled_" data-uid="Forma.TextEdit.IsMultipleCaretsEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_IsMultipleCaretsEnabled" data-uid="Forma.TextEdit.IsMultipleCaretsEnabled">
+  IsMultipleCaretsEnabled()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsMultipleCaretsEnabled()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_IsShortcutKeysEnabled_" data-uid="Forma.TextEdit.IsShortcutKeysEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_IsShortcutKeysEnabled" data-uid="Forma.TextEdit.IsShortcutKeysEnabled">
+  IsShortcutKeysEnabled()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsShortcutKeysEnabled()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_MenuOption_" data-uid="Forma.TextEdit.MenuOption*"></a>
+
+  <h3 id="Forma_TextEdit_MenuOption_Forma_TextEditMenuOption_" data-uid="Forma.TextEdit.MenuOption(Forma.TextEditMenuOption)">
+  MenuOption(TextEditMenuOption)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Executes one retained context-menu command.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void MenuOption(TextEditMenuOption option)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>option</code> <a class="xref" href="Forma.TextEditMenuOption.html">TextEditMenuOption</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_MergeOverlappingCarets_" data-uid="Forma.TextEdit.MergeOverlappingCarets*"></a>
+
+  <h3 id="Forma_TextEdit_MergeOverlappingCarets" data-uid="Forma.TextEdit.MergeOverlappingCarets">
+  MergeOverlappingCarets()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Merges caret points or selections that overlap, following Godot's inclusive overlap rule.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void MergeOverlappingCarets()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Paste_" data-uid="Forma.TextEdit.Paste*"></a>
+
+  <h3 id="Forma_TextEdit_Paste_System_Int32_" data-uid="Forma.TextEdit.Paste(System.Int32)">
+  Paste(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Obtains host clipboard content and applies Godot's multi-caret paste distribution policy.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Paste(int caret = -1)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Paste_" data-uid="Forma.TextEdit.Paste*"></a>
+
+  <h3 id="Forma_TextEdit_Paste_System_String_System_Int32_" data-uid="Forma.TextEdit.Paste(System.String,System.Int32)">
+  Paste(string, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Pastes supplied clipboard content at one caret or all carets. A line per caret is used when the counts match.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Paste(string clipboard, int caret = -1)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>clipboard</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Redo_" data-uid="Forma.TextEdit.Redo*"></a>
+
+  <h3 id="Forma_TextEdit_Redo" data-uid="Forma.TextEdit.Redo">
+  Redo()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Redo()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_RemoveCaret_" data-uid="Forma.TextEdit.RemoveCaret*"></a>
+
+  <h3 id="Forma_TextEdit_RemoveCaret_System_Int32_" data-uid="Forma.TextEdit.RemoveCaret(System.Int32)">
+  RemoveCaret(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveCaret(int caret)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_RemoveGutter_" data-uid="Forma.TextEdit.RemoveGutter*"></a>
+
+  <h3 id="Forma_TextEdit_RemoveGutter_System_Int32_" data-uid="Forma.TextEdit.RemoveGutter(System.Int32)">
+  RemoveGutter(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveGutter(int gutter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_RemoveLineAt_" data-uid="Forma.TextEdit.RemoveLineAt*"></a>
+
+  <h3 id="Forma_TextEdit_RemoveLineAt_System_Int32_" data-uid="Forma.TextEdit.RemoveLineAt(System.Int32)">
+  RemoveLineAt(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveLineAt(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_RemoveSecondaryCarets_" data-uid="Forma.TextEdit.RemoveSecondaryCarets*"></a>
+
+  <h3 id="Forma_TextEdit_RemoveSecondaryCarets" data-uid="Forma.TextEdit.RemoveSecondaryCarets">
+  RemoveSecondaryCarets()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveSecondaryCarets()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_RemoveText_" data-uid="Forma.TextEdit.RemoveText*"></a>
+
+  <h3 id="Forma_TextEdit_RemoveText_System_Int32_System_Int32_System_Int32_System_Int32_" data-uid="Forma.TextEdit.RemoveText(System.Int32,System.Int32,System.Int32,System.Int32)">
+  RemoveText(int, int, int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Removes a source range, retaining all carets and selections at the collapsed range start where necessary.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveText(int fromLine, int fromColumn, int toLine, int toColumn)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fromLine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>fromColumn</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>toLine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>toColumn</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Search_" data-uid="Forma.TextEdit.Search*"></a>
+
+  <h3 id="Forma_TextEdit_Search_System_String_Forma_TextSearchFlags_System_Int32_System_Int32_" data-uid="Forma.TextEdit.Search(System.String,Forma.TextSearchFlags,System.Int32,System.Int32)">
+  Search(string, TextSearchFlags, int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a Godot-compatible (column, line) point, or (-1, -1) when not found.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Point Search(string key, TextSearchFlags flags, int fromLine = 0, int fromColumn = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>key</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>flags</code> <a class="xref" href="Forma.TextSearchFlags.html">TextSearchFlags</a></dt>
+    <dd></dd>
+    <dt><code>fromLine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>fromColumn</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Point</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Select_" data-uid="Forma.TextEdit.Select*"></a>
+
+  <h3 id="Forma_TextEdit_Select_System_Int32_System_Int32_System_Int32_System_Int32_System_Int32_" data-uid="Forma.TextEdit.Select(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+  Select(int, int, int, int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Select(int fromLine, int fromColumn, int toLine, int toColumn, int caret = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fromLine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>fromColumn</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>toLine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>toColumn</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SelectAll_" data-uid="Forma.TextEdit.SelectAll*"></a>
+
+  <h3 id="Forma_TextEdit_SelectAll" data-uid="Forma.TextEdit.SelectAll">
+  SelectAll()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Selects the entire document with the primary caret, matching Godot's <code>select_all</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SelectAll()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SelectWordUnderCaret_" data-uid="Forma.TextEdit.SelectWordUnderCaret*"></a>
+
+  <h3 id="Forma_TextEdit_SelectWordUnderCaret_System_Int32_" data-uid="Forma.TextEdit.SelectWordUnderCaret(System.Int32)">
+  SelectWordUnderCaret(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Selects the word at one caret, or toggles the existing selection off, matching Godot's <code>select_word_under_caret</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SelectWordUnderCaret(int caret = -1)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetCaret_" data-uid="Forma.TextEdit.SetCaret*"></a>
+
+  <h3 id="Forma_TextEdit_SetCaret_System_Int32_System_Int32_" data-uid="Forma.TextEdit.SetCaret(System.Int32,System.Int32)">
+  SetCaret(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetCaret(int line, int column)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>column</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetCaret_" data-uid="Forma.TextEdit.SetCaret*"></a>
+
+  <h3 id="Forma_TextEdit_SetCaret_System_Int32_System_Int32_System_Int32_" data-uid="Forma.TextEdit.SetCaret(System.Int32,System.Int32,System.Int32)">
+  SetCaret(int, int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetCaret(int line, int column, int caret)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>column</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetCaretColumn_" data-uid="Forma.TextEdit.SetCaretColumn*"></a>
+
+  <h3 id="Forma_TextEdit_SetCaretColumn_System_Int32_System_Int32_" data-uid="Forma.TextEdit.SetCaretColumn(System.Int32,System.Int32)">
+  SetCaretColumn(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetCaretColumn(int column, int caret = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>column</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetCaretLine_" data-uid="Forma.TextEdit.SetCaretLine*"></a>
+
+  <h3 id="Forma_TextEdit_SetCaretLine_System_Int32_System_Int32_" data-uid="Forma.TextEdit.SetCaretLine(System.Int32,System.Int32)">
+  SetCaretLine(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetCaretLine(int line, int caret = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>caret</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetEmptySelectionClipboardEnabled_" data-uid="Forma.TextEdit.SetEmptySelectionClipboardEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_SetEmptySelectionClipboardEnabled_System_Boolean_" data-uid="Forma.TextEdit.SetEmptySelectionClipboardEnabled(System.Boolean)">
+  SetEmptySelectionClipboardEnabled(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetEmptySelectionClipboardEnabled(bool enabled)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>enabled</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetGutterClickable_" data-uid="Forma.TextEdit.SetGutterClickable*"></a>
+
+  <h3 id="Forma_TextEdit_SetGutterClickable_System_Int32_System_Boolean_" data-uid="Forma.TextEdit.SetGutterClickable(System.Int32,System.Boolean)">
+  SetGutterClickable(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetGutterClickable(int gutter, bool clickable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>clickable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetGutterCustomDraw_" data-uid="Forma.TextEdit.SetGutterCustomDraw*"></a>
+
+  <h3 id="Forma_TextEdit_SetGutterCustomDraw_System_Int32_System_Action_Forma_UIRenderContext_Forma_TextEdit_System_Int32_Microsoft_Xna_Framework_Rectangle__" data-uid="Forma.TextEdit.SetGutterCustomDraw(System.Int32,System.Action{Forma.UIRenderContext,Forma.TextEdit,System.Int32,Microsoft.Xna.Framework.Rectangle})">
+  SetGutterCustomDraw(int, Action&lt;UIRenderContext, TextEdit, int, Rectangle&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetGutterCustomDraw(int gutter, Action&lt;UIRenderContext, TextEdit, int, Rectangle&gt; draw)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>draw</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-4">Action</a>&lt;<a class="xref" href="Forma.UIRenderContext.html">UIRenderContext</a>, <a class="xref" href="Forma.TextEdit.html">TextEdit</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>, <span class="xref">Rectangle</span>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetGutterDraw_" data-uid="Forma.TextEdit.SetGutterDraw*"></a>
+
+  <h3 id="Forma_TextEdit_SetGutterDraw_System_Int32_System_Boolean_" data-uid="Forma.TextEdit.SetGutterDraw(System.Int32,System.Boolean)">
+  SetGutterDraw(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetGutterDraw(int gutter, bool draw)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>draw</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetGutterName_" data-uid="Forma.TextEdit.SetGutterName*"></a>
+
+  <h3 id="Forma_TextEdit_SetGutterName_System_Int32_System_String_" data-uid="Forma.TextEdit.SetGutterName(System.Int32,System.String)">
+  SetGutterName(int, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetGutterName(int gutter, string name)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetGutterOverwritable_" data-uid="Forma.TextEdit.SetGutterOverwritable*"></a>
+
+  <h3 id="Forma_TextEdit_SetGutterOverwritable_System_Int32_System_Boolean_" data-uid="Forma.TextEdit.SetGutterOverwritable(System.Int32,System.Boolean)">
+  SetGutterOverwritable(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetGutterOverwritable(int gutter, bool overwritable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>overwritable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetGutterType_" data-uid="Forma.TextEdit.SetGutterType*"></a>
+
+  <h3 id="Forma_TextEdit_SetGutterType_System_Int32_Forma_TextEditGutterType_" data-uid="Forma.TextEdit.SetGutterType(System.Int32,Forma.TextEditGutterType)">
+  SetGutterType(int, TextEditGutterType)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetGutterType(int gutter, TextEditGutterType type)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>type</code> <a class="xref" href="Forma.TextEditGutterType.html">TextEditGutterType</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetGutterWidth_" data-uid="Forma.TextEdit.SetGutterWidth*"></a>
+
+  <h3 id="Forma_TextEdit_SetGutterWidth_System_Int32_System_Int32_" data-uid="Forma.TextEdit.SetGutterWidth(System.Int32,System.Int32)">
+  SetGutterWidth(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetGutterWidth(int gutter, int width)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>width</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLine_" data-uid="Forma.TextEdit.SetLine*"></a>
+
+  <h3 id="Forma_TextEdit_SetLine_System_Int32_System_String_" data-uid="Forma.TextEdit.SetLine(System.Int32,System.String)">
+  SetLine(int, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLine(int line, string text)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>text</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineAsCenterVisible_" data-uid="Forma.TextEdit.SetLineAsCenterVisible*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineAsCenterVisible_System_Int32_System_Int32_" data-uid="Forma.TextEdit.SetLineAsCenterVisible(System.Int32,System.Int32)">
+  SetLineAsCenterVisible(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineAsCenterVisible(int line, int wrapIndex = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>wrapIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineAsFirstVisible_" data-uid="Forma.TextEdit.SetLineAsFirstVisible*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineAsFirstVisible_System_Int32_System_Int32_" data-uid="Forma.TextEdit.SetLineAsFirstVisible(System.Int32,System.Int32)">
+  SetLineAsFirstVisible(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineAsFirstVisible(int line, int wrapIndex = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>wrapIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineAsLastVisible_" data-uid="Forma.TextEdit.SetLineAsLastVisible*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineAsLastVisible_System_Int32_System_Int32_" data-uid="Forma.TextEdit.SetLineAsLastVisible(System.Int32,System.Int32)">
+  SetLineAsLastVisible(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineAsLastVisible(int line, int wrapIndex = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>wrapIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineBackgroundColor_" data-uid="Forma.TextEdit.SetLineBackgroundColor*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineBackgroundColor_System_Int32_Microsoft_Xna_Framework_Color_" data-uid="Forma.TextEdit.SetLineBackgroundColor(System.Int32,Microsoft.Xna.Framework.Color)">
+  SetLineBackgroundColor(int, Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineBackgroundColor(int line, Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineGutterClickable_" data-uid="Forma.TextEdit.SetLineGutterClickable*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineGutterClickable_System_Int32_System_Int32_System_Boolean_" data-uid="Forma.TextEdit.SetLineGutterClickable(System.Int32,System.Int32,System.Boolean)">
+  SetLineGutterClickable(int, int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineGutterClickable(int line, int gutter, bool clickable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>clickable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineGutterIcon_" data-uid="Forma.TextEdit.SetLineGutterIcon*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineGutterIcon_System_Int32_System_Int32_Microsoft_Xna_Framework_Graphics_Texture2D_" data-uid="Forma.TextEdit.SetLineGutterIcon(System.Int32,System.Int32,Microsoft.Xna.Framework.Graphics.Texture2D)">
+  SetLineGutterIcon(int, int, Texture2D)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineGutterIcon(int line, int gutter, Texture2D icon)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>icon</code> <span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineGutterItemColor_" data-uid="Forma.TextEdit.SetLineGutterItemColor*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineGutterItemColor_System_Int32_System_Int32_Microsoft_Xna_Framework_Color_" data-uid="Forma.TextEdit.SetLineGutterItemColor(System.Int32,System.Int32,Microsoft.Xna.Framework.Color)">
+  SetLineGutterItemColor(int, int, Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineGutterItemColor(int line, int gutter, Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineGutterMetadata_" data-uid="Forma.TextEdit.SetLineGutterMetadata*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineGutterMetadata_System_Int32_System_Int32_System_Object_" data-uid="Forma.TextEdit.SetLineGutterMetadata(System.Int32,System.Int32,System.Object)">
+  SetLineGutterMetadata(int, int, object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineGutterMetadata(int line, int gutter, object metadata)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>metadata</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineGutterText_" data-uid="Forma.TextEdit.SetLineGutterText*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineGutterText_System_Int32_System_Int32_System_String_" data-uid="Forma.TextEdit.SetLineGutterText(System.Int32,System.Int32,System.String)">
+  SetLineGutterText(int, int, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineGutterText(int line, int gutter, string text)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>gutter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>text</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetLineWrappingMode_" data-uid="Forma.TextEdit.SetLineWrappingMode*"></a>
+
+  <h3 id="Forma_TextEdit_SetLineWrappingMode_Forma_TextEditLineWrappingMode_" data-uid="Forma.TextEdit.SetLineWrappingMode(Forma.TextEditLineWrappingMode)">
+  SetLineWrappingMode(TextEditLineWrappingMode)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLineWrappingMode(TextEditLineWrappingMode mode)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>mode</code> <a class="xref" href="Forma.TextEditLineWrappingMode.html">TextEditLineWrappingMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetMultipleCaretsEnabled_" data-uid="Forma.TextEdit.SetMultipleCaretsEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_SetMultipleCaretsEnabled_System_Boolean_" data-uid="Forma.TextEdit.SetMultipleCaretsEnabled(System.Boolean)">
+  SetMultipleCaretsEnabled(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetMultipleCaretsEnabled(bool enabled)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>enabled</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetSearchFlags_" data-uid="Forma.TextEdit.SetSearchFlags*"></a>
+
+  <h3 id="Forma_TextEdit_SetSearchFlags_Forma_TextSearchFlags_" data-uid="Forma.TextEdit.SetSearchFlags(Forma.TextSearchFlags)">
+  SetSearchFlags(TextSearchFlags)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSearchFlags(TextSearchFlags flags)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>flags</code> <a class="xref" href="Forma.TextSearchFlags.html">TextSearchFlags</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetSearchText_" data-uid="Forma.TextEdit.SetSearchText*"></a>
+
+  <h3 id="Forma_TextEdit_SetSearchText_System_String_" data-uid="Forma.TextEdit.SetSearchText(System.String)">
+  SetSearchText(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSearchText(string text)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>text</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetShortcutKeysEnabled_" data-uid="Forma.TextEdit.SetShortcutKeysEnabled*"></a>
+
+  <h3 id="Forma_TextEdit_SetShortcutKeysEnabled_System_Boolean_" data-uid="Forma.TextEdit.SetShortcutKeysEnabled(System.Boolean)">
+  SetShortcutKeysEnabled(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetShortcutKeysEnabled(bool enabled)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>enabled</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SetSyntaxHighlighter_" data-uid="Forma.TextEdit.SetSyntaxHighlighter*"></a>
+
+  <h3 id="Forma_TextEdit_SetSyntaxHighlighter_Forma_SyntaxHighlighter_" data-uid="Forma.TextEdit.SetSyntaxHighlighter(Forma.SyntaxHighlighter)">
+  SetSyntaxHighlighter(SyntaxHighlighter)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the document-bound syntax provider, analogous to Godot's set_syntax_highlighter().</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSyntaxHighlighter(SyntaxHighlighter highlighter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>highlighter</code> <a class="xref" href="Forma.SyntaxHighlighter.html">SyntaxHighlighter</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SkipSelectionForNextOccurrence_" data-uid="Forma.TextEdit.SkipSelectionForNextOccurrence*"></a>
+
+  <h3 id="Forma_TextEdit_SkipSelectionForNextOccurrence" data-uid="Forma.TextEdit.SkipSelectionForNextOccurrence">
+  SkipSelectionForNextOccurrence()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Moves the final occurrence selection to its next match, matching Godot's <code>skip_selection_for_next_occurrence</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SkipSelectionForNextOccurrence()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_StartAction_" data-uid="Forma.TextEdit.StartAction*"></a>
+
+  <h3 id="Forma_TextEdit_StartAction_Forma_TextEditEditAction_" data-uid="Forma.TextEdit.StartAction(Forma.TextEditEditAction)">
+  StartAction(TextEditEditAction)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Begins a Godot-style edit action; all edits until <a class="xref" href="Forma.TextEdit.html#Forma_TextEdit_EndAction">EndAction()</a> become one undo step.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void StartAction(TextEditEditAction action)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>action</code> <a class="xref" href="Forma.TextEditEditAction.html">TextEditEditAction</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_SwapLines_" data-uid="Forma.TextEdit.SwapLines*"></a>
+
+  <h3 id="Forma_TextEdit_SwapLines_System_Int32_System_Int32_" data-uid="Forma.TextEdit.SwapLines(System.Int32,System.Int32)">
+  SwapLines(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Swaps two source lines while retaining carets, selections, line backgrounds, and gutter items with their original line content.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SwapLines(int fromLine, int toLine)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fromLine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>toLine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_TagSavedVersion_" data-uid="Forma.TextEdit.TagSavedVersion*"></a>
+
+  <h3 id="Forma_TextEdit_TagSavedVersion" data-uid="Forma.TextEdit.TagSavedVersion">
+  TagSavedVersion()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void TagSavedVersion()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TextEdit_Undo_" data-uid="Forma.TextEdit.Undo*"></a>
+
+  <h3 id="Forma_TextEdit_Undo" data-uid="Forma.TextEdit.Undo">
+  Undo()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Undo()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="events">Events
+</h2>
+
+
+
+  <h3 id="Forma_TextEdit_CopyRequested" data-uid="Forma.TextEdit.CopyRequested">
+  CopyRequested
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Raised after Copy or Cut submits text to <a class="xref" href="Forma.UIContext.html#Forma_UIContext_Clipboard">Clipboard</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;TextEdit, string&gt; CopyRequested</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="Forma.TextEdit.html">TextEdit</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h3 id="Forma_TextEdit_GutterClicked" data-uid="Forma.TextEdit.GutterClicked">
+  GutterClicked
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;TextEdit, int, int&gt; GutterClicked</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-3">Action</a>&lt;<a class="xref" href="Forma.TextEdit.html">TextEdit</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs" class="edit-link">Edit this page</a>
+        </div>
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

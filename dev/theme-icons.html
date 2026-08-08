@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Default Theme Icons | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Default Theme Icons | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/theme-icons.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="default-theme-icons">Default Theme Icons</h1>
+
+<p>Forma embeds the same default icon manifest in its MonoGame and FNA packages. Applications do not
+need MGCB, XNB files, an SVG parser, or copied content assets. The PNG atlases remain the native-free
+default and fallback. A matching explicit SVG backend companion also packages the authoritative SVG
+sources for exact-scale runtime rendering. <code>assets/theme-icons/imports.json</code> owns the current icon
+inventory; this guide intentionally does not duplicate its count.</p>
+<p>Set <code>UIContext.ThemeIconRenderingPolicy</code> to <code>BitmapAtlas</code>, <code>RuntimeSvg</code>, or <code>Auto</code>. Runtime SVG keeps
+the selected PNG atlas available as a per-icon fallback, so a missing backend or unsupported source
+never removes the current default icon. <code>ThemeIconDiagnostics</code> reports the selected density,
+runtime SVG icon count, PNG fallback count, missing lookups, atlas memory, and cache generation.
+See <a href="runtime-svg.html">runtime-svg.md</a> for backend setup and security limits.</p>
+<h2 id="renderer-selection">Renderer Selection</h2>
+<p>The build spike compared Svg.Skia with SVG.NET. Svg.Skia was selected because it uses the same
+cross-platform Skia raster path on macOS, Linux, and Windows, exposes explicit sRGB premultiplied
+RGBA output, and does not rely on <code>System.Drawing.Common</code>. SVG.NET's normal bitmap path uses
+System.Drawing, which is supported only on Windows in current .NET and therefore cannot provide the
+same clean-checkout command on all CI operating systems. Svg.Skia 5.2.0 and SkiaSharp 4.148.0 are
+pinned in central build properties; CI regenerates and byte-compares output on every supported host.</p>
+<h2 id="ownership-and-density">Ownership and Density</h2>
+<p><code>UIContext</code> lazily decodes the embedded PNG atlas on its render thread after receiving a valid
+graphics device. Contexts sharing one device reuse a weak-keyed device cache; the last context
+disposes the textures. A disposed atlas is recreated on the next draw. <code>ThemeIcon</code> values are
+non-owning atlas views and must not dispose application or cache textures.</p>
+<p>The 1x atlas is selected below a display scale of 1.5; the 2x atlas is selected at 1.5 and above.
+Scales below 1x use the 1x atlas, and scales above 2x use the 2x atlas. Logical icon dimensions do
+not change with density. Linear clamping and two logical pixels of transparent atlas padding avoid
+neighbor bleed at fractional scales.</p>
+<p>The current canonical payload is approximately 40 KB of PNG data. Decoded texture memory is about
+274 KB for 1x and 1.05 MB for 2x. Atlases are loaded on demand, so a context normally retains only
+the densities it has displayed.</p>
+<h2 id="rollout-budgets">Rollout Budgets</h2>
+<p>The current peer packages are 328 KB each. Icon rollout budgets are: no more than 128 KB of
+compressed icon/manifest payload, no more than 350 KB per core peer package, no more than 1.1 MB for
+the active 2x texture, and no more than 1.4 MB if both densities have been visited on one device.
+The canonical values are 274,432 decoded bytes at 1x and 1,097,728 bytes at 2x.</p>
+<p>All default icons for one density occupy one atlas page. A control sequence using only default icons
+therefore introduces at most one default-icon texture per density, without per-icon texture switches.
+The lifecycle test requires cache generation to remain unchanged across repeated warm <code>Ensure</code>
+calls, proving warm frames perform no image decode, texture creation, or atlas allocation. Cold load
+is bounded by one embedded PNG decode and one upload for each density first displayed.</p>
+<h2 id="customization">Customization</h2>
+<p>Theme icons are type-scoped and inherited in the same derived-to-base order as style boxes:</p>
+<pre><code class="lang-csharp">var customTheme = new Theme { Parent = context.Theme };
+customTheme.SetIcon(&quot;arrow&quot;, customArrow, nameof(OptionButton));
+option.ThemeOverride = customTheme;
+</code></pre>
+<p><code>RemoveIcon</code> reveals inherited/default values. <code>SuppressIcon</code> intentionally hides an inherited
+icon. Per-control <code>AddThemeIconOverride</code>, <code>RemoveThemeIconOverride</code>, and <code>SuppressThemeIcon</code> provide
+the same behavior locally. Existing <code>Texture2D</code> properties on buttons, menu items, tabs, tree cells,
+graph ports, and gutters remain application-owned content icons and take precedence where present.</p>
+<h2 id="regeneration">Regeneration</h2>
+<p><code>make icons-verify</code> regenerates the canonical 1x/2x PNG atlases and JSON metadata and fails on byte
+drift. <code>make icons</code> updates canonical outputs from the already imported SVG inputs. A reviewed
+source update requires a Godot checkout at the revision recorded in <code>assets/theme-icons/imports.json</code>:</p>
+<pre><code class="lang-sh">make icons-import GODOT_ROOT=../godot
+make icons
+make icons-verify
+</code></pre>
+<p>The pipeline rejects duplicate names or sources, editor-only paths, missing mappings, unclassified
+licenses, zero-sized SVGs, source hash drift, and incomplete density output.</p>
+<h2 id="intentional-exclusions">Intentional Exclusions</h2>
+<p>Only runtime icons mapped to behavior Forma currently exposes are imported. Dialog/window close
+icons, ColorPicker pipette/shape/overbright icons, tab drop marks,
+and CodeEdit completion-color backgrounds remain excluded until corresponding interactive behavior
+exists. Godot's editor icon collection is excluded entirely.</p>
+<h2 id="catalog-stories">Catalog Stories</h2>
+<p>The exact theme-icon story names are <strong>Complete icon inventory</strong>, <strong>Runtime SVG</strong>,
+<strong>Override and suppression</strong>, and <strong>Atlas diagnostics</strong>. Their stable identifiers are the
+kebab-case names prefixed with <code>catalog-</code>, such as <code>catalog-runtime-svg</code>.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/theme-icons.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

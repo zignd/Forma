@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Forma Runtime SVG Profile v1 | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Forma Runtime SVG Profile v1 | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/runtime-svg-profile-v1.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="forma-runtime-svg-profile-v1">Forma Runtime SVG Profile v1</h1>
+
+<p>Profile v1 is the behavior intersection required from every production Forma SVG backend. The
+machine fixture source is <code>tests/Forma.Svg.Conformance/SvgProfileV1Fixtures.cs</code>; the policy manifest
+is <code>tests/Forma.Svg.Conformance/runtime-svg-profile-v1.json</code>.</p>
+<h2 id="included">Included</h2>
+<ul>
+<li>finite positive root dimensions and view boxes;</li>
+<li><code>preserveAspectRatio</code> meet, slice, and none;</li>
+<li>paths, rectangles, rounded rectangles, circles, ellipses, lines, polylines, and polygons;</li>
+<li>fills, fill rules, strokes, opacity, caps, joins, miter limits, and dash arrays;</li>
+<li>nested groups and affine transforms;</li>
+<li>linear/radial gradients, stop opacity, supported spread, and gradient transforms;</li>
+<li>local clipping, masks, <code>defs</code>, <code>use</code>, and fragment references;</li>
+<li>bounded presentation attributes, inline class styles, inheritance, and <code>currentColor</code>.</li>
+</ul>
+<p>Every fixture must produce non-empty, exact-size, tightly packed, top-left, premultiplied sRGB RGBA8
+at 1x, 1.25x, 1.5x, 1.75x, 2x, and 2.5x. Every pixel must satisfy <code>R &lt;= A</code>, <code>G &lt;= A</code>, and <code>B &lt;= A</code>.</p>
+<h2 id="excluded">Excluded</h2>
+<p>Core validation rejects scripts/events, animation, foreign objects, image/data/external resources,
+text and arbitrary fonts, external stylesheets, filters/blur, blend modes, ICC profiles, duplicate
+IDs, cyclic references, and non-finite or over-budget documents before native parsing. Rejection is
+part of the profile and may not become an empty successful image or trigger fallback to another
+backend.</p>
+<h2 id="comparison-rules">Comparison Rules</h2>
+<p>Backend-local hashes detect changes within a pinned backend. Cross-backend output is not required to
+be byte-identical. A comparison passes only when all semantic samples pass and:</p>
+<ul>
+<li>dimensions and buffer length are exact;</li>
+<li>transparent/opaque interior sample points agree exactly where antialiasing is irrelevant;</li>
+<li>non-transparent bounds differ by no more than <code>ceil(scale)</code> pixels per edge;</li>
+<li>alpha coverage differs by no more than 4 percentage points of total image area for production
+theme icons and 8 percentage points for tiny semantic fixtures;</li>
+<li>production theme icons have mean premultiplied channel error at most 12/255 and 95th percentile
+error at most 48/255;</li>
+<li>tiny semantic profile fixtures have mean error at most 26/255 and 95th percentile error at most
+128/255, alongside their exact semantic sample assertions.</li>
+</ul>
+<p>These measured limits account for a one-pixel antialiasing phase in 8-10 px fixtures; they are not
+relative-to-object percentages, which distort one-pixel lines. Tolerance never permits empty output,
+a missing shape, wrong clipping, straight alpha, shifted
+geometry beyond the bound, or an out-of-bounds write. For example, dropping a thin stroke fails its
+semantic sample/bounds even if mean image error stays low; translating an otherwise identical icon
+two pixels at 1x fails the geometry rule.</p>
+<h2 id="change-control">Change Control</h2>
+<p>Adding a feature requires a positive fixture, deterministic excluded-feature behavior where
+applicable, both isolated backend runs, visual review at all approved scales, and an updated profile
+version if public behavior changes. First-party theme/Catalog assets may only use profile features.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/runtime-svg-profile-v1.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

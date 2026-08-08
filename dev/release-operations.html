@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Release operations | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Release operations | Forma Documentation ">
+      
+      <meta name="description" content="Publish, verify, correct, and recover Forma releases on NuGet.org.">
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/release-operations.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="release-operations">Release operations</h1>
+
+<p>This runbook covers public Forma package releases. NuGet.org versions are immutable, so the release
+workflow treats creation of a <code>v*</code> tag as authorization to publish one already validated version.
+Ordinary branch pushes and manual workflow runs cannot publish.</p>
+<h2 id="tagged-release">Tagged release</h2>
+<p>Before creating a tag:</p>
+<ol>
+<li>Confirm CI and the non-publishing Release dry run pass on the exact commit.</li>
+<li>Confirm the version in <code>Directory.Build.props</code> matches the intended tag without the leading <code>v</code>.</li>
+<li>Recheck every ID in <code>scripts/release-packages.json</code> on NuGet.org.</li>
+<li>Run <code>make docs-check</code>. Review documentation for every changed API, behavior, package, support
+claim, migration, and screenshot; confirm visible maturity/version labels match the release.</li>
+<li>Review <code>RELEASE_NOTES.md</code> against those documentation changes, the API compatibility report,
+package contents, checksums, and the complete runtime-peer manifest.</li>
+<li>Create and push the tag only after those checks pass. The tag starts protected OIDC publication;
+no long-lived NuGet credential is involved.</li>
+</ol>
+<p>The workflow publishes the validated artifact without rebuilding, waits for every primary package
+to become available, restores every package from an empty cache, and then creates the matching
+GitHub Release. A failed verification must prevent GitHub Release creation.</p>
+<h2 id="correct-or-unlist-a-release">Correct or unlist a release</h2>
+<p>Never overwrite an existing package version. If a published package is incorrect:</p>
+<ol>
+<li>Stop further release automation and determine whether the defect affects one package or the
+shared peer version.</li>
+<li>Unlist every affected package through the Zigrok organization on NuGet.org. Unlist the complete
+fourteen-package version when runtime pairing or shared-version integrity is uncertain.</li>
+<li>Add a prominent notice to the GitHub Release and release notes describing impact, affected
+package IDs, and the replacement version. Use a security advisory instead when disclosure must
+remain private until a fix is ready.</li>
+<li>Correct the source, increment the version, rerun the complete release matrix, and publish a new
+tag. Do not reuse or move the old tag.</li>
+<li>Keep the unlisted version and its evidence for diagnosis; deletion is reserved for NuGet.org
+policy or legal requirements.</li>
+</ol>
+<h2 id="symbol-packages">Symbol packages</h2>
+<p>The release manifest controls symbol publication. Tagged releases publish a <code>.snupkg</code> beside every
+package except entries that explicitly set <code>&quot;symbols&quot;: false</code>; currently the two XAML build packages
+are the only exceptions. Symbol packages must come from the same validated artifact and version as
+their <code>.nupkg</code>.</p>
+<p>After publication, confirm NuGet.org accepts each expected symbol package and that Source Link points
+to the tagged <code>zigrok/Forma</code> revision. If a symbol package alone is rejected, retain the workflow log
+and correct its metadata. Push the matching validated <code>.snupkg</code> only when NuGet.org permits completing
+that existing version; otherwise publish the correction under a new package version.</p>
+<h2 id="ownership-and-account-recovery">Ownership and account recovery</h2>
+<p>The Zigrok NuGet.org organization is intentionally administered by the project owner while Forma is
+a single-maintainer project. Keep Microsoft account recovery methods, MFA recovery material, and
+NuGet.org recovery information outside the repository.</p>
+<p>If account access is lost, recover the Microsoft account first and then contact NuGet.org support
+with organization and package ownership evidence. For a future maintainer transfer, add the
+successor to Zigrok, transfer package ownership and trusted-publishing administration, verify a
+tagged release, and only then remove the original administrator.</p>
+<h2 id="credential-or-workflow-compromise">Credential or workflow compromise</h2>
+<p>Trusted publishing creates a short-lived credential for one bound repository, workflow, and
+environment. There is no persistent NuGet API key to rotate. If the maintainer account, workflow,
+or OIDC policy may be compromised:</p>
+<ol>
+<li>Disable the Release workflow and remove or disable the Forma trusted-publishing policy on
+NuGet.org.</li>
+<li>Revoke active GitHub and Microsoft sessions, rotate affected credentials, replace MFA recovery
+material, and review organization, repository, environment, tag, workflow, and NuGet audit logs.</li>
+<li>Remove unauthorized tags or releases only after preserving evidence. Unlist unauthorized package
+versions; immutable versions cannot be repaired in place.</li>
+<li>Review workflow and action changes from a known-good commit, restore the tag-restricted
+<code>nuget-production</code> policy, and run a non-publishing Release dry run before re-enabling tags.</li>
+<li>Publish any correction under a new version and document the incident at the appropriate public
+disclosure level.</li>
+</ol>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/release-operations.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

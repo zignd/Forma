@@ -1,0 +1,3735 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Class FileDialog | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class FileDialog | Forma Documentation ">
+      
+      <meta name="description" content="Filesystem-selection dialog with navigation, filtering, sorting and list presentation.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="Forma.FileDialog">
+
+
+
+  <h1 id="Forma_FileDialog" data-uid="Forma.FileDialog" class="text-break">
+Class FileDialog  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="Forma.html">Forma</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>Forma.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Filesystem-selection dialog with navigation, filtering, sorting and list presentation.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class FileDialog : ConfirmationDialog, IAddChild&lt;Control&gt;, IAddChild, INotifyPropertyChanged, IDisposable</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="Forma.Control.html">Control</a></div>
+      <div><a class="xref" href="Forma.TemplatedControl.html">TemplatedControl</a></div>
+      <div><a class="xref" href="Forma.Popup.html">Popup</a></div>
+      <div><a class="xref" href="Forma.PopupPanel.html">PopupPanel</a></div>
+      <div><a class="xref" href="Forma.AcceptDialog.html">AcceptDialog</a></div>
+      <div><a class="xref" href="Forma.ConfirmationDialog.html">ConfirmationDialog</a></div>
+      <div><span class="xref">FileDialog</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="Forma.Xaml.IAddChild-1.html">IAddChild</a>&lt;<a class="xref" href="Forma.Control.html">Control</a>&gt;</div>
+      <div><a class="xref" href="Forma.Xaml.IAddChild.html">IAddChild</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.componentmodel.inotifypropertychanged">INotifyPropertyChanged</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist inheritedMembers">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="Forma.ConfirmationDialog.html#Forma_ConfirmationDialog_CancelText">ConfirmationDialog.CancelText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_TitlePresenterPartName">AcceptDialog.TitlePresenterPartName</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_AcceptButtonPartName">AcceptDialog.AcceptButtonPartName</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_CancelButtonPartName">AcceptDialog.CancelButtonPartName</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_Cancel">AcceptDialog.Cancel()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_RegisterTextEnter_Forma_LineEdit_">AcceptDialog.RegisterTextEnter(LineEdit)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_AddButton_System_String_System_Boolean_System_String_">AcceptDialog.AddButton(string, bool, string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_AddCancelButton_System_String_">AcceptDialog.AddCancelButton(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_RemoveButton_Forma_Button_">AcceptDialog.RemoveButton(Button)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_AccessibilityRole">AcceptDialog.AccessibilityRole</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_Title">AcceptDialog.Title</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_DialogText">AcceptDialog.DialogText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_OkText">AcceptDialog.OkText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_Font">AcceptDialog.Font</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_UIFont">AcceptDialog.UIFont</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_ButtonHeight">AcceptDialog.ButtonHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_HideOnOk">AcceptDialog.HideOnOk</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_CloseOnEscape">AcceptDialog.CloseOnEscape</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_OkButtonDisabled">AcceptDialog.OkButtonDisabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_Confirmed">AcceptDialog.Confirmed</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_Canceled">AcceptDialog.Canceled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.AcceptDialog.html#Forma_AcceptDialog_CustomAction">AcceptDialog.CustomAction</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_PopupAt_Microsoft_Xna_Framework_Vector2_">Popup.PopupAt(Vector2)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_Hide_Forma_PopupHideReason_">Popup.Hide(PopupHideReason)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_AccessibilityStates">Popup.AccessibilityStates</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_BackgroundColor">Popup.BackgroundColor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_BorderColor">Popup.BorderColor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_BorderWidth">Popup.BorderWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_Modal">Popup.Modal</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_Exclusive">Popup.Exclusive</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_HideOnOutsideClick">Popup.HideOnOutsideClick</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_PopupShown">Popup.PopupShown</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Popup.html#Forma_Popup_PopupHidden">Popup.PopupHidden</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_ApplyTemplate">TemplatedControl.ApplyTemplate()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_GetTemplateChild_System_String_">TemplatedControl.GetTemplateChild(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_Dispose">TemplatedControl.Dispose()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_Template">TemplatedControl.Template</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_TemplateRoot">TemplatedControl.TemplateRoot</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPseudoStateActive_System_String_">Control.IsPseudoStateActive(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsLayoutRtl">Control.IsLayoutRtl()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddChild_Forma_Control_">Control.AddChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetAccessibilityChildren">Control.GetAccessibilityChildren()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveChild_Forma_Control_">Control.RemoveChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClearDataContext">Control.ClearDataContext()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TryFindResource_System_String_System_Object__">Control.TryFindResource(string, out object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FindName__1_System_String_">Control.FindName&lt;T&gt;(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MoveChild_Forma_Control_System_Int32_">Control.MoveChild(Control, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveFromParent">Control.RemoveFromParent()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetNodeOrNull_System_String_">Control.GetNodeOrNull(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeStyleOverride_System_String_Forma_StyleBox_">Control.AddThemeStyleOverride(string, StyleBox)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeStyleOverride_System_String_">Control.RemoveThemeStyleOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeStyleBox_System_String_">Control.GetThemeStyleBox(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeIconOverride_System_String_Forma_ThemeIcon_">Control.AddThemeIconOverride(string, ThemeIcon)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeIconOverride_System_String_">Control.RemoveThemeIconOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SuppressThemeIcon_System_String_">Control.SuppressThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeIcon_System_String_">Control.GetThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchor_Forma_Side_System_Single_System_Boolean_System_Boolean_">Control.SetAnchor(Side, float, bool, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetOffset_Forma_Side_System_Single_">Control.SetOffset(Side, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchorsAndOffsets_System_Single_System_Single_System_Single_System_Single_">Control.SetAnchorsAndOffsets(float, float, float, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetDesiredSize">Control.GetDesiredSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetMaximumSize">Control.GetMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetCombinedMaximumSize">Control.GetCombinedMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetBoundDesiredSize">Control.GetBoundDesiredSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ContainsPoint_Microsoft_Xna_Framework_Point_">Control.ContainsPoint(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetTooltip_Microsoft_Xna_Framework_Point_">Control.GetTooltip(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GrabFocus">Control.GrabFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ReleaseFocus">Control.ReleaseFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoView_System_Nullable_Microsoft_Xna_Framework_Rectangle__">Control.BringIntoView(Rectangle?)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_QueueLayout">Control.QueueLayout()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetDragData_Microsoft_Xna_Framework_Point_">Control.GetDragData(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CanDropData_Microsoft_Xna_Framework_Point_System_Object_">Control.CanDropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DropData_Microsoft_Xna_Framework_Point_System_Object_">Control.DropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Name">Control.Name</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Parent">Control.Parent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualParent">Control.VisualParent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Children">Control.Children</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Context">Control.Context</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Resources">Control.Resources</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Classes">Control.Classes</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeStyleOverrides">Control.ThemeStyleOverrides</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HasLocalDataContext">Control.HasLocalDataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContext">Control.DataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeOverride">Control.ThemeOverride</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TooltipText">Control.TooltipText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visible">Control.Visible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visibility">Control.Visibility</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Enabled">Control.Enabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsEffectivelyEnabled">Control.IsEffectivelyEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseFilter">Control.MouseFilter</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusMode">Control.FocusMode</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNext">Control.FocusNext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusPrevious">Control.FocusPrevious</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborLeft">Control.FocusNeighborLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborTop">Control.FocusNeighborTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborRight">Control.FocusNeighborRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborBottom">Control.FocusNeighborBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipContents">Control.ClipContents</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipToBounds">Control.ClipToBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Clip">Control.Clip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OpacityMask">Control.OpacityMask</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Effect">Control.Effect</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RenderTransform">Control.RenderTransform</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TransformOrigin">Control.TransformOrigin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Opacity">Control.Opacity</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsHitTestVisible">Control.IsHitTestVisible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PixelSnapping">Control.PixelSnapping</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPixelSnappingEnabled">Control.IsPixelSnappingEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Cursor">Control.Cursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveCursor">Control.EffectiveCursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ToolTip">Control.ToolTip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Foreground">Control.Foreground</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontFamily">Control.FontFamily</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontSize">Control.FontSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontWeight">Control.FontWeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStyle">Control.FontStyle</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStretch">Control.FontStretch</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Language">Control.Language</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutDirection">Control.LayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveLayoutDirection">Control.EffectiveLayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ZIndex">Control.ZIndex</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HorizontalSizeFlags">Control.HorizontalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VerticalSizeFlags">Control.VerticalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HorizontalAlignment">Control.HorizontalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VerticalAlignment">Control.VerticalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SizeFlagsStretchRatio">Control.SizeFlagsStretchRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margins">Control.Margins</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margin">Control.Margin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Width">Control.Width</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Height">Control.Height</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinWidth">Control.MinWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinHeight">Control.MinHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxWidth">Control.MaxWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxHeight">Control.MaxHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AspectRatio">Control.AspectRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMinimumSize">Control.CustomMinimumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMaximumSize">Control.CustomMaximumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Position">Control.Position</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Size">Control.Size</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorLeft">Control.AnchorLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorTop">Control.AnchorTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorRight">Control.AnchorRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorBottom">Control.AnchorBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetLeft">Control.OffsetLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetTop">Control.OffsetTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetRight">Control.OffsetRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetBottom">Control.OffsetBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HGrowDirection">Control.HGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VGrowDirection">Control.VGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Bounds">Control.Bounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualBounds">Control.VisualBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusBounds">Control.FocusBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityBounds">Control.AccessibilityBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityPeer">Control.AccessibilityPeer</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityLabel">Control.AccessibilityLabel</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityName">Control.AccessibilityName</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityValue">Control.AccessibilityValue</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityActions">Control.AccessibilityActions</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GlobalPosition">Control.GlobalPosition</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutChanged">Control.LayoutChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PropertyChanged">Control.PropertyChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseEntered">Control.MouseEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseExited">Control.MouseExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusEntered">Control.FocusEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusExited">Control.FocusExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Attached">Control.Attached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Detached">Control.Detached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EnabledChanged">Control.EnabledChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PseudoStateChanged">Control.PseudoStateChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_NameChanged">Control.NameChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContextChanged">Control.DataContextChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ParentChanged">Control.ParentChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoViewRequested">Control.BringIntoViewRequested</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityChanged">Control.AccessibilityChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildAdded">Control.ChildAdded</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildRemoved">Control.ChildRemoved</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragStarted">Control.DragStarted</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragEnded">Control.DragEnded</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="Forma_FileDialog__ctor_" data-uid="Forma.FileDialog.#ctor*"></a>
+
+  <h3 id="Forma_FileDialog__ctor" data-uid="Forma.FileDialog.#ctor">
+  FileDialog()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FileDialog()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="Forma_FileDialog_Access_" data-uid="Forma.FileDialog.Access*"></a>
+
+  <h3 id="Forma_FileDialog_Access" data-uid="Forma.FileDialog.Access">
+  Access
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FileDialogAccess Access { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.FileDialogAccess.html">FileDialogAccess</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_CanCreateFolders_" data-uid="Forma.FileDialog.CanCreateFolders*"></a>
+
+  <h3 id="Forma_FileDialog_CanCreateFolders" data-uid="Forma.FileDialog.CanCreateFolders">
+  CanCreateFolders
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool CanCreateFolders { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_CanGoBack_" data-uid="Forma.FileDialog.CanGoBack*"></a>
+
+  <h3 id="Forma_FileDialog_CanGoBack" data-uid="Forma.FileDialog.CanGoBack">
+  CanGoBack
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Whether GoBack() has an earlier directory to return to, matching Godot's dir_prev enablement.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool CanGoBack { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_CanGoForward_" data-uid="Forma.FileDialog.CanGoForward*"></a>
+
+  <h3 id="Forma_FileDialog_CanGoForward" data-uid="Forma.FileDialog.CanGoForward">
+  CanGoForward
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Whether GoForward() has a later directory to redo, matching Godot's dir_next enablement.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool CanGoForward { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_CancelButtonBounds_" data-uid="Forma.FileDialog.CancelButtonBounds*"></a>
+
+  <h3 id="Forma_FileDialog_CancelButtonBounds" data-uid="Forma.FileDialog.CancelButtonBounds">
+  CancelButtonBounds
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override Rectangle CancelButtonBounds { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Rectangle</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_CurrentFile_" data-uid="Forma.FileDialog.CurrentFile*"></a>
+
+  <h3 id="Forma_FileDialog_CurrentFile" data-uid="Forma.FileDialog.CurrentFile">
+  CurrentFile
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string CurrentFile { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_CurrentPath_" data-uid="Forma.FileDialog.CurrentPath*"></a>
+
+  <h3 id="Forma_FileDialog_CurrentPath" data-uid="Forma.FileDialog.CurrentPath">
+  CurrentPath
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string CurrentPath { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_DisplayMode_" data-uid="Forma.FileDialog.DisplayMode*"></a>
+
+  <h3 id="Forma_FileDialog_DisplayMode" data-uid="Forma.FileDialog.DisplayMode">
+  DisplayMode
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FileDialogDisplayMode DisplayMode { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.FileDialogDisplayMode.html">FileDialogDisplayMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_EffectiveCanCreateFolders_" data-uid="Forma.FileDialog.EffectiveCanCreateFolders*"></a>
+
+  <h3 id="Forma_FileDialog_EffectiveCanCreateFolders" data-uid="Forma.FileDialog.EffectiveCanCreateFolders">
+  EffectiveCanCreateFolders
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Matches Godot's _update_make_dir_visible: folder creation is force-disabled while
+merely picking a file/files to open, regardless of the CanCreateFolders customization flag.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool EffectiveCanCreateFolders { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_Entries_" data-uid="Forma.FileDialog.Entries*"></a>
+
+  <h3 id="Forma_FileDialog_Entries" data-uid="Forma.FileDialog.Entries">
+  Entries
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; Entries { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_EntryHeight_" data-uid="Forma.FileDialog.EntryHeight*"></a>
+
+  <h3 id="Forma_FileDialog_EntryHeight" data-uid="Forma.FileDialog.EntryHeight">
+  EntryHeight
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float EntryHeight { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_FileMode_" data-uid="Forma.FileDialog.FileMode*"></a>
+
+  <h3 id="Forma_FileDialog_FileMode" data-uid="Forma.FileDialog.FileMode">
+  FileMode
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FileDialogMode FileMode { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.FileDialogMode.html">FileDialogMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_FileSystem_" data-uid="Forma.FileDialog.FileSystem*"></a>
+
+  <h3 id="Forma_FileDialog_FileSystem" data-uid="Forma.FileDialog.FileSystem">
+  FileSystem
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IFileDialogFileSystem FileSystem { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.IFileDialogFileSystem.html">IFileDialogFileSystem</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_FilenameFilter_" data-uid="Forma.FileDialog.FilenameFilter*"></a>
+
+  <h3 id="Forma_FileDialog_FilenameFilter" data-uid="Forma.FileDialog.FilenameFilter">
+  FilenameFilter
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string FilenameFilter { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_FilterIndex_" data-uid="Forma.FileDialog.FilterIndex*"></a>
+
+  <h3 id="Forma_FileDialog_FilterIndex" data-uid="Forma.FileDialog.FilterIndex">
+  FilterIndex
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int FilterIndex { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_Filters_" data-uid="Forma.FileDialog.Filters*"></a>
+
+  <h3 id="Forma_FileDialog_Filters" data-uid="Forma.FileDialog.Filters">
+  Filters
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; Filters { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetIconCallback_" data-uid="Forma.FileDialog.GetIconCallback*"></a>
+
+  <h3 id="Forma_FileDialog_GetIconCallback" data-uid="Forma.FileDialog.GetIconCallback">
+  GetIconCallback
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;string, ThemeIcon?&gt; GetIconCallback { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>, <a class="xref" href="Forma.ThemeIcon.html">ThemeIcon</a>?&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetThumbnailCallback_" data-uid="Forma.FileDialog.GetThumbnailCallback*"></a>
+
+  <h3 id="Forma_FileDialog_GetThumbnailCallback" data-uid="Forma.FileDialog.GetThumbnailCallback">
+  GetThumbnailCallback
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;string, int, ThemeIcon?&gt; GetThumbnailCallback { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-3">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>, <a class="xref" href="Forma.ThemeIcon.html">ThemeIcon</a>?&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_IsFileSystemAvailable_" data-uid="Forma.FileDialog.IsFileSystemAvailable*"></a>
+
+  <h3 id="Forma_FileDialog_IsFileSystemAvailable" data-uid="Forma.FileDialog.IsFileSystemAvailable">
+  IsFileSystemAvailable
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsFileSystemAvailable { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_IsOverwriteConfirmationVisible_" data-uid="Forma.FileDialog.IsOverwriteConfirmationVisible*"></a>
+
+  <h3 id="Forma_FileDialog_IsOverwriteConfirmationVisible" data-uid="Forma.FileDialog.IsOverwriteConfirmationVisible">
+  IsOverwriteConfirmationVisible
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsOverwriteConfirmationVisible { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_Message_" data-uid="Forma.FileDialog.Message*"></a>
+
+  <h3 id="Forma_FileDialog_Message" data-uid="Forma.FileDialog.Message">
+  Message
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Non-empty when the last Refresh hit a permission error, matching Godot's own
+&quot;You don't have permission...&quot; message label shown in place of the file list.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Message { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_ModeOverridesTitle_" data-uid="Forma.FileDialog.ModeOverridesTitle*"></a>
+
+  <h3 id="Forma_FileDialog_ModeOverridesTitle" data-uid="Forma.FileDialog.ModeOverridesTitle">
+  ModeOverridesTitle
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ModeOverridesTitle { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_NativeDialogHandler_" data-uid="Forma.FileDialog.NativeDialogHandler*"></a>
+
+  <h3 id="Forma_FileDialog_NativeDialogHandler" data-uid="Forma.FileDialog.NativeDialogHandler">
+  NativeDialogHandler
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;FileDialog, bool&gt; NativeDialogHandler { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="Forma.FileDialog.html">FileDialog</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_OkButtonBounds_" data-uid="Forma.FileDialog.OkButtonBounds*"></a>
+
+  <h3 id="Forma_FileDialog_OkButtonBounds" data-uid="Forma.FileDialog.OkButtonBounds">
+  OkButtonBounds
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override Rectangle OkButtonBounds { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Rectangle</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_Options_" data-uid="Forma.FileDialog.Options*"></a>
+
+  <h3 id="Forma_FileDialog_Options" data-uid="Forma.FileDialog.Options">
+  Options
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;FileDialogOption&gt; Options { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="Forma.FileDialogOption.html">FileDialogOption</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_OverwriteConfirmationDialog_" data-uid="Forma.FileDialog.OverwriteConfirmationDialog*"></a>
+
+  <h3 id="Forma_FileDialog_OverwriteConfirmationDialog" data-uid="Forma.FileDialog.OverwriteConfirmationDialog">
+  OverwriteConfirmationDialog
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConfirmationDialog OverwriteConfirmationDialog { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.ConfirmationDialog.html">ConfirmationDialog</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_OverwriteWarningEnabled_" data-uid="Forma.FileDialog.OverwriteWarningEnabled*"></a>
+
+  <h3 id="Forma_FileDialog_OverwriteWarningEnabled" data-uid="Forma.FileDialog.OverwriteWarningEnabled">
+  OverwriteWarningEnabled
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool OverwriteWarningEnabled { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_PendingOverwritePath_" data-uid="Forma.FileDialog.PendingOverwritePath*"></a>
+
+  <h3 id="Forma_FileDialog_PendingOverwritePath" data-uid="Forma.FileDialog.PendingOverwritePath">
+  PendingOverwritePath
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string PendingOverwritePath { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_RootSubfolder_" data-uid="Forma.FileDialog.RootSubfolder*"></a>
+
+  <h3 id="Forma_FileDialog_RootSubfolder" data-uid="Forma.FileDialog.RootSubfolder">
+  RootSubfolder
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string RootSubfolder { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SelectedFiles_" data-uid="Forma.FileDialog.SelectedFiles*"></a>
+
+  <h3 id="Forma_FileDialog_SelectedFiles" data-uid="Forma.FileDialog.SelectedFiles">
+  SelectedFiles
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; SelectedFiles { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_ShowFilenameFilter_" data-uid="Forma.FileDialog.ShowFilenameFilter*"></a>
+
+  <h3 id="Forma_FileDialog_ShowFilenameFilter" data-uid="Forma.FileDialog.ShowFilenameFilter">
+  ShowFilenameFilter
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ShowFilenameFilter { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_ShowHiddenFiles_" data-uid="Forma.FileDialog.ShowHiddenFiles*"></a>
+
+  <h3 id="Forma_FileDialog_ShowHiddenFiles" data-uid="Forma.FileDialog.ShowHiddenFiles">
+  ShowHiddenFiles
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ShowHiddenFiles { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SortOption_" data-uid="Forma.FileDialog.SortOption*"></a>
+
+  <h3 id="Forma_FileDialog_SortOption" data-uid="Forma.FileDialog.SortOption">
+  SortOption
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FileDialogSortOption SortOption { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.FileDialogSortOption.html">FileDialogSortOption</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_UseNativeDialog_" data-uid="Forma.FileDialog.UseNativeDialog*"></a>
+
+  <h3 id="Forma_FileDialog_UseNativeDialog" data-uid="Forma.FileDialog.UseNativeDialog">
+  UseNativeDialog
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool UseNativeDialog { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="Forma_FileDialog_ActivateEntry_" data-uid="Forma.FileDialog.ActivateEntry*"></a>
+
+  <h3 id="Forma_FileDialog_ActivateEntry_System_Int32_" data-uid="Forma.FileDialog.ActivateEntry(System.Int32)">
+  ActivateEntry(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ActivateEntry(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_AddFilter_" data-uid="Forma.FileDialog.AddFilter*"></a>
+
+  <h3 id="Forma_FileDialog_AddFilter_System_String_" data-uid="Forma.FileDialog.AddFilter(System.String)">
+  AddFilter(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddFilter(string filter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>filter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_AddOption_" data-uid="Forma.FileDialog.AddOption*"></a>
+
+  <h3 id="Forma_FileDialog_AddOption_System_String_System_Collections_Generic_IEnumerable_System_String__System_Int32_" data-uid="Forma.FileDialog.AddOption(System.String,System.Collections.Generic.IEnumerable{System.String},System.Int32)">
+  AddOption(string, IEnumerable&lt;string&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddOption(string name, IEnumerable&lt;string&gt; values, int defaultValueIndex = 0)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+    <dt><code>defaultValueIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_ArrangeChildren_" data-uid="Forma.FileDialog.ArrangeChildren*"></a>
+
+  <h3 id="Forma_FileDialog_ArrangeChildren" data-uid="Forma.FileDialog.ArrangeChildren">
+  ArrangeChildren()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override void ArrangeChildren()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_CancelPendingOverwrite_" data-uid="Forma.FileDialog.CancelPendingOverwrite*"></a>
+
+  <h3 id="Forma_FileDialog_CancelPendingOverwrite" data-uid="Forma.FileDialog.CancelPendingOverwrite">
+  CancelPendingOverwrite()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void CancelPendingOverwrite()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_ClearFilenameFilter_" data-uid="Forma.FileDialog.ClearFilenameFilter*"></a>
+
+  <h3 id="Forma_FileDialog_ClearFilenameFilter" data-uid="Forma.FileDialog.ClearFilenameFilter">
+  ClearFilenameFilter()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearFilenameFilter()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_ClearFilters_" data-uid="Forma.FileDialog.ClearFilters*"></a>
+
+  <h3 id="Forma_FileDialog_ClearFilters" data-uid="Forma.FileDialog.ClearFilters">
+  ClearFilters()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearFilters()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_ClearSelection_" data-uid="Forma.FileDialog.ClearSelection*"></a>
+
+  <h3 id="Forma_FileDialog_ClearSelection" data-uid="Forma.FileDialog.ClearSelection">
+  ClearSelection()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearSelection()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_Confirm_" data-uid="Forma.FileDialog.Confirm*"></a>
+
+  <h3 id="Forma_FileDialog_Confirm" data-uid="Forma.FileDialog.Confirm">
+  Confirm()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void Confirm()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_ConfirmPendingOverwrite_" data-uid="Forma.FileDialog.ConfirmPendingOverwrite*"></a>
+
+  <h3 id="Forma_FileDialog_ConfirmPendingOverwrite" data-uid="Forma.FileDialog.ConfirmPendingOverwrite">
+  ConfirmPendingOverwrite()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ConfirmPendingOverwrite()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_CreateFolder_" data-uid="Forma.FileDialog.CreateFolder*"></a>
+
+  <h3 id="Forma_FileDialog_CreateFolder_System_String_" data-uid="Forma.FileDialog.CreateFolder(System.String)">
+  CreateFolder(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string CreateFolder(string name)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_DeselectAll_" data-uid="Forma.FileDialog.DeselectAll*"></a>
+
+  <h3 id="Forma_FileDialog_DeselectAll" data-uid="Forma.FileDialog.DeselectAll">
+  DeselectAll()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DeselectAll()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetCurrentDir_" data-uid="Forma.FileDialog.GetCurrentDir*"></a>
+
+  <h3 id="Forma_FileDialog_GetCurrentDir" data-uid="Forma.FileDialog.GetCurrentDir">
+  GetCurrentDir()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetCurrentDir()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetCurrentFile_" data-uid="Forma.FileDialog.GetCurrentFile*"></a>
+
+  <h3 id="Forma_FileDialog_GetCurrentFile" data-uid="Forma.FileDialog.GetCurrentFile">
+  GetCurrentFile()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetCurrentFile()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetCurrentPath_" data-uid="Forma.FileDialog.GetCurrentPath*"></a>
+
+  <h3 id="Forma_FileDialog_GetCurrentPath" data-uid="Forma.FileDialog.GetCurrentPath">
+  GetCurrentPath()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetCurrentPath()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetDefaultDisplayMode_" data-uid="Forma.FileDialog.GetDefaultDisplayMode*"></a>
+
+  <h3 id="Forma_FileDialog_GetDefaultDisplayMode" data-uid="Forma.FileDialog.GetDefaultDisplayMode">
+  GetDefaultDisplayMode()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static FileDialogDisplayMode GetDefaultDisplayMode()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.FileDialogDisplayMode.html">FileDialogDisplayMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetDefaultShowHiddenFiles_" data-uid="Forma.FileDialog.GetDefaultShowHiddenFiles*"></a>
+
+  <h3 id="Forma_FileDialog_GetDefaultShowHiddenFiles" data-uid="Forma.FileDialog.GetDefaultShowHiddenFiles">
+  GetDefaultShowHiddenFiles()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool GetDefaultShowHiddenFiles()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetFavoriteList_" data-uid="Forma.FileDialog.GetFavoriteList*"></a>
+
+  <h3 id="Forma_FileDialog_GetFavoriteList" data-uid="Forma.FileDialog.GetFavoriteList">
+  GetFavoriteList()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IReadOnlyList&lt;string&gt; GetFavoriteList()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetFileMode_" data-uid="Forma.FileDialog.GetFileMode*"></a>
+
+  <h3 id="Forma_FileDialog_GetFileMode" data-uid="Forma.FileDialog.GetFileMode">
+  GetFileMode()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FileDialogMode GetFileMode()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.FileDialogMode.html">FileDialogMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetFilterIndex_" data-uid="Forma.FileDialog.GetFilterIndex*"></a>
+
+  <h3 id="Forma_FileDialog_GetFilterIndex" data-uid="Forma.FileDialog.GetFilterIndex">
+  GetFilterIndex()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetFilterIndex()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetMinimumSize_" data-uid="Forma.FileDialog.GetMinimumSize*"></a>
+
+  <h3 id="Forma_FileDialog_GetMinimumSize" data-uid="Forma.FileDialog.GetMinimumSize">
+  GetMinimumSize()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Vector2 GetMinimumSize()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Vector2</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetOptionCount_" data-uid="Forma.FileDialog.GetOptionCount*"></a>
+
+  <h3 id="Forma_FileDialog_GetOptionCount" data-uid="Forma.FileDialog.GetOptionCount">
+  GetOptionCount()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetOptionCount()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetOptionDefault_" data-uid="Forma.FileDialog.GetOptionDefault*"></a>
+
+  <h3 id="Forma_FileDialog_GetOptionDefault_System_Int32_" data-uid="Forma.FileDialog.GetOptionDefault(System.Int32)">
+  GetOptionDefault(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetOptionDefault(int option)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>option</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetOptionName_" data-uid="Forma.FileDialog.GetOptionName*"></a>
+
+  <h3 id="Forma_FileDialog_GetOptionName_System_Int32_" data-uid="Forma.FileDialog.GetOptionName(System.Int32)">
+  GetOptionName(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetOptionName(int option)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>option</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetOptionValues_" data-uid="Forma.FileDialog.GetOptionValues*"></a>
+
+  <h3 id="Forma_FileDialog_GetOptionValues_System_Int32_" data-uid="Forma.FileDialog.GetOptionValues(System.Int32)">
+  GetOptionValues(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; GetOptionValues(int option)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>option</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetRecentList_" data-uid="Forma.FileDialog.GetRecentList*"></a>
+
+  <h3 id="Forma_FileDialog_GetRecentList" data-uid="Forma.FileDialog.GetRecentList">
+  GetRecentList()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IReadOnlyList&lt;string&gt; GetRecentList()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetRootSubfolder_" data-uid="Forma.FileDialog.GetRootSubfolder*"></a>
+
+  <h3 id="Forma_FileDialog_GetRootSubfolder" data-uid="Forma.FileDialog.GetRootSubfolder">
+  GetRootSubfolder()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetRootSubfolder()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetSelectedFiles_" data-uid="Forma.FileDialog.GetSelectedFiles*"></a>
+
+  <h3 id="Forma_FileDialog_GetSelectedFiles" data-uid="Forma.FileDialog.GetSelectedFiles">
+  GetSelectedFiles()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; GetSelectedFiles()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GetSelectedOptions_" data-uid="Forma.FileDialog.GetSelectedOptions*"></a>
+
+  <h3 id="Forma_FileDialog_GetSelectedOptions" data-uid="Forma.FileDialog.GetSelectedOptions">
+  GetSelectedOptions()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyDictionary&lt;string, object&gt; GetSelectedOptions()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlydictionary-2">IReadOnlyDictionary</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GoBack_" data-uid="Forma.FileDialog.GoBack*"></a>
+
+  <h3 id="Forma_FileDialog_GoBack" data-uid="Forma.FileDialog.GoBack">
+  GoBack()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Navigates to the previously-visited directory without disturbing forward history,
+matching Godot's _go_back (which calls _change_dir directly, bypassing _push_history).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void GoBack()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GoForward_" data-uid="Forma.FileDialog.GoForward*"></a>
+
+  <h3 id="Forma_FileDialog_GoForward" data-uid="Forma.FileDialog.GoForward">
+  GoForward()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Redoes a GoBack(), matching Godot's _go_forward.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void GoForward()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_GoUp_" data-uid="Forma.FileDialog.GoUp*"></a>
+
+  <h3 id="Forma_FileDialog_GoUp" data-uid="Forma.FileDialog.GoUp">
+  GoUp()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void GoUp()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_Invalidate_" data-uid="Forma.FileDialog.Invalidate*"></a>
+
+  <h3 id="Forma_FileDialog_Invalidate" data-uid="Forma.FileDialog.Invalidate">
+  Invalidate()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Invalidate()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_IsCustomizationFlagEnabled_" data-uid="Forma.FileDialog.IsCustomizationFlagEnabled*"></a>
+
+  <h3 id="Forma_FileDialog_IsCustomizationFlagEnabled_Forma_FileDialogCustomization_" data-uid="Forma.FileDialog.IsCustomizationFlagEnabled(Forma.FileDialogCustomization)">
+  IsCustomizationFlagEnabled(FileDialogCustomization)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsCustomizationFlagEnabled(FileDialogCustomization flag)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>flag</code> <a class="xref" href="Forma.FileDialogCustomization.html">FileDialogCustomization</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_IsModeOverridingTitle_" data-uid="Forma.FileDialog.IsModeOverridingTitle*"></a>
+
+  <h3 id="Forma_FileDialog_IsModeOverridingTitle" data-uid="Forma.FileDialog.IsModeOverridingTitle">
+  IsModeOverridingTitle()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsModeOverridingTitle()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_NavigateTo_" data-uid="Forma.FileDialog.NavigateTo*"></a>
+
+  <h3 id="Forma_FileDialog_NavigateTo_System_String_" data-uid="Forma.FileDialog.NavigateTo(System.String)">
+  NavigateTo(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void NavigateTo(string path)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_PopupFileDialog_" data-uid="Forma.FileDialog.PopupFileDialog*"></a>
+
+  <h3 id="Forma_FileDialog_PopupFileDialog" data-uid="Forma.FileDialog.PopupFileDialog">
+  PopupFileDialog()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool PopupFileDialog()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_Refresh_" data-uid="Forma.FileDialog.Refresh*"></a>
+
+  <h3 id="Forma_FileDialog_Refresh_System_String_" data-uid="Forma.FileDialog.Refresh(System.String)">
+  Refresh(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Refresh(string path)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SelectEntry_" data-uid="Forma.FileDialog.SelectEntry*"></a>
+
+  <h3 id="Forma_FileDialog_SelectEntry_System_Int32_System_Boolean_" data-uid="Forma.FileDialog.SelectEntry(System.Int32,System.Boolean)">
+  SelectEntry(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SelectEntry(int index, bool append = false)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>append</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SelectFile_" data-uid="Forma.FileDialog.SelectFile*"></a>
+
+  <h3 id="Forma_FileDialog_SelectFile_System_String_System_Boolean_" data-uid="Forma.FileDialog.SelectFile(System.String,System.Boolean)">
+  SelectFile(string, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SelectFile(string path, bool append = false)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>append</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetCurrentDir_" data-uid="Forma.FileDialog.SetCurrentDir*"></a>
+
+  <h3 id="Forma_FileDialog_SetCurrentDir_System_String_" data-uid="Forma.FileDialog.SetCurrentDir(System.String)">
+  SetCurrentDir(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetCurrentDir(string path)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetCurrentFile_" data-uid="Forma.FileDialog.SetCurrentFile*"></a>
+
+  <h3 id="Forma_FileDialog_SetCurrentFile_System_String_" data-uid="Forma.FileDialog.SetCurrentFile(System.String)">
+  SetCurrentFile(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetCurrentFile(string path)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetCurrentPath_" data-uid="Forma.FileDialog.SetCurrentPath*"></a>
+
+  <h3 id="Forma_FileDialog_SetCurrentPath_System_String_" data-uid="Forma.FileDialog.SetCurrentPath(System.String)">
+  SetCurrentPath(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetCurrentPath(string path)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetCustomizationFlagEnabled_" data-uid="Forma.FileDialog.SetCustomizationFlagEnabled*"></a>
+
+  <h3 id="Forma_FileDialog_SetCustomizationFlagEnabled_Forma_FileDialogCustomization_System_Boolean_" data-uid="Forma.FileDialog.SetCustomizationFlagEnabled(Forma.FileDialogCustomization,System.Boolean)">
+  SetCustomizationFlagEnabled(FileDialogCustomization, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetCustomizationFlagEnabled(FileDialogCustomization flag, bool enabled)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>flag</code> <a class="xref" href="Forma.FileDialogCustomization.html">FileDialogCustomization</a></dt>
+    <dd></dd>
+    <dt><code>enabled</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetDefaultDisplayMode_" data-uid="Forma.FileDialog.SetDefaultDisplayMode*"></a>
+
+  <h3 id="Forma_FileDialog_SetDefaultDisplayMode_Forma_FileDialogDisplayMode_" data-uid="Forma.FileDialog.SetDefaultDisplayMode(Forma.FileDialogDisplayMode)">
+  SetDefaultDisplayMode(FileDialogDisplayMode)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void SetDefaultDisplayMode(FileDialogDisplayMode mode)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>mode</code> <a class="xref" href="Forma.FileDialogDisplayMode.html">FileDialogDisplayMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetDefaultShowHiddenFiles_" data-uid="Forma.FileDialog.SetDefaultShowHiddenFiles*"></a>
+
+  <h3 id="Forma_FileDialog_SetDefaultShowHiddenFiles_System_Boolean_" data-uid="Forma.FileDialog.SetDefaultShowHiddenFiles(System.Boolean)">
+  SetDefaultShowHiddenFiles(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void SetDefaultShowHiddenFiles(bool show)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>show</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetFavoriteList_" data-uid="Forma.FileDialog.SetFavoriteList*"></a>
+
+  <h3 id="Forma_FileDialog_SetFavoriteList_System_Collections_Generic_IEnumerable_System_String__" data-uid="Forma.FileDialog.SetFavoriteList(System.Collections.Generic.IEnumerable{System.String})">
+  SetFavoriteList(IEnumerable&lt;string&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void SetFavoriteList(IEnumerable&lt;string&gt; favorites)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>favorites</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetFileMode_" data-uid="Forma.FileDialog.SetFileMode*"></a>
+
+  <h3 id="Forma_FileDialog_SetFileMode_Forma_FileDialogMode_" data-uid="Forma.FileDialog.SetFileMode(Forma.FileDialogMode)">
+  SetFileMode(FileDialogMode)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetFileMode(FileDialogMode mode)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>mode</code> <a class="xref" href="Forma.FileDialogMode.html">FileDialogMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetFilterIndex_" data-uid="Forma.FileDialog.SetFilterIndex*"></a>
+
+  <h3 id="Forma_FileDialog_SetFilterIndex_System_Int32_" data-uid="Forma.FileDialog.SetFilterIndex(System.Int32)">
+  SetFilterIndex(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetFilterIndex(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetFilters_" data-uid="Forma.FileDialog.SetFilters*"></a>
+
+  <h3 id="Forma_FileDialog_SetFilters_System_Collections_Generic_IEnumerable_System_String__" data-uid="Forma.FileDialog.SetFilters(System.Collections.Generic.IEnumerable{System.String})">
+  SetFilters(IEnumerable&lt;string&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetFilters(IEnumerable&lt;string&gt; filters)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>filters</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetModeOverridesTitle_" data-uid="Forma.FileDialog.SetModeOverridesTitle*"></a>
+
+  <h3 id="Forma_FileDialog_SetModeOverridesTitle_System_Boolean_" data-uid="Forma.FileDialog.SetModeOverridesTitle(System.Boolean)">
+  SetModeOverridesTitle(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetModeOverridesTitle(bool enabled)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>enabled</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetOptionCount_" data-uid="Forma.FileDialog.SetOptionCount*"></a>
+
+  <h3 id="Forma_FileDialog_SetOptionCount_System_Int32_" data-uid="Forma.FileDialog.SetOptionCount(System.Int32)">
+  SetOptionCount(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetOptionCount(int count)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>count</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetOptionDefault_" data-uid="Forma.FileDialog.SetOptionDefault*"></a>
+
+  <h3 id="Forma_FileDialog_SetOptionDefault_System_Int32_System_Int32_" data-uid="Forma.FileDialog.SetOptionDefault(System.Int32,System.Int32)">
+  SetOptionDefault(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetOptionDefault(int option, int defaultValueIndex)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>option</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>defaultValueIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetOptionName_" data-uid="Forma.FileDialog.SetOptionName*"></a>
+
+  <h3 id="Forma_FileDialog_SetOptionName_System_Int32_System_String_" data-uid="Forma.FileDialog.SetOptionName(System.Int32,System.String)">
+  SetOptionName(int, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetOptionName(int option, string name)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>option</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetOptionValues_" data-uid="Forma.FileDialog.SetOptionValues*"></a>
+
+  <h3 id="Forma_FileDialog_SetOptionValues_System_Int32_System_Collections_Generic_IEnumerable_System_String__" data-uid="Forma.FileDialog.SetOptionValues(System.Int32,System.Collections.Generic.IEnumerable{System.String})">
+  SetOptionValues(int, IEnumerable&lt;string&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetOptionValues(int option, IEnumerable&lt;string&gt; values)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>option</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetRecentList_" data-uid="Forma.FileDialog.SetRecentList*"></a>
+
+  <h3 id="Forma_FileDialog_SetRecentList_System_Collections_Generic_IEnumerable_System_String__" data-uid="Forma.FileDialog.SetRecentList(System.Collections.Generic.IEnumerable{System.String})">
+  SetRecentList(IEnumerable&lt;string&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void SetRecentList(IEnumerable&lt;string&gt; recents)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>recents</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_SetRootSubfolder_" data-uid="Forma.FileDialog.SetRootSubfolder*"></a>
+
+  <h3 id="Forma_FileDialog_SetRootSubfolder_System_String_" data-uid="Forma.FileDialog.SetRootSubfolder(System.String)">
+  SetRootSubfolder(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetRootSubfolder(string path)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_FileDialog_ToggleCurrentDirectoryFavorite_" data-uid="Forma.FileDialog.ToggleCurrentDirectoryFavorite*"></a>
+
+  <h3 id="Forma_FileDialog_ToggleCurrentDirectoryFavorite" data-uid="Forma.FileDialog.ToggleCurrentDirectoryFavorite">
+  ToggleCurrentDirectoryFavorite()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ToggleCurrentDirectoryFavorite()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="events">Events
+</h2>
+
+
+
+  <h3 id="Forma_FileDialog_DirectorySelected" data-uid="Forma.FileDialog.DirectorySelected">
+  DirectorySelected
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;FileDialog, string&gt; DirectorySelected</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="Forma.FileDialog.html">FileDialog</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h3 id="Forma_FileDialog_FileSelected" data-uid="Forma.FileDialog.FileSelected">
+  FileSelected
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;FileDialog, string&gt; FileSelected</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="Forma.FileDialog.html">FileDialog</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h3 id="Forma_FileDialog_FilenameFilterChanged" data-uid="Forma.FileDialog.FilenameFilterChanged">
+  FilenameFilterChanged
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;FileDialog, string&gt; FilenameFilterChanged</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="Forma.FileDialog.html">FileDialog</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h3 id="Forma_FileDialog_FilesSelected" data-uid="Forma.FileDialog.FilesSelected">
+  FilesSelected
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;FileDialog, IReadOnlyList&lt;string&gt;&gt; FilesSelected</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="Forma.FileDialog.html">FileDialog</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h3 id="Forma_FileDialog_FolderCreated" data-uid="Forma.FileDialog.FolderCreated">
+  FolderCreated
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;FileDialog, string&gt; FolderCreated</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="Forma.FileDialog.html">FileDialog</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/MenusAndDialogs.cs" class="edit-link">Edit this page</a>
+        </div>
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

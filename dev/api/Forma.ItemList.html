@@ -1,0 +1,4017 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Class ItemList | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class ItemList | Forma Documentation ">
+      
+      <meta name="description" content="Godot-style selectable list supporting item state, columns, keyboard navigation and tile layouts.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="Forma.ItemList">
+
+
+
+  <h1 id="Forma_ItemList" data-uid="Forma.ItemList" class="text-break">
+Class ItemList  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="Forma.html">Forma</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>Forma.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Godot-style selectable list supporting item state, columns, keyboard navigation and tile layouts.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class ItemList : TemplatedControl, IAddChild&lt;Control&gt;, IAddChild, INotifyPropertyChanged, IDisposable</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="Forma.Control.html">Control</a></div>
+      <div><a class="xref" href="Forma.TemplatedControl.html">TemplatedControl</a></div>
+      <div><span class="xref">ItemList</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="Forma.Xaml.IAddChild-1.html">IAddChild</a>&lt;<a class="xref" href="Forma.Control.html">Control</a>&gt;</div>
+      <div><a class="xref" href="Forma.Xaml.IAddChild.html">IAddChild</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.componentmodel.inotifypropertychanged">INotifyPropertyChanged</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist inheritedMembers">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_ApplyTemplate">TemplatedControl.ApplyTemplate()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_GetTemplateChild_System_String_">TemplatedControl.GetTemplateChild(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_Dispose">TemplatedControl.Dispose()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_Template">TemplatedControl.Template</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_TemplateRoot">TemplatedControl.TemplateRoot</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPseudoStateActive_System_String_">Control.IsPseudoStateActive(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsLayoutRtl">Control.IsLayoutRtl()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddChild_Forma_Control_">Control.AddChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetAccessibilityChildren">Control.GetAccessibilityChildren()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveChild_Forma_Control_">Control.RemoveChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClearDataContext">Control.ClearDataContext()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TryFindResource_System_String_System_Object__">Control.TryFindResource(string, out object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FindName__1_System_String_">Control.FindName&lt;T&gt;(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MoveChild_Forma_Control_System_Int32_">Control.MoveChild(Control, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveFromParent">Control.RemoveFromParent()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetNodeOrNull_System_String_">Control.GetNodeOrNull(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeStyleOverride_System_String_Forma_StyleBox_">Control.AddThemeStyleOverride(string, StyleBox)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeStyleOverride_System_String_">Control.RemoveThemeStyleOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeStyleBox_System_String_">Control.GetThemeStyleBox(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeIconOverride_System_String_Forma_ThemeIcon_">Control.AddThemeIconOverride(string, ThemeIcon)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeIconOverride_System_String_">Control.RemoveThemeIconOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SuppressThemeIcon_System_String_">Control.SuppressThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeIcon_System_String_">Control.GetThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchor_Forma_Side_System_Single_System_Boolean_System_Boolean_">Control.SetAnchor(Side, float, bool, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetOffset_Forma_Side_System_Single_">Control.SetOffset(Side, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchorsAndOffsets_System_Single_System_Single_System_Single_System_Single_">Control.SetAnchorsAndOffsets(float, float, float, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetDesiredSize">Control.GetDesiredSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetMaximumSize">Control.GetMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetCombinedMaximumSize">Control.GetCombinedMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetBoundDesiredSize">Control.GetBoundDesiredSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ContainsPoint_Microsoft_Xna_Framework_Point_">Control.ContainsPoint(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GrabFocus">Control.GrabFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ReleaseFocus">Control.ReleaseFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoView_System_Nullable_Microsoft_Xna_Framework_Rectangle__">Control.BringIntoView(Rectangle?)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_QueueLayout">Control.QueueLayout()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetDragData_Microsoft_Xna_Framework_Point_">Control.GetDragData(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CanDropData_Microsoft_Xna_Framework_Point_System_Object_">Control.CanDropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DropData_Microsoft_Xna_Framework_Point_System_Object_">Control.DropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Name">Control.Name</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Parent">Control.Parent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualParent">Control.VisualParent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Children">Control.Children</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Context">Control.Context</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Resources">Control.Resources</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Classes">Control.Classes</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeStyleOverrides">Control.ThemeStyleOverrides</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HasLocalDataContext">Control.HasLocalDataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContext">Control.DataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeOverride">Control.ThemeOverride</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TooltipText">Control.TooltipText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visible">Control.Visible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visibility">Control.Visibility</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Enabled">Control.Enabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsEffectivelyEnabled">Control.IsEffectivelyEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseFilter">Control.MouseFilter</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusMode">Control.FocusMode</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNext">Control.FocusNext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusPrevious">Control.FocusPrevious</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborLeft">Control.FocusNeighborLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborTop">Control.FocusNeighborTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborRight">Control.FocusNeighborRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborBottom">Control.FocusNeighborBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipContents">Control.ClipContents</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipToBounds">Control.ClipToBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Clip">Control.Clip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OpacityMask">Control.OpacityMask</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Effect">Control.Effect</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RenderTransform">Control.RenderTransform</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TransformOrigin">Control.TransformOrigin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Opacity">Control.Opacity</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsHitTestVisible">Control.IsHitTestVisible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PixelSnapping">Control.PixelSnapping</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPixelSnappingEnabled">Control.IsPixelSnappingEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Cursor">Control.Cursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveCursor">Control.EffectiveCursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ToolTip">Control.ToolTip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Foreground">Control.Foreground</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontFamily">Control.FontFamily</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontSize">Control.FontSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontWeight">Control.FontWeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStyle">Control.FontStyle</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStretch">Control.FontStretch</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Language">Control.Language</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutDirection">Control.LayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveLayoutDirection">Control.EffectiveLayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ZIndex">Control.ZIndex</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HorizontalSizeFlags">Control.HorizontalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VerticalSizeFlags">Control.VerticalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HorizontalAlignment">Control.HorizontalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VerticalAlignment">Control.VerticalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SizeFlagsStretchRatio">Control.SizeFlagsStretchRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margins">Control.Margins</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margin">Control.Margin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Width">Control.Width</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Height">Control.Height</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinWidth">Control.MinWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinHeight">Control.MinHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxWidth">Control.MaxWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxHeight">Control.MaxHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AspectRatio">Control.AspectRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMinimumSize">Control.CustomMinimumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMaximumSize">Control.CustomMaximumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Position">Control.Position</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Size">Control.Size</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorLeft">Control.AnchorLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorTop">Control.AnchorTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorRight">Control.AnchorRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorBottom">Control.AnchorBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetLeft">Control.OffsetLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetTop">Control.OffsetTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetRight">Control.OffsetRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetBottom">Control.OffsetBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HGrowDirection">Control.HGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VGrowDirection">Control.VGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Bounds">Control.Bounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualBounds">Control.VisualBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusBounds">Control.FocusBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityBounds">Control.AccessibilityBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityPeer">Control.AccessibilityPeer</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityLabel">Control.AccessibilityLabel</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityName">Control.AccessibilityName</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityValue">Control.AccessibilityValue</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityActions">Control.AccessibilityActions</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityStates">Control.AccessibilityStates</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GlobalPosition">Control.GlobalPosition</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutChanged">Control.LayoutChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PropertyChanged">Control.PropertyChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseEntered">Control.MouseEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseExited">Control.MouseExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusEntered">Control.FocusEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusExited">Control.FocusExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Attached">Control.Attached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Detached">Control.Detached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EnabledChanged">Control.EnabledChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PseudoStateChanged">Control.PseudoStateChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_NameChanged">Control.NameChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContextChanged">Control.DataContextChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ParentChanged">Control.ParentChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoViewRequested">Control.BringIntoViewRequested</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityChanged">Control.AccessibilityChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildAdded">Control.ChildAdded</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildRemoved">Control.ChildRemoved</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragStarted">Control.DragStarted</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragEnded">Control.DragEnded</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="Forma_ItemList__ctor_" data-uid="Forma.ItemList.#ctor*"></a>
+
+  <h3 id="Forma_ItemList__ctor" data-uid="Forma.ItemList.#ctor">
+  ItemList()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ItemList()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="Forma_ItemList_AccessibilityRole_" data-uid="Forma.ItemList.AccessibilityRole*"></a>
+
+  <h3 id="Forma_ItemList_AccessibilityRole" data-uid="Forma.ItemList.AccessibilityRole">
+  AccessibilityRole
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override AccessibilityRole AccessibilityRole { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.AccessibilityRole.html">AccessibilityRole</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_AllowReselect_" data-uid="Forma.ItemList.AllowReselect*"></a>
+
+  <h3 id="Forma_ItemList_AllowReselect" data-uid="Forma.ItemList.AllowReselect">
+  AllowReselect
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AllowReselect { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_AllowRightMouseSelect_" data-uid="Forma.ItemList.AllowRightMouseSelect*"></a>
+
+  <h3 id="Forma_ItemList_AllowRightMouseSelect" data-uid="Forma.ItemList.AllowRightMouseSelect">
+  AllowRightMouseSelect
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AllowRightMouseSelect { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_AllowSearch_" data-uid="Forma.ItemList.AllowSearch*"></a>
+
+  <h3 id="Forma_ItemList_AllowSearch" data-uid="Forma.ItemList.AllowSearch">
+  AllowSearch
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AllowSearch { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_AutoHeight_" data-uid="Forma.ItemList.AutoHeight*"></a>
+
+  <h3 id="Forma_ItemList_AutoHeight" data-uid="Forma.ItemList.AutoHeight">
+  AutoHeight
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AutoHeight { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_AutoWidth_" data-uid="Forma.ItemList.AutoWidth*"></a>
+
+  <h3 id="Forma_ItemList_AutoWidth" data-uid="Forma.ItemList.AutoWidth">
+  AutoWidth
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AutoWidth { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_Current_" data-uid="Forma.ItemList.Current*"></a>
+
+  <h3 id="Forma_ItemList_Current" data-uid="Forma.ItemList.Current">
+  Current
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Current { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_Entries_" data-uid="Forma.ItemList.Entries*"></a>
+
+  <h3 id="Forma_ItemList_Entries" data-uid="Forma.ItemList.Entries">
+  Entries
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;ItemListEntry&gt; Entries { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="Forma.ItemListEntry.html">ItemListEntry</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_FixedColumnWidth_" data-uid="Forma.ItemList.FixedColumnWidth*"></a>
+
+  <h3 id="Forma_ItemList_FixedColumnWidth" data-uid="Forma.ItemList.FixedColumnWidth">
+  FixedColumnWidth
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int FixedColumnWidth { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_FixedIconSize_" data-uid="Forma.ItemList.FixedIconSize*"></a>
+
+  <h3 id="Forma_ItemList_FixedIconSize" data-uid="Forma.ItemList.FixedIconSize">
+  FixedIconSize
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Vector2 FixedIconSize { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Vector2</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_Font_" data-uid="Forma.ItemList.Font*"></a>
+
+  <h3 id="Forma_ItemList_Font" data-uid="Forma.ItemList.Font">
+  Font
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public SpriteFont Font { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><span class="xref">SpriteFont</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IconMode_" data-uid="Forma.ItemList.IconMode*"></a>
+
+  <h3 id="Forma_ItemList_IconMode" data-uid="Forma.ItemList.IconMode">
+  IconMode
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ItemListIconMode IconMode { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.ItemListIconMode.html">ItemListIconMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IconScale_" data-uid="Forma.ItemList.IconScale*"></a>
+
+  <h3 id="Forma_ItemList_IconScale" data-uid="Forma.ItemList.IconScale">
+  IconScale
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float IconScale { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IncrementalSearchTimeout_" data-uid="Forma.ItemList.IncrementalSearchTimeout*"></a>
+
+  <h3 id="Forma_ItemList_IncrementalSearchTimeout" data-uid="Forma.ItemList.IncrementalSearchTimeout">
+  IncrementalSearchTimeout
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan IncrementalSearchTimeout { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_ItemCount_" data-uid="Forma.ItemList.ItemCount*"></a>
+
+  <h3 id="Forma_ItemList_ItemCount" data-uid="Forma.ItemList.ItemCount">
+  ItemCount
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ItemCount { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_ItemHeight_" data-uid="Forma.ItemList.ItemHeight*"></a>
+
+  <h3 id="Forma_ItemList_ItemHeight" data-uid="Forma.ItemList.ItemHeight">
+  ItemHeight
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float ItemHeight { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_Items_" data-uid="Forma.ItemList.Items*"></a>
+
+  <h3 id="Forma_ItemList_Items" data-uid="Forma.ItemList.Items">
+  Items
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Compatibility projection of the entries' text values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; Items { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_MaxColumns_" data-uid="Forma.ItemList.MaxColumns*"></a>
+
+  <h3 id="Forma_ItemList_MaxColumns" data-uid="Forma.ItemList.MaxColumns">
+  MaxColumns
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Maximum visual columns; zero lets the list use all fitting columns.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int MaxColumns { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_MaxTextLines_" data-uid="Forma.ItemList.MaxTextLines*"></a>
+
+  <h3 id="Forma_ItemList_MaxTextLines" data-uid="Forma.ItemList.MaxTextLines">
+  MaxTextLines
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int MaxTextLines { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SameColumnWidth_" data-uid="Forma.ItemList.SameColumnWidth*"></a>
+
+  <h3 id="Forma_ItemList_SameColumnWidth" data-uid="Forma.ItemList.SameColumnWidth">
+  SameColumnWidth
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool SameColumnWidth { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_ScrollHintMode_" data-uid="Forma.ItemList.ScrollHintMode*"></a>
+
+  <h3 id="Forma_ItemList_ScrollHintMode" data-uid="Forma.ItemList.ScrollHintMode">
+  ScrollHintMode
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ItemListScrollHintMode ScrollHintMode { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.ItemListScrollHintMode.html">ItemListScrollHintMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_ScrollOffsetY_" data-uid="Forma.ItemList.ScrollOffsetY*"></a>
+
+  <h3 id="Forma_ItemList_ScrollOffsetY" data-uid="Forma.ItemList.ScrollOffsetY">
+  ScrollOffsetY
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float ScrollOffsetY { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SelectModeMulti_" data-uid="Forma.ItemList.SelectModeMulti*"></a>
+
+  <h3 id="Forma_ItemList_SelectModeMulti" data-uid="Forma.ItemList.SelectModeMulti">
+  SelectModeMulti
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool SelectModeMulti { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SelectionMode_" data-uid="Forma.ItemList.SelectionMode*"></a>
+
+  <h3 id="Forma_ItemList_SelectionMode" data-uid="Forma.ItemList.SelectionMode">
+  SelectionMode
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ItemListSelectionMode SelectionMode { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.ItemListSelectionMode.html">ItemListSelectionMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_TileScrollHint_" data-uid="Forma.ItemList.TileScrollHint*"></a>
+
+  <h3 id="Forma_ItemList_TileScrollHint" data-uid="Forma.ItemList.TileScrollHint">
+  TileScrollHint
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool TileScrollHint { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_UIFont_" data-uid="Forma.ItemList.UIFont*"></a>
+
+  <h3 id="Forma_ItemList_UIFont" data-uid="Forma.ItemList.UIFont">
+  UIFont
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public UIFont UIFont { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.UIFont.html">UIFont</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_WraparoundItems_" data-uid="Forma.ItemList.WraparoundItems*"></a>
+
+  <h3 id="Forma_ItemList_WraparoundItems" data-uid="Forma.ItemList.WraparoundItems">
+  WraparoundItems
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool WraparoundItems { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="Forma_ItemList_AddIconItem_" data-uid="Forma.ItemList.AddIconItem*"></a>
+
+  <h3 id="Forma_ItemList_AddIconItem_Microsoft_Xna_Framework_Graphics_Texture2D_System_Boolean_" data-uid="Forma.ItemList.AddIconItem(Microsoft.Xna.Framework.Graphics.Texture2D,System.Boolean)">
+  AddIconItem(Texture2D, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int AddIconItem(Texture2D icon, bool selectable = true)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>icon</code> <span class="xref">Texture2D</span></dt>
+    <dd></dd>
+    <dt><code>selectable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_AddItem_" data-uid="Forma.ItemList.AddItem*"></a>
+
+  <h3 id="Forma_ItemList_AddItem_System_String_Microsoft_Xna_Framework_Graphics_Texture2D_System_Boolean_" data-uid="Forma.ItemList.AddItem(System.String,Microsoft.Xna.Framework.Graphics.Texture2D,System.Boolean)">
+  AddItem(string, Texture2D, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int AddItem(string text, Texture2D icon = null, bool selectable = true)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>text</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>icon</code> <span class="xref">Texture2D</span></dt>
+    <dd></dd>
+    <dt><code>selectable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_CenterOnCurrent_" data-uid="Forma.ItemList.CenterOnCurrent*"></a>
+
+  <h3 id="Forma_ItemList_CenterOnCurrent_System_Boolean_System_Boolean_" data-uid="Forma.ItemList.CenterOnCurrent(System.Boolean,System.Boolean)">
+  CenterOnCurrent(bool, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void CenterOnCurrent(bool centerVertically = true, bool centerHorizontally = false)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>centerVertically</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+    <dt><code>centerHorizontally</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_Clear_" data-uid="Forma.ItemList.Clear*"></a>
+
+  <h3 id="Forma_ItemList_Clear" data-uid="Forma.ItemList.Clear">
+  Clear()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Clear()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_ClearIncrementalSearch_" data-uid="Forma.ItemList.ClearIncrementalSearch*"></a>
+
+  <h3 id="Forma_ItemList_ClearIncrementalSearch" data-uid="Forma.ItemList.ClearIncrementalSearch">
+  ClearIncrementalSearch()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearIncrementalSearch()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_Deselect_" data-uid="Forma.ItemList.Deselect*"></a>
+
+  <h3 id="Forma_ItemList_Deselect_System_Int32_" data-uid="Forma.ItemList.Deselect(System.Int32)">
+  Deselect(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Deselect(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_DeselectAll_" data-uid="Forma.ItemList.DeselectAll*"></a>
+
+  <h3 id="Forma_ItemList_DeselectAll" data-uid="Forma.ItemList.DeselectAll">
+  DeselectAll()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DeselectAll()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_EnsureCurrentIsVisible_" data-uid="Forma.ItemList.EnsureCurrentIsVisible*"></a>
+
+  <h3 id="Forma_ItemList_EnsureCurrentIsVisible" data-uid="Forma.ItemList.EnsureCurrentIsVisible">
+  EnsureCurrentIsVisible()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void EnsureCurrentIsVisible()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_FindMetadata_" data-uid="Forma.ItemList.FindMetadata*"></a>
+
+  <h3 id="Forma_ItemList_FindMetadata_System_Object_" data-uid="Forma.ItemList.FindMetadata(System.Object)">
+  FindMetadata(object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int FindMetadata(object metadata)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>metadata</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetAllowReselect_" data-uid="Forma.ItemList.GetAllowReselect*"></a>
+
+  <h3 id="Forma_ItemList_GetAllowReselect" data-uid="Forma.ItemList.GetAllowReselect">
+  GetAllowReselect()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool GetAllowReselect()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetAllowRmbSelect_" data-uid="Forma.ItemList.GetAllowRmbSelect*"></a>
+
+  <h3 id="Forma_ItemList_GetAllowRmbSelect" data-uid="Forma.ItemList.GetAllowRmbSelect">
+  GetAllowRmbSelect()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool GetAllowRmbSelect()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetAllowSearch_" data-uid="Forma.ItemList.GetAllowSearch*"></a>
+
+  <h3 id="Forma_ItemList_GetAllowSearch" data-uid="Forma.ItemList.GetAllowSearch">
+  GetAllowSearch()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool GetAllowSearch()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetIncrementalSearch_" data-uid="Forma.ItemList.GetIncrementalSearch*"></a>
+
+  <h3 id="Forma_ItemList_GetIncrementalSearch" data-uid="Forma.ItemList.GetIncrementalSearch">
+  GetIncrementalSearch()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetIncrementalSearch()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemAtPosition_" data-uid="Forma.ItemList.GetItemAtPosition*"></a>
+
+  <h3 id="Forma_ItemList_GetItemAtPosition_Microsoft_Xna_Framework_Point_System_Boolean_" data-uid="Forma.ItemList.GetItemAtPosition(Microsoft.Xna.Framework.Point,System.Boolean)">
+  GetItemAtPosition(Point, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetItemAtPosition(Point position, bool exact = false)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>position</code> <span class="xref">Point</span></dt>
+    <dd></dd>
+    <dt><code>exact</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemAutoTranslateMode_" data-uid="Forma.ItemList.GetItemAutoTranslateMode*"></a>
+
+  <h3 id="Forma_ItemList_GetItemAutoTranslateMode_System_Int32_" data-uid="Forma.ItemList.GetItemAutoTranslateMode(System.Int32)">
+  GetItemAutoTranslateMode(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AutoTranslateMode GetItemAutoTranslateMode(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.AutoTranslateMode.html">AutoTranslateMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemCustomBackgroundColor_" data-uid="Forma.ItemList.GetItemCustomBackgroundColor*"></a>
+
+  <h3 id="Forma_ItemList_GetItemCustomBackgroundColor_System_Int32_" data-uid="Forma.ItemList.GetItemCustomBackgroundColor(System.Int32)">
+  GetItemCustomBackgroundColor(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color? GetItemCustomBackgroundColor(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemCustomForegroundColor_" data-uid="Forma.ItemList.GetItemCustomForegroundColor*"></a>
+
+  <h3 id="Forma_ItemList_GetItemCustomForegroundColor_System_Int32_" data-uid="Forma.ItemList.GetItemCustomForegroundColor(System.Int32)">
+  GetItemCustomForegroundColor(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color? GetItemCustomForegroundColor(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemIcon_" data-uid="Forma.ItemList.GetItemIcon*"></a>
+
+  <h3 id="Forma_ItemList_GetItemIcon_System_Int32_" data-uid="Forma.ItemList.GetItemIcon(System.Int32)">
+  GetItemIcon(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Texture2D GetItemIcon(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemIconModulate_" data-uid="Forma.ItemList.GetItemIconModulate*"></a>
+
+  <h3 id="Forma_ItemList_GetItemIconModulate_System_Int32_" data-uid="Forma.ItemList.GetItemIconModulate(System.Int32)">
+  GetItemIconModulate(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetItemIconModulate(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemIconRegion_" data-uid="Forma.ItemList.GetItemIconRegion*"></a>
+
+  <h3 id="Forma_ItemList_GetItemIconRegion_System_Int32_" data-uid="Forma.ItemList.GetItemIconRegion(System.Int32)">
+  GetItemIconRegion(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Rectangle? GetItemIconRegion(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Rectangle</span>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemLanguage_" data-uid="Forma.ItemList.GetItemLanguage*"></a>
+
+  <h3 id="Forma_ItemList_GetItemLanguage_System_Int32_" data-uid="Forma.ItemList.GetItemLanguage(System.Int32)">
+  GetItemLanguage(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetItemLanguage(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemMetadata_" data-uid="Forma.ItemList.GetItemMetadata*"></a>
+
+  <h3 id="Forma_ItemList_GetItemMetadata_System_Int32_" data-uid="Forma.ItemList.GetItemMetadata(System.Int32)">
+  GetItemMetadata(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public object GetItemMetadata(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemRect_" data-uid="Forma.ItemList.GetItemRect*"></a>
+
+  <h3 id="Forma_ItemList_GetItemRect_System_Int32_System_Boolean_" data-uid="Forma.ItemList.GetItemRect(System.Int32,System.Boolean)">
+  GetItemRect(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Rectangle GetItemRect(int index, bool expand = true)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>expand</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Rectangle</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemTagIcon_" data-uid="Forma.ItemList.GetItemTagIcon*"></a>
+
+  <h3 id="Forma_ItemList_GetItemTagIcon_System_Int32_" data-uid="Forma.ItemList.GetItemTagIcon(System.Int32)">
+  GetItemTagIcon(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Texture2D GetItemTagIcon(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemText_" data-uid="Forma.ItemList.GetItemText*"></a>
+
+  <h3 id="Forma_ItemList_GetItemText_System_Int32_" data-uid="Forma.ItemList.GetItemText(System.Int32)">
+  GetItemText(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetItemText(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemTextDirection_" data-uid="Forma.ItemList.GetItemTextDirection*"></a>
+
+  <h3 id="Forma_ItemList_GetItemTextDirection_System_Int32_" data-uid="Forma.ItemList.GetItemTextDirection(System.Int32)">
+  GetItemTextDirection(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TextDirection GetItemTextDirection(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.TextDirection.html">TextDirection</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetItemTooltip_" data-uid="Forma.ItemList.GetItemTooltip*"></a>
+
+  <h3 id="Forma_ItemList_GetItemTooltip_System_Int32_" data-uid="Forma.ItemList.GetItemTooltip(System.Int32)">
+  GetItemTooltip(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetItemTooltip(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetMaxScrollOffsetY_" data-uid="Forma.ItemList.GetMaxScrollOffsetY*"></a>
+
+  <h3 id="Forma_ItemList_GetMaxScrollOffsetY" data-uid="Forma.ItemList.GetMaxScrollOffsetY">
+  GetMaxScrollOffsetY()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float GetMaxScrollOffsetY()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetMinimumSize_" data-uid="Forma.ItemList.GetMinimumSize*"></a>
+
+  <h3 id="Forma_ItemList_GetMinimumSize" data-uid="Forma.ItemList.GetMinimumSize">
+  GetMinimumSize()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Vector2 GetMinimumSize()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Vector2</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetScrollHintMode_" data-uid="Forma.ItemList.GetScrollHintMode*"></a>
+
+  <h3 id="Forma_ItemList_GetScrollHintMode" data-uid="Forma.ItemList.GetScrollHintMode">
+  GetScrollHintMode()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ItemListScrollHintMode GetScrollHintMode()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.ItemListScrollHintMode.html">ItemListScrollHintMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetSelectedItems_" data-uid="Forma.ItemList.GetSelectedItems*"></a>
+
+  <h3 id="Forma_ItemList_GetSelectedItems" data-uid="Forma.ItemList.GetSelectedItems">
+  GetSelectedItems()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;int&gt; GetSelectedItems()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetTooltip_" data-uid="Forma.ItemList.GetTooltip*"></a>
+
+  <h3 id="Forma_ItemList_GetTooltip_Microsoft_Xna_Framework_Point_" data-uid="Forma.ItemList.GetTooltip(Microsoft.Xna.Framework.Point)">
+  GetTooltip(Point)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the tooltip at a global pointer position. Override to provide dynamic help text.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string GetTooltip(Point position)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>position</code> <span class="xref">Point</span></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_GetTooltipAutoTranslateModeAt_" data-uid="Forma.ItemList.GetTooltipAutoTranslateModeAt*"></a>
+
+  <h3 id="Forma_ItemList_GetTooltipAutoTranslateModeAt_Microsoft_Xna_Framework_Point_" data-uid="Forma.ItemList.GetTooltipAutoTranslateModeAt(Microsoft.Xna.Framework.Point)">
+  GetTooltipAutoTranslateModeAt(Point)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AutoTranslateMode GetTooltipAutoTranslateModeAt(Point position)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>position</code> <span class="xref">Point</span></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.AutoTranslateMode.html">AutoTranslateMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_HasAutoHeight_" data-uid="Forma.ItemList.HasAutoHeight*"></a>
+
+  <h3 id="Forma_ItemList_HasAutoHeight" data-uid="Forma.ItemList.HasAutoHeight">
+  HasAutoHeight()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasAutoHeight()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_HasAutoWidth_" data-uid="Forma.ItemList.HasAutoWidth*"></a>
+
+  <h3 id="Forma_ItemList_HasAutoWidth" data-uid="Forma.ItemList.HasAutoWidth">
+  HasAutoWidth()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasAutoWidth()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_HasWraparoundItems_" data-uid="Forma.ItemList.HasWraparoundItems*"></a>
+
+  <h3 id="Forma_ItemList_HasWraparoundItems" data-uid="Forma.ItemList.HasWraparoundItems">
+  HasWraparoundItems()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasWraparoundItems()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IsAnythingSelected_" data-uid="Forma.ItemList.IsAnythingSelected*"></a>
+
+  <h3 id="Forma_ItemList_IsAnythingSelected" data-uid="Forma.ItemList.IsAnythingSelected">
+  IsAnythingSelected()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsAnythingSelected()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IsItemDisabled_" data-uid="Forma.ItemList.IsItemDisabled*"></a>
+
+  <h3 id="Forma_ItemList_IsItemDisabled_System_Int32_" data-uid="Forma.ItemList.IsItemDisabled(System.Int32)">
+  IsItemDisabled(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsItemDisabled(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IsItemIconTransposed_" data-uid="Forma.ItemList.IsItemIconTransposed*"></a>
+
+  <h3 id="Forma_ItemList_IsItemIconTransposed_System_Int32_" data-uid="Forma.ItemList.IsItemIconTransposed(System.Int32)">
+  IsItemIconTransposed(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsItemIconTransposed(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IsItemSelectable_" data-uid="Forma.ItemList.IsItemSelectable*"></a>
+
+  <h3 id="Forma_ItemList_IsItemSelectable_System_Int32_" data-uid="Forma.ItemList.IsItemSelectable(System.Int32)">
+  IsItemSelectable(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsItemSelectable(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IsItemTooltipEnabled_" data-uid="Forma.ItemList.IsItemTooltipEnabled*"></a>
+
+  <h3 id="Forma_ItemList_IsItemTooltipEnabled_System_Int32_" data-uid="Forma.ItemList.IsItemTooltipEnabled(System.Int32)">
+  IsItemTooltipEnabled(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsItemTooltipEnabled(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IsPosAtEndOfItems_" data-uid="Forma.ItemList.IsPosAtEndOfItems*"></a>
+
+  <h3 id="Forma_ItemList_IsPosAtEndOfItems_Microsoft_Xna_Framework_Point_" data-uid="Forma.ItemList.IsPosAtEndOfItems(Microsoft.Xna.Framework.Point)">
+  IsPosAtEndOfItems(Point)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsPosAtEndOfItems(Point position)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>position</code> <span class="xref">Point</span></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IsScrollHintTiled_" data-uid="Forma.ItemList.IsScrollHintTiled*"></a>
+
+  <h3 id="Forma_ItemList_IsScrollHintTiled" data-uid="Forma.ItemList.IsScrollHintTiled">
+  IsScrollHintTiled()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsScrollHintTiled()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_IsSelected_" data-uid="Forma.ItemList.IsSelected*"></a>
+
+  <h3 id="Forma_ItemList_IsSelected_System_Int32_" data-uid="Forma.ItemList.IsSelected(System.Int32)">
+  IsSelected(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsSelected(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_MoveItem_" data-uid="Forma.ItemList.MoveItem*"></a>
+
+  <h3 id="Forma_ItemList_MoveItem_System_Int32_System_Int32_" data-uid="Forma.ItemList.MoveItem(System.Int32,System.Int32)">
+  MoveItem(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void MoveItem(int fromIndex, int toIndex)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fromIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>toIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_RemoveItem_" data-uid="Forma.ItemList.RemoveItem*"></a>
+
+  <h3 id="Forma_ItemList_RemoveItem_System_Int32_" data-uid="Forma.ItemList.RemoveItem(System.Int32)">
+  RemoveItem(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveItem(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_Select_" data-uid="Forma.ItemList.Select*"></a>
+
+  <h3 id="Forma_ItemList_Select_System_Int32_System_Boolean_" data-uid="Forma.ItemList.Select(System.Int32,System.Boolean)">
+  Select(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Select(int index, bool single = true)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>single</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetAllowReselect_" data-uid="Forma.ItemList.SetAllowReselect*"></a>
+
+  <h3 id="Forma_ItemList_SetAllowReselect_System_Boolean_" data-uid="Forma.ItemList.SetAllowReselect(System.Boolean)">
+  SetAllowReselect(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetAllowReselect(bool allow)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>allow</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetAllowRmbSelect_" data-uid="Forma.ItemList.SetAllowRmbSelect*"></a>
+
+  <h3 id="Forma_ItemList_SetAllowRmbSelect_System_Boolean_" data-uid="Forma.ItemList.SetAllowRmbSelect(System.Boolean)">
+  SetAllowRmbSelect(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetAllowRmbSelect(bool allow)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>allow</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetAllowSearch_" data-uid="Forma.ItemList.SetAllowSearch*"></a>
+
+  <h3 id="Forma_ItemList_SetAllowSearch_System_Boolean_" data-uid="Forma.ItemList.SetAllowSearch(System.Boolean)">
+  SetAllowSearch(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetAllowSearch(bool allow)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>allow</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetAutoHeight_" data-uid="Forma.ItemList.SetAutoHeight*"></a>
+
+  <h3 id="Forma_ItemList_SetAutoHeight_System_Boolean_" data-uid="Forma.ItemList.SetAutoHeight(System.Boolean)">
+  SetAutoHeight(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetAutoHeight(bool enable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>enable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetAutoWidth_" data-uid="Forma.ItemList.SetAutoWidth*"></a>
+
+  <h3 id="Forma_ItemList_SetAutoWidth_System_Boolean_" data-uid="Forma.ItemList.SetAutoWidth(System.Boolean)">
+  SetAutoWidth(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetAutoWidth(bool enable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>enable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetCurrent_" data-uid="Forma.ItemList.SetCurrent*"></a>
+
+  <h3 id="Forma_ItemList_SetCurrent_System_Int32_" data-uid="Forma.ItemList.SetCurrent(System.Int32)">
+  SetCurrent(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetCurrent(int index)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemAutoTranslateMode_" data-uid="Forma.ItemList.SetItemAutoTranslateMode*"></a>
+
+  <h3 id="Forma_ItemList_SetItemAutoTranslateMode_System_Int32_Forma_AutoTranslateMode_" data-uid="Forma.ItemList.SetItemAutoTranslateMode(System.Int32,Forma.AutoTranslateMode)">
+  SetItemAutoTranslateMode(int, AutoTranslateMode)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemAutoTranslateMode(int index, AutoTranslateMode mode)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>mode</code> <a class="xref" href="Forma.AutoTranslateMode.html">AutoTranslateMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemCount_" data-uid="Forma.ItemList.SetItemCount*"></a>
+
+  <h3 id="Forma_ItemList_SetItemCount_System_Int32_" data-uid="Forma.ItemList.SetItemCount(System.Int32)">
+  SetItemCount(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemCount(int count)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>count</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemCustomBackgroundColor_" data-uid="Forma.ItemList.SetItemCustomBackgroundColor*"></a>
+
+  <h3 id="Forma_ItemList_SetItemCustomBackgroundColor_System_Int32_System_Nullable_Microsoft_Xna_Framework_Color__" data-uid="Forma.ItemList.SetItemCustomBackgroundColor(System.Int32,System.Nullable{Microsoft.Xna.Framework.Color})">
+  SetItemCustomBackgroundColor(int, Color?)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemCustomBackgroundColor(int index, Color? color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemCustomForegroundColor_" data-uid="Forma.ItemList.SetItemCustomForegroundColor*"></a>
+
+  <h3 id="Forma_ItemList_SetItemCustomForegroundColor_System_Int32_System_Nullable_Microsoft_Xna_Framework_Color__" data-uid="Forma.ItemList.SetItemCustomForegroundColor(System.Int32,System.Nullable{Microsoft.Xna.Framework.Color})">
+  SetItemCustomForegroundColor(int, Color?)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemCustomForegroundColor(int index, Color? color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemDisabled_" data-uid="Forma.ItemList.SetItemDisabled*"></a>
+
+  <h3 id="Forma_ItemList_SetItemDisabled_System_Int32_System_Boolean_" data-uid="Forma.ItemList.SetItemDisabled(System.Int32,System.Boolean)">
+  SetItemDisabled(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemDisabled(int index, bool disabled)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>disabled</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemIcon_" data-uid="Forma.ItemList.SetItemIcon*"></a>
+
+  <h3 id="Forma_ItemList_SetItemIcon_System_Int32_Microsoft_Xna_Framework_Graphics_Texture2D_" data-uid="Forma.ItemList.SetItemIcon(System.Int32,Microsoft.Xna.Framework.Graphics.Texture2D)">
+  SetItemIcon(int, Texture2D)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemIcon(int index, Texture2D icon)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>icon</code> <span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemIconModulate_" data-uid="Forma.ItemList.SetItemIconModulate*"></a>
+
+  <h3 id="Forma_ItemList_SetItemIconModulate_System_Int32_Microsoft_Xna_Framework_Color_" data-uid="Forma.ItemList.SetItemIconModulate(System.Int32,Microsoft.Xna.Framework.Color)">
+  SetItemIconModulate(int, Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemIconModulate(int index, Color modulate)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>modulate</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemIconRegion_" data-uid="Forma.ItemList.SetItemIconRegion*"></a>
+
+  <h3 id="Forma_ItemList_SetItemIconRegion_System_Int32_System_Nullable_Microsoft_Xna_Framework_Rectangle__" data-uid="Forma.ItemList.SetItemIconRegion(System.Int32,System.Nullable{Microsoft.Xna.Framework.Rectangle})">
+  SetItemIconRegion(int, Rectangle?)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemIconRegion(int index, Rectangle? region)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>region</code> <span class="xref">Rectangle</span>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemIconTransposed_" data-uid="Forma.ItemList.SetItemIconTransposed*"></a>
+
+  <h3 id="Forma_ItemList_SetItemIconTransposed_System_Int32_System_Boolean_" data-uid="Forma.ItemList.SetItemIconTransposed(System.Int32,System.Boolean)">
+  SetItemIconTransposed(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemIconTransposed(int index, bool transposed)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>transposed</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemLanguage_" data-uid="Forma.ItemList.SetItemLanguage*"></a>
+
+  <h3 id="Forma_ItemList_SetItemLanguage_System_Int32_System_String_" data-uid="Forma.ItemList.SetItemLanguage(System.Int32,System.String)">
+  SetItemLanguage(int, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemLanguage(int index, string language)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>language</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemMetadata_" data-uid="Forma.ItemList.SetItemMetadata*"></a>
+
+  <h3 id="Forma_ItemList_SetItemMetadata_System_Int32_System_Object_" data-uid="Forma.ItemList.SetItemMetadata(System.Int32,System.Object)">
+  SetItemMetadata(int, object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemMetadata(int index, object metadata)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>metadata</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemSelectable_" data-uid="Forma.ItemList.SetItemSelectable*"></a>
+
+  <h3 id="Forma_ItemList_SetItemSelectable_System_Int32_System_Boolean_" data-uid="Forma.ItemList.SetItemSelectable(System.Int32,System.Boolean)">
+  SetItemSelectable(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemSelectable(int index, bool selectable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>selectable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemTagIcon_" data-uid="Forma.ItemList.SetItemTagIcon*"></a>
+
+  <h3 id="Forma_ItemList_SetItemTagIcon_System_Int32_Microsoft_Xna_Framework_Graphics_Texture2D_" data-uid="Forma.ItemList.SetItemTagIcon(System.Int32,Microsoft.Xna.Framework.Graphics.Texture2D)">
+  SetItemTagIcon(int, Texture2D)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemTagIcon(int index, Texture2D icon)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>icon</code> <span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemText_" data-uid="Forma.ItemList.SetItemText*"></a>
+
+  <h3 id="Forma_ItemList_SetItemText_System_Int32_System_String_" data-uid="Forma.ItemList.SetItemText(System.Int32,System.String)">
+  SetItemText(int, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemText(int index, string text)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>text</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemTextDirection_" data-uid="Forma.ItemList.SetItemTextDirection*"></a>
+
+  <h3 id="Forma_ItemList_SetItemTextDirection_System_Int32_Forma_TextDirection_" data-uid="Forma.ItemList.SetItemTextDirection(System.Int32,Forma.TextDirection)">
+  SetItemTextDirection(int, TextDirection)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemTextDirection(int index, TextDirection direction)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>direction</code> <a class="xref" href="Forma.TextDirection.html">TextDirection</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemTooltip_" data-uid="Forma.ItemList.SetItemTooltip*"></a>
+
+  <h3 id="Forma_ItemList_SetItemTooltip_System_Int32_System_String_" data-uid="Forma.ItemList.SetItemTooltip(System.Int32,System.String)">
+  SetItemTooltip(int, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemTooltip(int index, string tooltip)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>tooltip</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetItemTooltipEnabled_" data-uid="Forma.ItemList.SetItemTooltipEnabled*"></a>
+
+  <h3 id="Forma_ItemList_SetItemTooltipEnabled_System_Int32_System_Boolean_" data-uid="Forma.ItemList.SetItemTooltipEnabled(System.Int32,System.Boolean)">
+  SetItemTooltipEnabled(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetItemTooltipEnabled(int index, bool enabled)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>index</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>enabled</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetScrollHintMode_" data-uid="Forma.ItemList.SetScrollHintMode*"></a>
+
+  <h3 id="Forma_ItemList_SetScrollHintMode_Forma_ItemListScrollHintMode_" data-uid="Forma.ItemList.SetScrollHintMode(Forma.ItemListScrollHintMode)">
+  SetScrollHintMode(ItemListScrollHintMode)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetScrollHintMode(ItemListScrollHintMode mode)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>mode</code> <a class="xref" href="Forma.ItemListScrollHintMode.html">ItemListScrollHintMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetTileScrollHint_" data-uid="Forma.ItemList.SetTileScrollHint*"></a>
+
+  <h3 id="Forma_ItemList_SetTileScrollHint_System_Boolean_" data-uid="Forma.ItemList.SetTileScrollHint(System.Boolean)">
+  SetTileScrollHint(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetTileScrollHint(bool enable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>enable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SetWraparoundItems_" data-uid="Forma.ItemList.SetWraparoundItems*"></a>
+
+  <h3 id="Forma_ItemList_SetWraparoundItems_System_Boolean_" data-uid="Forma.ItemList.SetWraparoundItems(System.Boolean)">
+  SetWraparoundItems(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetWraparoundItems(bool enable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>enable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_ItemList_SortItemsByText_" data-uid="Forma.ItemList.SortItemsByText*"></a>
+
+  <h3 id="Forma_ItemList_SortItemsByText" data-uid="Forma.ItemList.SortItemsByText">
+  SortItemsByText()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SortItemsByText()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="events">Events
+</h2>
+
+
+
+  <h3 id="Forma_ItemList_ItemActivated" data-uid="Forma.ItemList.ItemActivated">
+  ItemActivated
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;ItemList, int&gt; ItemActivated</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="Forma.ItemList.html">ItemList</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h3 id="Forma_ItemList_ItemSelected" data-uid="Forma.ItemList.ItemSelected">
+  ItemSelected
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;ItemList, int&gt; ItemSelected</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="Forma.ItemList.html">ItemList</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h3 id="Forma_ItemList_MultiSelected" data-uid="Forma.ItemList.MultiSelected">
+  MultiSelected
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;ItemList, int, bool&gt; MultiSelected</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-3">Action</a>&lt;<a class="xref" href="Forma.ItemList.html">ItemList</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/SelectionControls.cs" class="edit-link">Edit this page</a>
+        </div>
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,2628 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Class GraphNode | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class GraphNode | Forma Documentation ">
+      
+      <meta name="description" content="Graph node with named input and output port metadata.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="Forma.GraphNode">
+
+
+
+  <h1 id="Forma_GraphNode" data-uid="Forma.GraphNode" class="text-break">
+Class GraphNode  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="Forma.html">Forma</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>Forma.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Graph node with named input and output port metadata.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class GraphNode : GraphElement, IAddChild&lt;Control&gt;, IAddChild, INotifyPropertyChanged, IDisposable</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="Forma.Control.html">Control</a></div>
+      <div><a class="xref" href="Forma.TemplatedControl.html">TemplatedControl</a></div>
+      <div><a class="xref" href="Forma.GraphElement.html">GraphElement</a></div>
+      <div><span class="xref">GraphNode</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="Forma.Xaml.IAddChild-1.html">IAddChild</a>&lt;<a class="xref" href="Forma.Control.html">Control</a>&gt;</div>
+      <div><a class="xref" href="Forma.Xaml.IAddChild.html">IAddChild</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.componentmodel.inotifypropertychanged">INotifyPropertyChanged</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist derived">
+    <dt>Derived</dt>
+    <dd>
+      <div><a class="xref" href="Forma.GraphFrame.html">GraphFrame</a></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist inheritedMembers">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_SetDraggable_System_Boolean_">GraphElement.SetDraggable(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_IsDraggable">GraphElement.IsDraggable()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_SetResizable_System_Boolean_">GraphElement.SetResizable(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_IsResizable">GraphElement.IsResizable()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_SetSelectable_System_Boolean_">GraphElement.SetSelectable(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_IsSelectable">GraphElement.IsSelectable()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_SetSelected_System_Boolean_">GraphElement.SetSelected(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_IsSelected">GraphElement.IsSelected()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_SetScalingMenus_System_Boolean_">GraphElement.SetScalingMenus(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_IsScalingMenus">GraphElement.IsScalingMenus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_SetDrag_System_Boolean_">GraphElement.SetDrag(bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_GetDragFrom">GraphElement.GetDragFrom()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_GetResizeHandleBounds">GraphElement.GetResizeHandleBounds()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_DrawResizeHandle_Forma_UIRenderContext_">GraphElement.DrawResizeHandle(UIRenderContext)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_FitChildInRect_Forma_Control_Microsoft_Xna_Framework_Vector2_Microsoft_Xna_Framework_Vector2_System_Boolean_">GraphElement.FitChildInRect(Control, Vector2, Vector2, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_AccessibilityRole">GraphElement.AccessibilityRole</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_AccessibilityActions">GraphElement.AccessibilityActions</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_AccessibilityStates">GraphElement.AccessibilityStates</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_Draggable">GraphElement.Draggable</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_Selectable">GraphElement.Selectable</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_ScalingMenus">GraphElement.ScalingMenus</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_Resizable">GraphElement.Resizable</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_IsResizing">GraphElement.IsResizing</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_Selected">GraphElement.Selected</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_PositionOffset">GraphElement.PositionOffset</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_Position">GraphElement.Position</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_Size">GraphElement.Size</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_PositionChanged">GraphElement.PositionChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_ResizeRequest">GraphElement.ResizeRequest</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_ResizeEnd">GraphElement.ResizeEnd</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_NodeSelected">GraphElement.NodeSelected</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_NodeDeselected">GraphElement.NodeDeselected</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_RaiseRequest">GraphElement.RaiseRequest</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.GraphElement.html#Forma_GraphElement_Dragged">GraphElement.Dragged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_ApplyTemplate">TemplatedControl.ApplyTemplate()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_GetTemplateChild_System_String_">TemplatedControl.GetTemplateChild(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_InvalidateTemplate">TemplatedControl.InvalidateTemplate()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_OnTemplateApplied">TemplatedControl.OnTemplateApplied()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_OnThemeChanged">TemplatedControl.OnThemeChanged()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_OnContextChanged_Forma_UIContext_Forma_UIContext_">TemplatedControl.OnContextChanged(UIContext, UIContext)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_Dispose">TemplatedControl.Dispose()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_Template">TemplatedControl.Template</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.TemplatedControl.html#Forma_TemplatedControl_TemplateRoot">TemplatedControl.TemplateRoot</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPseudoStateActive_System_String_">Control.IsPseudoStateActive(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsLayoutRtl">Control.IsLayoutRtl()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddChild_Forma_Control_">Control.AddChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CreateAccessibilityPeer">Control.CreateAccessibilityPeer()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetAccessibilityChildren">Control.GetAccessibilityChildren()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveChild_Forma_Control_">Control.RemoveChild(Control)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClearDataContext">Control.ClearDataContext()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TryFindResource_System_String_System_Object__">Control.TryFindResource(string, out object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FindName__1_System_String_">Control.FindName&lt;T&gt;(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MoveChild_Forma_Control_System_Int32_">Control.MoveChild(Control, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveFromParent">Control.RemoveFromParent()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetNodeOrNull_System_String_">Control.GetNodeOrNull(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeStyleOverride_System_String_Forma_StyleBox_">Control.AddThemeStyleOverride(string, StyleBox)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeStyleOverride_System_String_">Control.RemoveThemeStyleOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeStyleBox_System_String_">Control.GetThemeStyleBox(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AddThemeIconOverride_System_String_Forma_ThemeIcon_">Control.AddThemeIconOverride(string, ThemeIcon)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RemoveThemeIconOverride_System_String_">Control.RemoveThemeIconOverride(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SuppressThemeIcon_System_String_">Control.SuppressThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeIcon_System_String_">Control.GetThemeIcon(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetThemeIcon_System_String_System_String_">Control.GetThemeIcon(string, string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchor_Forma_Side_System_Single_System_Boolean_System_Boolean_">Control.SetAnchor(Side, float, bool, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetOffset_Forma_Side_System_Single_">Control.SetOffset(Side, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetAnchorsAndOffsets_System_Single_System_Single_System_Single_System_Single_">Control.SetAnchorsAndOffsets(float, float, float, float)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AcceptEvent">Control.AcceptEvent()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetMaximumSize">Control.GetMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetCombinedMaximumSize">Control.GetCombinedMaximumSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetBoundDesiredSize">Control.GetBoundDesiredSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ContainsPoint_Microsoft_Xna_Framework_Point_">Control.ContainsPoint(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetTooltip_Microsoft_Xna_Framework_Point_">Control.GetTooltip(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GrabFocus">Control.GrabFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ReleaseFocus">Control.ReleaseFocus()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoView_System_Nullable_Microsoft_Xna_Framework_Rectangle__">Control.BringIntoView(Rectangle?)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_QueueLayout">Control.QueueLayout()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OnPropertyChanged_System_String_">Control.OnPropertyChanged(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SetPseudoState_System_String_System_Boolean_">Control.SetPseudoState(string, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_NotifyPseudoStateChanged_System_String_">Control.NotifyPseudoStateChanged(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GetDragData_Microsoft_Xna_Framework_Point_">Control.GetDragData(Point)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CanDropData_Microsoft_Xna_Framework_Point_System_Object_">Control.CanDropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DropData_Microsoft_Xna_Framework_Point_System_Object_">Control.DropData(Point, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Name">Control.Name</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Parent">Control.Parent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualParent">Control.VisualParent</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Children">Control.Children</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Context">Control.Context</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Resources">Control.Resources</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Classes">Control.Classes</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeStyleOverrides">Control.ThemeStyleOverrides</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HasLocalDataContext">Control.HasLocalDataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContext">Control.DataContext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ThemeOverride">Control.ThemeOverride</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TooltipText">Control.TooltipText</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visible">Control.Visible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Visibility">Control.Visibility</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Enabled">Control.Enabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsEffectivelyEnabled">Control.IsEffectivelyEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseFilter">Control.MouseFilter</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusMode">Control.FocusMode</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNext">Control.FocusNext</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusPrevious">Control.FocusPrevious</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborLeft">Control.FocusNeighborLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborTop">Control.FocusNeighborTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborRight">Control.FocusNeighborRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusNeighborBottom">Control.FocusNeighborBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipContents">Control.ClipContents</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ClipToBounds">Control.ClipToBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Clip">Control.Clip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OpacityMask">Control.OpacityMask</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Effect">Control.Effect</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_RenderTransform">Control.RenderTransform</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_TransformOrigin">Control.TransformOrigin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Opacity">Control.Opacity</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsHitTestVisible">Control.IsHitTestVisible</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PixelSnapping">Control.PixelSnapping</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_IsPixelSnappingEnabled">Control.IsPixelSnappingEnabled</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Cursor">Control.Cursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveCursor">Control.EffectiveCursor</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ToolTip">Control.ToolTip</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Foreground">Control.Foreground</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontFamily">Control.FontFamily</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontSize">Control.FontSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontWeight">Control.FontWeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStyle">Control.FontStyle</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FontStretch">Control.FontStretch</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Language">Control.Language</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutDirection">Control.LayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EffectiveLayoutDirection">Control.EffectiveLayoutDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ZIndex">Control.ZIndex</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HorizontalSizeFlags">Control.HorizontalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VerticalSizeFlags">Control.VerticalSizeFlags</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HorizontalAlignment">Control.HorizontalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VerticalAlignment">Control.VerticalAlignment</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_SizeFlagsStretchRatio">Control.SizeFlagsStretchRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margins">Control.Margins</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Margin">Control.Margin</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Width">Control.Width</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Height">Control.Height</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinWidth">Control.MinWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MinHeight">Control.MinHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxWidth">Control.MaxWidth</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MaxHeight">Control.MaxHeight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AspectRatio">Control.AspectRatio</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMinimumSize">Control.CustomMinimumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_CustomMaximumSize">Control.CustomMaximumSize</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorLeft">Control.AnchorLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorTop">Control.AnchorTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorRight">Control.AnchorRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AnchorBottom">Control.AnchorBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetLeft">Control.OffsetLeft</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetTop">Control.OffsetTop</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetRight">Control.OffsetRight</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_OffsetBottom">Control.OffsetBottom</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_HGrowDirection">Control.HGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VGrowDirection">Control.VGrowDirection</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Bounds">Control.Bounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_VisualBounds">Control.VisualBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusBounds">Control.FocusBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityBounds">Control.AccessibilityBounds</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityPeer">Control.AccessibilityPeer</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityLabel">Control.AccessibilityLabel</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityName">Control.AccessibilityName</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityValue">Control.AccessibilityValue</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_GlobalPosition">Control.GlobalPosition</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_LayoutChanged">Control.LayoutChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PropertyChanged">Control.PropertyChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseEntered">Control.MouseEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_MouseExited">Control.MouseExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusEntered">Control.FocusEntered</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_FocusExited">Control.FocusExited</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Attached">Control.Attached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_Detached">Control.Detached</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_EnabledChanged">Control.EnabledChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_PseudoStateChanged">Control.PseudoStateChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_NameChanged">Control.NameChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DataContextChanged">Control.DataContextChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ParentChanged">Control.ParentChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_BringIntoViewRequested">Control.BringIntoViewRequested</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_AccessibilityChanged">Control.AccessibilityChanged</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildAdded">Control.ChildAdded</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_ChildRemoved">Control.ChildRemoved</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragStarted">Control.DragStarted</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.Control.html#Forma_Control_DragEnded">Control.DragEnded</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="Forma_GraphNode__ctor_" data-uid="Forma.GraphNode.#ctor*"></a>
+
+  <h3 id="Forma_GraphNode__ctor" data-uid="Forma.GraphNode.#ctor">
+  GraphNode()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public GraphNode()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="Forma_GraphNode_Font_" data-uid="Forma.GraphNode.Font*"></a>
+
+  <h3 id="Forma_GraphNode_Font" data-uid="Forma.GraphNode.Font">
+  Font
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public SpriteFont Font { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><span class="xref">SpriteFont</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_IgnoreInvalidConnectionType_" data-uid="Forma.GraphNode.IgnoreInvalidConnectionType*"></a>
+
+  <h3 id="Forma_GraphNode_IgnoreInvalidConnectionType" data-uid="Forma.GraphNode.IgnoreInvalidConnectionType">
+  IgnoreInvalidConnectionType
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Allows this node to accept an interactive connection whose type is not otherwise compatible.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IgnoreInvalidConnectionType { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_InputPortCount_" data-uid="Forma.GraphNode.InputPortCount*"></a>
+
+  <h3 id="Forma_GraphNode_InputPortCount" data-uid="Forma.GraphNode.InputPortCount">
+  InputPortCount
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int InputPortCount { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_InputPorts_" data-uid="Forma.GraphNode.InputPorts*"></a>
+
+  <h3 id="Forma_GraphNode_InputPorts" data-uid="Forma.GraphNode.InputPorts">
+  InputPorts
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; InputPorts { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_OutputPortCount_" data-uid="Forma.GraphNode.OutputPortCount*"></a>
+
+  <h3 id="Forma_GraphNode_OutputPortCount" data-uid="Forma.GraphNode.OutputPortCount">
+  OutputPortCount
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int OutputPortCount { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_OutputPorts_" data-uid="Forma.GraphNode.OutputPorts*"></a>
+
+  <h3 id="Forma_GraphNode_OutputPorts" data-uid="Forma.GraphNode.OutputPorts">
+  OutputPorts
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; OutputPorts { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_Title_" data-uid="Forma.GraphNode.Title*"></a>
+
+  <h3 id="Forma_GraphNode_Title" data-uid="Forma.GraphNode.Title">
+  Title
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Title { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_UIFont_" data-uid="Forma.GraphNode.UIFont*"></a>
+
+  <h3 id="Forma_GraphNode_UIFont" data-uid="Forma.GraphNode.UIFont">
+  UIFont
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public UIFont UIFont { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="Forma.UIFont.html">UIFont</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="Forma_GraphNode_AddInputPort_" data-uid="Forma.GraphNode.AddInputPort*"></a>
+
+  <h3 id="Forma_GraphNode_AddInputPort_System_String_System_Int32_System_Nullable_Microsoft_Xna_Framework_Color__" data-uid="Forma.GraphNode.AddInputPort(System.String,System.Int32,System.Nullable{Microsoft.Xna.Framework.Color})">
+  AddInputPort(string, int, Color?)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddInputPort(string name, int type = 0, Color? color = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>type</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_AddOutputPort_" data-uid="Forma.GraphNode.AddOutputPort*"></a>
+
+  <h3 id="Forma_GraphNode_AddOutputPort_System_String_System_Int32_System_Nullable_Microsoft_Xna_Framework_Color__" data-uid="Forma.GraphNode.AddOutputPort(System.String,System.Int32,System.Nullable{Microsoft.Xna.Framework.Color})">
+  AddOutputPort(string, int, Color?)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddOutputPort(string name, int type = 0, Color? color = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>type</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_ArrangeChildren_" data-uid="Forma.GraphNode.ArrangeChildren*"></a>
+
+  <h3 id="Forma_GraphNode_ArrangeChildren" data-uid="Forma.GraphNode.ArrangeChildren">
+  ArrangeChildren()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override void ArrangeChildren()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_ClearAllSlots_" data-uid="Forma.GraphNode.ClearAllSlots*"></a>
+
+  <h3 id="Forma_GraphNode_ClearAllSlots" data-uid="Forma.GraphNode.ClearAllSlots">
+  ClearAllSlots()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearAllSlots()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_ClearSlot_" data-uid="Forma.GraphNode.ClearSlot*"></a>
+
+  <h3 id="Forma_GraphNode_ClearSlot_System_Int32_" data-uid="Forma.GraphNode.ClearSlot(System.Int32)">
+  ClearSlot(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearSlot(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetDesiredSize_" data-uid="Forma.GraphNode.GetDesiredSize*"></a>
+
+  <h3 id="Forma_GraphNode_GetDesiredSize" data-uid="Forma.GraphNode.GetDesiredSize">
+  GetDesiredSize()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the desired-size variant of the GraphNode layout requirement.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Vector2 GetDesiredSize()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Vector2</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetInputPortColor_" data-uid="Forma.GraphNode.GetInputPortColor*"></a>
+
+  <h3 id="Forma_GraphNode_GetInputPortColor_System_Int32_" data-uid="Forma.GraphNode.GetInputPortColor(System.Int32)">
+  GetInputPortColor(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetInputPortColor(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetInputPortDrawBounds_" data-uid="Forma.GraphNode.GetInputPortDrawBounds*"></a>
+
+  <h3 id="Forma_GraphNode_GetInputPortDrawBounds_System_Int32_" data-uid="Forma.GraphNode.GetInputPortDrawBounds(System.Int32)">
+  GetInputPortDrawBounds(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Rendered input-port icon/dot bounds in screen coordinates.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Rectangle GetInputPortDrawBounds(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Rectangle</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetInputPortIcon_" data-uid="Forma.GraphNode.GetInputPortIcon*"></a>
+
+  <h3 id="Forma_GraphNode_GetInputPortIcon_System_Int32_" data-uid="Forma.GraphNode.GetInputPortIcon(System.Int32)">
+  GetInputPortIcon(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Texture2D GetInputPortIcon(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetInputPortPosition_" data-uid="Forma.GraphNode.GetInputPortPosition*"></a>
+
+  <h3 id="Forma_GraphNode_GetInputPortPosition_System_Int32_" data-uid="Forma.GraphNode.GetInputPortPosition(System.Int32)">
+  GetInputPortPosition(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Port position in node-local coordinates.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Vector2 GetInputPortPosition(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Vector2</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetInputPortSlot_" data-uid="Forma.GraphNode.GetInputPortSlot*"></a>
+
+  <h3 id="Forma_GraphNode_GetInputPortSlot_System_Int32_" data-uid="Forma.GraphNode.GetInputPortSlot(System.Int32)">
+  GetInputPortSlot(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetInputPortSlot(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetInputPortType_" data-uid="Forma.GraphNode.GetInputPortType*"></a>
+
+  <h3 id="Forma_GraphNode_GetInputPortType_System_Int32_" data-uid="Forma.GraphNode.GetInputPortType(System.Int32)">
+  GetInputPortType(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetInputPortType(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetMinimumSize_" data-uid="Forma.GraphNode.GetMinimumSize*"></a>
+
+  <h3 id="Forma_GraphNode_GetMinimumSize" data-uid="Forma.GraphNode.GetMinimumSize">
+  GetMinimumSize()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the titlebar, slot, panel, and separation minimum required by Godot's GraphNode layout.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Vector2 GetMinimumSize()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Vector2</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetOutputPortColor_" data-uid="Forma.GraphNode.GetOutputPortColor*"></a>
+
+  <h3 id="Forma_GraphNode_GetOutputPortColor_System_Int32_" data-uid="Forma.GraphNode.GetOutputPortColor(System.Int32)">
+  GetOutputPortColor(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetOutputPortColor(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetOutputPortDrawBounds_" data-uid="Forma.GraphNode.GetOutputPortDrawBounds*"></a>
+
+  <h3 id="Forma_GraphNode_GetOutputPortDrawBounds_System_Int32_" data-uid="Forma.GraphNode.GetOutputPortDrawBounds(System.Int32)">
+  GetOutputPortDrawBounds(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Rendered output-port icon/dot bounds in screen coordinates.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Rectangle GetOutputPortDrawBounds(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Rectangle</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetOutputPortIcon_" data-uid="Forma.GraphNode.GetOutputPortIcon*"></a>
+
+  <h3 id="Forma_GraphNode_GetOutputPortIcon_System_Int32_" data-uid="Forma.GraphNode.GetOutputPortIcon(System.Int32)">
+  GetOutputPortIcon(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Texture2D GetOutputPortIcon(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetOutputPortPosition_" data-uid="Forma.GraphNode.GetOutputPortPosition*"></a>
+
+  <h3 id="Forma_GraphNode_GetOutputPortPosition_System_Int32_" data-uid="Forma.GraphNode.GetOutputPortPosition(System.Int32)">
+  GetOutputPortPosition(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Port position in node-local coordinates.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Vector2 GetOutputPortPosition(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Vector2</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetOutputPortSlot_" data-uid="Forma.GraphNode.GetOutputPortSlot*"></a>
+
+  <h3 id="Forma_GraphNode_GetOutputPortSlot_System_Int32_" data-uid="Forma.GraphNode.GetOutputPortSlot(System.Int32)">
+  GetOutputPortSlot(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetOutputPortSlot(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetOutputPortType_" data-uid="Forma.GraphNode.GetOutputPortType*"></a>
+
+  <h3 id="Forma_GraphNode_GetOutputPortType_System_Int32_" data-uid="Forma.GraphNode.GetOutputPortType(System.Int32)">
+  GetOutputPortType(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetOutputPortType(int port)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>port</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetSlotColorLeft_" data-uid="Forma.GraphNode.GetSlotColorLeft*"></a>
+
+  <h3 id="Forma_GraphNode_GetSlotColorLeft_System_Int32_" data-uid="Forma.GraphNode.GetSlotColorLeft(System.Int32)">
+  GetSlotColorLeft(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetSlotColorLeft(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetSlotColorRight_" data-uid="Forma.GraphNode.GetSlotColorRight*"></a>
+
+  <h3 id="Forma_GraphNode_GetSlotColorRight_System_Int32_" data-uid="Forma.GraphNode.GetSlotColorRight(System.Int32)">
+  GetSlotColorRight(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetSlotColorRight(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetSlotCustomIconLeft_" data-uid="Forma.GraphNode.GetSlotCustomIconLeft*"></a>
+
+  <h3 id="Forma_GraphNode_GetSlotCustomIconLeft_System_Int32_" data-uid="Forma.GraphNode.GetSlotCustomIconLeft(System.Int32)">
+  GetSlotCustomIconLeft(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Texture2D GetSlotCustomIconLeft(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetSlotCustomIconRight_" data-uid="Forma.GraphNode.GetSlotCustomIconRight*"></a>
+
+  <h3 id="Forma_GraphNode_GetSlotCustomIconRight_System_Int32_" data-uid="Forma.GraphNode.GetSlotCustomIconRight(System.Int32)">
+  GetSlotCustomIconRight(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Texture2D GetSlotCustomIconRight(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetSlotMetadataLeft_" data-uid="Forma.GraphNode.GetSlotMetadataLeft*"></a>
+
+  <h3 id="Forma_GraphNode_GetSlotMetadataLeft_System_Int32_" data-uid="Forma.GraphNode.GetSlotMetadataLeft(System.Int32)">
+  GetSlotMetadataLeft(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public object GetSlotMetadataLeft(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetSlotMetadataRight_" data-uid="Forma.GraphNode.GetSlotMetadataRight*"></a>
+
+  <h3 id="Forma_GraphNode_GetSlotMetadataRight_System_Int32_" data-uid="Forma.GraphNode.GetSlotMetadataRight(System.Int32)">
+  GetSlotMetadataRight(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public object GetSlotMetadataRight(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetSlotStyleBoxBounds_" data-uid="Forma.GraphNode.GetSlotStyleBoxBounds*"></a>
+
+  <h3 id="Forma_GraphNode_GetSlotStyleBoxBounds_System_Int32_" data-uid="Forma.GraphNode.GetSlotStyleBoxBounds(System.Int32)">
+  GetSlotStyleBoxBounds(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Rendered bounds for a retained slot stylebox in screen coordinates, or an empty rectangle when disabled or absent.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Rectangle GetSlotStyleBoxBounds(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Rectangle</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetSlotTypeLeft_" data-uid="Forma.GraphNode.GetSlotTypeLeft*"></a>
+
+  <h3 id="Forma_GraphNode_GetSlotTypeLeft_System_Int32_" data-uid="Forma.GraphNode.GetSlotTypeLeft(System.Int32)">
+  GetSlotTypeLeft(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetSlotTypeLeft(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_GetSlotTypeRight_" data-uid="Forma.GraphNode.GetSlotTypeRight*"></a>
+
+  <h3 id="Forma_GraphNode_GetSlotTypeRight_System_Int32_" data-uid="Forma.GraphNode.GetSlotTypeRight(System.Int32)">
+  GetSlotTypeRight(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetSlotTypeRight(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_IsSlotDrawStyleBox_" data-uid="Forma.GraphNode.IsSlotDrawStyleBox*"></a>
+
+  <h3 id="Forma_GraphNode_IsSlotDrawStyleBox_System_Int32_" data-uid="Forma.GraphNode.IsSlotDrawStyleBox(System.Int32)">
+  IsSlotDrawStyleBox(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsSlotDrawStyleBox(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_IsSlotEnabledLeft_" data-uid="Forma.GraphNode.IsSlotEnabledLeft*"></a>
+
+  <h3 id="Forma_GraphNode_IsSlotEnabledLeft_System_Int32_" data-uid="Forma.GraphNode.IsSlotEnabledLeft(System.Int32)">
+  IsSlotEnabledLeft(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsSlotEnabledLeft(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_IsSlotEnabledRight_" data-uid="Forma.GraphNode.IsSlotEnabledRight*"></a>
+
+  <h3 id="Forma_GraphNode_IsSlotEnabledRight_System_Int32_" data-uid="Forma.GraphNode.IsSlotEnabledRight(System.Int32)">
+  IsSlotEnabledRight(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsSlotEnabledRight(int slot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlot_" data-uid="Forma.GraphNode.SetSlot*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlot_System_Int32_System_Boolean_System_Int32_Microsoft_Xna_Framework_Color_System_Boolean_System_Int32_Microsoft_Xna_Framework_Color_" data-uid="Forma.GraphNode.SetSlot(System.Int32,System.Boolean,System.Int32,Microsoft.Xna.Framework.Color,System.Boolean,System.Int32,Microsoft.Xna.Framework.Color)">
+  SetSlot(int, bool, int, Color, bool, int, Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures Godot's paired left/input and right/output port slot.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlot(int slot, bool enableLeft, int typeLeft, Color colorLeft, bool enableRight, int typeRight, Color colorRight)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>enableLeft</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+    <dt><code>typeLeft</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>colorLeft</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+    <dt><code>enableRight</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+    <dt><code>typeRight</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>colorRight</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlot_" data-uid="Forma.GraphNode.SetSlot*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlot_System_Int32_System_Boolean_System_Int32_Microsoft_Xna_Framework_Color_System_Boolean_System_Int32_Microsoft_Xna_Framework_Color_Microsoft_Xna_Framework_Graphics_Texture2D_Microsoft_Xna_Framework_Graphics_Texture2D_System_Boolean_" data-uid="Forma.GraphNode.SetSlot(System.Int32,System.Boolean,System.Int32,Microsoft.Xna.Framework.Color,System.Boolean,System.Int32,Microsoft.Xna.Framework.Color,Microsoft.Xna.Framework.Graphics.Texture2D,Microsoft.Xna.Framework.Graphics.Texture2D,System.Boolean)">
+  SetSlot(int, bool, int, Color, bool, int, Color, Texture2D, Texture2D, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures Godot's paired left/input and right/output port slot, including retained custom icons and slot stylebox policy.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlot(int slot, bool enableLeft, int typeLeft, Color colorLeft, bool enableRight, int typeRight, Color colorRight, Texture2D customIconLeft, Texture2D customIconRight, bool drawStyleBox = true)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>enableLeft</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+    <dt><code>typeLeft</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>colorLeft</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+    <dt><code>enableRight</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+    <dt><code>typeRight</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>colorRight</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+    <dt><code>customIconLeft</code> <span class="xref">Texture2D</span></dt>
+    <dd></dd>
+    <dt><code>customIconRight</code> <span class="xref">Texture2D</span></dt>
+    <dd></dd>
+    <dt><code>drawStyleBox</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotColorLeft_" data-uid="Forma.GraphNode.SetSlotColorLeft*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotColorLeft_System_Int32_Microsoft_Xna_Framework_Color_" data-uid="Forma.GraphNode.SetSlotColorLeft(System.Int32,Microsoft.Xna.Framework.Color)">
+  SetSlotColorLeft(int, Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotColorLeft(int slot, Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotColorRight_" data-uid="Forma.GraphNode.SetSlotColorRight*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotColorRight_System_Int32_Microsoft_Xna_Framework_Color_" data-uid="Forma.GraphNode.SetSlotColorRight(System.Int32,Microsoft.Xna.Framework.Color)">
+  SetSlotColorRight(int, Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotColorRight(int slot, Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotCustomIconLeft_" data-uid="Forma.GraphNode.SetSlotCustomIconLeft*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotCustomIconLeft_System_Int32_Microsoft_Xna_Framework_Graphics_Texture2D_" data-uid="Forma.GraphNode.SetSlotCustomIconLeft(System.Int32,Microsoft.Xna.Framework.Graphics.Texture2D)">
+  SetSlotCustomIconLeft(int, Texture2D)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotCustomIconLeft(int slot, Texture2D icon)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>icon</code> <span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotCustomIconRight_" data-uid="Forma.GraphNode.SetSlotCustomIconRight*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotCustomIconRight_System_Int32_Microsoft_Xna_Framework_Graphics_Texture2D_" data-uid="Forma.GraphNode.SetSlotCustomIconRight(System.Int32,Microsoft.Xna.Framework.Graphics.Texture2D)">
+  SetSlotCustomIconRight(int, Texture2D)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotCustomIconRight(int slot, Texture2D icon)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>icon</code> <span class="xref">Texture2D</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotDrawStyleBox_" data-uid="Forma.GraphNode.SetSlotDrawStyleBox*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotDrawStyleBox_System_Int32_System_Boolean_" data-uid="Forma.GraphNode.SetSlotDrawStyleBox(System.Int32,System.Boolean)">
+  SetSlotDrawStyleBox(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotDrawStyleBox(int slot, bool enable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>enable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotEnabledLeft_" data-uid="Forma.GraphNode.SetSlotEnabledLeft*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotEnabledLeft_System_Int32_System_Boolean_" data-uid="Forma.GraphNode.SetSlotEnabledLeft(System.Int32,System.Boolean)">
+  SetSlotEnabledLeft(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotEnabledLeft(int slot, bool enable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>enable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotEnabledRight_" data-uid="Forma.GraphNode.SetSlotEnabledRight*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotEnabledRight_System_Int32_System_Boolean_" data-uid="Forma.GraphNode.SetSlotEnabledRight(System.Int32,System.Boolean)">
+  SetSlotEnabledRight(int, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotEnabledRight(int slot, bool enable)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>enable</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotMetadataLeft_" data-uid="Forma.GraphNode.SetSlotMetadataLeft*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotMetadataLeft_System_Int32_System_Object_" data-uid="Forma.GraphNode.SetSlotMetadataLeft(System.Int32,System.Object)">
+  SetSlotMetadataLeft(int, object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotMetadataLeft(int slot, object value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotMetadataRight_" data-uid="Forma.GraphNode.SetSlotMetadataRight*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotMetadataRight_System_Int32_System_Object_" data-uid="Forma.GraphNode.SetSlotMetadataRight(System.Int32,System.Object)">
+  SetSlotMetadataRight(int, object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotMetadataRight(int slot, object value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotTypeLeft_" data-uid="Forma.GraphNode.SetSlotTypeLeft*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotTypeLeft_System_Int32_System_Int32_" data-uid="Forma.GraphNode.SetSlotTypeLeft(System.Int32,System.Int32)">
+  SetSlotTypeLeft(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotTypeLeft(int slot, int type)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>type</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_GraphNode_SetSlotTypeRight_" data-uid="Forma.GraphNode.SetSlotTypeRight*"></a>
+
+  <h3 id="Forma_GraphNode_SetSlotTypeRight_System_Int32_System_Int32_" data-uid="Forma.GraphNode.SetSlotTypeRight(System.Int32,System.Int32)">
+  SetSlotTypeRight(int, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSlotTypeRight(int slot, int type)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>slot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+    <dt><code>type</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="events">Events
+</h2>
+
+
+
+  <h3 id="Forma_GraphNode_SlotSizesChanged" data-uid="Forma.GraphNode.SlotSizesChanged">
+  SlotSizesChanged
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Raised after child-backed slot rows are rearranged, matching Godot's slot_sizes_changed signal.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;GraphNode&gt; SlotSizesChanged</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-1">Action</a>&lt;<a class="xref" href="Forma.GraphNode.html">GraphNode</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h3 id="Forma_GraphNode_SlotUpdated" data-uid="Forma.GraphNode.SlotUpdated">
+  SlotUpdated
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action&lt;GraphNode, int&gt; SlotUpdated</code></pre>
+  </div>
+
+
+
+
+
+
+  <h4 class="section">Event Type</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-2">Action</a>&lt;<a class="xref" href="Forma.GraphNode.html">GraphNode</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/GraphAndCodeControls.cs" class="edit-link">Edit this page</a>
+        </div>
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

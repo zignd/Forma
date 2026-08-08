@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Resource lifetime | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Resource lifetime | Forma Documentation ">
+      
+      <meta name="description" content="Own and dispose Forma contexts, fonts, SVG sources, caches, and host adapters.">
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/resource-lifetime.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="resource-lifetime">Resource lifetime</h1>
+
+<p>Treat <code>UIContext</code> as the device-facing lifetime boundary. It owns roots, the renderer, theme-icon
+resources, dynamic glyph pages, SVG raster caches, and compiled XAML attachment scopes.</p>
+<pre><code class="lang-mermaid">flowchart TD
+    G[Game or host] --&gt;|owns| C[UIComponent]
+    C --&gt;|owns and disposes| U[UIContext]
+    U --&gt;|owns| R[Renderer and device caches]
+    G --&gt;|owns and disposes after components| F[UIFontFace]
+    S[SvgImageSource] --&gt;|owns copied bytes| B[Immutable source data]
+</code></pre>
+<h2 id="context-and-host-ownership">Context and host ownership</h2>
+<p><code>UIComponent</code> always disposes its <code>UIContext</code>, including a context supplied to its constructor. Its
+runtime text-input adapter is unsubscribed in the same operation. <code>UIContext.Dispose()</code> detaches
+roots, disposes XAML scopes and renderer/icon resources, and clears text-layout state. Disposal is
+not the same as removing one control: <code>UIContext.Remove</code> detaches the root but does not dispose the
+control object.</p>
+<p>This complete QuickStart host is built and executed for MonoGame and FNA; its constructor,
+<code>LoadContent</code>, and <code>Dispose</code> show the ownership order:</p>
+<pre><code class="lang-csharp">// SPDX-License-Identifier: MIT
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+#if FORMA_XAML_HOT_RELOAD
+using System.Reflection;
+using Forma.Xaml.HotReload;
+#endif
+
+namespace Forma.QuickStart;
+
+public enum QuickStartViewKind
+{
+    CSharp,
+    Xaml,
+    SettingsForm,
+    ResponsiveHud,
+    InventoryList,
+    DialogWorkflow,
+    DataGrid,
+    ThemeControl,
+    DynamicText,
+    RuntimeSvg,
+}
+
+public sealed class QuickStartGame : Game
+{
+    private readonly GraphicsDeviceManager _graphics;
+    private readonly UIContext _ui;
+    private readonly int _maximumFrames;
+    private readonly string? _screenshotPath;
+    private readonly QuickStartViewKind _viewKind;
+    private readonly float _displayScale;
+    private Control? _root;
+    private UIFontFace? _fontFace;
+    private int _renderedFrames;
+#if FORMA_XAML_HOT_RELOAD
+    private FormaXamlHotReloadService? _xamlHotReload;
+    private IDisposable? _xamlHotReloadRegistration;
+#endif
+
+    public QuickStartGame(
+        int maximumFrames = 0,
+        string? screenshotPath = null,
+        QuickStartViewKind viewKind = QuickStartViewKind.CSharp,
+        float displayScale = 1)
+    {
+        _maximumFrames = maximumFrames;
+        _screenshotPath = screenshotPath;
+        _viewKind = viewKind;
+        _displayScale = displayScale;
+        _graphics = new GraphicsDeviceManager(this)
+        {
+            PreferredBackBufferWidth = 800,
+            PreferredBackBufferHeight = 480,
+        };
+        _ui = new UIContext();
+        Components.Add(new UIComponent(this, _ui));
+        IsMouseVisible = true;
+        Window.AllowUserResizing = true;
+#if FORMA_QUICKSTART_FNA
+        Window.Title = &quot;Forma Quick Start [FNA]&quot;;
+#else
+        Window.Title = &quot;Forma Quick Start [MonoGame]&quot;;
+#endif
+    }
+
+    protected override void LoadContent()
+    {
+        _fontFace = UIFontFace.FromProjectFile(AppContext.BaseDirectory, &quot;Fonts/Inter_Regular.ttf&quot;);
+        var font = new DynamicUIFont(_fontFace, 20);
+        _ui.Theme.FontFamily = new UIFontFamily(new[] { font });
+        _ui.TooltipUIFont = font;
+        _ui.DisplayScale = _displayScale;
+
+        _root = _viewKind switch
+        {
+            QuickStartViewKind.Xaml =&gt; new FirstView(),
+            QuickStartViewKind.SettingsForm =&gt; new SettingsFormView(),
+            QuickStartViewKind.ResponsiveHud =&gt; ResponsiveHudView.Create(_displayScale),
+            QuickStartViewKind.InventoryList =&gt; new InventoryListView(),
+            QuickStartViewKind.DialogWorkflow =&gt; new DialogWorkflowView(),
+            QuickStartViewKind.DataGrid =&gt; new DataGridExampleView(),
+            QuickStartViewKind.ThemeControl =&gt; new ThemeControlView(),
+            QuickStartViewKind.DynamicText =&gt; DynamicTextExampleView.Create(_fontFace),
+            QuickStartViewKind.RuntimeSvg =&gt; RuntimeSvgExampleView.Create(),
+            _ =&gt; QuickStartView.Create(),
+        };
+        _ui.Add(_root);
+    #if FORMA_XAML_HOT_RELOAD
+        if (_viewKind == QuickStartViewKind.Xaml) StartXamlHotReload();
+    #endif
+
+        base.LoadContent();
+    }
+
+    protected override void Update(GameTime gameTime)
+    {
+        if (_root is not null)
+        {
+            var viewport = GraphicsDevice.Viewport;
+            var logicalViewport = new Vector2(viewport.Width, viewport.Height) / _displayScale;
+            _ui.ViewportSize = logicalViewport;
+            _root.Position = new Vector2(40, 40);
+            _root.Size = new Vector2(
+                Math.Max(0, logicalViewport.X - 80),
+                Math.Max(0, logicalViewport.Y - 80));
+        }
+        base.Update(gameTime);
+    }
+
+    protected override void Draw(GameTime gameTime)
+    {
+        GraphicsDevice.Clear(new Color(24, 28, 36));
+        base.Draw(gameTime);
+
+        _renderedFrames++;
+        if (_screenshotPath is not null &amp;&amp; _renderedFrames == Math.Max(1, _maximumFrames))
+            SaveScreenshot(_screenshotPath);
+        if (_maximumFrames &gt; 0 &amp;&amp; _renderedFrames &gt;= _maximumFrames)
+            Exit();
+    }
+
+    private void SaveScreenshot(string path)
+    {
+        var viewport = GraphicsDevice.Viewport;
+        var pixels = new Color[viewport.Width * viewport.Height];
+        GraphicsDevice.GetBackBufferData(pixels);
+        using var screenshot = new Texture2D(GraphicsDevice, viewport.Width, viewport.Height);
+        screenshot.SetData(pixels);
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        using var stream = File.Create(path);
+        screenshot.SaveAsPng(stream, viewport.Width, viewport.Height);
+    }
+
+#if FORMA_XAML_HOT_RELOAD
+    private void StartXamlHotReload()
+    {
+        var sourceRoot = typeof(QuickStartGame).Assembly
+            .GetCustomAttributes&lt;AssemblyMetadataAttribute&gt;()
+            .Single(metadata =&gt; metadata.Key == &quot;FormaQuickStartXamlRoot&quot;)
+            .Value ?? throw new InvalidOperationException(&quot;Debug XAML source metadata is empty.&quot;);
+        _xamlHotReload = new FormaXamlHotReloadService(_ui, sourceRoot);
+        _xamlHotReloadRegistration = _xamlHotReload.Register&lt;Control&gt;(
+            &quot;FirstView.xaml&quot;,
+            () =&gt; _root ?? throw new InvalidOperationException(&quot;The XAML root is not loaded.&quot;),
+            (oldRoot, replacement) =&gt;
+            {
+                if (replacement is not BoxContainer root)
+                    throw new InvalidOperationException(&quot;FirstView must have a BoxContainer root.&quot;);
+                _ui.Remove(oldRoot);
+                _root = root;
+                _ui.Add(root);
+            });
+    }
+#endif
+
+    protected override void Dispose(bool disposing)
+    {
+#if FORMA_XAML_HOT_RELOAD
+        if (disposing)
+        {
+            _xamlHotReloadRegistration?.Dispose();
+            _xamlHotReload?.Dispose();
+        }
+#endif
+        base.Dispose(disposing);
+        if (disposing) _fontFace?.Dispose();
+    }
+}
+</code></pre>
+<p>The game creates <code>UIFontFace</code>, while <code>UIComponent</code> owns the context. Calling <code>base.Dispose</code> first
+lets game components dispose the context before the game disposes its application-owned font face.</p>
+<h2 id="fonts-svg-and-device-resources">Fonts, SVG, and device resources</h2>
+<p><code>UIFontFace</code> owns its backend/native face and is <code>IDisposable</code>. Keep it alive while any
+<code>DynamicUIFont</code> can be used. <code>ThemeIcon</code> is a non-owning value and never disposes its texture.</p>
+<p><code>SvgImageSource.FromMemory</code> copies caller bytes. <code>FromStream</code> reads but does not own or dispose the
+input stream. Rasterized SVG pages are device-scoped and context-owned; use
+<code>ClearSvgRasterCache()</code> only between draw calls when explicit cache eviction is required. The
+<a href="runtime-svg.html">runtime SVG guide</a> owns provider, limit, and cache details.</p>
+<p>The renderer, dynamic glyph atlas, and SVG raster cache subscribe to graphics-device reset and
+recreate or invalidate their device objects. Do not retain atlas page textures as application-owned
+resources; diagnostics return snapshots for inspection instead.</p>
+<h2 id="xaml-attachment-lifetime">XAML attachment lifetime</h2>
+<p>An ordinary compiled XAML root has a one-shot attachment scope. Removing it disposes bindings,
+styles, and subscriptions; adding the same instance again does not reactivate them. Template
+instances instead support explicit deactivate/activate recycling and final idempotent disposal.
+The <a href="adr/0005-template-first-compatibility-and-lifetime.html">template lifetime ADR</a>
+is canonical for that distinction.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul>
+<li>Do not dispose a context twice through competing host owners; decide whether <code>UIComponent</code> or a
+custom integration owns it.</li>
+<li>Do not dispose <code>UIFontFace</code> before components and contexts stop drawing with its fonts.</li>
+<li>Do not dispose textures obtained through <code>ThemeIcon</code> as though the icon owned them.</li>
+<li>Do not assume <code>SvgImageSource.FromStream</code> closes the stream or retains caller memory.</li>
+<li>Do not reuse a detached ordinary compiled root when live bindings or selector subscriptions are
+required.</li>
+</ul>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/resource-lifetime.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

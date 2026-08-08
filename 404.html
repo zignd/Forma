@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Forma documentation redirect</title></head>
+<body><p>Resolving this documentation URL...</p><script>
+fetch('/Forma/versions.json').then(response => response.json()).then(manifest => {
+  const relative = location.pathname.replace(/^\/Forma\/?/, '');
+  const known = /^(dev|latest|versions|v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\//.test(relative);
+  if (!known) location.replace(manifest.defaultPath + relative + location.search + location.hash);
+});
+</script></body></html>

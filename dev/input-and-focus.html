@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Input and focus | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Input and focus | Forma Documentation ">
+      
+      <meta name="description" content="Connect host input and control pointer, focus, keyboard, text, and clipboard behavior.">
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/input-and-focus.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="input-and-focus">Input and focus</h1>
+
+<p><code>UIComponent</code> is the normal host adapter. It samples pointer and keyboard state, forwards the game
+window's text-input stream, updates the viewport, draws the context, and installs the runtime peer's
+clipboard implementation. The same QuickStart host and smoke gate exercise this path with MonoGame
+and FNA.</p>
+<pre><code class="lang-mermaid">flowchart LR
+    H[Game window and devices] --&gt; A[UIComponent and runtime adapter]
+    A --&gt; U[UIContext]
+    U --&gt; T[Hit-tested target]
+    T --&gt;|MouseFilter.Pass| P[Visual ancestors]
+    U --&gt; F[Focused control]
+</code></pre>
+<h2 id="pointer-dispatch">Pointer dispatch</h2>
+<p>Controls default to <code>IsHitTestVisible=true</code> and <code>MouseFilter.Stop</code>. <code>Stop</code> selects the topmost hit
+and ends bubbling there. <code>Pass</code> allows the event to continue through visual ancestors. <code>Ignore</code>
+removes that control from hit testing, but its descendants can still be hit. Call <code>AcceptEvent()</code>
+to consume only the current dispatch.</p>
+<p>The QuickStart's <code>LineEdit</code> and <code>Button</code> are retained input targets, and the button event mutates the
+status label:</p>
+<pre><code class="lang-csharp">// SPDX-License-Identifier: MIT
+
+using Microsoft.Xna.Framework;
+
+namespace Forma.QuickStart;
+
+internal static class QuickStartView
+{
+    public static VBoxContainer Create()
+    {
+        var name = new LineEdit
+        {
+            Name = &quot;Name&quot;,
+            PlaceholderText = &quot;Your name&quot;,
+            Text = &quot;Player&quot;,
+            CustomMinimumSize = new Vector2(320, 44),
+        };
+        var status = new Label { Text = &quot;Ready.&quot; };
+        var greet = new Button
+        {
+            Text = &quot;Greet&quot;,
+            CustomMinimumSize = new Vector2(120, 44),
+        };
+        greet.Pressed += (_, _) =&gt; status.Text = $&quot;Hello, {name.Text.Trim()}!&quot;;
+
+        var root = new VBoxContainer
+        {
+            Name = &quot;QuickStartRoot&quot;,
+            Separation = 12,
+        };
+        root.AddChild(new Label { Text = &quot;Your first Forma UI&quot; });
+        root.AddChild(name);
+        root.AddChild(greet);
+        root.AddChild(status);
+        return root;
+    }
+}
+</code></pre><h2 id="focus-and-keyboard">Focus and keyboard</h2>
+<p>Base <code>Control</code> defaults to <code>FocusMode.None</code>; interactive controls choose stronger defaults, and
+<code>BaseButton</code> defaults to <code>FocusMode.All</code>. <code>Click</code> accepts pointer focus but is omitted from tab
+traversal. <code>All</code> participates in both. Use <code>FocusNext</code>/<code>FocusPrevious</code> for explicit tab order and the
+four <code>FocusNeighbor*</code> properties for directional navigation. Explicit neighbors override automatic
+traversal.</p>
+<p><code>UIContext.FocusedControl</code>, <code>SetFocus</code>, <code>GrabFocus</code>, and <code>ReleaseFocus</code> expose the retained focus
+state. Keyboard commands go to that stateful tree; character composition arrives separately through
+<code>UIContext.TextInput</code> and <code>TextComposition</code>. Do not derive typed text from key codes.</p>
+<h2 id="text-input-and-clipboard">Text input and clipboard</h2>
+<p>Adding <code>UIComponent</code> subscribes the correct MonoGame or FNA <code>RuntimeTextInputAdapter</code>; disposing the
+component unsubscribes it. <code>UIContext.Clipboard</code> supplies <code>IClipboard</code> to <code>LineEdit</code>, <code>TextEdit</code>, and
+other editing controls. A host with a custom platform layer can replace that capability, while a
+single <code>LineEdit</code> can override paste through <code>ClipboardTextProvider</code>.</p>
+<p>Run the peer-specific fixture described in <a href="getting-started/csharp-first-ui.html">Build your first UI in C#</a>
+to validate the full adapter rather than invoking control internals directly.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul>
+<li><code>MouseFilter.Ignore</code> does not disable hit testing for descendants; disable or restructure the
+subtree when that is required.</li>
+<li>The default <code>Stop</code> can prevent an ancestor from receiving pointer behavior, including tooltip
+discovery. Choose <code>Pass</code> intentionally for transparent wrappers.</li>
+<li><code>FocusMode.Click</code> is not keyboard-tab focus. Use <code>All</code> when keyboard users must reach a control.</li>
+<li><code>AcceptEvent()</code> does not create a persistent capture or disable later events.</li>
+</ul>
+<p>Signal Run's <a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Xaml.Game/GameSettingsView.xaml">settings view</a>
+shows keyboard-reachable fields, toggles, and sliders in a complete application flow.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/input-and-focus.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

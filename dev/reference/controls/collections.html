@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Collection controls | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Collection controls | Forma Documentation ">
+      
+      <meta name="description" content="Choose Forma list, tree, grid, item-generation, and virtualization controls.">
+      <link rel="icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="../../toc.html">
+      <meta name="docfx:tocrel" content="../../toc.html">
+      
+      <meta name="docfx:rel" content="../../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/reference/controls/collections.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="collection-controls">Collection controls</h1>
+
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Types</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Direct entries</td>
+<td><a class="xref" href="../../api/Forma.ItemList.html">ItemList</a></td>
+</tr>
+<tr>
+<td>Templated items and selection</td>
+<td><a class="xref" href="../../api/Forma.ItemsControl.html">ItemsControl</a>, <a class="xref" href="../../api/Forma.ListBox.html">ListBox</a>, <a class="xref" href="../../api/Forma.ListBoxItem.html">ListBoxItem</a></td>
+</tr>
+<tr>
+<td>Hierarchy</td>
+<td><a class="xref" href="../../api/Forma.Tree.html">Tree</a>, <a class="xref" href="../../api/Forma.TreePresenter.html">TreePresenter</a></td>
+</tr>
+<tr>
+<td>Tabular data</td>
+<td><a class="xref" href="../../api/Forma.DataGrid.html">DataGrid</a>, <a class="xref" href="../../api/Forma.DataGridRow.html">DataGridRow</a>, <a class="xref" href="../../api/Forma.DataGridCell.html">DataGridCell</a>, <a class="xref" href="../../api/Forma.DataGridColumnHeader.html">DataGridColumnHeader</a></td>
+</tr>
+<tr>
+<td>Presentation/virtualization</td>
+<td><a class="xref" href="../../api/Forma.ItemsPresenter.html">ItemsPresenter</a>, <a class="xref" href="../../api/Forma.VirtualizingPanel.html">VirtualizingPanel</a>, <a class="xref" href="../../api/Forma.VirtualizingStackPanel.html">VirtualizingStackPanel</a>, <a class="xref" href="../../api/Forma.VirtualizingGridPanel.html">VirtualizingGridPanel</a></td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>ItemList</code> for direct retained entries, <code>ListBox</code> for data-templated selectable items,
+<code>DataGrid</code> for explicit columns/sorting/cell selection, and <code>Tree</code> for hierarchical columns.
+Presenter, panel, row, and cell types normally belong to templates and realization infrastructure.</p>
+<p><code>ListBox</code> defaults to single selection, text search, and wrapped navigation. <code>ItemList</code> defaults to
+search, wraparound, one column, and one text line. Virtualization bounds realized visuals, but the
+accessibility tree retains peers for logical items and marks unrealized items offscreen.</p>
+<p>Catalog: <a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/ItemList.xaml">ItemList</a>,
+<a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/ListBox.xaml">ListBox</a>,
+<a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/Tree.xaml">Tree</a>,
+<a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/DataGrid.xaml">DataGrid</a>.
+The feature stories cover <a href="https://github.com/zigrok/Forma/tree/main/samples/Forma.Catalog">flat and hierarchical grids</a>.
+Their exact Catalog names are <strong>Collection Systems</strong>, <strong>Flat Data Grid</strong>, and
+<strong>Hierarchical Data Grid</strong>.</p>
+<p>Every public type in the table has a Catalog story with the exact unqualified type name. Its stable
+identifier is <code>catalog-</code> plus the kebab-case type name, such as <code>catalog-data-grid</code>; the Catalog's
+<strong>Open reference</strong> link returns to this page.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/reference/controls/collections.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

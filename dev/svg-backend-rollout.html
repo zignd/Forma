@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>SVG Backend Rollout and Qualification | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="SVG Backend Rollout and Qualification | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/svg-backend-rollout.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="svg-backend-rollout-and-qualification">SVG Backend Rollout and Qualification</h1>
+
+<h2 id="default-decision">Default Decision</h2>
+<p>ThorVG is the default for Forma's Catalog and SVG validation hosts on validated macOS arm64 and
+Linux x64 systems. Skia remains the compatibility backend and the explicit rollback renderer.
+Windows x64 is untested for ThorVG and continues to select Skia explicitly. No console is qualified.
+Existing consumers do not change silently because backend package selection remains explicit.</p>
+<p>Legacy <code>Forma.Svg.MonoGame</code> and <code>Forma.Svg.FNA</code> package IDs remain available through the <code>0.x</code>
+release line and emit build warnings. They are scheduled for removal in Forma <code>1.0.0</code>, after at
+least one published warning-bearing migration release. The explicit <code>Forma.Svg.Skia.*</code> package IDs
+are the long-term Skia surface.</p>
+<h2 id="measurement-snapshot">Measurement Snapshot</h2>
+<p>The following macOS arm64 development snapshot used .NET SDK 10.0.103, Svg.Skia 5.2.0,
+SkiaSharp 4.148.0, ThorVG 1.1.0, Forma ABI 1, and the 67-icon corpus. Times are complete corpus
+totals from <code>make svg-benchmark</code>, not portable performance guarantees.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align: right;">Skia</th>
+<th style="text-align: right;">ThorVG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Health verification</td>
+<td style="text-align: right;">17.950 ms</td>
+<td style="text-align: right;">119.014 ms</td>
+</tr>
+<tr>
+<td>Parse, 67 icons</td>
+<td style="text-align: right;">115.610 ms</td>
+<td style="text-align: right;">0.633 ms</td>
+</tr>
+<tr>
+<td>Raster, 67 icons</td>
+<td style="text-align: right;">5.070 ms</td>
+<td style="text-align: right;">0.680 ms</td>
+</tr>
+<tr>
+<td>Managed allocations</td>
+<td style="text-align: right;">3,501,984 bytes</td>
+<td style="text-align: right;">299,136 bytes</td>
+</tr>
+<tr>
+<td>Raster output</td>
+<td style="text-align: right;">274,432 bytes</td>
+<td style="text-align: right;">274,432 bytes</td>
+</tr>
+<tr>
+<td>Root MonoGame package</td>
+<td style="text-align: right;">30,262 bytes</td>
+<td style="text-align: right;">368,447 bytes</td>
+</tr>
+<tr>
+<td>Framework-dependent MonoGame publish</td>
+<td style="text-align: right;">588.5 MiB</td>
+<td style="text-align: right;">36.4 MiB</td>
+</tr>
+<tr>
+<td>ThorVG self-contained single-file publish</td>
+<td style="text-align: right;">N/A</td>
+<td style="text-align: right;">86.0 MiB</td>
+</tr>
+<tr>
+<td>ThorVG dynamic/static native library</td>
+<td style="text-align: right;">N/A</td>
+<td style="text-align: right;">334,152 / 467,656 bytes</td>
+</tr>
+</tbody>
+</table>
+<p>The Skia root package is a thin wrapper whose transitive native packages account for most published
+size. Package and publish sizes therefore answer different questions. Loaded native code/data is
+platform-loader dependent; the shipped ThorVG dynamic image size above is the reproducible public
+proxy. The default accepts visual differences and slower cold health initialization in exchange for
+the smaller dependency graph, faster corpus parsing/rasterization, and lower managed allocation.</p>
+<h2 id="public-release-gates">Public Release Gates</h2>
+<p>Run <code>make svg-selection svg-packages svg-compare thorvg-render thorvg-catalog thorvg-nativeaot thorvg-static-host</code>. Run <code>make thorvg-linux</code> for the clean Linux x64 container
+matrix. Native ASan/UBSan findings are fatal. macOS Leaks covers 1,000 document lifetimes. Contact
+sheets and comparison JSON identify backend, version, profile, hashes, and out-of-tolerance pixels.</p>
+<p>The release archives the ThorVG source commit, Forma ABI header, profile manifest, build inputs,
+native symbols, notices, package artifacts, and these measurements. Rollback removes the ThorVG
+package and installs the matching Skia package, or selects <code>BitmapAtlas</code> for default theme icons.
+Arbitrary application SVG failures remain explicit and never trigger cross-backend fallback.</p>
+<h2 id="qualification-evidence">Qualification Evidence</h2>
+<p>&quot;Console-ready&quot; means the public source and static desktop reference host pass. It never means
+&quot;console-qualified.&quot; Authorized qualification must record only policy-approved values:</p>
+<ul>
+<li>target identifier and approval date;</li>
+<li>Forma, ThorVG source, ABI, and profile versions;</li>
+<li>test-manifest hash and pass/fail counts;</li>
+<li>static link/startup, fractional raster, cache pressure, device reset, suspend/resume, repeated
+context creation, shutdown, memory, and frame-budget status.</li>
+</ul>
+<p>SDK paths, headers, libraries, symbols, logs, and confidential platform details must not enter this
+repository. A target without current evidence is explicitly untested. Private adapters bind the
+same ABI and require no core Forma changes; platform owners and integrators own native compilation,
+final linking, and qualification.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/docs/svg-backend-rollout.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

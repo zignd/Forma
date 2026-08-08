@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Class CodeHighlighter | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class CodeHighlighter | Forma Documentation ">
+      
+      <meta name="description" content="Basic configurable code highlighter corresponding to Godot&#39;s CodeHighlighter. It supports word/member colors and one-line or paired multiline color regions.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="Forma.CodeHighlighter">
+
+
+
+  <h1 id="Forma_CodeHighlighter" data-uid="Forma.CodeHighlighter" class="text-break">
+Class CodeHighlighter  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="Forma.html">Forma</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>Forma.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Basic configurable code highlighter corresponding to Godot's CodeHighlighter.
+It supports word/member colors and one-line or paired multiline color regions.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class CodeHighlighter : SyntaxHighlighter</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="Forma.SyntaxHighlighter.html">SyntaxHighlighter</a></div>
+      <div><span class="xref">CodeHighlighter</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist inheritedMembers">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="Forma.SyntaxHighlighter.html#Forma_SyntaxHighlighter_GetLineSyntaxHighlighting_System_Int32_">SyntaxHighlighter.GetLineSyntaxHighlighting(int)</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.SyntaxHighlighter.html#Forma_SyntaxHighlighter_ClearHighlightingCache">SyntaxHighlighter.ClearHighlightingCache()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.SyntaxHighlighter.html#Forma_SyntaxHighlighter_UpdateCache">SyntaxHighlighter.UpdateCache()</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.SyntaxHighlighter.html#Forma_SyntaxHighlighter_TextEdit">SyntaxHighlighter.TextEdit</a>
+    </div>
+    <div>
+      <a class="xref" href="Forma.SyntaxHighlighter.html#Forma_SyntaxHighlighter_Changed">SyntaxHighlighter.Changed</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="Forma_CodeHighlighter__ctor_" data-uid="Forma.CodeHighlighter.#ctor*"></a>
+
+  <h3 id="Forma_CodeHighlighter__ctor" data-uid="Forma.CodeHighlighter.#ctor">
+  CodeHighlighter()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public CodeHighlighter()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="Forma_CodeHighlighter_FunctionColor_" data-uid="Forma.CodeHighlighter.FunctionColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_FunctionColor" data-uid="Forma.CodeHighlighter.FunctionColor">
+  FunctionColor
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color FunctionColor { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_MemberVariableColor_" data-uid="Forma.CodeHighlighter.MemberVariableColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_MemberVariableColor" data-uid="Forma.CodeHighlighter.MemberVariableColor">
+  MemberVariableColor
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color MemberVariableColor { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_NumberColor_" data-uid="Forma.CodeHighlighter.NumberColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_NumberColor" data-uid="Forma.CodeHighlighter.NumberColor">
+  NumberColor
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color NumberColor { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_SymbolColor_" data-uid="Forma.CodeHighlighter.SymbolColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_SymbolColor" data-uid="Forma.CodeHighlighter.SymbolColor">
+  SymbolColor
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color SymbolColor { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_UIntSuffixEnabled_" data-uid="Forma.CodeHighlighter.UIntSuffixEnabled*"></a>
+
+  <h3 id="Forma_CodeHighlighter_UIntSuffixEnabled" data-uid="Forma.CodeHighlighter.UIntSuffixEnabled">
+  UIntSuffixEnabled
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool UIntSuffixEnabled { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="Forma_CodeHighlighter_AddColorRegion_" data-uid="Forma.CodeHighlighter.AddColorRegion*"></a>
+
+  <h3 id="Forma_CodeHighlighter_AddColorRegion_System_String_System_String_Microsoft_Xna_Framework_Color_System_Boolean_" data-uid="Forma.CodeHighlighter.AddColorRegion(System.String,System.String,Microsoft.Xna.Framework.Color,System.Boolean)">
+  AddColorRegion(string, string, Color, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddColorRegion(string startKey, string endKey, Color color, bool lineOnly = false)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>startKey</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>endKey</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+    <dt><code>lineOnly</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_AddKeywordColor_" data-uid="Forma.CodeHighlighter.AddKeywordColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_AddKeywordColor_System_String_Microsoft_Xna_Framework_Color_" data-uid="Forma.CodeHighlighter.AddKeywordColor(System.String,Microsoft.Xna.Framework.Color)">
+  AddKeywordColor(string, Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddKeywordColor(string keyword, Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>keyword</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_AddMemberKeywordColor_" data-uid="Forma.CodeHighlighter.AddMemberKeywordColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_AddMemberKeywordColor_System_String_Microsoft_Xna_Framework_Color_" data-uid="Forma.CodeHighlighter.AddMemberKeywordColor(System.String,Microsoft.Xna.Framework.Color)">
+  AddMemberKeywordColor(string, Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddMemberKeywordColor(string keyword, Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>keyword</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_ClearColorRegions_" data-uid="Forma.CodeHighlighter.ClearColorRegions*"></a>
+
+  <h3 id="Forma_CodeHighlighter_ClearColorRegions" data-uid="Forma.CodeHighlighter.ClearColorRegions">
+  ClearColorRegions()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearColorRegions()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_ClearKeywordColors_" data-uid="Forma.CodeHighlighter.ClearKeywordColors*"></a>
+
+  <h3 id="Forma_CodeHighlighter_ClearKeywordColors" data-uid="Forma.CodeHighlighter.ClearKeywordColors">
+  ClearKeywordColors()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearKeywordColors()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_ClearMemberKeywordColors_" data-uid="Forma.CodeHighlighter.ClearMemberKeywordColors*"></a>
+
+  <h3 id="Forma_CodeHighlighter_ClearMemberKeywordColors" data-uid="Forma.CodeHighlighter.ClearMemberKeywordColors">
+  ClearMemberKeywordColors()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ClearMemberKeywordColors()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetColorRegions_" data-uid="Forma.CodeHighlighter.GetColorRegions*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetColorRegions" data-uid="Forma.CodeHighlighter.GetColorRegions">
+  GetColorRegions()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;CodeHighlightColorRegion&gt; GetColorRegions()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="Forma.CodeHighlightColorRegion.html">CodeHighlightColorRegion</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetFunctionColor_" data-uid="Forma.CodeHighlighter.GetFunctionColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetFunctionColor" data-uid="Forma.CodeHighlighter.GetFunctionColor">
+  GetFunctionColor()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetFunctionColor()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetKeywordColor_" data-uid="Forma.CodeHighlighter.GetKeywordColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetKeywordColor_System_String_" data-uid="Forma.CodeHighlighter.GetKeywordColor(System.String)">
+  GetKeywordColor(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetKeywordColor(string keyword)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>keyword</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetKeywordColors_" data-uid="Forma.CodeHighlighter.GetKeywordColors*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetKeywordColors" data-uid="Forma.CodeHighlighter.GetKeywordColors">
+  GetKeywordColors()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyDictionary&lt;string, Color&gt; GetKeywordColors()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlydictionary-2">IReadOnlyDictionary</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>, <span class="xref">Color</span>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetLineSyntaxHighlightingCore_" data-uid="Forma.CodeHighlighter.GetLineSyntaxHighlightingCore*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetLineSyntaxHighlightingCore_System_Int32_" data-uid="Forma.CodeHighlighter.GetLineSyntaxHighlightingCore(System.Int32)">
+  GetLineSyntaxHighlightingCore(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override IReadOnlyList&lt;SyntaxHighlightSpan&gt; GetLineSyntaxHighlightingCore(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="Forma.SyntaxHighlightSpan.html">SyntaxHighlightSpan</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetMemberKeywordColor_" data-uid="Forma.CodeHighlighter.GetMemberKeywordColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetMemberKeywordColor_System_String_" data-uid="Forma.CodeHighlighter.GetMemberKeywordColor(System.String)">
+  GetMemberKeywordColor(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetMemberKeywordColor(string keyword)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>keyword</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetMemberKeywordColors_" data-uid="Forma.CodeHighlighter.GetMemberKeywordColors*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetMemberKeywordColors" data-uid="Forma.CodeHighlighter.GetMemberKeywordColors">
+  GetMemberKeywordColors()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyDictionary&lt;string, Color&gt; GetMemberKeywordColors()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlydictionary-2">IReadOnlyDictionary</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>, <span class="xref">Color</span>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetMemberVariableColor_" data-uid="Forma.CodeHighlighter.GetMemberVariableColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetMemberVariableColor" data-uid="Forma.CodeHighlighter.GetMemberVariableColor">
+  GetMemberVariableColor()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetMemberVariableColor()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetNumberColor_" data-uid="Forma.CodeHighlighter.GetNumberColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetNumberColor" data-uid="Forma.CodeHighlighter.GetNumberColor">
+  GetNumberColor()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetNumberColor()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_GetSymbolColor_" data-uid="Forma.CodeHighlighter.GetSymbolColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_GetSymbolColor" data-uid="Forma.CodeHighlighter.GetSymbolColor">
+  GetSymbolColor()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Color GetSymbolColor()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_HasColorRegion_" data-uid="Forma.CodeHighlighter.HasColorRegion*"></a>
+
+  <h3 id="Forma_CodeHighlighter_HasColorRegion_System_String_" data-uid="Forma.CodeHighlighter.HasColorRegion(System.String)">
+  HasColorRegion(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasColorRegion(string startKey)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>startKey</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_HasKeywordColor_" data-uid="Forma.CodeHighlighter.HasKeywordColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_HasKeywordColor_System_String_" data-uid="Forma.CodeHighlighter.HasKeywordColor(System.String)">
+  HasKeywordColor(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasKeywordColor(string keyword)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>keyword</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_HasMemberKeywordColor_" data-uid="Forma.CodeHighlighter.HasMemberKeywordColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_HasMemberKeywordColor_System_String_" data-uid="Forma.CodeHighlighter.HasMemberKeywordColor(System.String)">
+  HasMemberKeywordColor(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasMemberKeywordColor(string keyword)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>keyword</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_IsUIntSuffixEnabled_" data-uid="Forma.CodeHighlighter.IsUIntSuffixEnabled*"></a>
+
+  <h3 id="Forma_CodeHighlighter_IsUIntSuffixEnabled" data-uid="Forma.CodeHighlighter.IsUIntSuffixEnabled">
+  IsUIntSuffixEnabled()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsUIntSuffixEnabled()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_OnClearHighlightingCache_" data-uid="Forma.CodeHighlighter.OnClearHighlightingCache*"></a>
+
+  <h3 id="Forma_CodeHighlighter_OnClearHighlightingCache" data-uid="Forma.CodeHighlighter.OnClearHighlightingCache">
+  OnClearHighlightingCache()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override void OnClearHighlightingCache()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_OnInvalidateFromLine_" data-uid="Forma.CodeHighlighter.OnInvalidateFromLine*"></a>
+
+  <h3 id="Forma_CodeHighlighter_OnInvalidateFromLine_System_Int32_" data-uid="Forma.CodeHighlighter.OnInvalidateFromLine(System.Int32)">
+  OnInvalidateFromLine(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override void OnInvalidateFromLine(int line)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>line</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_RemoveColorRegion_" data-uid="Forma.CodeHighlighter.RemoveColorRegion*"></a>
+
+  <h3 id="Forma_CodeHighlighter_RemoveColorRegion_System_String_" data-uid="Forma.CodeHighlighter.RemoveColorRegion(System.String)">
+  RemoveColorRegion(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveColorRegion(string startKey)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>startKey</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_RemoveKeywordColor_" data-uid="Forma.CodeHighlighter.RemoveKeywordColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_RemoveKeywordColor_System_String_" data-uid="Forma.CodeHighlighter.RemoveKeywordColor(System.String)">
+  RemoveKeywordColor(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveKeywordColor(string keyword)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>keyword</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_RemoveMemberKeywordColor_" data-uid="Forma.CodeHighlighter.RemoveMemberKeywordColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_RemoveMemberKeywordColor_System_String_" data-uid="Forma.CodeHighlighter.RemoveMemberKeywordColor(System.String)">
+  RemoveMemberKeywordColor(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveMemberKeywordColor(string keyword)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>keyword</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_SetColorRegions_" data-uid="Forma.CodeHighlighter.SetColorRegions*"></a>
+
+  <h3 id="Forma_CodeHighlighter_SetColorRegions_System_Collections_Generic_IEnumerable_Forma_CodeHighlightColorRegion__" data-uid="Forma.CodeHighlighter.SetColorRegions(System.Collections.Generic.IEnumerable{Forma.CodeHighlightColorRegion})">
+  SetColorRegions(IEnumerable&lt;CodeHighlightColorRegion&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetColorRegions(IEnumerable&lt;CodeHighlightColorRegion&gt; regions)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>regions</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="Forma.CodeHighlightColorRegion.html">CodeHighlightColorRegion</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_SetFunctionColor_" data-uid="Forma.CodeHighlighter.SetFunctionColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_SetFunctionColor_Microsoft_Xna_Framework_Color_" data-uid="Forma.CodeHighlighter.SetFunctionColor(Microsoft.Xna.Framework.Color)">
+  SetFunctionColor(Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetFunctionColor(Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_SetKeywordColors_" data-uid="Forma.CodeHighlighter.SetKeywordColors*"></a>
+
+  <h3 id="Forma_CodeHighlighter_SetKeywordColors_System_Collections_Generic_IDictionary_System_String_Microsoft_Xna_Framework_Color__" data-uid="Forma.CodeHighlighter.SetKeywordColors(System.Collections.Generic.IDictionary{System.String,Microsoft.Xna.Framework.Color})">
+  SetKeywordColors(IDictionary&lt;string, Color&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetKeywordColors(IDictionary&lt;string, Color&gt; colors)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>colors</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>, <span class="xref">Color</span>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_SetMemberKeywordColors_" data-uid="Forma.CodeHighlighter.SetMemberKeywordColors*"></a>
+
+  <h3 id="Forma_CodeHighlighter_SetMemberKeywordColors_System_Collections_Generic_IDictionary_System_String_Microsoft_Xna_Framework_Color__" data-uid="Forma.CodeHighlighter.SetMemberKeywordColors(System.Collections.Generic.IDictionary{System.String,Microsoft.Xna.Framework.Color})">
+  SetMemberKeywordColors(IDictionary&lt;string, Color&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetMemberKeywordColors(IDictionary&lt;string, Color&gt; colors)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>colors</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>, <span class="xref">Color</span>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_SetMemberVariableColor_" data-uid="Forma.CodeHighlighter.SetMemberVariableColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_SetMemberVariableColor_Microsoft_Xna_Framework_Color_" data-uid="Forma.CodeHighlighter.SetMemberVariableColor(Microsoft.Xna.Framework.Color)">
+  SetMemberVariableColor(Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetMemberVariableColor(Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_SetNumberColor_" data-uid="Forma.CodeHighlighter.SetNumberColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_SetNumberColor_Microsoft_Xna_Framework_Color_" data-uid="Forma.CodeHighlighter.SetNumberColor(Microsoft.Xna.Framework.Color)">
+  SetNumberColor(Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetNumberColor(Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_SetSymbolColor_" data-uid="Forma.CodeHighlighter.SetSymbolColor*"></a>
+
+  <h3 id="Forma_CodeHighlighter_SetSymbolColor_Microsoft_Xna_Framework_Color_" data-uid="Forma.CodeHighlighter.SetSymbolColor(Microsoft.Xna.Framework.Color)">
+  SetSymbolColor(Color)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetSymbolColor(Color color)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>color</code> <span class="xref">Color</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_CodeHighlighter_SetUIntSuffixEnabled_" data-uid="Forma.CodeHighlighter.SetUIntSuffixEnabled*"></a>
+
+  <h3 id="Forma_CodeHighlighter_SetUIntSuffixEnabled_System_Boolean_" data-uid="Forma.CodeHighlighter.SetUIntSuffixEnabled(System.Boolean)">
+  SetUIntSuffixEnabled(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetUIntSuffixEnabled(bool enabled)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>enabled</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/AdvancedControls.cs" class="edit-link">Edit this page</a>
+        </div>
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

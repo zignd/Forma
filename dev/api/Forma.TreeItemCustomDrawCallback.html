@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Delegate TreeItemCustomDrawCallback | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Delegate TreeItemCustomDrawCallback | Forma Documentation ">
+      
+      <meta name="description" content="Draws the content of a  tree cell.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="Forma.TreeItemCustomDrawCallback">
+
+
+
+  <h1 id="Forma_TreeItemCustomDrawCallback" data-uid="Forma.TreeItemCustomDrawCallback" class="text-break">
+Delegate TreeItemCustomDrawCallback  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Tree.cs"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="Forma.html">Forma</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>Forma.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Draws the content of a <a class="xref" href="Forma.TreeCellMode.html#Forma_TreeCellMode_Custom">Custom</a> tree cell.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public delegate void TreeItemCustomDrawCallback(UIRenderContext context, TreeItem item, Rectangle cell)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>context</code> <a class="xref" href="Forma.UIRenderContext.html">UIRenderContext</a></dt>
+    <dd>Draws the content of a  tree cell.</dd>
+    <dt><code>item</code> <a class="xref" href="Forma.TreeItem.html">TreeItem</a></dt>
+    <dd>Draws the content of a  tree cell.</dd>
+    <dt><code>cell</code> <span class="xref">Rectangle</span></dt>
+    <dd>Draws the content of a  tree cell.</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="Forma_TreeItemCustomDrawCallback__ctor_" data-uid="Forma.TreeItemCustomDrawCallback.#ctor*"></a>
+
+  <h3 id="Forma_TreeItemCustomDrawCallback__ctor_System_Object_System_IntPtr_" data-uid="Forma.TreeItemCustomDrawCallback.#ctor(System.Object,System.IntPtr)">
+  TreeItemCustomDrawCallback(object, nint)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Tree.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TreeItemCustomDrawCallback(object @object, nint method)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>object</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+    <dt><code>method</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.intptr">nint</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="Forma_TreeItemCustomDrawCallback_BeginInvoke_" data-uid="Forma.TreeItemCustomDrawCallback.BeginInvoke*"></a>
+
+  <h3 id="Forma_TreeItemCustomDrawCallback_BeginInvoke_Forma_UIRenderContext_Forma_TreeItem_Microsoft_Xna_Framework_Rectangle_System_AsyncCallback_System_Object_" data-uid="Forma.TreeItemCustomDrawCallback.BeginInvoke(Forma.UIRenderContext,Forma.TreeItem,Microsoft.Xna.Framework.Rectangle,System.AsyncCallback,System.Object)">
+  BeginInvoke(UIRenderContext, TreeItem, Rectangle, AsyncCallback, object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Tree.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual IAsyncResult BeginInvoke(UIRenderContext context, TreeItem item, Rectangle cell, AsyncCallback callback, object @object)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>context</code> <a class="xref" href="Forma.UIRenderContext.html">UIRenderContext</a></dt>
+    <dd></dd>
+    <dt><code>item</code> <a class="xref" href="Forma.TreeItem.html">TreeItem</a></dt>
+    <dd></dd>
+    <dt><code>cell</code> <span class="xref">Rectangle</span></dt>
+    <dd></dd>
+    <dt><code>callback</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.asynccallback">AsyncCallback</a></dt>
+    <dd></dd>
+    <dt><code>object</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iasyncresult">IAsyncResult</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TreeItemCustomDrawCallback_EndInvoke_" data-uid="Forma.TreeItemCustomDrawCallback.EndInvoke*"></a>
+
+  <h3 id="Forma_TreeItemCustomDrawCallback_EndInvoke_System_IAsyncResult_" data-uid="Forma.TreeItemCustomDrawCallback.EndInvoke(System.IAsyncResult)">
+  EndInvoke(IAsyncResult)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Tree.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual void EndInvoke(IAsyncResult result)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>result</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iasyncresult">IAsyncResult</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="Forma_TreeItemCustomDrawCallback_Invoke_" data-uid="Forma.TreeItemCustomDrawCallback.Invoke*"></a>
+
+  <h3 id="Forma_TreeItemCustomDrawCallback_Invoke_Forma_UIRenderContext_Forma_TreeItem_Microsoft_Xna_Framework_Rectangle_" data-uid="Forma.TreeItemCustomDrawCallback.Invoke(Forma.UIRenderContext,Forma.TreeItem,Microsoft.Xna.Framework.Rectangle)">
+  Invoke(UIRenderContext, TreeItem, Rectangle)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Tree.cs"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual void Invoke(UIRenderContext context, TreeItem item, Rectangle cell)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>context</code> <a class="xref" href="Forma.UIRenderContext.html">UIRenderContext</a></dt>
+    <dd></dd>
+    <dt><code>item</code> <a class="xref" href="Forma.TreeItem.html">TreeItem</a></dt>
+    <dd></dd>
+    <dt><code>cell</code> <span class="xref">Rectangle</span></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/4f74aceee355667600b527682dee1d433542498b/src/Forma/Tree.cs" class="edit-link">Edit this page</a>
+        </div>
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.1 · Development preview · 4f74aceee355 · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

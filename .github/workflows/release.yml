@@ -168,11 +168,16 @@ jobs:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: |
           version="${GITHUB_REF_NAME#v}"
-          while IFS= read -r package_id; do
+          while IFS=$'\t' read -r package_id publish_symbols; do
             dotnet nuget push "Artifacts/release-packages/$package_id.$version.nupkg" \
               --api-key "$NUGET_API_KEY" \
               --source https://api.nuget.org/v3/index.json
-          done < <(jq -r '.packages[].id' scripts/release-packages.json)
+            if [[ "$publish_symbols" == "true" ]]; then
+              dotnet nuget push "Artifacts/release-packages/$package_id.$version.snupkg" \
+                --api-key "$NUGET_API_KEY" \
+                --source https://api.nuget.org/v3/index.json
+            fi
+          done < <(jq -r '.packages[] | [.id, (if has("symbols") then .symbols else true end)] | @tsv' scripts/release-packages.json)
       - name: Verify NuGet.org indexing and clean restores
         run: bash scripts/verify-published-packages.sh "${GITHUB_REF_NAME#v}"
       - name: Create GitHub release from published artifact

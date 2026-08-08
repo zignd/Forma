@@ -118,13 +118,17 @@ jobs:
           dotnet-version: 10.0.x
       - name: Validate release NativeAOT matrix
         run: make nativeaot
-      - name: Upload NativeAOT release evidence
-        if: always()
+      - name: Upload compact NativeAOT release evidence
+        if: ${{ always() && startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/upload-artifact@v7
         with:
           name: nativeaot-osx-arm64-release-evidence
-          path: Artifacts/nativeaot/**
-          if-no-files-found: error
+          path: |
+            Artifacts/nativeaot/logs/*.log
+            Artifacts/nativeaot/diagnostics/*.txt
+            Artifacts/nativeaot/native-manifests/*.txt
+          if-no-files-found: warn
+          retention-days: 30
 
   publish:
     if: startsWith(github.ref, 'refs/tags/v')

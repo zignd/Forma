@@ -265,17 +265,6 @@ jobs:
           dotnet-version: 10.0.x
       - name: Validate packed trim-only and NativeAOT consumers
         run: make nativeaot
-      - name: Upload NativeAOT validation evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: forma-nativeaot-osx-arm64-evidence
-          path: |
-            Artifacts/nativeaot/logs/*.log
-            Artifacts/nativeaot/diagnostics/*.txt
-            Artifacts/nativeaot/native-manifests/*.txt
-            Artifacts/nativeaot/publish/**
-          if-no-files-found: warn
 
   thorvg-linux:
     runs-on: ubuntu-latest

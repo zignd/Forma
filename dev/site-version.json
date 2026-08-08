@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "channel": "dev",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "maturity": "Development preview",
-  "revision": "1d60f5759c4605405b099ba9b40e1c2cb2bb8d54"
+  "revision": "800d53092f27e410321cfae9cbc1827a8595f660"
 }

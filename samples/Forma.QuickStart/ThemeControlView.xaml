@@ -1,0 +1,37 @@
+<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.QuickStart"
+    x:Class="Forma.QuickStart.ThemeControlView"
+    Separation="14">
+    <BoxContainer.Resources>
+        <ResourceDictionary>
+            <Style x:Key="ThemedChrome" Selector="BaseButton &gt;&gt; Border.action-chrome">
+                <Setter Property="BorderThickness" Value="2" />
+                <Setter Property="Opacity" Value="0.94" />
+            </Style>
+            <ControlTemplate x:Key="ThemedActionTemplate" TargetType="local:ThemedActionButton">
+                <Border
+                    Classes="action-chrome"
+                    Background="#FF174B5B"
+                    BorderBrush="#FF65DCC8"
+                    Padding="14,9"
+                    CornerRadius="4" />
+            </ControlTemplate>
+        </ResourceDictionary>
+    </BoxContainer.Resources>
+    <Label Text="Theme and control composition" />
+    <Label Text="Custom action" CustomMinimumSize="0,28" />
+    <HBoxContainer Separation="12">
+        <ThemeIconView
+            ThemeItemName="arrow"
+            ThemeTypeName="OptionButton"
+            CustomMinimumSize="32,32" />
+        <local:ThemedActionButton
+            x:Name="ThemedButton"
+            Text="Activate custom control"
+            Template="{StaticResource ThemedActionTemplate}"
+            CustomMinimumSize="260,48" />
+    </HBoxContainer>
+    <Label x:Name="ThemeStatus" Text="The arrow comes from Forma's default theme." />
+</BoxContainer>

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 using System.Globalization;
+using Forma;
 using Forma.QuickStart;
 
 var maximumFrames = 0;
@@ -29,6 +30,21 @@ for (var index = 0; index < args.Length; index++)
         case "--inventory-list":
             viewKind = QuickStartViewKind.InventoryList;
             break;
+        case "--dialog-workflow":
+            viewKind = QuickStartViewKind.DialogWorkflow;
+            break;
+        case "--data-grid":
+            viewKind = QuickStartViewKind.DataGrid;
+            break;
+        case "--theme-control":
+            viewKind = QuickStartViewKind.ThemeControl;
+            break;
+        case "--dynamic-text":
+            viewKind = QuickStartViewKind.DynamicText;
+            break;
+        case "--runtime-svg":
+            viewKind = QuickStartViewKind.RuntimeSvg;
+            break;
         case "--display-scale" when index + 1 < args.Length
             && float.TryParse(args[++index], NumberStyles.Float, CultureInfo.InvariantCulture, out var scale)
             && float.IsFinite(scale)
@@ -43,5 +59,6 @@ for (var index = 0; index < args.Length; index++)
 #if FORMA_QUICKSTART_FNA
 Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
 #endif
+if (viewKind == QuickStartViewKind.RuntimeSvg) _ = SvgSkiaBackendDefaults.Verify();
 using var game = new QuickStartGame(maximumFrames, screenshotPath, viewKind, displayScale);
 game.Run();

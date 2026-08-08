@@ -13,8 +13,8 @@ case "$runtime" in
 esac
 
 export NUGET_PACKAGES="$stage_directory/packages"
-screenshot="$stage_directory/quick-start.png"
-xaml_screenshot="$stage_directory/xaml-quick-start.png"
+screenshot_directory="${FORMA_SCREENSHOT_OUTPUT:-$stage_directory/screenshots}"
+mkdir -p "$screenshot_directory"
 rm -rf \
   "$repository_root/samples/Forma.QuickStart/bin" \
   "$repository_root/samples/Forma.QuickStart/obj" \
@@ -22,15 +22,33 @@ rm -rf \
   "$repository_root/samples/Forma.QuickStart.$runtime/obj"
 dotnet restore "$project" -p:FormaRuntime="$runtime" -p:Configuration=Release --nologo
 dotnet build "$project" --configuration Release -p:FormaRuntime="$runtime" --no-restore --nologo
-dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime" --no-build -- \
-  --frames 3 --screenshot "$screenshot"
-dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime" --no-build -- \
-  --xaml --frames 3 --screenshot "$xaml_screenshot"
-
-for image in "$screenshot" "$xaml_screenshot"; do
+example_names=(
+  csharp xaml settings-form responsive-hud inventory-list dialog-workflow data-grid theme-control
+  dynamic-text runtime-svg
+)
+example_selectors=(
+  "" --xaml --settings-form --responsive-hud --inventory-list --dialog-workflow --data-grid
+  --theme-control --dynamic-text --runtime-svg
+)
+for ((index = 0; index < ${#example_names[@]}; index++)); do
+  image="$screenshot_directory/${example_names[$index]}-$runtime.png"
+  selector="${example_selectors[$index]}"
+  frames=3
+  [[ "$selector" == "--runtime-svg" ]] && frames=6
+  if [[ -n "$selector" ]]; then
+    dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime" --no-build -- \
+      "$selector" --frames "$frames" --screenshot "$image"
+  else
+    dotnet run --project "$project" --configuration Release -p:FormaRuntime="$runtime" --no-build -- \
+      --frames "$frames" --screenshot "$image"
+  fi
   signature="$(od -An -tx1 -N8 "$image" | tr -d ' \n')"
   [[ "$signature" == "89504e470d0a1a0a" ]] || {
     printf 'Quick-start screenshot is not a valid PNG: %s\n' "$image" >&2
+    exit 1
+  }
+  [[ "$(wc -c < "$image")" -gt 1024 ]] || {
+    printf 'Quick-start screenshot is unexpectedly small: %s\n' "$image" >&2
     exit 1
   }
 done
@@ -49,4 +67,4 @@ dotnet build "$project" --configuration Debug -p:FormaRuntime="$runtime" --no-re
 dotnet run --project "$project" --configuration Debug -p:FormaRuntime="$runtime" --no-build -- \
   --xaml --frames 3
 
-printf 'C# and XAML quick starts passed for %s from an empty package cache.\n' "$runtime"
+printf 'Quick starts and focused examples passed for %s from an empty package cache.\n' "$runtime"

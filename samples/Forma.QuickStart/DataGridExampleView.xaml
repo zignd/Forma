@@ -1,0 +1,23 @@
+<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.QuickStart"
+    x:Class="Forma.QuickStart.DataGridExampleView"
+    x:DataType="local:DataGridExampleViewModel"
+    Separation="12">
+    <Label Text="Quest board" />
+    <DataGrid
+        ItemsSource="{Binding Rows}"
+        SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+        CustomMinimumSize="620,260">
+        <DataGrid.Columns>
+            <local:QuestNameColumn Header="Quest" Width="2*" />
+            <local:QuestRegionColumn Header="Region" Width="*" />
+            <local:QuestProgressColumn Header="Progress" Width="100" />
+        </DataGrid.Columns>
+    </DataGrid>
+    <HBoxContainer Separation="8">
+        <Button x:Name="AdvanceButton" Text="Advance selected" CustomMinimumSize="170,40" />
+        <Button x:Name="AddButton" Text="Add quest" CustomMinimumSize="120,40" />
+    </HBoxContainer>
+</BoxContainer>

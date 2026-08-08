@@ -27,9 +27,14 @@
   <ItemGroup>
     <Compile Remove="Program.cs" />
     <Compile Include="../../docs/examples/csharp-first-ui.cs" Link="QuickStartView.cs" />
+    <Compile Include="../../docs/examples/dialog-workflow.cs" Link="DialogWorkflowView.cs" />
+    <Compile Include="../../docs/examples/data-grid.cs" Link="DataGridExampleView.cs" />
+    <Compile Include="../../docs/examples/dynamic-text.cs" Link="DynamicTextExampleView.cs" />
     <Compile Include="../../docs/examples/inventory-list.cs" Link="InventoryListView.cs" />
     <Compile Include="../../docs/examples/responsive-hud.cs" Link="ResponsiveHudView.cs" />
+    <Compile Include="../../docs/examples/runtime-svg.cs" Link="RuntimeSvgExampleView.cs" />
     <Compile Include="../../docs/examples/settings-form.cs" Link="SettingsFormView.cs" />
+    <Compile Include="../../docs/examples/theme-control.cs" Link="ThemeControlView.cs" />
     <Compile Include="../../docs/examples/xaml-first-ui.cs" Link="FirstView.cs" />
     <None Include="../../tests/Assets/Fonts/Inter_Regular.ttf" Link="Fonts/Inter_Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../tests/Assets/Fonts/LICENSE.Inter.txt" Link="Fonts/LICENSE.Inter.txt" CopyToOutputDirectory="PreserveNewest" />

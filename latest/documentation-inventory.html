@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Documentation Inventory | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Documentation Inventory | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/documentation-inventory.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="documentation-inventory">Documentation Inventory</h1>
+
+<p>Inventory date: 2026-08-07.</p>
+<p>This maintainer audit assigns ownership to every source-facing README and Markdown page under
+<code>docs/</code>. Generated files under <code>Artifacts/</code> and <code>docs/api/</code> are excluded. Upstream submodule
+READMEs are listed but remain externally owned.</p>
+<p>Audience abbreviations: evaluator (E), game developer (G), XAML user (X), control author (A),
+runtime/backend integrator (R), and contributor (C).</p>
+<h2 id="audience-tasks">Audience Tasks</h2>
+<table>
+<thead>
+<tr>
+<th>Audience</th>
+<th>Representative first success</th>
+<th>Representative failure recovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evaluator</td>
+<td>Run either first-UI route and see the documented editable form.</td>
+<td>Use rendering troubleshooting to identify an unavailable graphics device or missing asset.</td>
+</tr>
+<tr>
+<td>Game developer</td>
+<td>Add one matching runtime family, forward host input and viewport size, and render a control tree.</td>
+<td>Diagnose a mixed runtime package or missing native dependency without changing unrelated packages.</td>
+</tr>
+<tr>
+<td>XAML user</td>
+<td>Compile a typed view, resolve a named control, and observe a two-way binding update.</td>
+<td>Use the stable <code>FXAML</code> diagnostic and project-relative source location to correct an invalid view.</td>
+</tr>
+<tr>
+<td>Control author</td>
+<td>Add a documented control or template with one Catalog story and focused behavioral coverage.</td>
+<td>Resolve a control-story-reference mapping or XML documentation gate without lowering its baseline.</td>
+</tr>
+<tr>
+<td>Runtime/backend integrator</td>
+<td>Execute the declared host checks and record the exact platform/runtime/backend scope.</td>
+<td>Convert an unavailable capability into the documented stable result instead of overstating support.</td>
+</tr>
+<tr>
+<td>Contributor</td>
+<td>Build one runtime, run the owning focused test, and prepare a scoped pull request.</td>
+<td>Follow the architecture map to repair parity, generated-output, formatting, or documentation drift.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="page-ownership">Page Ownership</h2>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Audience</th>
+<th>Canonical topic</th>
+<th>Status and destination</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>README.md</code></td>
+<td>E, G, X</td>
+<td>Product overview, runtime choice, validation entry points</td>
+<td>Current repository front door</td>
+</tr>
+<tr>
+<td><code>plans/README.md</code></td>
+<td>C</td>
+<td>Plan ownership and lifecycle</td>
+<td>Current internal planning index; excluded from the site</td>
+</tr>
+<tr>
+<td><code>samples/Forma.Catalog/README.md</code></td>
+<td>E, G, A, C</td>
+<td>Running and operating Catalog hosts</td>
+<td>Current example guide</td>
+</tr>
+<tr>
+<td><code>samples/Forma.Xaml.Game/README.md</code></td>
+<td>G, X</td>
+<td>Signal Run sample, XAML ownership, hot reload</td>
+<td>Current end-to-end example guide</td>
+</tr>
+<tr>
+<td><code>src/Forma/README.md</code></td>
+<td>G</td>
+<td>Minimal retained UI example</td>
+<td>Stale MonoGame-only onboarding; merge into a future first-UI guide</td>
+</tr>
+<tr>
+<td><code>tests/Assets/Text/README.md</code></td>
+<td>R, C</td>
+<td>Multilingual fixture provenance and regeneration</td>
+<td>Current contributor reference</td>
+</tr>
+<tr>
+<td><code>tests/Assets/Video/README.md</code></td>
+<td>R, C</td>
+<td>Video fixture provenance and deterministic generation</td>
+<td>Current contributor reference</td>
+</tr>
+<tr>
+<td><code>external/ThorVG/README.md</code></td>
+<td>R, C</td>
+<td>Upstream ThorVG documentation</td>
+<td>Externally owned; link only from provenance documentation</td>
+</tr>
+<tr>
+<td><code>external/XamlX/README.md</code></td>
+<td>X, C</td>
+<td>Upstream XamlX architecture</td>
+<td>Externally owned; link only from compiler architecture documentation</td>
+</tr>
+<tr>
+<td><code>docs/index.md</code></td>
+<td>E, G, X, A, R, C</td>
+<td>Documentation routes by task</td>
+<td>Current site front door</td>
+</tr>
+<tr>
+<td><code>docs/layout-and-sizing.md</code></td>
+<td>G, X, A</td>
+<td>Layout constraints, allocation, spacing, viewport scaling</td>
+<td>Current conceptual guide</td>
+</tr>
+<tr>
+<td><code>docs/controls-and-containers.md</code></td>
+<td>G, X, A</td>
+<td>Retained ownership, composition, projection, container choice</td>
+<td>Current conceptual guide</td>
+</tr>
+<tr>
+<td><code>docs/input-and-focus.md</code></td>
+<td>G, A, R</td>
+<td>Pointer, focus, keyboard, text, clipboard, host adapters</td>
+<td>Current conceptual guide</td>
+</tr>
+<tr>
+<td><code>docs/styling-and-themes.md</code></td>
+<td>G, X, A</td>
+<td>Theme inheritance, selectors, icons, templates</td>
+<td>Current conceptual guide</td>
+</tr>
+<tr>
+<td><code>docs/data-binding.md</code></td>
+<td>G, X, A</td>
+<td>Task-focused compiled binding workflow</td>
+<td>Current conceptual guide; language contract owns syntax</td>
+</tr>
+<tr>
+<td><code>docs/resource-lifetime.md</code></td>
+<td>G, X, A, R</td>
+<td>Context, font, SVG, device, and attachment ownership</td>
+<td>Current conceptual guide; specialist contracts own details</td>
+</tr>
+<tr>
+<td><code>docs/troubleshooting/index.md</code></td>
+<td>G, X, A, R, C</td>
+<td>Troubleshooting routes and report context</td>
+<td>Current troubleshooting front door</td>
+</tr>
+<tr>
+<td><code>docs/troubleshooting/runtime-and-packages.md</code></td>
+<td>G, R, C</td>
+<td>Peer, restore, native asset, and capability failures</td>
+<td>Current troubleshooting guide; runtime contracts own support</td>
+</tr>
+<tr>
+<td><code>docs/troubleshooting/xaml-build-and-hot-reload.md</code></td>
+<td>X, A, C</td>
+<td>XAML diagnostics, discovery, binding, and reload failures</td>
+<td>Current troubleshooting guide; language contract owns semantics</td>
+</tr>
+<tr>
+<td><code>docs/troubleshooting/rendering-and-assets.md</code></td>
+<td>G, A, R, C</td>
+<td>Blank output, assets, SVG, scale, and device failures</td>
+<td>Current troubleshooting guide; specialist guides own limits</td>
+</tr>
+<tr>
+<td><code>docs/reference/controls/</code></td>
+<td>G, X, A</td>
+<td>Nine curated control families, defaults, limits, accessibility, Catalog/API routes</td>
+<td>Current curated reference; JSON manifest owns complete mapping</td>
+</tr>
+<tr>
+<td><code>docs/release-operations.md</code></td>
+<td>C</td>
+<td>Tagged publication, correction, symbols, ownership, and credential recovery</td>
+<td>Canonical release operations runbook</td>
+</tr>
+<tr>
+<td><code>docs/release-api-review.md</code></td>
+<td>C</td>
+<td>Release public-API baseline, migration acknowledgements, and baseline rollover</td>
+<td>Current maintainer/release procedure</td>
+</tr>
+<tr>
+<td><code>docs/authorized-host-checklist.md</code></td>
+<td>R, C</td>
+<td>Approved runtime-host requirements</td>
+<td>Current specialist host-integration checklist</td>
+</tr>
+<tr>
+<td><code>docs/dynamic-text.md</code></td>
+<td>G, A, R</td>
+<td>Dynamic-font setup, shaping, caching, deployment</td>
+<td>Current text and fonts guide</td>
+</tr>
+<tr>
+<td><code>docs/runtime-acquisition.md</code></td>
+<td>R, C</td>
+<td>Runtime dependency selection and pins</td>
+<td>Current architecture decision; package manifest is machine-owned</td>
+</tr>
+<tr>
+<td><code>docs/runtime-support.md</code></td>
+<td>E, G, R, C</td>
+<td>Support terminology, runtime/platform/backend matrix, AOT</td>
+<td>Canonical current support authority</td>
+</tr>
+<tr>
+<td><code>docs/runtime-svg.md</code></td>
+<td>G, A, R</td>
+<td>Runtime SVG setup, security, caching, deployment</td>
+<td>Current SVG guide; measured tables are dated evidence</td>
+</tr>
+<tr>
+<td><code>docs/runtime-svg-profile-v1.md</code></td>
+<td>A, R, C</td>
+<td>Normative SVG feature and comparison profile</td>
+<td>Current compatibility reference</td>
+</tr>
+<tr>
+<td><code>docs/svg-backend-migration.md</code></td>
+<td>G, R</td>
+<td>Selecting explicit Skia or ThorVG packages</td>
+<td>Current backend selection guide</td>
+</tr>
+<tr>
+<td><code>docs/svg-backend-rollout.md</code></td>
+<td>R, C</td>
+<td>ThorVG rollout decision and qualification evidence</td>
+<td>Dated release evidence</td>
+</tr>
+<tr>
+<td><code>docs/theme-icons.md</code></td>
+<td>G, A</td>
+<td>Default icon policy, customization, regeneration</td>
+<td>Current styling guide; manifest owns the icon count</td>
+</tr>
+<tr>
+<td><code>docs/thorvg-build-and-provenance.md</code></td>
+<td>R, C</td>
+<td>ThorVG pin, provenance, ABI, build procedure</td>
+<td>Current supply-chain reference</td>
+</tr>
+<tr>
+<td><code>docs/xaml-language.md</code></td>
+<td>X, A, C</td>
+<td>Forma XAML language and tooling contract</td>
+<td>Canonical current XAML reference</td>
+</tr>
+<tr>
+<td><code>docs/xaml-templates-migration.md</code></td>
+<td>X, A, C</td>
+<td>Templates, items, and visual-tree migration</td>
+<td>Current migration guide</td>
+</tr>
+<tr>
+<td><code>docs/control-template-migration-manifest.md</code></td>
+<td>A, C</td>
+<td>Historical type-by-type template migration</td>
+<td>Historical evidence; not the current API inventory</td>
+</tr>
+<tr>
+<td><code>docs/baselines/README.md</code></td>
+<td>C</td>
+<td>Dynamic-text baseline regeneration</td>
+<td>Current contributor validation guide</td>
+</tr>
+<tr>
+<td><code>docs/baselines/xaml-template-performance.md</code></td>
+<td>A, C</td>
+<td>Deterministic performance gates and observations</td>
+<td>Dated performance evidence</td>
+</tr>
+<tr>
+<td><code>docs/baselines/xaml-templates-items-and-virtualization.md</code></td>
+<td>A, C</td>
+<td>Frozen pre-migration matrix</td>
+<td>Historical baseline at its recorded commit</td>
+</tr>
+<tr>
+<td><code>docs/adr/0001-dynamic-text-api.md</code></td>
+<td>A, R, C</td>
+<td>Dynamic-text API and ownership</td>
+<td>Accepted architecture decision</td>
+</tr>
+<tr>
+<td><code>docs/adr/0002-dynamic-text-dependencies.md</code></td>
+<td>R, C</td>
+<td>Native dependencies, Unicode baseline, RID matrix</td>
+<td>Accepted desktop-spike decision; revalidate before expansion</td>
+</tr>
+<tr>
+<td><code>docs/adr/0003-dynamic-text-security-limits.md</code></td>
+<td>A, R, C</td>
+<td>Dynamic-text work limits</td>
+<td>Accepted normative decision</td>
+</tr>
+<tr>
+<td><code>docs/adr/0004-backend-neutral-drawing-and-compositing.md</code></td>
+<td>A, R, C</td>
+<td>Drawing/compositing architecture</td>
+<td>Accepted architecture decision</td>
+</tr>
+<tr>
+<td><code>docs/adr/0005-template-first-compatibility-and-lifetime.md</code></td>
+<td>A, C</td>
+<td>Template ownership, compatibility, lifetime</td>
+<td>Accepted architecture decision</td>
+</tr>
+<tr>
+<td><code>docs/adr/0006-runtime-svg-architecture.md</code></td>
+<td>A, R, C</td>
+<td>Bounded SVG source/cache/upload architecture</td>
+<td>Accepted; package ownership is superseded by ADR 0007</td>
+</tr>
+<tr>
+<td><code>docs/adr/0007-explicit-svg-backends.md</code></td>
+<td>A, R, C</td>
+<td>Explicit process-wide SVG backend selection</td>
+<td>Accepted; measurements remain dated evidence</td>
+</tr>
+<tr>
+<td><code>docs/documentation-inventory.md</code></td>
+<td>C</td>
+<td>Documentation ownership and drift audit</td>
+<td>Canonical maintainer inventory</td>
+</tr>
+</tbody>
+</table>
+<h2 id="volatile-claims">Volatile Claims</h2>
+<p>Do not duplicate the following values as undated prose. Link to or derive from the canonical source.</p>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Canonical source</th>
+<th>Documentation rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Forma and runtime versions</td>
+<td><code>Directory.Build.props</code></td>
+<td>Versioned snippets describe a release; general guides link to the property source</td>
+</tr>
+<tr>
+<td>Public package IDs</td>
+<td><code>scripts/release-packages.json</code></td>
+<td>Package matrices may render the manifest but must not own a separate list</td>
+</tr>
+<tr>
+<td>Theme icon inventory</td>
+<td><code>assets/theme-icons/imports.json</code></td>
+<td>Generate counts; retain older counts only in clearly dated evidence</td>
+</tr>
+<tr>
+<td>Public controls and members</td>
+<td>Docfx metadata from release assemblies</td>
+<td>Do not maintain prose totals</td>
+</tr>
+<tr>
+<td>Catalog stories</td>
+<td><code>StoryCatalog.Create</code> plus <code>CatalogInventoryTest</code></td>
+<td>Do not maintain prose totals</td>
+</tr>
+<tr>
+<td>Test totals</td>
+<td>Test discovery and CI results</td>
+<td>Front-door docs describe suites without fixed counts</td>
+</tr>
+<tr>
+<td>Current platform/backend support</td>
+<td><code>docs/runtime-support.md</code></td>
+<td>Other guides link to this matrix instead of restating support claims</td>
+</tr>
+<tr>
+<td>Runtime dependency contents</td>
+<td><code>docs/runtime-acquisition.md</code> and build properties</td>
+<td>Support docs state only Forma's validated subset</td>
+</tr>
+<tr>
+<td>Package sizes and benchmark values</td>
+<td>Release artifacts and benchmark artifacts</td>
+<td>Keep only with date, commit, environment, and artifact identity</td>
+</tr>
+</tbody>
+</table>
+<p>Normative limits, ABI versions, profile tolerances, and Unicode baselines are compatibility
+contracts rather than volatile measurements. Change them through their owning ADR or profile.</p>
+<h2 id="public-control-coverage">Public Control Coverage</h2>
+<p><code>CatalogInventoryTest</code> reflects constructible public controls and requires one Catalog story for
+each. Every strict documentation build then parses Docfx YAML, measures documented public types and
+members, and verifies every reflected control story has both generated metadata and an HTML API
+page. The generated <code>control-coverage.json</code> in the site artifact is the current count and mapping
+authority.</p>
+<p>The initial floors are 27.65% for public types and 11.57% for public members. They match the audited
+baseline closely enough that one newly undocumented public item fails rather than lowering the
+baseline silently. Raising the floors requires adding useful XML summaries first; lowering them
+requires explicit compatibility/documentation review. Abstract and owner-only controls do not need
+synthetic standalone stories, but they remain part of XML/API coverage.</p>
+<p><code>docs/reference/control-families.json</code> maps every generated <code>Control</code> descendant to exactly one of
+the nine curated family pages. The documentation gate compares that manifest with Docfx inheritance
+metadata and requires every page in the built site; fixed type totals are generated, not maintained
+in prose.</p>
+<p><code>docs/reference/documentation-baseline.json</code> is the reviewed initial inventory of public Docfx UIDs.
+It records legacy XML-documentation debt, not an allow-list to extend: any public UID absent from the
+baseline must have a useful XML summary. The gate therefore rejects an undocumented API addition
+even when another documented addition would keep aggregate coverage above its floor. Remove baseline
+entries as existing APIs gain summaries.</p>
+<h2 id="audit-commands">Audit Commands</h2>
+<pre><code class="lang-sh"># Source-facing Markdown pages
+rg --files -g 'README.md' -g 'docs/**/*.md' -g '!Artifacts/**' -g '!docs/api/**'
+
+# Drift-prone numeric and release claims
+rg -n '\b[0-9]+\b.*\b(test|tests|icon|icons|package|packages|platform|RID|control|story)\b' \
+  README.md RELEASE_NOTES.md docs
+
+# Machine-owned icon inventory
+jq '.Icons | length' assets/theme-icons/imports.json
+
+# Generated XML coverage and control/story/API mapping (after `make docs`)
+jq '{PublicTypes, DocumentedTypes, TypeCoveragePercent, PublicMembers, DocumentedMembers, MemberCoveragePercent, Controls: (.Controls | length)}' \
+  Artifacts/docs/site/control-coverage.json
+
+# Version and runtime pin authority
+rg -n 'FormaVersion|MonoGameVersion|FnaVersion|FnaNativeAssetsVersion' Directory.Build.props
+</code></pre>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/documentation-inventory.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

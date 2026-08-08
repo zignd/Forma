@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Controls and containers | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Controls and containers | Forma Documentation ">
+      
+      <meta name="description" content="Build retained Forma trees and choose containers for common UI composition.">
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/controls-and-containers.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="controls-and-containers">Controls and containers</h1>
+
+<p>Forma retains a control tree between frames. Add a root to <code>UIContext</code>, mutate that tree in response
+to game state or events, and let invalidation schedule layout and drawing.</p>
+<pre><code class="lang-mermaid">flowchart TD
+    C[UIContext roots] --&gt; L[Logical parent and Children]
+    L --&gt; I[Inherited data, theme, and resources]
+    L --&gt; P[Presenter or template projection]
+    P --&gt; V[VisualParent and rendered placement]
+</code></pre>
+<p><code>Control.AddChild</code> establishes logical ownership. Adding an already-owned control reparents it, and
+self/descendant cycles are rejected. <code>Parent</code> and <code>Children</code> therefore answer who owns a control;
+<code>VisualParent</code> answers where a presenter or template currently renders it. Projection does not
+transfer inherited data, resources, or disposal responsibility away from the logical owner.</p>
+<h2 id="pick-a-composition-type">Pick a composition type</h2>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Start with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vertical or horizontal sequence</td>
+<td><code>VBoxContainer</code>, <code>HBoxContainer</code>, or <code>StackPanel</code></td>
+</tr>
+<tr>
+<td>Rows and columns</td>
+<td><code>GridContainer</code> for uniform cells; <code>GridPanel</code> for explicit tracks and spans</td>
+</tr>
+<tr>
+<td>Wrapping or flexible distribution</td>
+<td><code>WrapPanel</code>, <code>FlowContainer</code>, or <code>FlexPanel</code></td>
+</tr>
+<tr>
+<td>One child with background, border, and padding</td>
+<td><code>Border</code></td>
+</tr>
+<tr>
+<td>One semantic content value and a template</td>
+<td><code>ContentControl</code></td>
+</tr>
+<tr>
+<td>Layers sharing a rectangle</td>
+<td><code>OverlayPanel</code></td>
+</tr>
+<tr>
+<td>Scrollable content</td>
+<td><code>ScrollContainer</code> or a control whose template owns a <code>ScrollPresenter</code></td>
+</tr>
+<tr>
+<td>Coordinates independent of sibling flow</td>
+<td><code>CanvasPanel</code></td>
+</tr>
+</tbody>
+</table>
+<p>This compiled QuickStart view is one logical tree shared by both runtime hosts:</p>
+<pre><code class="lang-xml">&lt;BoxContainer
+    xmlns=&quot;https://forma.dev/xaml&quot;
+    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+    xmlns:local=&quot;clr-namespace:Forma.QuickStart&quot;
+    x:Class=&quot;Forma.QuickStart.FirstView&quot;
+    x:DataType=&quot;local:FirstViewModel&quot;
+    x:Name=&quot;QuickStartRoot&quot;
+    Separation=&quot;12&quot;&gt;
+    &lt;Label Text=&quot;Your first Forma XAML UI&quot; /&gt;
+    &lt;LineEdit
+        x:Name=&quot;NameInput&quot;
+        Text=&quot;{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}&quot;
+        PlaceholderText=&quot;Your name&quot;
+        CustomMinimumSize=&quot;320,44&quot; /&gt;
+    &lt;Button
+        x:Name=&quot;GreetButton&quot;
+        Text=&quot;Greet&quot;
+        CustomMinimumSize=&quot;120,44&quot; /&gt;
+    &lt;Label Text=&quot;{Binding Greeting}&quot; /&gt;
+&lt;/BoxContainer&gt;
+</code></pre>
+<p>The root owns each label, field, and button. <code>ContentControl</code> is different: it accepts one content
+value, replaces and detaches the old control, and uses <code>ContentTemplate</code> when content is data. A
+control cannot be projected into two presenters simultaneously.</p>
+<h2 id="scrolling-overlays-and-templates">Scrolling, overlays, and templates</h2>
+<p>Prefer a single scroll owner around content; nested same-axis scrollers make wheel and focus
+behavior ambiguous. Use overlays for intentional layering such as popups or adorners, and use
+<code>ZIndex</code> only to order siblings within that visual context.</p>
+<p><code>TemplatedControl.Template</code> may be null at construction. Resolution checks a control override, the
+active theme, and packaged defaults when the template is applied. <code>TemplateRoot</code> is consequently
+null until application. See <a href="xaml-templates-migration.html">Templates and visual tree</a> for parts,
+presenters, recycling, and compatibility rules.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul>
+<li>Do not infer ownership from <code>VisualParent</code>; inspect <code>Parent</code> for lifetime and inheritance.</li>
+<li>Do not manually keep a child in two containers. Reparent it or create another instance.</li>
+<li>Do not assign both a control content value and a <code>ContentTemplate</code> expecting adoption; the
+template treats that value as data.</li>
+<li>Do not choose <code>CanvasPanel</code> for ordinary forms that should respond to localization and resizing.</li>
+</ul>
+<p>Browse the Catalog's
+<a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/CompositionSystemsStoryView.xaml">composition systems</a>
+and <a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/TemplateGalleryStoryView.xaml">template systems</a>
+for executable combinations.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/controls-and-containers.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

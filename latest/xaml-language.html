@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Forma XAML Language Contract | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Forma XAML Language Contract | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/xaml-language.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="forma-xaml-language-contract">Forma XAML Language Contract</h1>
+
+<h2 id="status-and-scope">Status and Scope</h2>
+<p>This document defines the Forma XAML source language for the template-first breaking release. It is
+the contract used by the runtime, compiler, MSBuild integration, command-line validator, language
+server, tests, and samples. It supersedes the earlier v1 exclusions for templates, relative
+sources, selector combinators, items controls, and virtualization.</p>
+<p>Contracted syntax is not evidence that a rollout phase is complete. Implementation status and
+canonical fixture delivery are tracked in <code>plans/xaml-templates-items-and-virtualization-plan.md</code>;
+the runtime, compiler, tooling, tests, Catalog, and Signal Run must land a capability together
+before release. Unsupported contracted syntax is a diagnostic during development, never a runtime
+reflection fallback.</p>
+<p>Forma XAML is a Forma-native declarative language built on XML and selected XAML 2006 concepts. It
+does not promise source compatibility with WPF, Avalonia, MAUI, UWP, WinUI, or any other XAML
+framework. A construct is supported only when this document defines it and the Forma compiler
+accepts it.</p>
+<p>Release builds compile XAML and typed bindings to IL. Generated views and the Forma runtime do not
+depend on XamlX, Mono.Cecil, a runtime XAML reader, reflection-based binding, or source XAML.
+Development hot reload is an opt-in, non-trimmed, non-NativeAOT feature with separate compiler
+dependencies.</p>
+<h2 id="namespaces-and-project-items">Namespaces and Project Items</h2>
+<p>The Forma namespace URI is fixed as:</p>
+<pre><code class="lang-xml">xmlns=&quot;https://forma.dev/xaml&quot;
+</code></pre>
+<p>The XAML language namespace is:</p>
+<pre><code class="lang-xml">xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+</code></pre>
+<p>Application types use <code>clr-namespace:</code> declarations. An optional assembly component follows a
+semicolon:</p>
+<pre><code class="lang-xml">xmlns:views=&quot;clr-namespace:Game.Views&quot;
+xmlns:vm=&quot;clr-namespace:Game.ViewModels;assembly=Game.Core&quot;
+</code></pre>
+<p>MSBuild treats project <code>.xaml</code> files as <code>@(FormaXaml)</code> by default, subject to the SDK's normal
+default-item exclusions for output and intermediate directories. Projects may explicitly include
+or remove items. Logical source identity is the normalized, project-relative path using <code>/</code>; this
+identity is also used by diagnostics, incremental compilation, and hot-reload registration.</p>
+<p>Each compiled view has one root element. Multiple implicit XAML files may not populate the same
+root CLR type. Resource dictionaries without <code>x:Class</code> are allowed and compile as resources rather
+than views.</p>
+<h2 id="project-setup-and-build-properties">Project Setup and Build Properties</h2>
+<p>Use matching runtime and build peers. The build package is private because it contributes only
+MSBuild targets and compiler tools:</p>
+<pre><code class="lang-xml">&lt;ItemGroup&gt;
+  &lt;PackageReference Include=&quot;Forma.MonoGame&quot; Version=&quot;0.1.0-alpha.2&quot; /&gt;
+  &lt;PackageReference Include=&quot;Forma.Xaml.Build.MonoGame&quot;
+                    Version=&quot;0.1.0-alpha.2&quot;
+                    PrivateAssets=&quot;All&quot; /&gt;
+&lt;/ItemGroup&gt;
+</code></pre>
+<p>Replace both <code>.MonoGame</code> suffixes with <code>.FNA</code> for FNA. Do not mix peers. The package imports the
+compiler automatically and includes every project <code>.xaml</code> file as <code>@(FormaXaml)</code>.</p>
+<p>Debug hosts that use live XAML replacement also reference the matching
+<code>Forma.Xaml.HotReload.MonoGame</code> or <code>Forma.Xaml.HotReload.FNA</code> package and set
+<code>FormaXamlHotReload=true</code>. Do not add that package to core-only Release, trimmed, or NativeAOT
+profiles. <code>Forma.DynamicText</code> is independently optional; templates, selectors, items, <code>DataGrid</code>,
+virtualization, and <code>SpriteFontAdapter</code> text require only the core peer.</p>
+<p>MSBuild properties:</p>
+<ul>
+<li><code>FormaXamlRequireCompiledBindings</code> requires inherited <code>x:DataType</code>; it defaults to <code>true</code> in
+Release and <code>false</code> in Debug.</li>
+<li><code>FormaXamlValidateOnly=true</code> validates without injecting IL.</li>
+<li><code>FormaXamlHotReload=true</code> copies Debug source XAML for the development host. It has no effect on
+Release output.</li>
+<li><code>FormaXamlIntermediateDirectory</code> and <code>FormaXamlDevelopmentOutputDirectory</code> override generated
+intermediate and Debug source-copy locations.</li>
+</ul>
+<p>Compilation is incremental over XAML, references, the target assembly, and compiler task. Release
+outputs are deterministic and portable-PDB diagnostics retain source file, line, and column.</p>
+<h2 id="object-construction-and-content">Object Construction and Content</h2>
+<p>An element names a public CLR type in its XML namespace. Attribute syntax sets public properties
+or subscribes public events. Property-element syntax uses <code>Owner.Property</code>. Child elements are
+added through the configured <code>IAddChild&lt;T&gt;</code>/<code>IAddChild</code> content contract. Forma controls implement
+that contract by forwarding to <code>Control.AddChild</code>.</p>
+<p>The compiler validates constructors, members, event-handler signatures, content types, conversion,
+and accessibility. It does not silently store unknown XML or use runtime reflection as a fallback.</p>
+<p>Text content is supported only for types that explicitly define text content. Controls do not
+implicitly map text to a <code>Text</code> property.</p>
+<h2 id="xclass-and-populate-semantics"><code>x:Class</code> and Populate Semantics</h2>
+<p><code>x:Class</code> names the public or internal code-behind root type:</p>
+<pre><code class="lang-xml">&lt;PanelContainer
+    xmlns=&quot;https://forma.dev/xaml&quot;
+    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+    x:Class=&quot;Game.Views.HudView&quot;&gt;
+&lt;/PanelContainer&gt;
+</code></pre>
+<p>The code-behind type derives from, or is the same type as, the XAML root element and calls
+<code>FormaXamlLoader.Load(this)</code> from its constructor. Build integration injects a hidden populate
+method that applies the XAML to that existing constructor-created instance. Populate does not
+replace the root, rerun its constructor, or discard fields initialized by the constructor.</p>
+<p>A root without <code>x:Class</code> compiles to a generated factory and may be loaded through
+<code>FormaXamlLoader.Load&lt;T&gt;()</code>. Generated build and populate methods are implementation details and
+are not a public API.</p>
+<h2 id="namescopes-and-xname">Namescopes and <code>x:Name</code></h2>
+<p><code>x:Name</code> assigns <code>Control.Name</code> when applicable and registers the object in the nearest XAML
+namescope. Names must be unique within that scope and use identifier syntax. A compiled view root
+creates a namescope. Every <code>ControlTemplate</code> and <code>DataTemplate</code> instance creates a separate local
+namescope. <code>ItemsPanelTemplate</code> creates a fresh panel in its owning items-presenter scope. Names in
+one template instance are not visible from another instance or from the containing view.</p>
+<p>Names do not generate fields. Code-behind resolves short-lived references through the namescope
+API. Storyboard targets and trigger source names resolve in the same local namescope. A name from
+another compiled view is not visible unless an explicit host API passes that object.</p>
+<p>Hot reload replaces a namescope with the detached replacement tree. Code must not retain
+long-lived references to named controls across replacement. Code-behind uses namescope lookup
+rather than generated fields:</p>
+<pre><code class="lang-csharp">public sealed class HudView : Control
+{
+  public HudView() =&gt; FormaXamlLoader.Load(this);
+
+  public Label ScoreText =&gt; NameScope.GetNameScope(this)!.Find&lt;Label&gt;(&quot;ScoreText&quot;);
+}
+</code></pre>
+<h2 id="data-context-and-typed-binding">Data Context and Typed Binding</h2>
+<p><code>DataContext</code> is inherited through the control tree. A local value replaces the inherited value
+for that subtree. <code>x:DataType</code> declares the expected data-context CLR type and is inherited by
+descendants unless overridden:</p>
+<pre><code class="lang-xml">xmlns:vm=&quot;clr-namespace:Game.ViewModels&quot;
+x:DataType=&quot;vm:GameHudViewModel&quot;
+</code></pre>
+<p>Release and NativeAOT builds require <code>x:DataType</code> for every data-context binding. The compiler
+resolves every path segment and emits typed accessors; it does not use reflection or string-based
+member lookup at runtime.</p>
+<p>The v1 binding form is:</p>
+<pre><code class="lang-xml">Text=&quot;{Binding Player.Profile.DisplayName,
+               Mode=OneWay,
+               FallbackValue='Player',
+               TargetNullValue='Guest',
+               StringFormat='Name: {0}',
+               Converter={StaticResource NameConverter},
+               ConverterParameter=Short,
+               UpdateSourceTrigger=PropertyChanged}&quot;
+</code></pre>
+<p>Supported binding behavior:</p>
+<ul>
+<li>The path is empty for the whole data context or is a dotted public property path.</li>
+<li>Null intermediate values short-circuit the path and use <code>TargetNullValue</code> or the target default.</li>
+<li>Modes are <code>OneTime</code>, <code>OneWay</code>, and <code>TwoWay</code>. <code>OneWay</code> is the default.</li>
+<li><code>FallbackValue</code> applies when evaluation or conversion fails. <code>TargetNullValue</code> applies to a
+successfully evaluated null result.</li>
+<li><code>StringFormat</code> uses invariant composite-format syntax unless a converter explicitly applies
+another culture.</li>
+<li>A converter implements Forma's <code>IValueConverter</code> contract and may be supplied from resources.</li>
+<li>Source notifications use <code>INotifyPropertyChanged</code>; bindings never poll.</li>
+<li><code>TwoWay</code> requires a writable source property and a compiler-known target adapter with a matching
+change event. Unsupported target properties are diagnostics.</li>
+<li><code>UpdateSourceTrigger</code> is <code>Default</code>, <code>PropertyChanged</code>, or <code>LostFocus</code>. The target adapter defines
+<code>Default</code>; an unsupported trigger is a diagnostic.</li>
+</ul>
+<p>Bindings use inherited <code>DataContext</code> by default and may select one statically typed relative
+source:</p>
+<pre><code class="lang-xml">Text=&quot;{Binding Content,
+               RelativeSource={RelativeSource TemplatedParent}}&quot;
+Width=&quot;{Binding Height, RelativeSource={RelativeSource Self}}&quot;
+IsEnabled=&quot;{Binding CanSelect,
+                    RelativeSource={RelativeSource FindAncestor,
+                                                   AncestorType=ListBox,
+                                                   AncestorLevel=1}}&quot;
+</code></pre>
+<p><code>Self</code> has the target element type. <code>TemplatedParent</code> is legal only inside a <code>ControlTemplate</code> and
+has that template's <code>TargetType</code>. <code>FindAncestor</code> requires <code>AncestorType</code>; <code>AncestorLevel</code> is
+optional, one-based, and defaults to <code>1</code>. It walks <code>VisualParent</code>, rebinds after visual reparenting,
+and cannot cross a data-template or compiled-view boundary. Paths, modes, conversion, and two-way
+writes are validated against the selected source type at compile time.</p>
+<p>Arbitrary object sources, element-name binding, multibinding, priority binding, commands, indexers,
+methods, dynamic objects, and untyped reflection fallback are outside this release.</p>
+<h2 id="literals-conversion-and-markup-extensions">Literals, Conversion, and Markup Extensions</h2>
+<p>The compiler converts attribute text to the target CLR type. V1 includes invariant conversion for
+strings, booleans, numeric types, enums and flag enums, nullable values, named and hexadecimal
+<code>Color</code>, <code>Vector2</code>, <code>Thickness</code>, and <code>TimeSpan</code>. Invalid or ambiguous values are diagnostics.</p>
+<p>V1 markup extensions are:</p>
+<ul>
+<li><code>{Binding ...}</code> for typed data binding.</li>
+<li><code>{RelativeSource Self}</code>, <code>{RelativeSource TemplatedParent}</code>, and typed
+<code>{RelativeSource FindAncestor, ...}</code> nested in a binding.</li>
+<li><code>{StaticResource Key}</code> for one-time lexical resource resolution.</li>
+<li><code>{DynamicResource Key}</code> for observable resource resolution.</li>
+</ul>
+<p>A leading <code>{}</code> escapes a literal value that otherwise begins with <code>{</code>. Markup extensions may be
+nested only in arguments explicitly documented to accept them, such as a binding converter.</p>
+<h2 id="resources">Resources</h2>
+<p><code>ResourceDictionary</code> stores values by unique <code>x:Key</code>. A key is required unless a resource type has
+a documented implicit key. Duplicate keys in one dictionary are diagnostics.</p>
+<p>Controls expose a <code>Resources</code> property. Lookup starts at the requesting control's dictionary, then
+walks parent controls, then uses <code>UIContext</code> application resources. Local entries override merged
+dictionaries. Merged dictionaries are searched in reverse declaration order so the last merge has
+the highest priority. Cycles and unresolved sources are diagnostics.</p>
+<p><code>StaticResource</code> resolves once when the tree is built. <code>DynamicResource</code> observes the winning
+resource entry and reapplies the XAML value layer when that entry or lookup winner changes. Missing
+static resources are compile errors; missing dynamic resources produce a diagnostic and use the
+target's underlying value until a matching resource appears.</p>
+<p>Resources can contain Forma controls only where a consuming property explicitly accepts them.
+Shared mutable UI controls are otherwise rejected.</p>
+<h2 id="classes-and-selector-styles">Classes and Selector Styles</h2>
+<p><code>Classes</code> is a whitespace-separated set of case-sensitive class names. Duplicate names collapse to
+one entry. Runtime class changes notify the style engine.</p>
+<p>Selectors are Forma-owned and Avalonia-inspired; they do not promise CSS or Avalonia source
+compatibility. A selector list contains comma-separated complex selectors. A complex selector
+contains compound selectors joined by descendant (<code> </code>), direct visual-child (<code>&gt;</code>), or explicit
+control-template-boundary (<code>&gt;&gt;</code>) combinators. A compound may contain one type or <code>*</code>, one <code>#name</code>,
+and any number of <code>.class</code>, pseudo-state, and single-compound <code>:not(...)</code> terms. Examples are:</p>
+<pre><code class="lang-text">Button.primary
+#PauseButton
+Dialog .command
+ToolBar &gt; Button:not(.overflow)
+Button.primary, MenuButton.primary
+ListBoxItem:selected &gt;&gt; Border.selection
+</code></pre>
+<p>Selectors match right to left and setters target the rightmost compound. Child and descendant
+matching follows <code>VisualParent</code> only within the current style boundary. <code>&gt;&gt;</code> crosses exactly one
+<code>ControlTemplate</code> boundary from the templated owner on its left; it never crosses a
+<code>DataTemplate</code>, an arbitrary compiled-view boundary, or more than one nested template. A second
+template crossing requires another <code>&gt;&gt;</code>. Style candidates remain restricted to the attachment
+scope of the style resource.</p>
+<p>Standard pseudo-states are <code>:hover</code>, <code>:focus</code>, <code>:focus-within</code>, <code>:disabled</code>, <code>:pressed</code>, <code>:checked</code>,
+<code>:selected</code>, and <code>:current</code>. Referenced assemblies may declare additional typed pseudo-states in
+compiler-readable metadata. Matching is event-driven; state, class, name, visual parent, scope, or
+template-instance changes invalidate only indexed candidates whose compiled dependencies mention
+the change. Warm frames do not poll states or scan the full visual tree.</p>
+<p>Styles declare typed setters with compiler-validated property names and values:</p>
+<pre><code class="lang-xml">&lt;Style x:Key=&quot;PrimaryAction&quot; Selector=&quot;Button.primary&quot;&gt;
+  &lt;Setter Property=&quot;Margins&quot; Value=&quot;4,2&quot; /&gt;
+&lt;/Style&gt;
+</code></pre>
+<p>Specificity is compared lexicographically as name count, class plus pseudo-state count, then type
+count. <code>*</code> and combinators add zero; <code>:not(...)</code> contributes its argument specificity. Each list
+arm is ranked independently. Declaration order breaks equal specificity, with the later style
+winning. The compiler infers every rightmost subject type and validates each setter against all
+arms. When a selector stops matching, the previous winning style or underlying value is restored.</p>
+<p>Sibling combinators, attribute/property selectors, <code>:is</code>, <code>:where</code>, <code>:has</code>, structural-position
+selectors, arbitrary data predicates, cascade layers, CSS namespaces, and CSS text stylesheets are
+unsupported diagnostics.</p>
+<h2 id="xaml-value-precedence">XAML Value Precedence</h2>
+<p>Only properties touched by XAML participate in the coordinated value layer. Precedence from low to
+high is:</p>
+<ol>
+<li>Theme or control default.</li>
+<li>Winning selector style.</li>
+<li>Inherited value, binding value, or local XAML value.</li>
+<li>Active animation value.</li>
+</ol>
+<p>Later values do not destroy lower layers. Removing a class, ending a trigger, stopping an
+animation, or detaching a binding reveals the next applicable value. A plain C# setter remains
+valid, but code that needs immediate reconciliation while a property is styled or animated uses
+the documented XAML value API.</p>
+<h2 id="visual-architecture-and-templates">Visual Architecture and Templates</h2>
+<p><code>Control</code> is the universal styleable visual and layout node. Foundational elements render, lay out,
+or project content directly and never resolve a <code>ControlTemplate</code>: visual primitives (<code>Border</code>,
+text, image, and shape elements), layout panels (<code>CanvasPanel</code>, <code>OverlayPanel</code>, <code>StackPanel</code>,
+<code>WrapPanel</code>, <code>FlexPanel</code>, <code>GridPanel</code>, and <code>Viewbox</code>), and presenters (<code>ContentPresenter</code>,
+<code>ItemsPresenter</code>, and <code>ScrollPresenter</code>). Value resources such as brushes, geometry, transforms,
+drawings, effects, and text inlines are not visual-tree nodes. A specialized presenter is allowed
+only for indivisible rendering/input behavior such as text editing; its semantic owner remains
+templated.</p>
+<p><code>TemplatedControl : Control</code> is the boundary for semantic widgets. Buttons, editors, selectors,
+menus, dialogs, sliders, <code>ItemsControl</code>, and <code>ListBox</code> own behavior but obtain all replaceable
+chrome from a <code>ControlTemplate</code>. A semantic widget may use a documented specialized part but may
+not retain an unconditional outer-chrome draw path. Foundational elements cannot have control
+templates.</p>
+<p><code>ControlTemplate</code> requires one control root and a <code>TargetType</code>. Applying it creates a fresh
+<code>TemplateInstance</code>, local namescope, binding/style/resource/trigger lifetime, and typed
+<code>TemplatedParent</code>; reapplication disposes the old instance. Explicit <code>TemplatedControl.Template</code>
+wins over the nearest type-hierarchical theme template and then the packaged typed default.
+Template factories are closed generated delegates and never use reflection, assembly scanning, or
+a runtime XAML reader.</p>
+<h3 id="foundational-visual-and-compositing-model">Foundational Visual and Compositing Model</h3>
+<p><code>Border</code> supplies background, per-edge border thickness, padding, and bounded corner radii.
+<code>TextBlock</code> and typed inlines provide package-independent text projection; image, nine-slice,
+theme-icon, shape, geometry, path, drawing, transform, clip, mask, shadow, and bounded effect values
+compose without introducing semantic widgets. Brushes include solid, linear/radial gradient,
+image, and drawing forms. Dynamic font loading and shaping remain an optional companion concern,
+not a template or compiler dependency.</p>
+<p>Margin participates outside a control's arranged box; border and padding consume space inside it;
+content alignment then positions the child in the remaining content box. Layout, drawing, hit
+testing, focus/accessibility bounds, clipping, masking, opacity, and transforms consume the same
+composed state. Effects and shadows expand render bounds only within documented finite limits and
+use bounded, device-loss-safe caches. Percentage layout cycles and over-budget compositing fall
+back deterministically rather than allocating unbounded intermediate surfaces.</p>
+<p><code>CanvasPanel</code> performs anchored absolute placement, <code>OverlayPanel</code> layers children, stack and wrap
+panels provide intrinsic flow, <code>FlexPanel</code> provides declared flex/wrap behavior, and <code>GridPanel</code>
+uses explicit typed tracks and attached row/column placement. <code>Viewbox</code> scales one child under a
+declared constraint. These panels remain direct layout foundations and never resolve templates.</p>
+<p><code>DataTemplate</code> requires one control root and requires <code>x:DataType</code> when it contains bindings. It is
+selected explicitly through <code>ItemTemplate</code>, an inline template property, or a keyed resource;
+there is no implicit closest-item-type lookup or runtime <code>DataTemplateSelector</code>.
+<code>ItemsPanelTemplate</code> creates one fresh compatible panel per <code>ItemsPresenter</code>; mutable panel or
+template instances cannot be shared. Template roots may not contain nested <code>x:Class</code>. Event
+attributes are forbidden directly inside a <code>DataTemplate</code>; an eventful row is an ordinary separate
+compiled <code>x:Class</code> view referenced by the template, and its handlers belong only to that row.</p>
+<h2 id="items-selection-and-virtualization">Items, Selection, and Virtualization</h2>
+<p><code>ItemsControl</code> consumes an observable <code>ItemsSource</code>, requires an explicit <code>ItemTemplate</code> for data
+items, and generates one logical slot per source occurrence. Duplicate object references remain
+distinct slots. Add/remove preserve unaffected slots, move preserves slot identity, replace creates
+a new slot, and reset rebuilds. Attached collection notifications must occur on the UI thread.
+<code>ItemsPresenter</code> connects the owner generator to its <code>ItemsPanelTemplate</code>; ordinary panels realize
+all slots, while virtualizing panels request bounded ranges.</p>
+<p><code>ListBox : ItemsControl</code> supports <code>Single</code>, <code>Multi</code>, and <code>Toggle</code> selection. <code>SelectedIndex</code> is the
+canonical writable identity; <code>SelectedItem</code> is a lossy convenience when duplicate references
+exist. <code>SelectedIndices</code> and <code>SelectedItems</code> are read-only source-occurrence projections in multi
+selection, and ambiguous two-way collection binding is rejected. Current navigation and selection
+are independent and expose <code>:current</code> and <code>:selected</code> on generated containers. Collection moves
+preserve slot selection; replacement does not inherit the replaced slot's identity.</p>
+<p><code>VirtualizingStackPanel</code> supports vertical/horizontal variable-size realization and
+<code>VirtualizingGridPanel</code> supports uniform two-dimensional realization. Realized controls are
+bounded by viewport, overscan, and explicitly pinned focus/capture/edit interactions, independent
+of source count. Unreliable extents use a positive estimate and are corrected incrementally without
+enumerating the full source. Recycling is keyed by compatible container/template/theme versions;
+stale or non-poolable instances are disposed under bounded pools. Warm recycled scrolling compiles
+no templates, performs no reflection or full-source enumeration, and allocates no new realized
+controls. Accessibility exposes logical offscreen item peers without retaining visual containers.</p>
+<p><code>ListBox</code> intentionally differs from legacy <code>ItemList</code> mutation quirks. Its current and selected
+occurrences follow stable slots when items are inserted, removed before them, or moved across
+them. Replacement creates a new unselected slot; removal, reset, and source replacement discard
+only identities that no longer exist. Each user gesture or destructive collection delta publishes
+property updates followed by one <code>SelectionChanged</code> event containing atomic old/new index and item
+snapshots. Index-only reprojection after insert or move does not report a semantic selection change.</p>
+<p>Each <code>ItemsControl</code> owns a pool for its current <code>UIContext</code>; <code>RecyclePoolCapacity</code> defaults to 64,
+and eviction disposes the oldest retained container. Compatibility includes concrete container
+type, control-template factory version, data-template factory version, item-container style
+generation, owner, and context theme generation. Replacing any template or style, changing context,
+or advancing the theme generation drains obsolete entries before they can be reused.</p>
+<p>Pooling deactivates template bindings, resources, triggers, transitions, and clocks before detach,
+then rebinds the item and activates the same template instance on reuse. The context clears focus,
+pointer capture, drag, hover, pressed, and tooltip state for the recycled subtree. Built-in
+foundational roots participate automatically; semantic widget roots require explicit reset logic.
+An application-defined row control is non-poolable unless it implements
+<code>IDataTemplateRecyclingState</code> to reset row-local validation, local values, and
+code-behind state. A custom generated container likewise opts in through
+<code>IRecyclableItemContainer</code>. <code>RealizedCount</code>, <code>RecycledCount</code>, and <code>PinnedCount</code> expose the current
+bounds for diagnostics; pinning policy is defined with interaction anchoring below.</p>
+<p>The first visible source-occurrence token and its intra-item pixel offset form the scroll anchor.
+Indexed add, remove, and move notifications transform that anchor without scanning the source;
+replacement or removal of the anchor itself falls back to the current raw offset. For reset or
+source replacement, applications may set <code>ItemsControl.ItemKeySelector</code>; the first new occurrence
+with the same key becomes the anchor. Without a configured key, or when that key no longer exists,
+the raw offset is clamped to the new finite extent.</p>
+<p>Pointer-captured, actively dragged, and explicitly edited containers remain realized outside the
+overscan range. Editable descendants expose <code>IVirtualizationPinState</code>; multiple pins are independent
+and are recycled on the first layout after their interaction ends. When focus alone scrolls out,
+the owning items control becomes a temporary focus proxy and records the slot token, template-local
+visual path, realization generation, data-template version, and theme generation. Focus returns only
+when that same slot is realized while focus is still on the proxy. User focus movement, item removal,
+disabled or missing descendants, item-template replacement, and theme/pool generation changes cancel
+restoration.</p>
+<h2 id="datagrid">DataGrid</h2>
+<p><code>DataGrid : ListBox</code> is the typed template-first table and tree-table control. <code>Mode=&quot;Flat&quot;</code> maps
+source occurrences directly; <code>Mode=&quot;Hierarchical&quot;</code> uses one <code>DataGridExpanderColumn</code> with compiled
+<code>Children</code> and optional <code>HasChildren</code>/two-way <code>IsExpanded</code> bindings. Hierarchical identities are
+immutable occurrence-based <code>IndexPath</code> values, cycles are rejected, and collection notifications
+are observed independently for expanded levels.</p>
+<p>Columns are explicit: <code>DataGridTextColumn</code>, <code>DataGridCheckBoxColumn</code>,
+<code>DataGridTemplateColumn</code>, and <code>DataGridExpanderColumn</code>. Header/cell templates, pixel/auto/star
+widths, bounds, display order, visibility, alignment, and resize/sort policy are typed. Forma does
+not auto-generate columns or reflect item properties. Rows are virtualized; columns are not, so no
+more than <code>DataGrid.MaximumSupportedVisibleColumns</code> (256) columns may be visible. The deterministic
+cell bound is realized rows multiplied by visible columns.</p>
+<p>Header sorting cycles none/ascending/descending and requires a compiled <code>SortBinding</code> or typed
+comparer. Stable multi-column descriptions are supported programmatically. Filtering uses a typed
+<code>DataGridSource&lt;T&gt;</code> predicate or an application-owned filtered source and changes only when
+<code>RefreshFilter</code> runs. <code>IncludeAncestorsOfMatches</code> preserves hierarchical paths to matching rows and
+may inspect the full tree during that explicit refresh; warm frames do no sorting or filtering.</p>
+<p><code>SelectionUnit=&quot;Row&quot;</code> reuses source-slot single/multi selection and exposes selected paths.
+<code>SelectionUnit=&quot;Cell&quot;</code> uses immutable <code>CellIndex</code> values, current cell, rectangular ranges, and
+atomic old/new selection snapshots. Sorting, filtering, expansion/collapse, source deltas, and
+template replacement preserve surviving paths, selection/current state, expansion state, and
+scroll anchors. Row and cell containers expose selected/current and expansion/sort pseudo-states
+to the ordinary visual selector engine.</p>
+<h2 id="adaptive-styles">Adaptive Styles</h2>
+<p><code>Style.Condition</code> accepts a typed <code>AdaptiveCondition</code> with minimum/maximum viewport width or
+height, display scale, theme variant, and input modality. Values on one condition are ANDed;
+separate conditional styles compose through normal specificity and declaration order. Condition
+changes invalidate only their attached style scope and use the ordinary value layer, so losing a
+condition restores the next applicable value. Arbitrary expression conditions and per-frame
+predicate polling are not supported.</p>
+<h2 id="events-triggers-and-storyboards">Events, Triggers, and Storyboards</h2>
+<p>An event attribute names a compatible method on the <code>x:Class</code> root. The compiler validates the
+event and handler signature. Forma v1 adds public <code>Control.Attached</code> and <code>Control.Detached</code> events;
+they fire when a control enters or leaves a <code>UIContext</code> and may be used like other CLR events.</p>
+<p><code>EventTrigger</code> resolves <code>SourceName</code> in the local namescope and validates <code>Event</code> on the source
+type. <code>PropertyTrigger</code> uses a typed <code>Binding</code> and converts <code>Value</code> to the binding result type.
+Trigger actions are <code>BeginStoryboard</code> and <code>StopStoryboard</code> in v1.</p>
+<p>Storyboards are resources. V1 timelines target a local <code>x:Name</code> and a validated property path.
+Timeline types are <code>FloatTimeline</code>, <code>ColorTimeline</code>, <code>Vector2Timeline</code>, and <code>ThicknessTimeline</code>.
+Their keyframe values must match the target property type. Durations and keyframe times use
+<code>TimeSpan</code>; easing names are validated against Forma's easing catalog.</p>
+<p>Supported clock options are finite repeat counts or <code>Forever</code>, <code>AutoReverse</code>, and <code>FillBehavior</code>
+values <code>Stop</code> and <code>HoldEnd</code>. <code>UIContext.Update(GameTime)</code> advances clocks deterministically.
+Animation values overlay but do not write through a two-way binding source. Stopping a clock or a
+<code>Stop</code> fill restores the underlying value.</p>
+<h2 id="supported-xaml-directives">Supported XAML Directives</h2>
+<p>Forma v1 supports these directives in the XAML language namespace:</p>
+<ul>
+<li><code>x:Class</code> on a compiled view root.</li>
+<li><code>x:Name</code> on objects participating in a namescope.</li>
+<li><code>x:Key</code> on resource dictionary entries.</li>
+<li><code>x:DataType</code> on a binding scope.</li>
+</ul>
+<p>The following are not supported in v1: <code>x:Arguments</code>, <code>x:FactoryMethod</code>, <code>x:TypeArguments</code>,
+<code>x:Shared</code>, <code>x:Uid</code>, <code>x:Reference</code>, <code>x:Null</code>, <code>x:Type</code>, <code>x:Static</code>, <code>x:Code</code>, <code>x:Subclass</code>,
+<code>x:FieldModifier</code>, <code>x:ClassModifier</code>, <code>x:Members</code>, and <code>x:Property</code>. Unknown directives and use of a
+supported directive in an invalid location are diagnostics.</p>
+<h2 id="diagnostics">Diagnostics</h2>
+<p>Every parser, schema, semantic, binding, style, trigger, and emission diagnostic has a stable
+<code>FXAML</code> code, severity, project-relative file path, one-based line and column, and concise message.
+Where practical it also includes an end position and related location. MSBuild, CLI text, JSON,
+SARIF, and LSP output use the same diagnostic catalog.</p>
+<p>Errors prevent emission or replacement. Warnings do not change semantics and may be promoted to
+errors by project policy. The compiler does not downgrade unknown types, members, events,
+resources, names, binding paths, selectors, directives, or incompatible values to runtime errors.</p>
+<p>During hot reload, diagnostics leave the currently attached tree untouched. A later valid edit is
+compiled independently and may replace it.</p>
+<p>Diagnostic families:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Category</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FXAML1001</code>-<code>FXAML1004</code></td>
+<td>XML, root namespace, and directive errors</td>
+</tr>
+<tr>
+<td><code>FXAML2001</code>-<code>FXAML2002</code></td>
+<td>Duplicate or invalid names</td>
+</tr>
+<tr>
+<td><code>FXAML3001</code>-<code>FXAML3002</code></td>
+<td>Binding syntax and compiled-binding errors</td>
+</tr>
+<tr>
+<td><code>FXAML3501</code></td>
+<td>Resource key and lookup errors</td>
+</tr>
+<tr>
+<td><code>FXAML4001</code></td>
+<td>Selector errors</td>
+</tr>
+<tr>
+<td><code>FXAML5001</code></td>
+<td>Trigger errors</td>
+</tr>
+<tr>
+<td><code>FXAML6001</code></td>
+<td>Storyboard/timeline errors</td>
+</tr>
+<tr>
+<td><code>FXAML7001</code>-<code>FXAML7002</code></td>
+<td>IL emission and duplicate root-class errors</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cli-and-language-server">CLI and Language Server</h2>
+<p>The repository tool accepts files, directories, or projects and emits the same diagnostics used by
+MSBuild:</p>
+<pre><code class="lang-sh">dotnet run --project tools/Forma.Xaml.Tool/Forma.Xaml.Tool.csproj -- \
+  validate --require-compiled-bindings --format human samples/Forma.Xaml.Game
+dotnet run --project tools/Forma.Xaml.Tool/Forma.Xaml.Tool.csproj -- \
+  validate --format json MyView.xaml
+dotnet run --project tools/Forma.Xaml.Tool/Forma.Xaml.Tool.csproj -- \
+  validate --format sarif MyProject.csproj
+dotnet run --project tools/Forma.Xaml.Tool/Forma.Xaml.Tool.csproj -- watch MyProject.csproj
+dotnet run --project tools/Forma.Xaml.Tool/Forma.Xaml.Tool.csproj -- schema --json
+</code></pre>
+<p>Start the language server with <code>forma-xaml lsp --stdio</code> (or the equivalent <code>dotnet run</code> command).
+It discovers project references through Roslyn and supports diagnostics, completion, hover,
+definition, references, rename, and formatting. V1 supplies the server protocol, not a bundled
+editor extension.</p>
+<h2 id="hot-reload-and-aot">Hot Reload and AOT</h2>
+<p>Debug hot reload is opt-in and watches source files through <code>Forma.Xaml.HotReload</code>. Compilation
+runs off-thread; a valid latest result is applied only during <code>UIContext.Update</code>. Replacement
+retains the host slot and <code>DataContext</code>, then disposes old bindings, resource subscriptions,
+styles, triggers, and clocks. Invalid edits report diagnostics without changing the live tree.
+Burst saves are latest-wins.</p>
+<p>Hot reload does not preserve references to old named controls, arbitrary code-behind control
+state, focus/capture within the replaced subtree, or animation clock position. It is not supported
+in trimmed or NativeAOT builds. Release, trimmed, and NativeAOT builds use only injected IL and may
+not contain source XAML, watchers, SRE, XamlX, Cecil, or Forma compiler/hot-reload assemblies.</p>
+<h2 id="catalog-stories">Catalog Stories</h2>
+<p>The Catalog stories <strong>Selector Styles</strong>, <strong>Template Systems</strong>, <strong>Composition Systems</strong>,
+<strong>Storyboards and Triggers</strong>, and <strong>Compiled Data Binding</strong> link to this guide. Their stable
+identifiers are the kebab-case names prefixed with <code>catalog-</code>, such as <code>catalog-selector-styles</code>.</p>
+<h2 id="compatibility-matrix">Compatibility Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Forma XAML v1</th>
+<th>XAML 2006 / WPF / Avalonia comparison</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XML namespaces and <code>clr-namespace:</code></td>
+<td>Supported</td>
+<td>Familiar syntax; Forma types and URI are distinct</td>
+</tr>
+<tr>
+<td><code>x:Class</code>, <code>x:Name</code>, <code>x:Key</code>, <code>x:DataType</code></td>
+<td>Supported</td>
+<td><code>x:Name</code> uses namescope lookup, not generated fields</td>
+</tr>
+<tr>
+<td>Properties, property elements, content, events</td>
+<td>Supported</td>
+<td>Only public CLR members and Forma content contracts</td>
+</tr>
+<tr>
+<td>Resources and merged dictionaries</td>
+<td>Supported</td>
+<td>Forma lookup and precedence rules apply</td>
+</tr>
+<tr>
+<td>Visual selectors and lists</td>
+<td>Supported</td>
+<td>Forma grammar with <code> </code>, <code>&gt;</code>, <code>&gt;&gt;</code>, <code>:not</code>, and typed pseudo-states</td>
+</tr>
+<tr>
+<td>Typed <code>OneTime</code>/<code>OneWay</code>/<code>TwoWay</code> binding</td>
+<td>Supported</td>
+<td>Requires <code>x:DataType</code> in Release; no reflection fallback</td>
+</tr>
+<tr>
+<td><code>RelativeSource</code></td>
+<td>Supported</td>
+<td>Typed <code>Self</code>, <code>TemplatedParent</code>, and <code>FindAncestor</code> only</td>
+</tr>
+<tr>
+<td>Static/dynamic resources</td>
+<td>Supported</td>
+<td>Forma value layers restore underlying values</td>
+</tr>
+<tr>
+<td>Property/event triggers and storyboards</td>
+<td>Supported</td>
+<td>Deterministic <code>UIContext.Update</code> clocks</td>
+</tr>
+<tr>
+<td>Control/data/items-panel templates</td>
+<td>Supported</td>
+<td>Explicit typed factories and local namescopes</td>
+</tr>
+<tr>
+<td><code>ItemsControl</code>, <code>ListBox</code>, virtualization</td>
+<td>Supported</td>
+<td>Explicit item templates and source-occurrence identity</td>
+</tr>
+<tr>
+<td><code>DataGrid</code> flat/hierarchical modes</td>
+<td>Supported</td>
+<td>Explicit typed columns; row virtualization; bounded non-virtualized columns</td>
+</tr>
+<tr>
+<td>Adaptive style conditions</td>
+<td>Supported</td>
+<td>Typed viewport, scale, theme, and input conditions</td>
+</tr>
+<tr>
+<td>Core-only text</td>
+<td>Supported</td>
+<td>Explicit <code>SpriteFontAdapter</code>; no DynamicText dependency</td>
+</tr>
+<tr>
+<td>Optional DynamicText</td>
+<td>Companion package</td>
+<td>Adds shaping/rasterization without changing XAML factories</td>
+</tr>
+<tr>
+<td>Commands, element sources, multibinding</td>
+<td>Not supported</td>
+<td>Use typed view models and row-owned code-behind events</td>
+</tr>
+<tr>
+<td>WPF/Avalonia namespace/source compatibility</td>
+<td>Not promised</td>
+<td>Forma XAML is its own dialect</td>
+</tr>
+</tbody>
+</table>
+<h2 id="canonical-syntax-fixtures">Canonical Syntax Fixtures</h2>
+<p>The examples under <strong>Proposed Capability Showcase</strong> in
+<code>plans/xaml-templates-items-and-virtualization-plan.md</code> are canonical fixtures for this contract.
+Each must be copied into compiler golden tests, Catalog, and packed-consumer fixtures as its phase
+lands and then kept compiling. Syntax may change only when this contract, the plan fixture, and its
+typed behavior change together. The earlier declarative-XAML composition, resource, binding,
+trigger, and storyboard examples remain canonical where they do not conflict with this contract.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/xaml-language.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

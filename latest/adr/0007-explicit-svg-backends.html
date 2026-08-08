@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>ADR 0007: Explicit Process-Wide SVG Backends | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="ADR 0007: Explicit Process-Wide SVG Backends | Forma Documentation ">
+      
+      
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/adr/0007-explicit-svg-backends.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="adr-0007-explicit-process-wide-svg-backends">ADR 0007: Explicit Process-Wide SVG Backends</h1>
+
+<ul>
+<li>Status: Accepted</li>
+<li>Date: 2026-08-06</li>
+</ul>
+<h2 id="context">Context</h2>
+<p>Forma's bounded SVG source, cache, XAML, control, and GPU upload contracts are backend-neutral, but
+the original <code>Forma.Svg.*</code> package identity implicitly selected Svg.Skia. Skia is the established
+desktop reference renderer, while its native distribution model is not a basis for restricted or
+console support. ThorVG 1.1.0 provides a small CPU/SVG source build and can render copied in-memory
+SVG into caller-owned memory.</p>
+<p>Three choices were evaluated:</p>
+<table>
+<thead>
+<tr>
+<th>Choice</th>
+<th>Desktop quality</th>
+<th>Size/source build</th>
+<th>Static linking</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keep Skia only</td>
+<td>Proven reference output</td>
+<td>Largest dependency graph</td>
+<td>Not established for restricted hosts</td>
+<td>No console-readiness path</td>
+</tr>
+<tr>
+<td>Replace Skia with ThorVG</td>
+<td>Smaller native engine</td>
+<td>Reproducible source build</td>
+<td>Direct</td>
+<td>Immediate output and migration risk</td>
+</tr>
+<tr>
+<td>Explicit backend packages</td>
+<td>Keeps Skia reference and adds ThorVG</td>
+<td>Consumers carry one engine</td>
+<td>ThorVG can use dynamic or static ABI</td>
+<td>Two conformance/build surfaces</td>
+</tr>
+</tbody>
+</table>
+<p>The measured macOS arm64 67-icon release run recorded Skia/ThorVG health initialization of
+526.37/132.84 ms, parse time of 115.84/0.49 ms, raster time of 1.95/0.54 ms, and managed allocation
+of 3,495,792/299,136 bytes. These are local cold baselines, not universal performance promises.
+The stripped Forma ThorVG dynamic library is 326 KiB on macOS arm64 and 404 KiB on Linux x64; the
+dead-stripped macOS static smoke executable is 302 KiB.</p>
+<h2 id="decision">Decision</h2>
+<p>Forma ships independently installable Skia and ThorVG backend projects. Exactly one backend is
+installed before the first parse. Selection is explicit, process-wide, trim-safe, and immutable.
+There is no reflection discovery, per-document choice, or automatic fallback between native engines.</p>
+<p>The stable IDs are <code>skia</code> and <code>thorvg</code>; both implement Runtime SVG Profile v1. Backend health reports
+the ID, display/version strings, profile, native source, link mode, bounded diagnostic, and tested
+features. Tests compare implementations in separate processes.</p>
+<p>ThorVG is consumed through ABI 1 in <code>native/Forma.ThorVG</code>. The Forma ABI is narrower than both the
+ThorVG C++ and upstream C APIs so Forma owns error categories, exact buffers, RGBA normalization,
+version checks, export visibility, and static-host integration. The native side receives bytes and
+caller-owned output only and is built with file I/O, threads, unrelated loaders, tools, exceptions,
+and RTTI disabled.</p>
+<p><code>Forma.Svg.Skia.*</code> and <code>Forma.Svg.ThorVG.*</code> are the explicit packages. <code>Forma.Svg.*</code> remains a
+warning-producing compatibility package that depends on Skia for one migration window. Core owns
+the authoritative 67 SVG theme sources but no renderer dependency.</p>
+<h2 id="support-scope">Support Scope</h2>
+<p>The initial ThorVG experimental matrix is macOS arm64 and Linux x64. Windows x64 is not in the
+initial declared matrix because the intended MSVC/CRT build has not run. No console target is
+qualified or claimed. The static reference host establishes console-ready architecture only;
+a console becomes qualified only after authorized SDK, hardware, lifecycle, and release evidence.</p>
+<h2 id="consequences">Consequences</h2>
+<p>Consumers can remove Skia completely when selecting ThorVG, and existing compatibility consumers do
+not silently change output. Forma must maintain two isolated package/build/conformance lanes. Any
+new profile feature must pass both lanes before first-party assets use it. Backend-specific
+extensions are not part of Forma's public SVG contract.</p>
+<h2 id="verification">Verification</h2>
+<pre><code class="lang-sh">make thorvg-spike
+make thorvg-linux
+make svg-selection
+make svg-benchmark
+dotnet test tests/Forma.Tests/Forma.Tests.csproj -c Release -p:FormaRuntime=MonoGame --filter SvgBackendTest
+dotnet test tests/Forma.ThorVG.Tests/Forma.ThorVG.Tests.csproj -c Release -p:FormaRuntime=MonoGame
+</code></pre>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/adr/0007-explicit-svg-backends.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

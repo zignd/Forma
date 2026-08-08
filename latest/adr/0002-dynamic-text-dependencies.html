@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>ADR 0002: Dynamic Text Dependencies and Packaging | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="ADR 0002: Dynamic Text Dependencies and Packaging | Forma Documentation ">
+      
+      
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/adr/0002-dynamic-text-dependencies.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="adr-0002-dynamic-text-dependencies-and-packaging">ADR 0002: Dynamic Text Dependencies and Packaging</h1>
+
+<ul>
+<li>Status: Accepted for the desktop spike; Linux arm64 packaging remains a release blocker</li>
+<li>Date: 2026-08-01</li>
+<li>Owners: Forma maintainers</li>
+<li>Unicode baseline: 17.0.0</li>
+</ul>
+<h2 id="decision">Decision</h2>
+<p>Forma will use maintained managed bindings over pinned native libraries:</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Selection</th>
+<th>Native/upstream version</th>
+<th>License</th>
+<th>Upstream</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rasterization</td>
+<td><code>FreeTypeSharp</code> 3.1.0</td>
+<td>FreeType 2.13.2</td>
+<td>Binding: MIT; FreeType: FTL or GPL-2.0</td>
+<td><a href="https://github.com/ryancheung/FreeTypeSharp">FreeTypeSharp</a>, <a href="https://freetype.org/">FreeType</a></td>
+</tr>
+<tr>
+<td>Shaping</td>
+<td><code>HarfBuzzSharp</code> 14.2.1.1</td>
+<td>HarfBuzz 14.2.1</td>
+<td>MIT</td>
+<td><a href="https://github.com/mono/SkiaSharp/tree/main/binding/HarfBuzzSharp">HarfBuzzSharp</a>, <a href="https://github.com/harfbuzz/harfbuzz">HarfBuzz</a></td>
+</tr>
+<tr>
+<td>Unicode algorithms</td>
+<td>Forma managed code generated from Unicode 17.0.0 data</td>
+<td>Unicode 17.0.0</td>
+<td>Unicode Data Files and Software License</td>
+<td><a href="https://www.unicode.org/versions/Unicode17.0.0/">Unicode 17.0.0</a></td>
+</tr>
+</tbody>
+</table>
+<p><code>FreeTypeSharp</code> is a thin, generated binding. Forma wraps it behind safe handles and internal
+services rather than exposing its pointers or structs. <code>HarfBuzzSharp</code> supplies managed lifetime
+wrappers and a byte-backed shaping API; Forma still owns the source bytes for each face lifetime.</p>
+<p>Forma-owned interop is limited to lifetime, error translation, security limits, and any missing
+native RID assets. Forma will not fork either complete managed binding unless maintenance or
+security response becomes inadequate.</p>
+<h2 id="alternatives-evaluated">Alternatives Evaluated</h2>
+<ul>
+<li>Direct P/Invoke and generated bindings owned entirely by Forma provide maximum packaging control,
+but duplicate active binding work and create a large unsafe API maintenance surface.</li>
+<li><code>FreeTypeSharp</code> alone covers the intended API with current FreeType and most desktop assets. Its
+missing Linux arm64 binary is a bounded packaging gap that Forma can fill from the same pinned
+FreeType source and build options.</li>
+<li><code>HarfBuzzSharp</code> is actively maintained by Microsoft/Xamarin owners, has a reserved NuGet prefix,
+and supplies official native packages for all desktop architectures in this plan.</li>
+<li><code>SharpFont</code>, <code>FriBidiSharp</code>, <code>Bidi</code>, <code>Unicode.Bidi</code>, and low-adoption UAX #14 packages were rejected
+because of stale native baselines, incomplete algorithm coverage, low maintenance signals, or
+nondeterministic platform dependencies.</li>
+<li>ICU was rejected for the initial implementation because it adds a second large native deployment,
+data-version coupling, and mobile static-link complexity. A future optional locale-tailoring layer
+may use ICU without changing Forma's layout contract.</li>
+<li>MonoGame Content Pipeline FreeType code is useful prior art, but its build-time assemblies and
+backend assumptions are not runtime dependencies and cannot be used by the FNA peer package.</li>
+</ul>
+<h2 id="unicode-strategy">Unicode Strategy</h2>
+<p>Forma pins Unicode 17.0.0 and generates compact managed tables from the versioned UCD inputs. The
+source URLs and SHA-256 values are committed in <code>assets/unicode/manifest.json</code>; release builds consume generated
+source and never download data.</p>
+<ul>
+<li>UAX #9 full bidirectional resolution uses <code>DerivedBidiClass.txt</code>, <code>BidiBrackets.txt</code>,
+<code>BidiMirroring.txt</code>, <code>BidiTest.txt</code>, and <code>BidiCharacterTest.txt</code>.</li>
+<li>UAX #29 extended grapheme clusters use <code>GraphemeBreakProperty.txt</code>, emoji properties, Indic
+conjunct properties, and <code>GraphemeBreakTest.txt</code>.</li>
+<li>UAX #24 script runs use <code>Scripts.txt</code>, <code>ScriptExtensions.txt</code>, and property aliases. Common and
+Inherited values resolve at grapheme granularity before fallback and shaping.</li>
+<li>UAX #14 default line breaking uses <code>LineBreak.txt</code>, East Asian width, emoji properties, and
+<code>LineBreakTest.txt</code>. Complex-context <code>SA</code> runs initially use conservative emergency wrapping at
+grapheme boundaries; dictionary tailoring is a documented extension point and is not called UAX
+#14 default conformance.</li>
+<li>UTF-16 is decoded with <code>System.Text.Rune</code>; malformed sequences produce U+FFFD with stable source
+ranges. <code>StringInfo</code> is not the normative implementation because its Unicode data may vary with
+the runtime or operating system.</li>
+</ul>
+<p>The Unicode algorithms and generated tables are shared managed code. MonoGame, FNA, operating
+system globalization mode, and installed system fonts therefore cannot change layout decisions.</p>
+<h2 id="package-shape">Package Shape</h2>
+<p><code>Forma.MonoGame</code> and <code>Forma.FNA</code> keep the shared <code>UIFont</code>, retained layout, controls, and
+<code>SpriteFontAdapter</code> contracts without managed or native dynamic-text dependencies. Applications
+opt into runtime font loading, shaping, and rasterization with the matching
+<code>Forma.DynamicText.MonoGame</code> or <code>Forma.DynamicText.FNA</code> companion package.</p>
+<p>Both companions depend on the same managed versions. <code>HarfBuzzSharp.NativeAssets.Linux</code> 14.2.1.1
+is explicit because <code>HarfBuzzSharp</code> itself references macOS and Win32 assets but not Linux assets.
+FreeType and HarfBuzz notices are distributed with both companions. During the package-boundary
+migration, dynamic public types remain in the core assembly and require the companion at runtime;
+they move to the companion assembly before this checklist item is considered complete.</p>
+<p>Applications supply font bytes through Forma APIs or embedded/application content. Forma does not
+load developer-machine or system fonts implicitly.</p>
+<h2 id="desktop-rid-matrix">Desktop RID Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>RID</th>
+<th>FreeType 2.13.2</th>
+<th>HarfBuzz 14.2.1</th>
+<th>MonoGame peer</th>
+<th>FNA peer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>win-x64</code></td>
+<td><code>FreeTypeSharp</code> asset</td>
+<td>Win32 native asset</td>
+<td>CI gate</td>
+<td>CI gate</td>
+</tr>
+<tr>
+<td><code>win-arm64</code></td>
+<td><code>FreeTypeSharp</code> asset</td>
+<td>Win32 native asset</td>
+<td>Dependency-ready; runtime gate required</td>
+<td>Unsupported by selected FNA.NET native package</td>
+</tr>
+<tr>
+<td><code>linux-x64</code></td>
+<td><code>FreeTypeSharp</code> asset</td>
+<td>Linux native asset</td>
+<td>CI gate</td>
+<td>CI gate</td>
+</tr>
+<tr>
+<td><code>linux-arm64</code></td>
+<td><strong>Forma-built asset required</strong></td>
+<td>Linux native asset</td>
+<td>Runtime gate required</td>
+<td>FNA native-ready; Forma graphics gate required</td>
+</tr>
+<tr>
+<td><code>osx-x64</code></td>
+<td>universal <code>osx</code> asset</td>
+<td>universal <code>osx</code> asset</td>
+<td>Manual gate</td>
+<td>Manual gate</td>
+</tr>
+<tr>
+<td><code>osx-arm64</code></td>
+<td>universal <code>osx</code> asset</td>
+<td>universal <code>osx</code> asset</td>
+<td>CI gate</td>
+<td>CI gate</td>
+</tr>
+</tbody>
+</table>
+<p>The Linux arm64 FreeType asset must be built reproducibly from FreeType 2.13.2, retain the library
+name expected by <code>FreeTypeSharp</code>, carry the FreeType license, and pass the same ABI smoke as bundled
+assets before either peer claims that RID. No developer system library is an accepted fallback.</p>
+<p>Android ABIs and iOS/tvOS architectures are deferred because Forma declares no mobile
+runtime/platform compatibility pair. <code>FreeTypeSharp</code> and <code>HarfBuzzSharp</code> publish mobile assets, but
+that is not a Forma support claim. Mobile adoption requires explicit MonoGame and FNA runtime
+matrices, static-link review, store compliance, and device tests.</p>
+<h2 id="deployment-constraints">Deployment Constraints</h2>
+<ul>
+<li>Trimming and NativeAOT are executed for both peers on <code>osx-arm64</code>. Dedicated packed consumers
+preserve native entry points and pass multilingual layout, native-load, atlas-render,
+JIT/AOT-diagnostic-parity, and package-content tests. Other RIDs remain unsupported until the same
+evidence exists. The public API avoids reflection-based activation.</li>
+<li>Desktop uses dynamic native libraries. Linux/macOS library names and Windows DLL search behavior
+are validated from an empty NuGet cache; system installation is neither required nor searched by
+Forma.</li>
+<li>macOS application publishers own final bundle placement, hardened-runtime code signing,
+notarization, and signing of nested dylibs. The distributed universal dylibs contain x64 and
+arm64 slices.</li>
+<li>Sandboxed applications load only packaged native libraries and caller-provided font bytes. Forma
+requires no font-directory, network, temporary-file, or executable-memory entitlement.</li>
+<li>iOS/tvOS static linking and symbol preservation are not supported until mobile is declared. The
+desktop dynamic packages must not be reused as an implied mobile solution.</li>
+</ul>
+<h2 id="updates-and-security-response">Updates and Security Response</h2>
+<p>Forma maintainers own version pins, release-note and ABI review, license/notice updates, native
+asset inspection, empty-cache restores, and the complete runtime matrix. Dependabot alerts, GitHub
+security advisories, NuGet owner changes, and upstream FreeType/HarfBuzz advisories are reviewed as
+release blockers.</p>
+<p>A security update receives a patch release after both peer builds, native-load smoke, malformed-font
+limits, Unicode conformance tests, package inspection, and catalog rendering pass. A native or
+Unicode version never floats independently at restore or runtime.</p>
+<h2 id="consequences">Consequences</h2>
+<p>The desktop spike can proceed on macOS with maintained packages and no system installation. Core
+packages remain native-text-free; matching companions carry dynamic-text dependencies and notices.
+Linux arm64 cannot be marked supported until the supplemental FreeType binary and CI cell exist,
+and mobile remains explicitly outside the matrix.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/adr/0002-dynamic-text-dependencies.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

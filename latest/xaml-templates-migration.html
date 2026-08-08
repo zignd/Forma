@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Template, Items, and Visual-Tree Migration | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Template, Items, and Visual-Tree Migration | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/xaml-templates-migration.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="template-items-and-visual-tree-migration">Template, Items, and Visual-Tree Migration</h1>
+
+<p>This guide covers the breaking visual and collection changes in the template-first release. The
+normative language rules remain in <a href="xaml-language.html">xaml-language.md</a>; the complete type-by-type
+classification is in <a href="control-template-migration-manifest.html">control-template-migration-manifest.md</a>.</p>
+<h2 id="choose-the-owning-type">Choose the Owning Type</h2>
+<p><code>Control</code> remains the base styleable visual/layout node. Use a foundational element when the type's
+job is to render, arrange, or project content directly:</p>
+<ul>
+<li>primitives: <code>Border</code>, text, image, shape, drawing, and effect elements;</li>
+<li>panels: <code>CanvasPanel</code>, <code>OverlayPanel</code>, <code>StackPanel</code>, <code>WrapPanel</code>, <code>FlexPanel</code>, <code>GridPanel</code>, and
+<code>Viewbox</code>;</li>
+<li>presenters: <code>ContentPresenter</code>, <code>ItemsPresenter</code>, and <code>ScrollPresenter</code>.</li>
+</ul>
+<p>These types do not have templates. A semantic widget derives from <code>TemplatedControl</code>, retains its
+state, input, focus, selection, and accessibility behavior, and gets all replaceable chrome from a
+<code>ControlTemplate</code>. Do not move widget behavior into a <code>Border</code>, presenter, or template code-behind.</p>
+<h2 id="replace-custom-drawn-chrome">Replace Custom-Drawn Chrome</h2>
+<p>Move outer chrome into a typed template and leave interaction on the semantic owner:</p>
+<pre><code class="lang-xml">&lt;ControlTemplate x:Key=&quot;ToolbarButtonTemplate&quot; TargetType=&quot;Button&quot;&gt;
+  &lt;Border Classes=&quot;chrome&quot; Padding=&quot;10,6&quot; CornerRadius=&quot;4&quot;&gt;
+    &lt;ContentPresenter x:Name=&quot;PART_ContentPresenter&quot;
+                      Content=&quot;{Binding Content, RelativeSource=TemplatedParent}&quot;
+                      HorizontalContentAlignment=&quot;Center&quot;
+                      VerticalContentAlignment=&quot;Center&quot; /&gt;
+  &lt;/Border&gt;
+&lt;/ControlTemplate&gt;
+
+&lt;Button Template=&quot;{StaticResource ToolbarButtonTemplate}&quot; Content=&quot;Save&quot; /&gt;
+</code></pre>
+<p>Use the documented named parts and minimum required part types. <code>GetTemplateChild</code> replaces casts or
+child-index assumptions about a widget's former internal visual tree. Different templates may have
+unrelated structure, so application code must not traverse from a semantic owner by fixed child
+positions.</p>
+<p>Selectors use the visual tree. Ordinary descendant and child combinators stop at a template or data
+-template boundary. Cross exactly one control-template boundary with <code>&gt;&gt;</code>:</p>
+<pre><code class="lang-xml">&lt;Style Selector=&quot;Button.primary &gt;&gt; Border.chrome&quot; /&gt;
+&lt;Style Selector=&quot;ListBoxItem:selected &gt;&gt; Border.selection&quot; /&gt;
+</code></pre>
+<p>Logical content remains owned by its semantic control even while a presenter hosts it visually.
+Use <code>Parent</code> for logical ownership, <code>VisualParent</code> for rendered ancestry, and a typed
+<code>RelativeSource FindAncestor</code> binding when the relationship is visual.</p>
+<h2 id="replace-row-factories">Replace Row Factories</h2>
+<p>A data item now requires an explicit <code>DataTemplate</code>; there is no implicit item-type lookup or
+runtime <code>DataTemplateSelector</code>:</p>
+<pre><code class="lang-xml">&lt;DataTemplate x:Key=&quot;ServerRowTemplate&quot; x:DataType=&quot;local:ServerRowModel&quot;&gt;
+  &lt;local:ServerRow /&gt;
+&lt;/DataTemplate&gt;
+
+&lt;ItemsControl ItemsSource=&quot;{Binding Servers}&quot;
+              ItemTemplate=&quot;{StaticResource ServerRowTemplate}&quot; /&gt;
+</code></pre>
+<p>Convert a C# row factory that only assembled visuals into a keyed or inline <code>DataTemplate</code>. Keep an
+ordinary separate <code>x:Class</code> row only when row-local event handling or recyclable local state is
+required. Event attributes are not legal directly inside <code>DataTemplate</code>; handlers on a referenced
+row control resolve against that row's code-behind, not the outer view.</p>
+<p>Observable sources use one identity slot per occurrence. Duplicate object references are distinct.
+Add/remove/move notifications preserve unaffected slot identities, replacement creates a new slot,
+and reset rebuilds. Notifications must arrive on the attached UI thread.</p>
+<p>Rows are poolable when their template state can be deactivated, rebound, and activated. A custom
+row with code-behind opts in through <code>IDataTemplateRecyclingState</code>; a custom item container uses
+<code>IRecyclableItemContainer</code>. Otherwise it remains correct but is not pooled.</p>
+<h2 id="adopt-virtualization-deliberately">Adopt Virtualization Deliberately</h2>
+<p>Select an explicit items panel:</p>
+<ul>
+<li><code>VirtualizingStackPanel</code> supports vertical and horizontal variable item extents;</li>
+<li><code>VirtualizingGridPanel</code> supports uniform fixed or estimated cells;</li>
+<li>non-virtualizing panels realize every source slot.</li>
+</ul>
+<p>Virtualized realization is bounded by the visible range, overscan, and pinned focus/capture/edit
+interactions. Set a positive estimated item extent when item sizes are not yet known. Preserve an
+application identity across reset/source replacement with <code>ItemKeySelector</code>; otherwise Forma clamps
+the prior raw offset.</p>
+<p><code>DataGrid</code> virtualizes rows and recycles all cells in a row together. Columns are explicit and are
+not virtualized; at most <code>DataGrid.MaximumSupportedVisibleColumns</code> (256) may be visible. Keep wide,
+unbounded spreadsheet scenarios outside this release's contract.</p>
+<h2 id="migrate-tables-and-trees">Migrate Tables and Trees</h2>
+<p>Use <code>DataGridMode.Flat</code> for tables and <code>DataGridMode.Hierarchical</code> for expandable tree tables.
+Declare <code>DataGridTextColumn</code>, <code>DataGridCheckBoxColumn</code>, <code>DataGridTemplateColumn</code>, or
+<code>DataGridExpanderColumn</code> explicitly with typed bindings. Forma does not reflect item properties or
+auto-generate columns.</p>
+<p>Sorting requires a typed <code>SortBinding</code> or comparer. Filtering belongs to <code>DataGridSource&lt;T&gt;</code> (or an
+application-owned filtered source) and runs only when <code>RefreshFilter</code> is called. Hierarchical
+sources declare typed children and optional has-children/expanded accessors; ancestor-preserving
+filtering may inspect the full tree during refresh. Warm frames do not sort or filter.</p>
+<p>Row selection preserves source-occurrence paths. Cell selection uses immutable <code>CellIndex</code> values.
+Choose <code>DataGridSelectionUnit.Row</code> or <code>Cell</code> and the inherited single/multi selection mode
+explicitly. Expansion, sorting, filtering, selection, and scroll anchors remain semantic owner
+state when a control template changes.</p>
+<p>The retained <code>Tree</code> remains available for compatibility. Prefer <code>DataGrid</code> for new typed,
+data-bound, template-first flat or hierarchical tables.</p>
+<h2 id="package-and-release-boundary">Package and Release Boundary</h2>
+<p>Reference exactly one runtime peer and its private build package. Add the matching
+<code>Forma.Xaml.HotReload</code> package only to a Debug development host. Core templates, selectors, items,
+selection, <code>DataGrid</code>, static-font text, and virtualization do not require DynamicText or hot
+reload.</p>
+<p>Release, trimmed, and NativeAOT output uses injected typed IL only. Do not ship source XAML, the
+compiler, XamlX, Cecil, SRE, or the hot-reload package. Add <code>Forma.DynamicText</code> only when runtime font
+loading, shaping, or rasterization is required; <code>SpriteFontAdapter</code> remains the core-only path.</p>
+<h2 id="verification-checklist">Verification Checklist</h2>
+<ol>
+<li>Replace fixed child traversal with namescope or named-part lookup.</li>
+<li>Verify required parts after every explicit/theme template replacement.</li>
+<li>Test pointer, keyboard, focus, selection, and accessibility behavior independently of template
+structure.</li>
+<li>Test observable add/remove/move/replace/reset with duplicate occurrences.</li>
+<li>Assert realized, recycled, and pinned counts under large-source scrolling.</li>
+<li>Build Debug and Release for MonoGame and FNA; confirm Release excludes hot reload and source XAML.</li>
+<li>Publish the matching core-only trim/NativeAOT consumer before adding optional companions.</li>
+</ol>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/xaml-templates-migration.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

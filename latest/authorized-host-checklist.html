@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Authorized Host Checklist | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Authorized Host Checklist | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/authorized-host-checklist.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="authorized-host-checklist">Authorized Host Checklist</h1>
+
+<p>Use this NDA-neutral checklist inside the authorized integration repository for each distinct
+platform, runtime port, graphics backend, and packaging toolchain. Keep SDK names, paths, headers,
+libraries, logs, symbols, device identifiers, and platform-holder requirements out of public Forma
+source, issues, CI, and artifacts. Report only disclosure-approved capability results publicly.</p>
+<h2 id="integration-identity">Integration Identity</h2>
+<ul>
+<li>[ ] Record the Forma version and commit, package lock, .NET/runtime port revision, graphics
+backend, compiler/linker revisions, and private evidence location.</li>
+<li>[ ] Assign an owner and separate approval for this exact platform/runtime/backend combination.</li>
+<li>[ ] Confirm the integration repository, CI runners, caches, logs, and artifacts meet the
+platform-holder's confidentiality requirements.</li>
+</ul>
+<h2 id="build-and-runtime-assembly">Build and Runtime Assembly</h2>
+<ul>
+<li>[ ] Run Forma XAML injection on an approved build host before trimming, platform AOT compilation,
+linking, signing, and final packaging.</li>
+<li>[ ] Reject signed intermediate assemblies unless an approved post-injection re-signing stage is
+configured.</li>
+<li>[ ] Verify the runtime port preserves every statically referenced Forma member and generated XAML
+member without whole-assembly roots or reflection-binding fallback.</li>
+<li>[ ] Verify deployed output contains no source XAML, XamlX, Mono.Cecil, MSBuild task, Forma compiler
+or build assembly, hot reload, file watcher, or dynamic-code path.</li>
+</ul>
+<h2 id="graphics-input-and-layout">Graphics, Input, and Layout</h2>
+<ul>
+<li>[ ] Validate graphics-device creation, theme/resource loading, compiled-XAML rendering, resize,
+display scale, safe areas, device loss/reset, and clean graphics shutdown.</li>
+<li>[ ] Validate controller-only focus traversal, activation, cancellation, disconnection,
+reconnection, user switching, and capability absence for pointer, keyboard, and text input.</li>
+<li>[ ] Exercise representative menus, HUDs, settings, localization, and lifecycle restoration.</li>
+</ul>
+<h2 id="filesystem-and-platform-services">Filesystem and Platform Services</h2>
+<ul>
+<li>[ ] Start with no writable application directory and no system-font assumption.</li>
+<li>[ ] Supply explicit filesystem, URI, clipboard, text-input, and font-source capabilities where
+permitted; verify stable unavailable behavior everywhere else.</li>
+<li>[ ] Validate save-data/user-storage boundaries, mount changes, quota/full-storage behavior, and
+asynchronous platform-service failures without exposing confidential error details publicly.</li>
+</ul>
+<h2 id="lifecycle-and-threading">Lifecycle and Threading</h2>
+<ul>
+<li>[ ] Validate startup, suspend, resume, backgrounding, memory pressure, user switching, graphics
+reset, repeated initialization, and clean shutdown.</li>
+<li>[ ] Verify shaping and file work remain on permitted worker threads and glyph atlas creation,
+upload, reset, and disposal remain on the required graphics thread.</li>
+<li>[ ] Record bounded memory, glyph atlas, fallback depth, and allocation limits for representative
+localized screens.</li>
+</ul>
+<h2 id="native-fonts-and-media">Native Fonts and Media</h2>
+<ul>
+<li>[ ] Supply approved FreeType/HarfBuzz dynamic, static, or platform-adapter implementations and
+verify architecture, imports/exports, callbacks, ownership, and disposal.</li>
+<li>[ ] Validate multilingual shaping, fallback, rasterization, atlas upload/draw, missing glyphs,
+malformed fonts, missing native libraries, and rejected native libraries.</li>
+<li>[ ] Package optional media only when its backend, codecs, licenses, and platform policy are
+approved; otherwise verify a stable unavailable capability.</li>
+</ul>
+<h2 id="diagnostics-packaging-and-deployment">Diagnostics, Packaging, and Deployment</h2>
+<ul>
+<li>[ ] Verify warning-free trim/AOT compilation, package size, forbidden imports, native symbols,
+stripping, signing, manifest generation, installation, launch, update, and uninstall.</li>
+<li>[ ] Retain exact private build inputs, linker/AOT logs, symbols, native dependency manifests,
+crash evidence, and hardware smoke results according to approved retention policy.</li>
+<li>[ ] Confirm diagnostics are bounded and disclose no confidential paths, SDK identities, symbols,
+device identifiers, or platform-holder data.</li>
+<li>[ ] Deploy the final signed package through the approved channel and execute startup, rendering,
+input, lifecycle, dynamic-text, and shutdown smokes on hardware or an approved equivalent.</li>
+</ul>
+<h2 id="approval">Approval</h2>
+<ul>
+<li>[ ] Complete security, legal, native redistribution, accessibility, localization, performance,
+submission, and platform-holder reviews required for this target.</li>
+<li>[ ] Record private sign-off and expiry/revalidation conditions.</li>
+<li>[ ] Publish only an approved support level and limitations summary in the public runtime matrix;
+do not infer support for another runtime, backend, toolchain, or target.</li>
+</ul>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/authorized-host-checklist.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

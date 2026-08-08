@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "rootUid": "Forma.Control",
+  "families": [
+    {
+      "id": "buttons",
+      "title": "Buttons",
+      "types": [
+        "Forma.BaseButton",
+        "Forma.Button",
+        "Forma.ColorPickerButton",
+        "Forma.ColorPresetButton",
+        "Forma.LinkButton",
+        "Forma.MenuButton",
+        "Forma.TextureButton"
+      ]
+    },
+    {
+      "id": "collections",
+      "title": "Collections",
+      "types": [
+        "Forma.DataGrid",
+        "Forma.DataGridCell",
+        "Forma.DataGridColumnHeader",
+        "Forma.DataGridRow",
+        "Forma.ItemList",
+        "Forma.ItemsControl",
+        "Forma.ItemsPresenter",
+        "Forma.ListBox",
+        "Forma.ListBoxItem",
+        "Forma.Tree",
+        "Forma.TreePresenter",
+        "Forma.VirtualizingGridPanel",
+        "Forma.VirtualizingPanel",
+        "Forma.VirtualizingStackPanel"
+      ]
+    },
+    {
+      "id": "containers",
+      "title": "Containers",
+      "types": [
+        "Forma.AspectRatioContainer",
+        "Forma.Border",
+        "Forma.BoxContainer",
+        "Forma.CanvasPanel",
+        "Forma.CenterContainer",
+        "Forma.Container",
+        "Forma.ContentControl",
+        "Forma.ContentPresenter",
+        "Forma.Control",
+        "Forma.FlexPanel",
+        "Forma.FlowContainer",
+        "Forma.FoldableContainer",
+        "Forma.GridContainer",
+        "Forma.GridPanel",
+        "Forma.HBoxContainer",
+        "Forma.HFlowContainer",
+        "Forma.HScrollBar",
+        "Forma.HSplitContainer",
+        "Forma.MarginContainer",
+        "Forma.OverlayPanel",
+        "Forma.Panel",
+        "Forma.PanelContainer",
+        "Forma.ScrollBar",
+        "Forma.ScrollContainer",
+        "Forma.ScrollPresenter",
+        "Forma.SplitContainer",
+        "Forma.SplitContainerDragger",
+        "Forma.SplitContainerMultiDragger",
+        "Forma.StackPanel",
+        "Forma.TabContainer",
+        "Forma.TemplatedControl",
+        "Forma.VBoxContainer",
+        "Forma.VFlowContainer",
+        "Forma.VScrollBar",
+        "Forma.VSplitContainer",
+        "Forma.Viewbox",
+        "Forma.WrapPanel"
+      ]
+    },
+    {
+      "id": "data-display",
+      "title": "Data display",
+      "types": [
+        "Forma.ColorRect",
+        "Forma.DrawingElement",
+        "Forma.DynamicGlyphAtlasView",
+        "Forma.EllipseShape",
+        "Forma.HSeparator",
+        "Forma.Label",
+        "Forma.LineShape",
+        "Forma.PathShape",
+        "Forma.PolygonShape",
+        "Forma.PolylineShape",
+        "Forma.ProgressBar",
+        "Forma.RectangleShape",
+        "Forma.ReferenceRect",
+        "Forma.RichTextDocument",
+        "Forma.RichTextLabel",
+        "Forma.Separator",
+        "Forma.Shape",
+        "Forma.TextBlock",
+        "Forma.TextureProgressBar",
+        "Forma.VSeparator"
+      ]
+    },
+    {
+      "id": "dialogs",
+      "title": "Dialogs and menus",
+      "types": [
+        "Forma.AcceptDialog",
+        "Forma.ColorPickerDialog",
+        "Forma.ColorPickerPopupPanel",
+        "Forma.ConfirmationDialog",
+        "Forma.FileDialog",
+        "Forma.MenuBar",
+        "Forma.Popup",
+        "Forma.PopupMenu",
+        "Forma.PopupMenuItems",
+        "Forma.PopupPanel"
+      ]
+    },
+    {
+      "id": "graph-code",
+      "title": "Graph and code",
+      "types": [
+        "Forma.CodeEdit",
+        "Forma.GraphEdit",
+        "Forma.GraphEditFilter",
+        "Forma.GraphEditMinimap",
+        "Forma.GraphElement",
+        "Forma.GraphFrame",
+        "Forma.GraphNode"
+      ]
+    },
+    {
+      "id": "media",
+      "title": "Media",
+      "types": [
+        "Forma.Image",
+        "Forma.NinePatchRect",
+        "Forma.NineSliceImage",
+        "Forma.SubViewportContainer",
+        "Forma.TextureRect",
+        "Forma.ThemeIconRect",
+        "Forma.ThemeIconView",
+        "Forma.VideoStreamPlayer"
+      ]
+    },
+    {
+      "id": "selection",
+      "title": "Selection",
+      "types": [
+        "Forma.CheckBox",
+        "Forma.CheckButton",
+        "Forma.ColorPicker",
+        "Forma.HSlider",
+        "Forma.OptionButton",
+        "Forma.Range",
+        "Forma.Slider",
+        "Forma.TabBar",
+        "Forma.VSlider",
+        "Forma.VirtualJoystick"
+      ]
+    },
+    {
+      "id": "text-input",
+      "title": "Text input",
+      "types": [
+        "Forma.LineEdit",
+        "Forma.LineEditPresenter",
+        "Forma.SpinBox",
+        "Forma.SpinBoxLineEdit",
+        "Forma.TextEdit"
+      ]
+    }
+  ]
+}

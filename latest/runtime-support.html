@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Runtime Support and Migration | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Runtime Support and Migration | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/runtime-support.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="runtime-support-and-migration">Runtime Support and Migration</h1>
+
+<p>This document is the support authority for Forma's MonoGame and FNA peer artifacts. A configured CI
+cell is a gate, not a support claim: the cell must pass on the release commit before that artifact is
+declared supported.</p>
+<h2 id="status-terms">Status Terms</h2>
+<ul>
+<li><strong>Stable:</strong> a supported contract intended to preserve compatibility across non-breaking releases.</li>
+<li><strong>Preview:</strong> publicly consumable but still subject to documented breaking changes before the first
+stable release.</li>
+<li><strong>Experimental:</strong> available for evaluation behind an explicit opt-in, with a narrower support
+matrix and no compatibility commitment yet.</li>
+<li><strong>Platform-validated:</strong> the release gate has executed successfully on the named operating system,
+architecture, runtime, and backend combination.</li>
+<li><strong>Validated:</strong> the owning repository check has passed for the exact scope named by the claim.</li>
+<li><strong>CI gate:</strong> automated on every push and required to pass before release review.</li>
+<li><strong>Manual gate:</strong> reproducible instructions exist because a hosted runner or licensed tool is not
+available.</li>
+<li><strong>Unsupported:</strong> no compatibility claim is made.</li>
+</ul>
+<h2 id="package-pairing">Package Pairing</h2>
+<p>Use one column consistently throughout an application. All Forma peers must use one shared version;
+package-owned build guards reject mixed runtime families.</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>MonoGame application</th>
+<th>FNA application</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core</td>
+<td><code>Forma.MonoGame</code></td>
+<td><code>Forma.FNA</code></td>
+</tr>
+<tr>
+<td>Compiled XAML</td>
+<td><code>Forma.Xaml.Build.MonoGame</code></td>
+<td><code>Forma.Xaml.Build.FNA</code></td>
+</tr>
+<tr>
+<td>Debug hot reload</td>
+<td><code>Forma.Xaml.HotReload.MonoGame</code></td>
+<td><code>Forma.Xaml.HotReload.FNA</code></td>
+</tr>
+<tr>
+<td>Dynamic text</td>
+<td><code>Forma.DynamicText.MonoGame</code></td>
+<td><code>Forma.DynamicText.FNA</code></td>
+</tr>
+<tr>
+<td>Skia SVG</td>
+<td><code>Forma.Svg.Skia.MonoGame</code></td>
+<td><code>Forma.Svg.Skia.FNA</code></td>
+</tr>
+<tr>
+<td>ThorVG SVG</td>
+<td><code>Forma.Svg.ThorVG.MonoGame</code></td>
+<td><code>Forma.Svg.ThorVG.FNA</code></td>
+</tr>
+<tr>
+<td>Media</td>
+<td><code>Forma.Media.MonoGame</code></td>
+<td><code>Forma.Media.FNA</code></td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td><code>MonoGame.Framework</code> 3.8.5</td>
+<td><code>FNA.NET</code> 2.2.11.2602</td>
+</tr>
+<tr>
+<td>Native host assets</td>
+<td>Selected MonoGame backend</td>
+<td><code>FNA.NET.NativeAssets</code> 2.1.2.2602</td>
+</tr>
+</tbody>
+</table>
+<h2 id="graphics-and-catalog-matrix">Graphics and Catalog Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Runtime / host</th>
+<th>Windows x64</th>
+<th>Linux x64</th>
+<th>macOS arm64</th>
+<th>macOS x64</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MonoGame DesktopGL</td>
+<td>CI gate</td>
+<td>Validated + CI gate</td>
+<td>Validated + CI gate</td>
+<td>Manual gate</td>
+</tr>
+<tr>
+<td>MonoGame WindowsDX</td>
+<td>Validated + CI gate</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>MonoGame Native Vulkan</td>
+<td>N/A</td>
+<td>Validated + CI gate</td>
+<td>N/A</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>MonoGame Native Metal</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Validated + CI gate</td>
+<td>Manual gate</td>
+</tr>
+<tr>
+<td>FNA selected backend</td>
+<td>Validated D3D11 + CI gate</td>
+<td>Validated OpenGL + CI gate</td>
+<td>Validated Metal + CI gate</td>
+<td>Manual gate</td>
+</tr>
+</tbody>
+</table>
+<p>Every automated cell builds the selected core, media, tests, render tests, and catalog host. It runs
+the shared unit/catalog inventory suite and a bounded three-frame catalog smoke. Windows and Linux
+execute graphics render tests. macOS compiles the same render tests but excludes fixture setup
+because SDL graphics-device creation must occur on the process main thread.</p>
+<p>Peer catalog comparison renders the same 1440x900 scene and requires identical dimensions/alpha
+coverage plus non-background and RGB totals within 1%. Exact hashes remain diagnostics because the
+two runtimes rasterize text differently.</p>
+<p>For an Intel macOS manual gate, run on an x64 host:</p>
+<pre><code class="lang-sh">bash scripts/check-runtime-parity.sh
+bash scripts/check-catalog-smoke.sh
+FormaRuntime=FNA bash scripts/check-catalog-smoke.sh
+bash scripts/check-catalog-render-parity.sh
+bash scripts/check-fna-video-smoke.sh
+bash scripts/test-package-consumer.sh
+</code></pre>
+<h2 id="svg-companion-matrix">SVG Companion Matrix</h2>
+<p>The explicit SVG companions inherit the graphics matrix above. An SVG
+companion is only useful with its matching core runtime; the platform validation scope for SVG is
+therefore the same as for the core cell on each host.</p>
+<table>
+<thead>
+<tr>
+<th>SVG companion</th>
+<th>Package/native-size budget</th>
+<th>Known validated host</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Forma.Svg.Skia.*</code></td>
+<td>Svg.Skia/SkiaSharp dependencies and RID-selected Skia assets only</td>
+<td>Existing Windows x64, Linux x64, and macOS arm64 reference matrix</td>
+</tr>
+<tr>
+<td><code>Forma.Svg.ThorVG.*</code></td>
+<td>Forma ABI 1 native asset only; no Skia dependency</td>
+<td>Experimental macOS arm64 and Linux x64</td>
+</tr>
+<tr>
+<td><code>Forma.Svg.*</code></td>
+<td>Compatibility dependency on explicit Skia with migration warning</td>
+<td>Same as Skia during one migration window</td>
+</tr>
+</tbody>
+</table>
+<p>ThorVG Windows x64 and every console target are currently untested. Static desktop proof is called
+console-ready architecture, not console-qualified support. Qualification requires authorized target
+evidence as defined in <a href="svg-backend-migration.html">the migration/support guide</a>.</p>
+<p>The complete hosted SVG matrix passed in
+<a href="https://github.com/zigrok/Forma/actions/runs/31110056321">CI run 31110056321</a> at exact implementation
+snapshot <code>cd94582436e3ad8065262d8f5c9507ea03d98abe</code>. It executed the Windows Direct3D, Linux
+OpenGL/Vulkan, and macOS OpenGL/Metal lifecycle gates for their selected peers. Package consumers in
+the same run verified official NuGet provenance, RID-native selection, and the absence of Svg.Skia
+from core-only graphs. See <a href="runtime-svg.html#validation-gates">docs/runtime-svg.md — Validation Gates</a>
+for the per-host commands.</p>
+<h2 id="content-and-effects">Content and Effects</h2>
+<p>Both catalog hosts build the same <code>.spritefont</code> sources through MGCB 3.8.5's DesktopGL-compatible
+content format. The generated 1x/2x Inter and JetBrains Mono atlases load through both runtimes.</p>
+<p>Effect bytecode is not interchangeable:</p>
+<table>
+<thead>
+<tr>
+<th>Runtime</th>
+<th>Format</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MonoGame</td>
+<td>Platform-specific MGFX (<code>.mgfxo</code>)</td>
+<td>Pass the artifact to catalog <code>--watch-effect</code> and require <code>hotReloadSucceeded: true</code> in bounded metrics.</td>
+</tr>
+<tr>
+<td>FNA</td>
+<td>Direct3D Effects Framework (<code>.fxb</code>)</td>
+<td>Compile the same HLSL source with <code>fxc.exe /T fx_2_0 Input.fx /Fo Output.fxb</code>, then pass the artifact to <code>--watch-effect</code>. FXC may run under Wine.</td>
+</tr>
+</tbody>
+</table>
+<p>Forma does not bundle FXC or claim that MGFX works in FNA. No custom effect is required by the core
+UI renderer; custom-effect support remains a runtime-specific application content decision.</p>
+<h2 id="media-matrix">Media Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>MonoGame</th>
+<th>FNA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Built-in backend</td>
+<td>Backend/platform dependent; unavailable exceptions become explicit state</td>
+<td>Available through <code>FNA.NET</code> on declared desktop RIDs</td>
+</tr>
+<tr>
+<td>Local-file loading</td>
+<td>Unsupported; applications use their selected content pipeline</td>
+<td><code>VideoStreamPlayer.LoadLocalFile</code> uses <code>Video.FromUriEXT</code></td>
+</tr>
+<tr>
+<td>Theora video</td>
+<td>Unsupported until a selected backend decoder is validated</td>
+<td>macOS arm64 validated; Windows/Linux are CI gates</td>
+</tr>
+<tr>
+<td>AV1 video</td>
+<td>Unsupported</td>
+<td>Native dav1dfile is present, but AV1 is unsupported until a licensed fixture passes every desktop gate</td>
+</tr>
+<tr>
+<td>Audio</td>
+<td>Backend dependent</td>
+<td>Native FAudio is supplied; video audio is not claimed because the fixture is silent</td>
+</tr>
+<tr>
+<td>Pause/resume, volume, loop, completion, disposal</td>
+<td>Shared/injected backend tests</td>
+<td>Shared tests plus real Theora completion/disposal smoke</td>
+</tr>
+<tr>
+<td>Seeking</td>
+<td>Unsupported by the pinned 3.8.5 package API</td>
+<td>Unsupported by the pinned 2.2.11.2602 package API</td>
+</tr>
+<tr>
+<td>Track selection</td>
+<td>Stored for API compatibility; no built-in track-switch claim</td>
+<td>Stored for API compatibility; no built-in track-switch claim</td>
+</tr>
+</tbody>
+</table>
+<p><code>VideoPlaybackCapabilities</code>, <code>IsPlaybackAvailable</code>, and <code>PlaybackUnavailableReason</code> let applications
+present optional behavior without treating graceful unavailability as successful playback. Capability
+selection is compile-time and does not use reflection. A missing backend or codec does not fail
+startup; <code>Play</code> converts <code>NotImplementedException</code> and <code>PlatformNotSupportedException</code> into a stable
+unavailable state and disposes the rejected backend.</p>
+<h2 id="platform-capabilities">Platform Capabilities</h2>
+<p>Desktop services are explicit at the control boundary. <code>FileDialog.FileSystem</code> accepts an
+<code>IFileDialogFileSystem</code>; its desktop default uses <code>System.IO</code>, while unavailable hosts can report
+<code>IsAvailable = false</code> and receive a stable empty listing. <code>LinkButton.UriLauncher</code> is an optional
+host callback and no longer starts a desktop process from core. Line and text edit clipboard reads
+use host callbacks, clipboard writes use request events, and runtime text input is selected by the
+MonoGame/FNA compile-time adapter. Dynamic fonts accept memory and streams; <code>FromProjectFile</code> is a
+bounded desktop convenience API rather than a required font source.</p>
+<h2 id="native-dependencies">Native Dependencies</h2>
+<p><code>FNA.NET</code> 2.2.11.2602 selects <code>FNA.NET.NativeAssets</code> 2.1.2.2602. The package supplies SDL3, FNA3D,
+FAudio, Theorafile, and dav1dfile for Windows x64, Linux x64/arm64, and macOS universal deployment.
+Empty-cache FNA consumers restore this package explicitly. Catalog and video CI gates exercise
+native loading rather than checking filenames alone.</p>
+<p>MonoGame applications select their own framework/backend package. Forma packages intentionally do
+not impose a transitive MonoGame backend.</p>
+<h2 id="trimming-and-aot">Trimming and AOT</h2>
+<table>
+<thead>
+<tr>
+<th>Package/profile</th>
+<th>RID</th>
+<th>Analyzer-clean</th>
+<th>Published</th>
+<th>Executed</th>
+<th>Platform-validated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Forma.MonoGame</code> core</td>
+<td><code>osx-arm64</code></td>
+<td>Yes</td>
+<td>Trim + AOT</td>
+<td>Yes</td>
+<td>macOS arm64 / OpenGL</td>
+</tr>
+<tr>
+<td><code>Forma.FNA</code> core</td>
+<td><code>osx-arm64</code></td>
+<td>Yes</td>
+<td>Trim + AOT</td>
+<td>Yes</td>
+<td>macOS arm64 / Metal</td>
+</tr>
+<tr>
+<td><code>Forma.Media.MonoGame</code> capability smoke</td>
+<td><code>osx-arm64</code></td>
+<td>Yes</td>
+<td>Trim + AOT</td>
+<td>Yes</td>
+<td>No codec claim</td>
+</tr>
+<tr>
+<td><code>Forma.Media.FNA</code> capability smoke</td>
+<td><code>osx-arm64</code></td>
+<td>Yes</td>
+<td>Trim + AOT</td>
+<td>Yes</td>
+<td>No codec claim</td>
+</tr>
+<tr>
+<td><code>Forma.DynamicText.MonoGame</code></td>
+<td><code>osx-arm64</code></td>
+<td>Yes</td>
+<td>Trim + AOT</td>
+<td>Multilingual atlas</td>
+<td>macOS arm64 / OpenGL</td>
+</tr>
+<tr>
+<td><code>Forma.DynamicText.FNA</code></td>
+<td><code>osx-arm64</code></td>
+<td>Yes</td>
+<td>Trim + AOT</td>
+<td>Multilingual atlas</td>
+<td>macOS arm64 / Metal</td>
+</tr>
+<tr>
+<td><code>Forma.Svg.Skia.MonoGame</code> companion</td>
+<td><code>osx-arm64</code></td>
+<td>Yes</td>
+<td>Trim + AOT</td>
+<td>Svg.Skia verify + missing-native</td>
+<td>macOS arm64 / OpenGL</td>
+</tr>
+<tr>
+<td><code>Forma.Svg.Skia.FNA</code> companion</td>
+<td><code>osx-arm64</code></td>
+<td>Yes</td>
+<td>Trim + AOT</td>
+<td>Svg.Skia verify + missing-native</td>
+<td>macOS arm64 / Metal</td>
+</tr>
+<tr>
+<td><code>Forma.Svg.ThorVG.*</code> companion</td>
+<td><code>osx-arm64</code>, <code>linux-x64</code></td>
+<td>Yes</td>
+<td>Dynamic source-generated interop + static <code>DirectPInvoke</code> reference host</td>
+<td>Profile/67-icon suite, 492 comparisons, 1,000 lifetimes</td>
+<td>Experimental</td>
+</tr>
+</tbody>
+</table>
+<p>ThorVG dynamic and static NativeAOT consumers execute for both runtime peers on macOS arm64 and
+Linux x64. No other RID or platform has a public NativeAOT support claim. &quot;Platform-validated&quot; here means the
+named public desktop host/backend only; it does not imply a restricted or console target.</p>
+<p>Forma targets <code>net10.0</code>. Trim-only and NativeAOT packed consumers are validated on macOS arm64 for
+<code>Forma.MonoGame</code>, <code>Forma.FNA</code>, and their matching <code>Forma.Media</code>, <code>Forma.DynamicText</code>, and
+<code>Forma.Svg</code> packages. The gate covers native-free core, optional media, packed-XNB <code>SpriteFont</code>,
+dynamic-text graphical, and bounded SVG companion profiles for both peers. The SVG profile publishes
+with and without native Skia assets; the without-native probe requires the bounded failure diagnostic
+(<code>SkiaSharp native initialization failed</code>). With native assets, <code>SvgBackendDefaults.Verify()</code>
+completes a 2×2 rasterize sanity check. SVG NativeAOT and graphical trim-only profiles report one
+upstream <code>IL2104</code> summary from the runtime peer (MonoGame.Framework or FNA.NET); this does not hide
+any Forma-owned diagnostic.</p>
+<p>Core consumers execute compiled primitives, brushes, attached layout,
+selectors, adaptive conditions, keyed templates, relative sources, observable deltas,
+virtualization, selection, flat/hierarchical data grids, accessibility peers, and control-template
+application without DynamicText or dynamic code. It
+publishes from empty package caches, executes every output, rejects Forma-owned <code>IL2xxx</code>/<code>IL3xxx</code>
+warnings, verifies native-free imports, and proves packaged FreeType/HarfBuzz loading:</p>
+<pre><code class="lang-sh">make nativeaot
+make nativeaot NATIVEAOT_RUNTIME=MonoGame NATIVEAOT_PROFILE=media NATIVEAOT_MODE=aot
+make nativeaot NATIVEAOT_RUNTIME=FNA NATIVEAOT_PROFILE=dynamic NATIVEAOT_MODE=trimmed
+make nativeaot NATIVEAOT_RUNTIME=MonoGame NATIVEAOT_PROFILE=svg NATIVEAOT_MODE=aot
+make nativeaot NATIVEAOT_RUNTIME=FNA NATIVEAOT_PROFILE=svg NATIVEAOT_MODE=trimmed
+make aot-analyzers
+make native-font-failures
+</code></pre>
+<p>Run on macOS arm64 with .NET SDK 10.0.x, Xcode command-line tools, recursive submodules, and network
+access for the first restore. Valid profiles are <code>core</code>, <code>media</code>, <code>spritefont</code>, <code>dynamic</code>, and <code>svg</code>;
+valid modes are <code>trimmed</code> and <code>aot</code>. The gate packs all selected Forma packages, restores each consumer
+from an empty cache, publishes self-contained <code>osx-arm64</code> output, executes it, and records logs,
+native manifests, binaries, and multilingual render/layout diagnostics under <code>Artifacts/nativeaot</code>.
+The fast <code>aot-analyzers</code> target builds warning-as-error source-linked consumers for both peers.
+<code>native-font-failures</code> runs fresh-process missing, incompatible, and rejected FreeType probes; the
+full dynamic AOT cells additionally remove FreeType from copied native outputs and require the
+bounded failure diagnostic.</p>
+<p>MonoGame graphics profiles currently report one upstream <code>MonoGame.Framework</code> <code>IL2104</code> summary;
+FNA NativeAOT and graphical trim-only profiles report one upstream <code>FNA.NET</code> <code>IL2104</code> summary. These
+classified third-party warnings do not hide any Forma-owned diagnostic. FNA self-contained outputs
+also require unversioned aliases for the versioned native libraries supplied by
+<code>FNA.NET.NativeAssets</code>; the gate stages those aliases and preserves only the XNB reader metadata used
+by its packed SpriteFont.</p>
+<p>This validation does not cover media codec playback, other RIDs, iOS, Android, or any console. Those
+modes remain unsupported until their own packed consumers execute. NativeAOT compatibility is not console
+support; authorized hardware and platform-holder validation remain separate. Further work is tracked
+in the <a href="https://github.com/zigrok/Forma/blob/main/plans/nativeaot-console-readiness-plan.md">NativeAOT and console readiness plan</a>.</p>
+<p>Release XAML injection is built and stamp-verified with .NET 10 on current GitHub-hosted Ubuntu,
+Windows, and macOS runners for both peers. The Cecil rewrite is build-host-neutral and must complete
+before linker, NativeAOT, signing, output-copy, and publish targets. Compiler-signed target
+assemblies are currently rejected because post-compile injection would invalidate the signature;
+an authorized platform must provide an approved re-signing stage after injection. The public
+<code>osx-arm64</code> NativeAOT execution gate itself runs on a macOS arm64 host; cross-OS AOT compilation is
+not claimed.</p>
+<h3 id="xaml-build-hosts">XAML Build Hosts</h3>
+<table>
+<thead>
+<tr>
+<th>Build host</th>
+<th>SDK</th>
+<th>Injection</th>
+<th>Declared target restriction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ubuntu latest</td>
+<td>.NET 10.0.x</td>
+<td>CI stamp-verified for both peers</td>
+<td>Does not publish the declared macOS AOT target</td>
+</tr>
+<tr>
+<td>Windows latest</td>
+<td>.NET 10.0.x</td>
+<td>CI stamp-verified for both peers</td>
+<td>Does not publish the declared macOS AOT target</td>
+</tr>
+<tr>
+<td>macOS latest</td>
+<td>.NET 10.0.x</td>
+<td>CI stamp-verified for both peers</td>
+<td>macOS arm64 hosts execute the public AOT gate</td>
+</tr>
+</tbody>
+</table>
+<p>Releases pin XamlX fork commit <code>0337e9b2f6450ac90cb988a3fac61f36f58c4fcc</code> and Mono.Cecil 0.11.6.
+Injection must precede platform linking, AOT, signing, and packaging. Signed intermediate assemblies
+are rejected until an approved post-injection re-signing stage is supplied.</p>
+<h3 id="reflection-migration">Reflection Migration</h3>
+<p>Applications that discover Forma controls with reflection must own the required trim annotations or
+replace discovery with an explicit registry. Prefer <code>typeof(MyControl)</code>, generic factories, and
+generated registration over <code>Assembly.GetTypes</code>, string type names, or <code>Activator.CreateInstance</code>.
+Do not root the complete Forma assembly. A linked application is expected to remove unused public
+library APIs; compatibility means statically referenced and generated-XAML members survive and
+execute, not that every unused package member remains in the application binary. Consumer-defined enum conversion through
+<code>XamlValueConverter</code> preserves public fields only; broader consumer reflection remains the
+application's trimming contract.</p>
+<h3 id="aot-diagnostics">AOT Diagnostics</h3>
+<p>NativeAOT outputs do not provide JIT compilation, runtime code generation, or the same managed stack
+and dump experience as a normal framework-dependent build. Keep the publish <code>.pdb</code>/<code>.dSYM</code>, native
+symbols, exact package lock/evidence artifact, RID, SDK version, and linker/AOT log for every release.
+Crash addresses may require native symbolication and managed generic frames can be less descriptive.
+Forma's bounded diagnostics expose capability state, native-font package provenance, and atlas
+counters, but do not scan modules or reveal native handles. Reproduce failures with the matching
+trim-only profile before comparing its deterministic diagnostics with AOT.</p>
+<h2 id="package-migration">Package Migration</h2>
+<p>The unqualified <code>Forma</code> and <code>Forma.Media</code> IDs are retired before public release. They are not aliases.</p>
+<p>For MonoGame:</p>
+<ol>
+<li>Replace <code>Forma</code> with <code>Forma.MonoGame</code>.</li>
+<li>Replace optional <code>Forma.Media</code> with <code>Forma.Media.MonoGame</code>.</li>
+<li>Keep exactly one explicit <code>MonoGame.Framework.&lt;backend&gt;</code> 3.8.5 application reference.</li>
+</ol>
+<p>For FNA:</p>
+<ol>
+<li>Replace <code>Forma</code> with <code>Forma.FNA</code>.</li>
+<li>Replace optional <code>Forma.Media</code> with <code>Forma.Media.FNA</code>.</li>
+<li>Add explicit <code>FNA.NET</code> 2.2.11.2602 and <code>FNA.NET.NativeAssets</code> 2.1.2.2602 references.</li>
+</ol>
+<p>Namespaces and control names remain <code>Forma</code>; application source changes are not otherwise required.
+Package build guards reject duplicate core variants, duplicate media variants, and mismatched
+core/media pairs before reference resolution.</p>
+<p>Applications adopting template-first controls must also account for changed visual ancestry and
+replace custom-drawn widget chrome or C# row factories. See
+<a href="xaml-templates-migration.html">xaml-templates-migration.md</a>. <code>Forma.Xaml.Build</code> is a private build
+dependency. <code>Forma.Xaml.HotReload</code> is Debug-only and must be absent from Release, trim, and
+NativeAOT outputs. <code>Forma.DynamicText</code> remains an independent opt-in companion; core template,
+items, data-grid, and virtualization features do not require it.</p>
+<h2 id="release-gate">Release Gate</h2>
+<p>The manual Release workflow builds both runtimes, checks API/reference parity, validates all six
+packages and isolated consumers, validates licenses and native redistribution notices, and uploads
+reviewable artifacts from one commit and version. Its independent macOS arm64 job executes all 20
+trim/AOT cells (adding four SVG companion cells) and retains their binaries, manifests, logs, and
+diagnostics. It does not publish. Adding any package push path requires separate explicit user
+approval.</p>
+<p>Authorized targets use the <a href="authorized-host-checklist.html">authorized host checklist</a>. Completing it
+requires private SDK, toolchain, deployment, and hardware evidence; this public repository records
+only approved capability results.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/runtime-support.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

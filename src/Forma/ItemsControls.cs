@@ -35,6 +35,7 @@ namespace Forma
         public string Message { get; }
     }
 
+    /// <summary>Generates templated item containers into an items panel and recycles eligible containers as items change.</summary>
     public class ItemsControl : TemplatedControl, IItemsPresenterOwner, IItemContainerGenerator, IItemContainerGeneratorDiagnostics, IItemContainerGeneratorAnchors
     {
         private static readonly ItemsPanelTemplate DefaultItemsPanel = new ItemsPanelTemplate(_ => new StackPanel());

@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Forma
 {
+    /// <summary>Fills its bounds with a solid color.</summary>
     public sealed class ColorRect : Control
     {
         public Color Color { get; set; } = Color.White;
@@ -31,6 +32,7 @@ namespace Forma
         public bool Tile { get; }
     }
 
+    /// <summary>Draws a texture with configurable scaling, aspect cropping, tiling, flipping, and size contribution.</summary>
     public class TextureRect : Control
     {
         // Godot's TextureRect() constructor calls set_mouse_filter(MOUSE_FILTER_PASS) - a bare texture
@@ -199,6 +201,7 @@ namespace Forma
     /// <summary>Controls whether a NinePatchRect axis scales, repeats, or repeats with fitted tiles.</summary>
     public enum NinePatchAxisStretchMode { Stretch, Tile, TileFit }
 
+    /// <summary>Draws a texture as nine patches so configured borders remain stable while center and edge regions stretch or tile.</summary>
     public class NinePatchRect : TextureRect
     {
         // Godot's NinePatchRect() constructor calls set_mouse_filter(MOUSE_FILTER_IGNORE) - fully
@@ -322,6 +325,7 @@ namespace Forma
     public enum AspectRatioMode { Fit, Cover, WidthControlsHeight, HeightControlsWidth }
     /// <summary>Placement of the ratio-constrained child inside an AspectRatioContainer.</summary>
     public enum AspectRatioAlignment { Begin, Center, End }
+    /// <summary>Constrains visible children to a target aspect ratio using fit, cover, or axis-driven sizing and alignment.</summary>
     public sealed class AspectRatioContainer : Container
     {
         private float _ratio = 1;
@@ -385,6 +389,7 @@ namespace Forma
         private static float Align(AspectRatioAlignment alignment) => alignment == AspectRatioAlignment.Begin ? 0 : alignment == AspectRatioAlignment.End ? 1 : .5f;
     }
 
+    /// <summary>Draws a configurable outline around its bounds without filling the interior.</summary>
     public sealed class ReferenceRect : Control
     {
         public Color BorderColor { get; set; } = Color.Red;
@@ -397,12 +402,14 @@ namespace Forma
         protected Separator(Orientation orientation) { Orientation = orientation; }
         public Orientation Orientation { get; }
     }
+    /// <summary>Draws a horizontal themed divider with a fixed cross-axis minimum.</summary>
     public sealed class HSeparator : Separator
     {
         public HSeparator() : base(Orientation.Horizontal) { }
         public override Vector2 GetMinimumSize() => Vector2.Max(CustomMinimumSize, new Vector2(0, 2));
         internal override void Draw(UIRenderContext context) { context.Fill(new Rectangle(Bounds.X, Bounds.Center.Y, Bounds.Width, 1), context.Theme.PanelBorderColor); base.Draw(context); }
     }
+    /// <summary>Draws a vertical themed divider with a fixed cross-axis minimum.</summary>
     public sealed class VSeparator : Separator
     {
         public VSeparator() : base(Orientation.Vertical) { }
@@ -412,6 +419,7 @@ namespace Forma
 
     public enum SplitContainerDraggerVisibility { Visible, Hidden, HiddenCollapsed }
 
+    /// <summary>Partitions children along one axis with pointer- and keyboard-adjustable dividers that preserve child minimum sizes.</summary>
     public class SplitContainer : TemplatedControl
     {
         public override AccessibilityRole AccessibilityRole => AccessibilityRole.Group;
@@ -695,12 +703,15 @@ namespace Forma
             QueueLayout();
         }
     }
+    /// <summary>Partitions children into horizontally adjacent panes with vertical draggable dividers.</summary>
     public sealed class HSplitContainer : SplitContainer { public HSplitContainer() : base(Orientation.Horizontal) { } }
+    /// <summary>Partitions children into vertically adjacent panes with horizontal draggable dividers.</summary>
     public sealed class VSplitContainer : SplitContainer { public VSplitContainer() : base(Orientation.Vertical) { } }
 
     public enum FlowAlignment { Begin, Center, End }
     public enum FlowLastWrapAlignment { Inherit, Begin, Center, End }
 
+    /// <summary>Flows children into wrapping lines, distributing expansion and applying configurable alignment to incomplete lines.</summary>
     public class FlowContainer : Container
     {
         private bool _fixedOrientation;
@@ -913,9 +924,12 @@ namespace Forma
         }
         private static int Align(int available, int size, SizeFlags flags) => (flags & SizeFlags.ShrinkEnd) != 0 ? available - size : (flags & SizeFlags.ShrinkCenter) != 0 ? (available - size) / 2 : 0;
     }
+    /// <summary>Flows children horizontally and wraps overflowing items onto additional rows.</summary>
     public sealed class HFlowContainer : FlowContainer { public HFlowContainer() : base(Orientation.Horizontal) { SetFixedOrientation(); } }
+    /// <summary>Flows children vertically and wraps overflowing items into additional columns.</summary>
     public sealed class VFlowContainer : FlowContainer { public VFlowContainer() : base(Orientation.Vertical) { SetFixedOrientation(); } }
 
+    /// <summary>Draws a themed panel and arranges visible children inside its content margins.</summary>
     public sealed class PanelContainer : Container
     {
         public Thickness Padding { get; set; } = new Thickness(4);

@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 
 namespace Forma
 {
+    /// <summary>Base for controls that measure and arrange their visible children.</summary>
     public class Container : Control
     {
         /// <summary>Sizes and positions a child within a rectangle honoring its size flags, matching Godot's Container::fit_child_in_rect. A non-Fill axis sizes the child to its own minimum and aligns it within the span; horizontal (X) alignment flips under RTL, vertical (Y) never does, matching Godot exactly. This port has no desired-size/maximum-size layer, so a non-Fill axis always resolves to the child's plain minimum size.</summary>
@@ -39,6 +40,7 @@ namespace Forma
     /// <summary>Main-axis placement used by a BoxContainer when no child consumes its spare space.</summary>
     public enum BoxAlignment { Begin, Center, End }
 
+    /// <summary>Arranges visible children sequentially along one axis and distributes spare space to expanding children.</summary>
     public class BoxContainer : Container
     {
         private BoxAlignment _alignment;
@@ -188,9 +190,12 @@ namespace Forma
             }
         }
     }
+    /// <summary>Arranges visible children from left to right, or right to left under RTL layout.</summary>
     public sealed class HBoxContainer : BoxContainer { public HBoxContainer() : base(Orientation.Horizontal) { } }
+    /// <summary>Arranges visible children from top to bottom.</summary>
     public sealed class VBoxContainer : BoxContainer { public VBoxContainer() : base(Orientation.Vertical) { } }
 
+    /// <summary>Insets each visible child by configurable theme margins.</summary>
     public sealed class MarginContainer : Container
     {
         public Thickness ThemeOverrides { get; set; } = new Thickness(4);
@@ -210,6 +215,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Sizes visible children to their minimum size and centers them within the available area.</summary>
     public sealed class CenterContainer : Container
     {
         private bool _useTopLeft;
@@ -238,6 +244,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Arranges visible children into a fixed-column grid with expandable rows and columns.</summary>
     public sealed class GridContainer : Container
     {
         private int _columns = 1;

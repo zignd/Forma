@@ -185,6 +185,7 @@ static int CheckDocumentationCoverage(string[] arguments)
 
     var typeCoverage = Percentage(types.Count(item => item.Documented), types.Length);
     var memberCoverage = Percentage(members.Count(item => item.Documented), members.Length);
+    var documentationByUid = items.ToDictionary(item => item.Uid, item => item.Documented, StringComparer.Ordinal);
     var missingMappings = new List<string>();
     var mappings = new List<ControlMapping>();
     foreach (var storyPath in Directory.EnumerateFiles(storyDirectory, "*.xaml", SearchOption.TopDirectoryOnly).OrderBy(path => path, StringComparer.Ordinal))
@@ -193,8 +194,10 @@ static int CheckDocumentationCoverage(string[] arguments)
         var uid = $"Forma.{controlName}";
         var yamlExists = File.Exists(Path.Combine(apiDirectory, $"{uid}.yml"));
         var htmlExists = File.Exists(Path.Combine(siteDirectory, "api", $"{uid}.html"));
-        mappings.Add(new ControlMapping(controlName, Path.GetRelativePath(Directory.GetParent(storyDirectory)!.Parent!.Parent!.FullName, storyPath), uid, yamlExists, htmlExists));
-        if (!yamlExists || !htmlExists) missingMappings.Add($"{controlName}: metadata={yamlExists}, page={htmlExists}");
+        var documented = documentationByUid.GetValueOrDefault(uid);
+        mappings.Add(new ControlMapping(controlName, Path.GetRelativePath(Directory.GetParent(storyDirectory)!.Parent!.Parent!.FullName, storyPath), uid, yamlExists, htmlExists, documented));
+        if (!yamlExists || !htmlExists || !documented)
+            missingMappings.Add($"{controlName}: metadata={yamlExists}, page={htmlExists}, summary={documented}");
     }
 
     var report = new DocumentationCoverageReport(
@@ -447,7 +450,7 @@ static string MethodSignature(TypeDefinition type, MethodDefinition method) =>
 
 sealed record DocumentationItem(string Uid, bool Documented, bool IsType);
 sealed record DocumentationBaseline(int SchemaVersion, IReadOnlyList<string> KnownPublicApiUids);
-sealed record ControlMapping(string Control, string Story, string ApiUid, bool MetadataExists, bool PageExists);
+sealed record ControlMapping(string Control, string Story, string ApiUid, bool MetadataExists, bool PageExists, bool Documented);
 sealed record DocumentationCoverageReport(
     int PublicTypes,
     int DocumentedTypes,

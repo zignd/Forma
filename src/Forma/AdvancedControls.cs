@@ -1019,6 +1019,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Edits multiline text with wrapping, multiple carets, gutters, syntax highlighting, and undo history.</summary>
     public class TextEdit : LineEdit
     {
         private readonly List<string> _undoStack = new List<string>();
@@ -2506,6 +2507,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Edits a numeric range through text entry, arrow stepping, keyboard input, or vertical dragging.</summary>
     [TemplatePart(EditorPartName, typeof(ContentPresenter))]
     public sealed class SpinBox : Range
     {
@@ -2712,6 +2714,7 @@ namespace Forma
         public bool Separator { get; }
     }
 
+    /// <summary>Opens a popup menu of choices and reflects the selected item's text and icon.</summary>
     public sealed class OptionButton : BaseButton
     {
         public override AccessibilityRole AccessibilityRole => AccessibilityRole.ComboBox;
@@ -2919,6 +2922,7 @@ namespace Forma
         private void ValidateIndex(int index) { if (index < 0 || index >= _items.Count) throw new ArgumentOutOfRangeException(nameof(index)); }
     }
 
+    /// <summary>Displays one child page at a time and provides tabs for switching the selected page.</summary>
     public sealed class TabContainer : TemplatedControl
     {
         public override AccessibilityRole AccessibilityRole => AccessibilityRole.TabPanel;
@@ -3234,6 +3238,7 @@ namespace Forma
     /// <summary>Visual overflow hint placement, corresponding to Godot's <c>ScrollContainer.ScrollHintMode</c>.</summary>
     public enum ScrollContainerScrollHintMode { Disabled, All, TopAndLeft, BottomAndRight }
 
+    /// <summary>Clips content to a viewport and provides horizontal and vertical scrolling when it overflows.</summary>
     [TemplatePart(ScrollPresenterPartName, typeof(ScrollPresenter))]
     public sealed class ScrollContainer : TemplatedControl, IScrollViewportOwner
     {
@@ -3845,5 +3850,6 @@ namespace Forma
             else base.KeyPressed(key);
         }
     }
+    /// <summary>Presents popup content on a panel-styled surface with standard popup dismissal behavior.</summary>
     public class PopupPanel : Popup { }
 }

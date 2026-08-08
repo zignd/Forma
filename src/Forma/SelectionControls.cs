@@ -14,6 +14,7 @@ namespace Forma
 {
     public enum LinkButtonUnderlineMode { Always, OnHover, Never }
 
+    /// <summary>Activates an absolute URI through a host launcher and applies configurable link underlining.</summary>
     public sealed class LinkButton : BaseButton
     {
         public LinkButton()
@@ -83,6 +84,7 @@ namespace Forma
         public bool Tile { get; }
     }
 
+    /// <summary>Uses state-specific textures for button feedback with configurable scaling, flipping, and alpha-mask hit testing.</summary>
     public sealed class TextureButton : BaseButton
     {
         public Texture2D TextureNormal { get; set; }
@@ -249,6 +251,7 @@ namespace Forma
         }
     }
 
+    /// <summary>Scrolls a numeric range through step buttons, page regions, thumb dragging, or inertial drag-node input.</summary>
     public class ScrollBar : Range
     {
         public override AccessibilityRole AccessibilityRole => AccessibilityRole.ScrollBar;
@@ -658,7 +661,9 @@ namespace Forma
         private float ToLocalMainAxis(Point point) => Orientation == Orientation.Horizontal ? point.X - Bounds.Left : point.Y - Bounds.Top;
         private Rectangle ToGlobal(Rectangle local) => new Rectangle(Bounds.X + local.X, Bounds.Y + local.Y, local.Width, local.Height);
     }
+    /// <summary>Scrolls a range along a horizontal track.</summary>
     public sealed class HScrollBar : ScrollBar { public HScrollBar() : base(Orientation.Horizontal) { } }
+    /// <summary>Scrolls a range along a vertical track.</summary>
     public sealed class VScrollBar : ScrollBar { public VScrollBar() : base(Orientation.Vertical) { } }
 
     public enum TextureProgressFillMode
@@ -684,6 +689,7 @@ namespace Forma
         public Thickness Margins { get; }
     }
 
+    /// <summary>Visualizes progress with layered textures using linear, radial, bilinear, or nine-patch fill behavior.</summary>
     public sealed class TextureProgressBar : Range
     {
         public override AccessibilityRole AccessibilityRole => AccessibilityRole.ProgressBar;

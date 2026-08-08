@@ -6,6 +6,7 @@ using Forma.Xaml;
 
 namespace Forma
 {
+    /// <summary>Presents an object through a content template with configurable horizontal and vertical alignment.</summary>
     [TemplatePart(ContentPresenterPartName, typeof(ContentPresenter), false)]
     public class ContentControl : TemplatedControl
     {

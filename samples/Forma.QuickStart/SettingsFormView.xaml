@@ -1,0 +1,20 @@
+<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.QuickStart"
+    x:Class="Forma.QuickStart.SettingsFormView"
+    x:DataType="local:SettingsFormViewModel"
+    Separation="12">
+    <Label Text="Player settings" />
+    <LineEdit
+        x:Name="DisplayNameInput"
+        Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+        PlaceholderText="Display name"
+        CustomMinimumSize="320,44" />
+    <Button
+        x:Name="SaveButton"
+        Text="Save settings"
+        Enabled="{Binding CanSave}"
+        CustomMinimumSize="160,44" />
+    <Label Text="{Binding Status}" />
+</BoxContainer>

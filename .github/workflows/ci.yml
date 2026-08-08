@@ -42,6 +42,7 @@ jobs:
           dotnet build tests/Forma.Xaml.Build.Integration/Forma.Xaml.Build.Integration.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
           test -f "tests/Forma.Xaml.Build.Integration/obj/$FORMA_RUNTIME/Release/net10.0/FormaXaml/compile.stamp"
           dotnet build "samples/Forma.Xaml.Game.$FORMA_RUNTIME/Forma.Xaml.Game.$FORMA_RUNTIME.csproj" --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
+          dotnet build "samples/Forma.QuickStart.$FORMA_RUNTIME/Forma.QuickStart.$FORMA_RUNTIME.csproj" --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo
       - name: Compile render tests
         shell: bash
         run: dotnet build tests/Forma.RenderTests/Forma.RenderTests.csproj --configuration Release -p:FormaRuntime="$FORMA_RUNTIME" --nologo

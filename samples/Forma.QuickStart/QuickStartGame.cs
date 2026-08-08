@@ -9,13 +9,20 @@ using Forma.Xaml.HotReload;
 
 namespace Forma.QuickStart;
 
+public enum QuickStartViewKind
+{
+    CSharp,
+    Xaml,
+    SettingsForm,
+}
+
 public sealed class QuickStartGame : Game
 {
     private readonly GraphicsDeviceManager _graphics;
     private readonly UIContext _ui;
     private readonly int _maximumFrames;
     private readonly string? _screenshotPath;
-    private readonly bool _useXaml;
+    private readonly QuickStartViewKind _viewKind;
     private Control? _root;
     private UIFontFace? _fontFace;
     private int _renderedFrames;
@@ -24,11 +31,14 @@ public sealed class QuickStartGame : Game
     private IDisposable? _xamlHotReloadRegistration;
 #endif
 
-    public QuickStartGame(int maximumFrames = 0, string? screenshotPath = null, bool useXaml = false)
+    public QuickStartGame(
+        int maximumFrames = 0,
+        string? screenshotPath = null,
+        QuickStartViewKind viewKind = QuickStartViewKind.CSharp)
     {
         _maximumFrames = maximumFrames;
         _screenshotPath = screenshotPath;
-        _useXaml = useXaml;
+        _viewKind = viewKind;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 800,
@@ -52,10 +62,15 @@ public sealed class QuickStartGame : Game
         _ui.Theme.FontFamily = new UIFontFamily(new[] { font });
         _ui.TooltipUIFont = font;
 
-        _root = _useXaml ? new FirstView() : QuickStartView.Create();
+        _root = _viewKind switch
+        {
+            QuickStartViewKind.Xaml => new FirstView(),
+            QuickStartViewKind.SettingsForm => new SettingsFormView(),
+            _ => QuickStartView.Create(),
+        };
         _ui.Add(_root);
     #if FORMA_XAML_HOT_RELOAD
-        if (_useXaml) StartXamlHotReload();
+        if (_viewKind == QuickStartViewKind.Xaml) StartXamlHotReload();
     #endif
 
         base.LoadContent();

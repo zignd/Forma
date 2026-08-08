@@ -567,7 +567,7 @@ Each curated control entry should include:
 
 ### Tasks
 
-- [ ] Add a settings or login form demonstrating layout, validation, focus, and two-way input.
+- [x] Add a settings or login form demonstrating layout, validation, focus, and two-way input.
 - [ ] Add a responsive HUD demonstrating anchors/containers, resize, and display scale.
 - [ ] Add a scrollable inventory demonstrating item templates and selection.
 - [ ] Add a dialog workflow demonstrating modal ownership and result handling.

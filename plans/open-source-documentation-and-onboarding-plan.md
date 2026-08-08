@@ -569,7 +569,7 @@ Each curated control entry should include:
 
 - [x] Add a settings or login form demonstrating layout, validation, focus, and two-way input.
 - [x] Add a responsive HUD demonstrating anchors/containers, resize, and display scale.
-- [ ] Add a scrollable inventory demonstrating item templates and selection.
+- [x] Add a scrollable inventory demonstrating item templates and selection.
 - [ ] Add a dialog workflow demonstrating modal ownership and result handling.
 - [ ] Add a list/DataGrid example demonstrating typed data binding and observable updates.
 - [ ] Add a custom theme/control example demonstrating styles, templates, and default icons.

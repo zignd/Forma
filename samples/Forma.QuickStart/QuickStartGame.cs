@@ -15,6 +15,7 @@ public enum QuickStartViewKind
     Xaml,
     SettingsForm,
     ResponsiveHud,
+    InventoryList,
 }
 
 public sealed class QuickStartGame : Game
@@ -72,6 +73,7 @@ public sealed class QuickStartGame : Game
             QuickStartViewKind.Xaml => new FirstView(),
             QuickStartViewKind.SettingsForm => new SettingsFormView(),
             QuickStartViewKind.ResponsiveHud => ResponsiveHudView.Create(_displayScale),
+            QuickStartViewKind.InventoryList => new InventoryListView(),
             _ => QuickStartView.Create(),
         };
         _ui.Add(_root);

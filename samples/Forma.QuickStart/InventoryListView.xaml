@@ -1,0 +1,26 @@
+<BoxContainer
+    xmlns="https://forma.dev/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Forma.QuickStart"
+    x:Class="Forma.QuickStart.InventoryListView"
+    x:DataType="local:InventoryListViewModel"
+    Separation="12">
+    <BoxContainer.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="InventoryRow" x:DataType="local:InventoryItem">
+                <HBoxContainer Separation="12" CustomMinimumSize="520,40">
+                    <Label Text="{Binding Name}" CustomMinimumSize="240,32" />
+                    <Label Text="{Binding Category}" CustomMinimumSize="140,32" />
+                    <Label Text="{Binding QuantityText}" CustomMinimumSize="80,32" />
+                </HBoxContainer>
+            </DataTemplate>
+        </ResourceDictionary>
+    </BoxContainer.Resources>
+    <Label Text="Field inventory" />
+    <ListBox
+        x:Name="InventoryList"
+        ItemsSource="{Binding Items}"
+        ItemTemplate="{StaticResource InventoryRow}"
+        CustomMinimumSize="560,280" />
+    <Label Text="{Binding SelectionSummary}" />
+</BoxContainer>

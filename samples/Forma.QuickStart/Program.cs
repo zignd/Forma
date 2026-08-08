@@ -26,6 +26,9 @@ for (var index = 0; index < args.Length; index++)
         case "--responsive-hud":
             viewKind = QuickStartViewKind.ResponsiveHud;
             break;
+        case "--inventory-list":
+            viewKind = QuickStartViewKind.InventoryList;
+            break;
         case "--display-scale" when index + 1 < args.Length
             && float.TryParse(args[++index], NumberStyles.Float, CultureInfo.InvariantCulture, out var scale)
             && float.IsFinite(scale)

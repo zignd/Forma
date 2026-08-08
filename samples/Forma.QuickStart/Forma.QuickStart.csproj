@@ -27,6 +27,7 @@
   <ItemGroup>
     <Compile Remove="Program.cs" />
     <Compile Include="../../docs/examples/csharp-first-ui.cs" Link="QuickStartView.cs" />
+    <Compile Include="../../docs/examples/inventory-list.cs" Link="InventoryListView.cs" />
     <Compile Include="../../docs/examples/responsive-hud.cs" Link="ResponsiveHudView.cs" />
     <Compile Include="../../docs/examples/settings-form.cs" Link="SettingsFormView.cs" />
     <Compile Include="../../docs/examples/xaml-first-ui.cs" Link="FirstView.cs" />

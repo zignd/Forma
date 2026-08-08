@@ -24,10 +24,10 @@ make quick-start-fna
 
 ![Forma C# quick start with a label, editable field, button, and status text.](docs/images/quick-start-monogame.png)
 
-The [C# first-UI guide](docs/getting-started/csharp-first-ui.md) explains the shared control tree,
+The [C# first-UI guide](https://zigrok.github.io/Forma/latest/getting-started/csharp-first-ui.html) explains the shared control tree,
 font setup, viewport resizing, input forwarding, disposal, clean-cache smoke check, and expected
 result. Choose the peer already used by the host game; the public APIs match, but binaries cannot be
-mixed. Use the [documentation home](docs/index.md) to choose XAML, concepts, troubleshooting,
+mixed. Use the [documentation home](https://zigrok.github.io/Forma/latest/) to choose XAML, concepts, troubleshooting,
 control reference, optional features, or contributor guidance.
 
 ## Choose a Runtime
@@ -36,7 +36,7 @@ Use one matching package pair and one framework implementation. Never mix runtim
 
 Use `Forma.MonoGame` with MonoGame or `Forma.FNA` with FNA. Every optional Forma package must carry
 the same runtime suffix and version as core. The detailed peer, backend, and platform matrices live
-in [runtime support](docs/runtime-support.md).
+in [runtime support](https://zigrok.github.io/Forma/latest/runtime-support.html).
 
 The core and media packages contain assemblies named `Forma` and `Forma.Media` with public types in
 the `Forma` namespace. Add the matching `Forma.DynamicText` companion only when using runtime font
@@ -45,8 +45,8 @@ Package-owned build guards reject mixed variants with an actionable error.
 
 Add exactly one matching explicit `Forma.Svg.Skia` or `Forma.Svg.ThorVG` companion for bounded
 runtime SVG rendering. The unused `Forma.Svg.MonoGame` and `Forma.Svg.FNA` compatibility identities
-are excluded from the first public release. Core packages remain free of both backends. See
-[docs/runtime-svg.md](docs/runtime-svg.md) for
+are excluded from the first public release. Core packages remain free of both backends. See the
+[runtime SVG guide](https://zigrok.github.io/Forma/latest/runtime-svg.html) for
 source loading, compiled XAML assets, scaling, cache diagnostics, security limits, theme policy,
 deployment, and rollback.
 
@@ -83,13 +83,13 @@ make xaml-game-fna
 make test-xaml
 ```
 
-See [docs/xaml-language.md](docs/xaml-language.md) for setup, syntax, MSBuild/CLI/LSP usage,
+See the [XAML language guide](https://zigrok.github.io/Forma/latest/xaml-language.html) for setup, syntax, MSBuild/CLI/LSP usage,
 diagnostics, hot-reload limits, AOT behavior, and the compatibility matrix. See
 [samples/Forma.Xaml.Game/README.md](samples/Forma.Xaml.Game/README.md) for the playable sample.
 Breaking custom chrome, row factory, visual-tree, and virtualization changes are covered by the
-[template and items migration guide](docs/xaml-templates-migration.md).
+[template and items migration guide](https://zigrok.github.io/Forma/latest/xaml-templates-migration.html).
 
-See [docs/dynamic-text.md](docs/dynamic-text.md) for runtime loading, fallback, logical DPI,
+See the [dynamic text guide](https://zigrok.github.io/Forma/latest/dynamic-text.html) for runtime loading, fallback, logical DPI,
 OpenType features, variable fonts, atlas budgets, deployment, disposal, migration, rollback, and
 native-free platform guidance. MGCB/XNB SpriteFonts remain an optional compatibility route rather
 than a prerequisite for dynamic text.
@@ -172,7 +172,7 @@ render-parity, and native-backend commands.
 
 Default control icons are embedded, density-aware, and independent of application content
 pipelines. The Catalog activates the optional runtime SVG provider and exposes SVG/PNG policy
-controls in its `Runtime SVG` story. See [docs/theme-icons.md](docs/theme-icons.md) for icon names,
+controls in its `Runtime SVG` story. See the [theme icons guide](https://zigrok.github.io/Forma/latest/theme-icons.html) for icon names,
 ownership, density selection, overrides, suppression, diagnostics, and deterministic regeneration.
 
 ## Validation
@@ -207,9 +207,9 @@ bash scripts/test-nativeaot-package-consumer.sh
 Graphics render tests execute on supported Windows/Linux CI cells and compile on macOS, where NUnit
 excludes fixture setup because SDL graphics-device creation must run on the process main thread.
 
-See [docs/runtime-support.md](docs/runtime-support.md) for the graphics, content, effects, media,
+See the [runtime support guide](https://zigrok.github.io/Forma/latest/runtime-support.html) for the graphics, content, effects, media,
 native dependency, trimming, AOT, CI, and manual-gate matrix. See
-[docs/runtime-acquisition.md](docs/runtime-acquisition.md) for pinned distribution ownership.
+[runtime acquisition](https://zigrok.github.io/Forma/latest/runtime-acquisition.html) for pinned distribution ownership.
 
 ## Contributing and Support
 
@@ -231,12 +231,12 @@ and revalidates the auditable artifact instead of rebuilding, publishes without 
 versions, verifies NuGet.org indexing and clean restores, and only then creates the GitHub release.
 The `nuget-production` environment accepts only `v*` tags; creating a release tag authorizes
 automatic publication after every required job passes. See the
-[release operations runbook](docs/release-operations.md) for preflight, correction, symbols,
+[release operations runbook](https://zigrok.github.io/Forma/latest/release-operations.html) for preflight, correction, symbols,
 ownership, and credential recovery.
 
 Before the first public peer release, replace unqualified `Forma` and `Forma.Media` package
 references with one matching peer pair. The unqualified IDs are not aliases and must not select a
-canonical runtime. Detailed steps are in [docs/runtime-support.md](docs/runtime-support.md).
+canonical runtime. Detailed steps are in the [runtime support guide](https://zigrok.github.io/Forma/latest/runtime-support.html).
 
 Existing `Font` properties remain source-compatible through `SpriteFontAdapter`. Dynamic migration
 uses the parallel `UIFont` property and does not require changing control-tree layout intent. Fixed

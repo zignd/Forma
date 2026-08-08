@@ -30,10 +30,10 @@ on:
       - "package-lock.json"
       - "package.json"
       - "scripts/build-docs.sh"
-        - "scripts/stage-docs-pages.mjs"
+      - "scripts/stage-docs-pages.mjs"
       - "src/**"
   workflow_dispatch:
-      workflow_call:
+  workflow_call:
 
 permissions:
   contents: read

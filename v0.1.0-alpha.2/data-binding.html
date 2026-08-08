@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Data binding | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Data binding | Forma Documentation ">
+      
+      <meta name="description" content="Bind compiled Forma XAML views to observable application state.">
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/data-binding.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="data-binding">Data binding</h1>
+
+<p>Forma bindings are compiled with the XAML view. Use <code>x:DataType</code> so member paths, conversion, and
+writability errors are reported at build time, then choose the least powerful mode that expresses
+the data flow.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Use it for</th>
+<th>Updates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OneTime</code></td>
+<td>Immutable setup values</td>
+<td>Once when attached; later source/context changes are ignored</td>
+</tr>
+<tr>
+<td><code>OneWay</code></td>
+<td>Status and presentation</td>
+<td>Source to target; this is the default</td>
+</tr>
+<tr>
+<td><code>TwoWay</code></td>
+<td>Editable form state</td>
+<td>Source to target and target to writable source</td>
+</tr>
+</tbody>
+</table>
+<p><code>UpdateSourceTrigger.Default</code> selects the target adapter's normal behavior. Use <code>PropertyChanged</code>
+for immediate updates or <code>LostFocus</code> to defer a write until editing ends.</p>
+<h2 id="bind-an-editable-view">Bind an editable view</h2>
+<p>The XAML QuickStart is compiled and executed against both runtime peers:</p>
+<pre><code class="lang-xml">&lt;BoxContainer
+    xmlns=&quot;https://forma.dev/xaml&quot;
+    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+    xmlns:local=&quot;clr-namespace:Forma.QuickStart&quot;
+    x:Class=&quot;Forma.QuickStart.FirstView&quot;
+    x:DataType=&quot;local:FirstViewModel&quot;
+    x:Name=&quot;QuickStartRoot&quot;
+    Separation=&quot;12&quot;&gt;
+    &lt;Label Text=&quot;Your first Forma XAML UI&quot; /&gt;
+    &lt;LineEdit
+        x:Name=&quot;NameInput&quot;
+        Text=&quot;{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}&quot;
+        PlaceholderText=&quot;Your name&quot;
+        CustomMinimumSize=&quot;320,44&quot; /&gt;
+    &lt;Button
+        x:Name=&quot;GreetButton&quot;
+        Text=&quot;Greet&quot;
+        CustomMinimumSize=&quot;120,44&quot; /&gt;
+    &lt;Label Text=&quot;{Binding Greeting}&quot; /&gt;
+&lt;/BoxContainer&gt;
+</code></pre>
+<p>Its typed model raises <code>PropertyChanged</code> for <code>Name</code> and <code>Greeting</code>:</p>
+<pre><code class="lang-csharp">// SPDX-License-Identifier: MIT
+
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Forma.Xaml;
+
+namespace Forma.QuickStart;
+
+public sealed class FirstView : BoxContainer
+{
+    public FirstView() : this(new FirstViewModel()) { }
+
+    public FirstView(FirstViewModel viewModel) : base(Orientation.Vertical)
+    {
+        DataContext = viewModel;
+        FormaXamlLoader.Load(this);
+        var scope = NameScope.GetNameScope(this)
+            ?? throw new InvalidOperationException(&quot;FirstView did not create a namescope.&quot;);
+        scope.Find&lt;Button&gt;(&quot;GreetButton&quot;).Pressed += (_, _) =&gt; viewModel.Greet();
+    }
+}
+
+public sealed class FirstViewModel : INotifyPropertyChanged
+{
+    private string _name = &quot;Player&quot;;
+    private string _greeting = &quot;Ready.&quot;;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public string Name
+    {
+        get =&gt; _name;
+        set =&gt; Set(ref _name, value);
+    }
+
+    public string Greeting
+    {
+        get =&gt; _greeting;
+        private set =&gt; Set(ref _greeting, value);
+    }
+
+    public void Greet() =&gt; Greeting = $&quot;Hello, {Name.Trim()}!&quot;;
+
+    private void Set&lt;T&gt;(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer&lt;T&gt;.Default.Equals(field, value)) return;
+        field = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
+</code></pre>
+<p>The <code>LineEdit.Text</code> adapter supports two-way updates. Forma also supplies adapters for range values,
+button/check state, option selection, and list selection. For a custom target, provide the target
+change contract required by <code>TwoWay</code> rather than polling.</p>
+<h2 id="datacontext-and-source-selection">DataContext and source selection</h2>
+<p><code>DataContext</code> inherits through the logical/inheritance parent, including controls projected into a
+template. Assigning <code>null</code> still creates a local value and stops fallback; call <code>ClearDataContext()</code>
+to resume inheritance. Use explicit <code>Self</code>, <code>TemplatedParent</code>, or <code>FindAncestor</code> sources when the
+value belongs to control structure rather than application data.</p>
+<p>One-way and two-way expressions subscribe to context changes and source notifications while their
+compiled XAML attachment is active. Detaching an ordinary compiled root disposes those subscriptions
+and restores the target's underlying value.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul>
+<li><code>TwoWay</code> requires a writable source member, reverse conversion, and a target change adapter.</li>
+<li><code>OneTime</code> does not refresh after replacing <code>DataContext</code>; choose <code>OneWay</code> for live state.</li>
+<li>Setting <code>DataContext=null</code> is not the same as clearing the local value.</li>
+<li>Do not rely on detached compiled roots to reactivate bindings when re-added; construct a new
+ordinary view or use the explicit template recycling lifecycle.</li>
+</ul>
+<p>The <a href="xaml-language.html">XAML language contract</a> remains canonical for syntax,
+fallback/null options, converters, relative sources, and diagnostics. The Catalog's
+<a href="https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/DataBindingStoryView.xaml">compiled binding story</a>
+shows more modes and source forms.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/data-binding.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

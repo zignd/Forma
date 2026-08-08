@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Troubleshoot XAML build and hot reload | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Troubleshoot XAML build and hot reload | Forma Documentation ">
+      
+      <meta name="description" content="Resolve Forma XAML diagnostics, build integration, and replacement failures.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/troubleshooting/xaml-build-and-hot-reload.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="troubleshoot-xaml-build-and-hot-reload">Troubleshoot XAML build and hot reload</h1>
+
+<h2 id="start-with-the-first-fxaml-diagnostic">Start with the first <code>FXAML</code> diagnostic</h2>
+<p>Forma reports stable <code>FXAML</code> codes with a project-relative path and one-based line and column.
+Later messages can be consequences of the first invalid type, member, resource, binding, selector,
+or directive. Run the same compiler outside the host to isolate authoring from graphics startup:</p>
+<pre><code class="lang-sh">dotnet run --project tools/Forma.Xaml.Tool/Forma.Xaml.Tool.csproj -- \
+  validate --require-compiled-bindings --format human samples/Forma.Xaml.Game
+</code></pre>
+<p>Use <code>--format json</code> or <code>--format sarif</code> for automation. The
+<a href="../xaml-language.html">XAML language contract</a> owns diagnostic families and supported syntax.</p>
+<h2 id="xaml-file-is-not-compiled">XAML file is not compiled</h2>
+<p>The build integration discovers XAML owned by the compiling project. A file linked from another
+directory is not automatically part of that project's <code>**/*.xaml</code> discovery. Keep the view in the
+owning project or explicitly include it using the build package's supported item contract. Ensure
+the <code>.MonoGame</code> or <code>.FNA</code> XAML build package matches the core peer.</p>
+<p>An <code>x:Class</code> root must resolve to a compatible, non-sealed code-behind type with one emitted root
+class. Constructor-owned properties cannot be assigned from markup. Validate repository build,
+incremental, deterministic, and portable-PDB fixtures with:</p>
+<pre><code class="lang-sh">make xaml-build-fixtures
+</code></pre>
+<h2 id="binding-fails-at-compile-time">Binding fails at compile time</h2>
+<p>Add <code>x:DataType</code> at the binding scope and correct the reported member path. <code>TwoWay</code> requires a
+writable source member, reverse conversion, and a supported target change adapter. If updates should
+wait until editing ends, use <code>UpdateSourceTrigger=LostFocus</code>; otherwise select <code>PropertyChanged</code>.
+See <a href="../data-binding.html">Data binding</a> for the task workflow.</p>
+<h2 id="hot-reload-reports-an-error-or-appears-stale">Hot reload reports an error or appears stale</h2>
+<p>Hot reload is Debug-only and must be registered by the host. An invalid edit leaves the currently
+attached tree untouched; fix the latest diagnostic and save again. Replacement preserves the host
+slot and data context, but not references to old named controls, focus/capture inside the subtree,
+arbitrary code-behind state, or animation position.</p>
+<p>Release, trimmed, and NativeAOT output must not contain source XAML, watchers, XamlX, Cecil, compiler,
+or hot-reload assemblies. Run the peer fixture to check both Debug startup and Release isolation:</p>
+<pre><code class="lang-sh">FORMA_RUNTIME=MonoGame bash scripts/check-quick-start.sh
+FORMA_RUNTIME=FNA bash scripts/check-quick-start.sh
+</code></pre>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/troubleshooting/xaml-build-and-hot-reload.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

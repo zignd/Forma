@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Troubleshoot rendering and assets | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Troubleshoot rendering and assets | Forma Documentation ">
+      
+      <meta name="description" content="Resolve blank Forma output, missing assets, SVG, scaling, and device lifecycle issues.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/troubleshooting/rendering-and-assets.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="troubleshoot-rendering-and-assets">Troubleshoot rendering and assets</h1>
+
+<h2 id="window-opens-but-ui-is-blank">Window opens but UI is blank</h2>
+<p>Confirm the context has a root, the root has a nonzero logical <code>Size</code>, and the host calls both update
+and draw. <code>UIComponent</code> performs those integrations and updates <code>ViewportSize</code>. A custom host must do
+the equivalent. Check <code>Visible</code>, opacity, clipping, and whether the root lies outside the viewport
+before changing renderer code.</p>
+<p>Run a bounded rendered fixture to distinguish host setup from application composition:</p>
+<pre><code class="lang-sh">FORMA_RUNTIME=MonoGame bash scripts/check-quick-start.sh
+FORMA_RUNTIME=FNA bash scripts/check-quick-start.sh
+</code></pre>
+<p>The command renders both C# and XAML roots, validates PNG output, and exits without interaction.</p>
+<h2 id="font-or-content-is-missing">Font or content is missing</h2>
+<p>Project-file fonts must be copied beside the executable at the path supplied to
+<code>UIFontFace.FromProjectFile</code>. Content-pipeline <code>SpriteFont</code> values require their compiled XNB and
+matching content root. Keep <code>UIFontFace</code> alive until all contexts using its dynamic fonts stop
+drawing. See <a href="../dynamic-text.html">Dynamic text</a> and <a href="../resource-lifetime.html">Resource lifetime</a>.</p>
+<p>For text rendered as boxes or missing graphemes, inspect the configured family and fallback faces
+before increasing atlas limits. Missing glyphs are data and should remain a bounded diagnostic.</p>
+<h2 id="svg-is-absent-or-reports-an-unhealthy-backend">SVG is absent or reports an unhealthy backend</h2>
+<p>Install exactly one runtime-matched SVG backend before first SVG use. Source-project hosts call the
+backend's <code>Install()</code>; <code>Verify()</code> adds a bounded raster probe. Do not mix Skia and ThorVG or expect
+application SVG to cross-fallback between them. Inspect <code>SvgRuntime.Health</code> and
+<code>UIContext.SvgRasterDiagnostics.LastFailure</code>.</p>
+<pre><code class="lang-sh">make svg-selection
+make svg-packages
+</code></pre>
+<p>The <a href="../runtime-svg.html">runtime SVG guide</a> owns source limits, caching, security, and deployment.</p>
+<h2 id="size-or-input-is-wrong-on-a-dense-display">Size or input is wrong on a dense display</h2>
+<p><code>DisplayScale</code> is physical pixels per logical UI coordinate and defaults to <code>1</code>. Supply a finite,
+positive value; keep root sizes and control geometry in logical coordinates. Forma maps pointer
+input back to logical coordinates and invalidates scale-sensitive caches. Do not multiply both the
+host viewport and control dimensions by the scale. See <a href="../layout-and-sizing.html">Layout and sizing</a>.</p>
+<h2 id="output-breaks-after-graphics-device-reset">Output breaks after graphics-device reset</h2>
+<p>The renderer, dynamic glyph atlas, and SVG raster cache subscribe to device reset and recreate or
+invalidate device objects. Application-created textures remain application-owned and must follow the
+runtime peer's reset rules. Do not retain internal atlas textures; use immutable diagnostic snapshots.
+If a reset-only issue reproduces in repository fixtures, run the relevant SVG/text smoke and report
+the selected peer, backend, RID, and first diagnostic.</p>
+<h2 id="graphics-device-is-unavailable-in-automation">Graphics device is unavailable in automation</h2>
+<p>Graphical smoke requires a supported desktop session and backend. Linux CI uses software graphics
+under Xvfb. Unit/compiler/docs tests can run headlessly, but a rendered smoke cannot prove startup
+without a device. Use the host matrix in <a href="../runtime-support.html">Runtime support</a> rather than treating
+a missing display as a control-tree failure.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/troubleshooting/rendering-and-assets.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

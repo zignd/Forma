@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Build your first UI in C# | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Build your first UI in C# | Forma Documentation ">
+      
+      <meta name="description" content="Run the same small Forma interface on MonoGame or FNA.">
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/getting-started/csharp-first-ui.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="build-your-first-ui-in-c">Build your first UI in C#</h1>
+
+<p>This route creates one retained control tree with a label, editable field, button event, and status
+label. The shared view is compiled and smoke-tested against both runtime peers. The first public
+NuGet preview is not indexed yet, so the current executable route uses this repository's source
+projects rather than presenting unavailable package commands.</p>
+<h2 id="choose-a-host">Choose a host</h2>
+<p>Use the runtime already selected by the game. Forma's MonoGame and FNA APIs are equivalent, but the
+assemblies are not interchangeable.</p>
+<pre><code class="lang-sh"># MonoGame
+dotnet run --project samples/Forma.QuickStart.MonoGame/Forma.QuickStart.MonoGame.csproj \
+  -p:FormaRuntime=MonoGame
+
+# FNA
+dotnet run --project samples/Forma.QuickStart.FNA/Forma.QuickStart.FNA.csproj \
+  -p:FormaRuntime=FNA
+</code></pre>
+<p>Both hosts use the same <code>QuickStartGame</code> and control-tree source. Each thin executable selects only
+its matching framework and Forma project graph.</p>
+<h2 id="create-the-control-tree">Create the control tree</h2>
+<p>The page imports this block from the file compiled by both sample hosts:</p>
+<pre><code class="lang-csharp">// SPDX-License-Identifier: MIT
+
+using Microsoft.Xna.Framework;
+
+namespace Forma.QuickStart;
+
+internal static class QuickStartView
+{
+    public static VBoxContainer Create()
+    {
+        var name = new LineEdit
+        {
+            Name = &quot;Name&quot;,
+            PlaceholderText = &quot;Your name&quot;,
+            Text = &quot;Player&quot;,
+            CustomMinimumSize = new Vector2(320, 44),
+        };
+        var status = new Label { Text = &quot;Ready.&quot; };
+        var greet = new Button
+        {
+            Text = &quot;Greet&quot;,
+            CustomMinimumSize = new Vector2(120, 44),
+        };
+        greet.Pressed += (_, _) =&gt; status.Text = $&quot;Hello, {name.Text.Trim()}!&quot;;
+
+        var root = new VBoxContainer
+        {
+            Name = &quot;QuickStartRoot&quot;,
+            Separation = 12,
+        };
+        root.AddChild(new Label { Text = &quot;Your first Forma UI&quot; });
+        root.AddChild(name);
+        root.AddChild(greet);
+        root.AddChild(status);
+        return root;
+    }
+}
+</code></pre>
+<p><code>VBoxContainer</code> owns its children and allocates them vertically. <code>CustomMinimumSize</code> prevents the
+editable field and button from collapsing below useful input dimensions. <code>Pressed</code> updates the
+retained status label directly; a redraw is queued by the changed property.</p>
+<h2 id="connect-forma-to-the-game">Connect Forma to the game</h2>
+<p><code>QuickStartGame</code> creates a <code>UIContext</code> and adds <code>UIComponent</code> to <code>Game.Components</code>. The component
+forwards pointer, keyboard, and text input, updates <code>UIContext.ViewportSize</code> from the graphics-device
+viewport, and draws the retained tree. The game keeps a 40-pixel inset and recomputes the root size
+each update, so resizing the window reallocates all available content space.</p>
+<p>The sample loads <code>Fonts/Inter_Regular.ttf</code> with <code>UIFontFace.FromProjectFile</code>, creates a
+<code>DynamicUIFont</code>, and assigns it to <code>UIContext.Theme.FontFamily</code>. A game using SpriteFont instead can
+assign <code>Font</code> properties or a <code>SpriteFontAdapter</code>; see <a href="../dynamic-text.html">Dynamic text</a> for the
+ownership and deployment choices.</p>
+<p><code>UIComponent.Dispose</code> disposes its <code>UIContext</code>. The game disposes the application-owned <code>UIFontFace</code>
+after the base game and its components have been disposed. Preserve that ownership order when moving
+the setup into an existing game.</p>
+<h2 id="expected-result">Expected result</h2>
+<p>MonoGame:</p>
+<p><img src="../images/quick-start-monogame.png" alt="MonoGame quick start showing a label, editable Player field, Greet button, and Ready status."></p>
+<p>FNA:</p>
+<p><img src="../images/quick-start-fna.png" alt="FNA quick start showing the same label, editable Player field, Greet button, and Ready status."></p>
+<p>Select the field, enter a name, and press <strong>Greet</strong>. The status changes to <code>Hello, &lt;name&gt;!</code>.</p>
+<h2 id="validate-the-fixture">Validate the fixture</h2>
+<p>The bounded smoke command restores from an empty package cache, builds the selected peer, renders
+three frames, saves the backbuffer, verifies the PNG signature, exits, and disposes the game:</p>
+<pre><code class="lang-sh">FORMA_RUNTIME=MonoGame bash scripts/check-quick-start.sh
+FORMA_RUNTIME=FNA bash scripts/check-quick-start.sh
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<ul>
+<li><strong>Mixed runtime assemblies:</strong> use only <code>.MonoGame</code> packages with MonoGame or only <code>.FNA</code> packages
+with FNA. Clean <code>bin</code>, <code>obj</code>, and lock files after changing peer.</li>
+<li><strong>Missing native assets:</strong> FNA package consumers need the matching native-assets distribution.
+Native font loading also needs the RID assets described in <a href="../dynamic-text.html">Dynamic text</a>.</li>
+<li><strong>Missing font/content:</strong> verify the file is copied beside the executable at
+<code>Fonts/Inter_Regular.ttf</code>. A content-pipeline SpriteFont requires its compiled XNB instead.</li>
+<li><strong>No graphics device:</strong> graphical startup requires a supported desktop session and backend. Linux
+CI uses software graphics under Xvfb; see <a href="../runtime-support.html">Runtime support</a>.</li>
+<li><strong>XAML diagnostics:</strong> this C# route does not invoke the XAML compiler. For declarative views, start
+with the <a href="../xaml-language.html">XAML language contract</a> and keep the runtime and build-package peers
+aligned.</li>
+</ul>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/getting-started/csharp-first-ui.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

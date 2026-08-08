@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Runtime SVG | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Runtime SVG | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/runtime-svg.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="runtime-svg">Runtime SVG</h1>
+
+<p>Forma provides bounded runtime SVG rendering through one explicitly selected runtime-matched Skia
+or ThorVG companion. Core packages expose immutable source, profile, and cache contracts but do not
+reference either renderer or its native assets.</p>
+<h2 id="setup">Setup</h2>
+<p>Reference exactly one backend matching the selected Forma runtime:</p>
+<pre><code class="lang-xml">&lt;PackageReference Include=&quot;Forma.MonoGame&quot; Version=&quot;0.1.0-alpha.2&quot; /&gt;
+&lt;PackageReference Include=&quot;Forma.Svg.ThorVG.MonoGame&quot; Version=&quot;0.1.0-alpha.2&quot; /&gt;
+</code></pre>
+<p>ThorVG is the default used by Forma's Catalog and SVG smoke hosts on validated macOS arm64 and
+Linux x64 systems. Replace <code>ThorVG</code> with <code>Skia</code> to select the reference renderer explicitly. Use
+<code>.FNA</code> peers together for FNA. Package builds install the selected backend automatically through a source module
+initializer. Source-project consumers call the matching explicit installer:</p>
+<pre><code class="lang-csharp">var health = SvgThorvgBackendDefaults.Verify();
+if (!health.IsAvailable)
+    throw new InvalidOperationException(health.Diagnostic);
+</code></pre>
+<p>Use <code>SvgSkiaBackendDefaults.Verify()</code> for Skia. <code>SvgRuntime.Health</code> reports stable backend ID,
+registration, native availability/source, link mode, backend/profile versions, tested features, and
+an actionable bounded diagnostic. Drawing without a backend fails explicitly. Selection is
+process-wide and immutable after first parse; there is no cross-backend fallback. See the
+<a href="svg-backend-migration.html">selection and migration guide</a>.</p>
+<h2 id="sources">Sources</h2>
+<p><code>SvgImageSource</code> validates source bytes eagerly and is immutable after construction:</p>
+<pre><code class="lang-csharp">var file = SvgImageSource.FromFile(&quot;Assets/icon.svg&quot;);
+using var stream = File.OpenRead(&quot;Assets/badge.svg&quot;);
+var streamed = SvgImageSource.FromStream(stream);
+var memory = SvgImageSource.FromMemory(svgBytes);
+</code></pre>
+<p>The source exposes intrinsic size, view box, aspect-ratio metadata, content identity, element count,
+and local-reference count. It owns a private copy of the bytes; callers retain ownership of input
+streams and buffers. Source lifetime is independent of graphics devices.</p>
+<p><code>Image</code>, <code>InlineImage</code>, <code>ImageDrawing</code>, and <code>ThemeIcon</code> accept <code>ScalableImageSource</code>. Existing source
+precedence is preserved: bitmap content wins over <code>DrawingImage</code>, which wins over scalable content.
+Accessibility labels belong to the consuming control; SVG metadata does not replace an explicit
+application label.</p>
+<h2 id="compiled-xaml">Compiled XAML</h2>
+<p>Project SVG files are discovered as <code>FormaSvg</code> items, validated during the build, assigned stable
+logical resource names, and embedded without MGCB or XNB:</p>
+<pre><code class="lang-xml">&lt;Image ScalableSource=&quot;../Assets/status.svg&quot;
+       Stretch=&quot;Contain&quot;
+       CustomMinimumSize=&quot;32,32&quot; /&gt;
+</code></pre>
+<p>Relative paths resolve against the XAML document. Static missing, invalid, forbidden, oversized,
+outside-project, and duplicate assets fail the build with <code>FXAML3601</code>, <code>FXAML3602</code>, or <code>FXAML3603</code>.
+Debug hot reload copies and watches SVG assets; changed bytes create a new content identity while
+unaffected cache variants remain reusable.</p>
+<h2 id="exact-scale-cache">Exact-Scale Cache</h2>
+<p>The renderer computes the physical output dimensions from the complete logical transform and
+<code>UIContext.DisplayScale</code>. The cache key contains source identity, exact physical width and height,
+and render options. Selected validation scales are 1x, 1.25x, 1.5x, 1.75x, 2x, and 2.5x.</p>
+<p>Validated documents and premultiplied RGBA rasters are CPU-owned. Atlas textures are device-owned,
+created and uploaded on the render thread, and rebuilt after reset. Shared contexts reuse one
+bounded cache per graphics device. Warm exact-size rendering performs no parsing, rasterization,
+texture creation, upload, or managed allocation.</p>
+<p>Defaults are at most 128 documents, four 2048x2048 RGBA pages, one pixel of transparent padding,
+and a 16 MiB upload budget per frame. <code>UIContext.SvgRasterDiagnostics</code> reports entries, documents,
+pages, bytes, hits, misses, parses, rasterizations, uploads, evictions, failures, and the last
+failure. <code>GetSvgRasterAtlasPages</code>, <code>ClearSvgRasterCache</code>, and <code>PrewarmSvg</code> support inspection,
+recovery, and predictable first use.</p>
+<h2 id="security-and-validation-limits">Security and Validation Limits</h2>
+<p>All preflight validation runs before the selected backend parses the document. Violations produce
+<code>SvgLoadException</code> with an <code>SvgLoadErrorCode</code>; no rejected document is forwarded to the backend or
+triggers network I/O.</p>
+<table>
+<thead>
+<tr>
+<th>Limit</th>
+<th>Default</th>
+<th><code>SvgLoadOptions</code> property</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source bytes</td>
+<td>4 MiB</td>
+<td><code>MaximumSourceBytes</code></td>
+</tr>
+<tr>
+<td>XML depth</td>
+<td>128</td>
+<td><code>MaximumDepth</code></td>
+</tr>
+<tr>
+<td>Elements</td>
+<td>16,384</td>
+<td><code>MaximumElements</code></td>
+</tr>
+<tr>
+<td>Attributes</td>
+<td>65,536</td>
+<td><code>MaximumAttributes</code></td>
+</tr>
+<tr>
+<td>Text bytes</td>
+<td>1 MiB</td>
+<td><code>MaximumTextBytes</code></td>
+</tr>
+<tr>
+<td>Local references</td>
+<td>16,384</td>
+<td><code>MaximumLocalReferences</code></td>
+</tr>
+<tr>
+<td>Dimension (width or height)</td>
+<td>16,384 px</td>
+<td><code>MaximumDimension</code></td>
+</tr>
+<tr>
+<td>Pixel area</td>
+<td>64 Mpx</td>
+<td><code>MaximumPixelArea</code></td>
+</tr>
+</tbody>
+</table>
+<p>Pass a <code>SvgLoadOptions</code> to any <code>SvgImageSource</code> factory to override individual limits. Cache limits
+are configured through <code>SvgRasterCacheOptions</code>: at most 8 pages, at most 4096×4096 per page, and at
+most 64 MiB total across all pages.</p>
+<p>Preflight rejects scripts, event attributes, animation, foreign objects, embedded raster images, data
+URLs, external URLs and files, external stylesheets and documents, text and external fonts, filters
+and blur, blend modes, ICC <code>color-profile</code> declarations, unsupported compositing operators, duplicate
+element IDs, and cyclic local references.</p>
+<h2 id="threading-lifetime-and-disposal">Threading, Lifetime, and Disposal</h2>
+<p><code>SvgImageSource</code> is sealed, immutable, and safe to share across threads after construction. CPU
+rasters and parsed documents are owned by the cache and accessed only from the render thread through
+<code>UIContext</code> surface APIs. GPU atlas textures are created and uploaded on the render thread and
+disposed with the owning graphics device.</p>
+<p>ThorVG initialization is process-wide and explicit. Each ThorVG document serializes raster access;
+Forma does not schedule SVG parse, raster, cancellation, or prewarm work in the background. The
+conditional background-race matrix is therefore not applicable in Profile v1. A future background
+pipeline must first add isolated-document concurrency and shutdown stress without moving texture
+creation or upload off the render thread.</p>
+<p>Multiple <code>UIContext</code> instances sharing a <code>GraphicsDevice</code> share one bounded <code>SvgRasterCache</code>. A
+zero-owner shared cache is retained until device disposal; immediate last-context disposal is
+intentionally deferred because FNA's SDL_GPU Metal path applies samplers lazily and provides no
+portable post-present fence.</p>
+<p><code>UIContext.Dispose()</code> releases that context's renderer lease, but the shared zero-owner SVG cache is
+retained until <code>GraphicsDevice.Disposing</code> so deferred runtime draws cannot reference prematurely
+disposed atlas textures. Call <code>UIContext.ClearSvgRasterCache()</code> between draws to clear shared GPU
+pages and CPU rasters during long-lived sessions when SVG content changes significantly.
+<code>UIContext.GetSvgRasterAtlasPages()</code> returns immutable CPU-pixel snapshots.
+<code>UIContext.PrewarmSvg(source, logicalSize)</code> queues a variant before the next <code>Draw</code>; the draw performs
+the bounded render-thread upload before normal content rendering.</p>
+<h2 id="default-theme-policy">Default Theme Policy</h2>
+<p><code>UIContext.ThemeIconRenderingPolicy</code> accepts:</p>
+<ul>
+<li><code>BitmapAtlas</code>: always use the embedded 1x/2x PNG atlases.</li>
+<li><code>RuntimeSvg</code>: use authoritative companion SVG sources when the backend is healthy, with the PNG
+atlas retained as a per-icon fallback.</li>
+<li><code>Auto</code>: select runtime SVG when its provider and backend are available, otherwise use PNG.</li>
+</ul>
+<p>The approved MVP default remains <code>BitmapAtlas</code>, even after the complete release matrix passes.
+Applications opt in with <code>RuntimeSvg</code> or <code>Auto</code>; this preserves native-free startup, deterministic
+bitmap output, and immediate rollback. A missing companion never removes a default control icon.
+<code>ThemeIconDiagnostics</code> distinguishes runtime SVG icon sources, PNG fallback events, atlas memory,
+generations, and missing names.</p>
+<h2 id="supported-envelope">Supported Envelope</h2>
+<p>Runtime SVG Profile v1 accepts SVG geometry, paths, groups, local <code>defs</code>/<code>use</code>, dimensions and view boxes,
+presentation attributes, supported inline CSS, transforms, gradients, local clips and masks,
+opacity, strokes, fill rules, and <code>currentColor</code> used by the approved fixture set.</p>
+<p>It rejects scripts, event attributes, animation, foreign objects, embedded raster images, data URLs,
+external URLs or files, external stylesheets and documents, text and external fonts, filters and
+blur, blend modes, ICC <code>color-profile</code> declarations, browser layout semantics, unsupported
+compositing, and references that escape the document. Validation also enforces
+finite source-byte, XML-depth, element, attribute, text, local-reference, dimension, and pixel-area
+limits before native parsing. The feature is deliberately documented as a bounded SVG
+subset, not full browser SVG support.</p>
+<p>The normative feature list, fixtures, and cross-backend tolerances are documented in
+<a href="runtime-svg-profile-v1.html">Runtime SVG Profile v1</a>.</p>
+<h2 id="validation-gates">Validation Gates</h2>
+<table>
+<thead>
+<tr>
+<th>Host/backend</th>
+<th>Runtime peer</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS Metal</td>
+<td>FNA</td>
+<td>Focused lifecycle smoke and Catalog baseline</td>
+</tr>
+<tr>
+<td>macOS OpenGL</td>
+<td>MonoGame</td>
+<td>Focused lifecycle smoke and Catalog baseline</td>
+</tr>
+<tr>
+<td>Linux OpenGL</td>
+<td>MonoGame and FNA</td>
+<td><code>scripts/check-runtime-svg-linux.sh</code></td>
+</tr>
+<tr>
+<td>Linux Vulkan</td>
+<td>MonoGame Native</td>
+<td><code>scripts/check-runtime-svg-linux.sh</code> on native x64</td>
+</tr>
+<tr>
+<td>Windows Direct3D</td>
+<td>MonoGame and FNA</td>
+<td>Windows CI focused lifecycle smoke</td>
+</tr>
+</tbody>
+</table>
+<p>The full matrix passed in <a href="https://github.com/zigrok/Forma/actions/runs/31110056321">CI run 31110056321</a>
+at implementation snapshot <code>cd94582436e3ad8065262d8f5c9507ea03d98abe</code>. The same run validated
+official NuGet provenance, package consumers, runtime parity, trim-only publishing, and NativeAOT.</p>
+<p>Catalog comparisons cover 1x, 1.25x, 1.5x, 1.75x, 2x, 2.5x, RTL, and narrow layouts. Runtime SVG
+versus PNG aggregate coverage/color/edge metrics may differ by at most 3%; MonoGame versus FNA may
+differ by at most 1%. Exact focused-smoke hashes remain a stronger diagnostic when peers use the same
+graphics path.</p>
+<h2 id="catalog-baselines">Catalog Baselines</h2>
+<p>Local macOS arm64 measurements from <code>scripts/test-dynamic-render-smoke.sh</code> and the Catalog smoke
+runs. These are transient development baselines, not release gates; the CI cells in Validation Gates
+are the authoritative gates.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>MonoGame (DesktopGL)</th>
+<th>FNA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Svg.Skia version</td>
+<td>5.2.0</td>
+<td>5.2.0</td>
+</tr>
+<tr>
+<td>Theme SVG icons loaded</td>
+<td>67 / 67</td>
+<td>67 / 67</td>
+</tr>
+<tr>
+<td>Bitmap fallbacks at 1x</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>SVG raster entries at 1x</td>
+<td>6</td>
+<td>6</td>
+</tr>
+<tr>
+<td>SVG raster entries at 1.25x</td>
+<td>8</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Atlas bytes (single 2048×2048 page)</td>
+<td>16 MiB</td>
+<td>16 MiB</td>
+</tr>
+<tr>
+<td>Edge transitions delta vs PNG (1.25x whole-Catalog)</td>
+<td>−0.03 %</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Edge strength delta vs PNG (1.25x whole-Catalog)</td>
+<td>−0.13 %</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Cold parse and rasterize time are available through <code>SvgRasterCacheDiagnostics.ParseTime</code> and
+<code>RasterTime</code>; run <code>scripts/test-dynamic-render-smoke.sh</code> and inspect the printed diagnostics for
+current values on the local machine.</p>
+<h2 id="migration-examples">Migration Examples</h2>
+<p>See <a href="examples/RuntimeSvgMigration.cs">docs/examples/RuntimeSvgMigration.cs</a> for annotated C#
+examples covering migration from a <code>Texture2D</code> atlas icon, a <code>ThemeIcon</code> bitmap-atlas consumer, and
+a <code>DrawingImage</code>/<code>ImageDrawing</code> surface.</p>
+<h2 id="deployment">Deployment</h2>
+<p>Svg.Skia 5.2.0/SkiaSharp 4.148.0 and ThorVG 1.1.0/Forma ABI 1 are pinned. Explicit companions carry
+only their selected implementation; authoritative default-theme SVG sources live in core. Existing
+<code>Forma.Svg.*</code> packages are warning-producing Skia compatibility packages for one migration window.
+ThorVG provenance and reproducible build inputs are in
+<a href="thorvg-build-and-provenance.html">ThorVG Build, Provenance, and Host Integration</a>.</p>
+<p>The Catalog starts with a verified backend and includes the <code>Runtime SVG</code> story. It compares compiled
+and file sources, arbitrary sizes and tint, LTR/RTL placement, theme SVG/PNG policies, cache
+statistics, and rejected external input. Use <code>--theme-icon-policy BitmapAtlas</code>, <code>RuntimeSvg</code>, or
+<code>Auto</code> for bounded automated captures.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/runtime-svg.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

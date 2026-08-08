@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Control Template Migration Manifest | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Control Template Migration Manifest | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/control-template-migration-manifest.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="control-template-migration-manifest">Control Template Migration Manifest</h1>
+
+<ul>
+<li>Status: Phase 0 contract</li>
+<li>Date: 2026-08-04</li>
+<li>Scope: every concrete public <code>Control</code> type declared under <code>src/Forma</code></li>
+<li>Related plan: <code>plans/xaml-templates-items-and-virtualization-plan.md</code>, task 3</li>
+</ul>
+<h2 id="rules">Rules</h2>
+<p>Each type has exactly one migration classification. <code>Control</code> remains the universal styleable
+visual/layout root. A <strong>foundation</strong> draws, lays out, or projects directly and never resolves a
+<code>ControlTemplate</code>. A <strong>semantic widget</strong> owns behavior and receives all replaceable chrome from a
+default template. A <strong>specialized part</strong> retains only indivisible rendering/input behavior behind a
+semantic owner and is not a general XAML root.</p>
+<p>Every row requires MonoGame and FNA unit/build/render coverage, Release compiled-XAML coverage,
+trim/NativeAOT coverage, and the listed application continuity checks. <code>Catalog auto</code> means the
+reflected public-type story in <code>StoryCatalog</code>; named Catalog stories add targeted behavior/render
+coverage. <code>Signal Run all</code> means HUD, settings, and result XAML plus <code>GameScreen</code> and
+<code>GameViewPresentation</code> hot-reload wiring.</p>
+<h2 id="gate-contracts">Gate Contracts</h2>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Required preservation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>F</code></td>
+<td>Measure/arrange, direct render, hit test, resources/styles, clipping, device loss, screenshot parity, and no template lookup.</td>
+</tr>
+<tr>
+<td><code>B</code></td>
+<td>Pointer/keyboard/focus, action timing, toggle/group state, logical content projection, pseudo-states, template replacement.</td>
+</tr>
+<tr>
+<td><code>R</code></td>
+<td>Range clamp/step/page/ratio, orientation, drag/key interaction, template geometry, render parity.</td>
+</tr>
+<tr>
+<td><code>E</code></td>
+<td>Editing, selection, caret, IME, clipboard, undo, wrapping, focus, and presenter geometry.</td>
+</tr>
+<tr>
+<td><code>C</code></td>
+<td>Color conversion, cursor geometry, preset/deferred behavior, popup lifecycle, render parity.</td>
+</tr>
+<tr>
+<td><code>G</code></td>
+<td>Graph coordinates, slots/ports/connections, selection, drag/resize, zoom, canvas parity.</td>
+</tr>
+<tr>
+<td><code>M</code></td>
+<td>Popup/menu focus, shortcuts, submenu timing, modal dismissal, dialog lifecycle.</td>
+</tr>
+<tr>
+<td><code>L</code></td>
+<td>Source-occurrence identity, selection/navigation/search/scrolling, generated visuals, rich/tree rendering.</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td>Viewport rendering/input forwarding, target lifetime, joystick geometry and capture.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="default-template-contracts">Default Template Contracts</h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Default composition, required parts, projected content, and states</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BTN</code></td>
+<td><code>Border.chrome &gt; ContentPresenter</code>; <code>PART_ContentPresenter</code>. Projects text/icon/content. States <code>:disabled</code>, <code>:hover</code>, <code>:pressed</code>, <code>:focus</code>, <code>:checked</code>. Texture/swatch/menu variants add typed image, swatch, or <code>PART_Popup</code> parts.</td>
+</tr>
+<tr>
+<td><code>CHECK</code></td>
+<td>Indicator plus content; <code>PART_Indicator</code>, <code>PART_ContentPresenter</code>. Adds checked/unchecked presentation while preserving button behavior.</td>
+</tr>
+<tr>
+<td><code>RANGE</code></td>
+<td><code>PART_Track</code>, <code>PART_Fill</code>, <code>PART_Thumb</code>; scrollbars add decrement/increment buttons; progress variants use an indicator/text presenter.</td>
+</tr>
+<tr>
+<td><code>SPLIT</code></td>
+<td>Two content presenters and <code>PART_Dragger : ISplitDragger</code>; projects the first two logical children. Orientation, dragging, collapsed, focus, disabled states.</td>
+</tr>
+<tr>
+<td><code>EDITOR</code></td>
+<td>Border and <code>LineEditPresenter</code>/<code>TextEditPresenter</code>; code editor adds gutter, minimap, and completion parts. <code>SpinBox</code> adds <code>PART_Editor</code> and increment/decrement buttons. Owner retains edit state.</td>
+</tr>
+<tr>
+<td><code>CHOICE</code></td>
+<td>Content plus <code>PART_Popup</code>; tab container uses <code>PART_TabBar</code> and <code>PART_SelectedContentPresenter</code>; tab bar uses <code>TabStripPresenter</code>.</td>
+</tr>
+<tr>
+<td><code>SCROLL</code></td>
+<td><code>PART_ScrollPresenter</code>, <code>PART_HorizontalScrollBar</code>, <code>PART_VerticalScrollBar</code>; projects one logical child. Owner retains scrolling policy/input.</td>
+</tr>
+<tr>
+<td><code>POPUP</code></td>
+<td>Border/content presenter; menus add <code>PART_Items</code> and optional search editor; menu bar uses a horizontal items presenter.</td>
+</tr>
+<tr>
+<td><code>DIALOG</code></td>
+<td><code>PART_TitlePresenter</code>, <code>PART_ContentPresenter</code>, <code>PART_AcceptButton</code>, optional cancel/custom actions. File dialog adds navigation, path, entries, filename, filter, options, and overwrite parts.</td>
+</tr>
+<tr>
+<td><code>COLOR</code></td>
+<td><code>ColorFieldPresenter</code> plus composable channel/mode/swatch/hex controls; popup/button/dialog wrappers use normal popup/button/dialog contracts.</td>
+</tr>
+<tr>
+<td><code>FOLD</code></td>
+<td><code>PART_Header</code>, <code>PART_ContentPresenter</code>; projects header and logical child.</td>
+</tr>
+<tr>
+<td><code>GRAPH</code></td>
+<td>Element/node/frame chrome uses resize/title/content/port presenters; <code>GraphEdit</code> requires <code>GraphCanvasPresenter</code>, toolbar, and minimap parts.</td>
+</tr>
+<tr>
+<td><code>COLLECTION</code></td>
+<td><code>ItemList</code> uses <code>ItemsPresenter</code>; rich text uses <code>RichTextPresenter</code>; tree uses <code>TreePresenter</code> plus scrollbar/editor-popup parts.</td>
+</tr>
+<tr>
+<td><code>VIEW</code></td>
+<td><code>SubViewportPresenter</code> or <code>JoystickPresenter</code>; owner retains lifetime and interaction state.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="foundation-and-layout-types">Foundation And Layout Types</h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Classification</th>
+<th>Direct responsibility and styleable surface</th>
+<th>Migration and gate</th>
+<th>Application ownership</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Control</code></td>
+<td><code>Control.cs</code></td>
+<td>Foundation root</td>
+<td>Geometry, layout participation, input, resources, classes, inherited values, children</td>
+<td>Remains template-free universal root; add visual/inheritance trees and compositing surface. <code>F</code></td>
+<td>Catalog auto; base for Signal Run all</td>
+</tr>
+<tr>
+<td><code>Panel</code></td>
+<td><code>Controls.cs</code></td>
+<td>Drawing primitive</td>
+<td>Bounds fill/border; background and border colors</td>
+<td>Compatibility primitive; migrate composition to <code>Border</code>. <code>F</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>Label</code></td>
+<td><code>Controls.cs</code></td>
+<td>Drawing primitive</td>
+<td>Text/font/color, wrapping, clipping, alignment, bidi/language, padding</td>
+<td>Migrate/alias to <code>TextBlock</code>; no template. <code>F</code></td>
+<td>Catalog shell, animation, binding, dynamic-size, icon, style; Signal Run all</td>
+</tr>
+<tr>
+<td><code>ColorRect</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Drawing primitive</td>
+<td>Solid color fill</td>
+<td>Compatibility alias over <code>RectangleShape</code>/<code>Border</code>. <code>F</code></td>
+<td>Catalog shell, animation, style</td>
+</tr>
+<tr>
+<td><code>TextureRect</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Drawing primitive</td>
+<td>Bitmap source, stretch/tile/flip, tint</td>
+<td>Migrate to <code>Image</code>; template-free. <code>F</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>NinePatchRect</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Drawing primitive</td>
+<td>Nine-slice margins, edge/center policy, tint</td>
+<td>Migrate to <code>NineSliceImage</code>; template-free. <code>F</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ThemeIconRect</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Drawing primitive</td>
+<td>Theme icon lookup, intrinsic size, tint</td>
+<td>Rename compatibility path to <code>ThemeIconView</code>. <code>F</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ReferenceRect</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Drawing primitive</td>
+<td>Debug/reference outline</td>
+<td>Compose with border/rectangle; retain compatibility alias. <code>F</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>HSeparator</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Drawing primitive</td>
+<td>Horizontal line and minimum thickness</td>
+<td>Direct line-shape compatibility primitive. <code>F</code></td>
+<td>Catalog shell/auto</td>
+</tr>
+<tr>
+<td><code>VSeparator</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Drawing primitive</td>
+<td>Vertical line and minimum thickness</td>
+<td>Direct line-shape compatibility primitive. <code>F</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>Container</code></td>
+<td><code>Containers.cs</code></td>
+<td>Layout panel</td>
+<td>Base child fitting and layout participation</td>
+<td>Template-free panel base. <code>F</code></td>
+<td>Catalog preview/auto</td>
+</tr>
+<tr>
+<td><code>BoxContainer</code></td>
+<td><code>Containers.cs</code></td>
+<td>Layout panel</td>
+<td>Axis layout, orientation, separation, stretch ratios</td>
+<td>Migrate to <code>StackPanel</code>/<code>FlexPanel</code>; compatibility type. <code>F</code></td>
+<td>Catalog broad; Signal Run all</td>
+</tr>
+<tr>
+<td><code>HBoxContainer</code></td>
+<td><code>Containers.cs</code></td>
+<td>Layout panel</td>
+<td>Horizontal <code>BoxContainer</code> policy</td>
+<td>Compatibility alias over horizontal stack/flex. <code>F</code></td>
+<td>Catalog broad; Signal Run settings/result</td>
+</tr>
+<tr>
+<td><code>VBoxContainer</code></td>
+<td><code>Containers.cs</code></td>
+<td>Layout panel</td>
+<td>Vertical <code>BoxContainer</code> policy</td>
+<td>Compatibility alias over vertical stack/flex. <code>F</code></td>
+<td>Catalog broad; Signal Run all views</td>
+</tr>
+<tr>
+<td><code>MarginContainer</code></td>
+<td><code>Containers.cs</code></td>
+<td>Layout panel</td>
+<td>Inset child by margins</td>
+<td>Migrate to <code>Border.Padding</code>; compatibility panel. <code>F</code></td>
+<td>Catalog shell/auto</td>
+</tr>
+<tr>
+<td><code>CenterContainer</code></td>
+<td><code>Containers.cs</code></td>
+<td>Layout panel</td>
+<td>Center one child</td>
+<td>Migrate to <code>OverlayPanel</code> alignment. <code>F</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>GridContainer</code></td>
+<td><code>Containers.cs</code></td>
+<td>Layout panel</td>
+<td>Fixed-column grid arrangement</td>
+<td>Migrate to <code>GridPanel</code>. <code>F</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>AspectRatioContainer</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Layout panel</td>
+<td>One-child aspect fit/cover/alignment</td>
+<td>Migrate to <code>Viewbox</code>. <code>F</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>FlowContainer</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Layout panel</td>
+<td>Intrinsic wrapping flow and gaps</td>
+<td>Migrate to <code>WrapPanel</code>; compatibility base. <code>F</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>HFlowContainer</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Layout panel</td>
+<td>Horizontal wrapping flow</td>
+<td>Compatibility alias over <code>WrapPanel</code>. <code>F</code></td>
+<td>Catalog icon inventory/auto</td>
+</tr>
+<tr>
+<td><code>VFlowContainer</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Layout panel</td>
+<td>Vertical wrapping flow</td>
+<td>Compatibility alias over <code>WrapPanel</code>. <code>F</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>PanelContainer</code></td>
+<td><code>VisualControls.cs</code></td>
+<td>Layout panel</td>
+<td>Panel surface, padding, child fitting</td>
+<td>Compatibility composition of <code>Border</code> and panel; no template. <code>F</code></td>
+<td>Catalog shell/auto/custom</td>
+</tr>
+</tbody>
+</table>
+<p>No existing concrete public type is a general presenter. <code>ContentPresenter</code>, <code>ItemsPresenter</code>, and
+<code>ScrollPresenter</code> are new foundational types.</p>
+<h2 id="semantic-widgets">Semantic Widgets</h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Template</th>
+<th>Behavior/style surface to preserve</th>
+<th>Gate</th>
+<th>Application ownership</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BaseButton</code></td>
+<td><code>Controls.cs</code></td>
+<td><code>BTN</code></td>
+<td>Action mode, toggle/group, shortcut, text/icon alignment</td>
+<td><code>B</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>Button</code></td>
+<td><code>Controls.cs</code></td>
+<td><code>BTN</code></td>
+<td>Base button behavior and arbitrary content compatibility</td>
+<td><code>B</code></td>
+<td>Catalog shell/stories; Signal Run all</td>
+</tr>
+<tr>
+<td><code>CheckBox</code></td>
+<td><code>Controls.cs</code></td>
+<td><code>CHECK</code></td>
+<td>Toggle state and indicator semantics</td>
+<td><code>B</code></td>
+<td>Catalog shell, animation, binding; Signal Run settings</td>
+</tr>
+<tr>
+<td><code>CheckButton</code></td>
+<td><code>Controls.cs</code></td>
+<td><code>CHECK</code> variant</td>
+<td>CheckBox behavior with alternate packaged chrome</td>
+<td><code>B</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>LinkButton</code></td>
+<td><code>SelectionControls.cs</code></td>
+<td><code>BTN</code> variant</td>
+<td>URI activation and text interaction</td>
+<td><code>B</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>TextureButton</code></td>
+<td><code>SelectionControls.cs</code></td>
+<td><code>BTN</code> variant</td>
+<td>State textures and alpha hit testing</td>
+<td><code>B</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ColorPresetButton</code></td>
+<td><code>FoldableControls.cs</code></td>
+<td><code>BTN</code> swatch</td>
+<td>Preset color and swatch activation</td>
+<td><code>C/B</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ColorPickerButton</code></td>
+<td><code>ColorControls.cs</code></td>
+<td><code>BTN</code> swatch/popup</td>
+<td>Color value, popup lifecycle, edit/accept behavior</td>
+<td><code>C/B</code></td>
+<td>Catalog shell/auto/custom</td>
+</tr>
+<tr>
+<td><code>Slider</code></td>
+<td><code>Controls.cs</code></td>
+<td><code>RANGE</code></td>
+<td>Value, orientation, pointer/key changes, grabber state</td>
+<td><code>R</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>HSlider</code></td>
+<td><code>Controls.cs</code></td>
+<td><code>RANGE</code> horizontal</td>
+<td>Slider semantics with fixed orientation</td>
+<td><code>R</code></td>
+<td>Catalog binding/dynamic-size; Signal Run settings</td>
+</tr>
+<tr>
+<td><code>VSlider</code></td>
+<td><code>Controls.cs</code></td>
+<td><code>RANGE</code> vertical</td>
+<td>Slider semantics with fixed orientation</td>
+<td><code>R</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>ProgressBar</code></td>
+<td><code>Controls.cs</code></td>
+<td><code>RANGE</code> progress</td>
+<td>Fill ratio, percentage text, range semantics</td>
+<td><code>R</code></td>
+<td>Catalog binding/auto/custom</td>
+</tr>
+<tr>
+<td><code>TextureProgressBar</code></td>
+<td><code>SelectionControls.cs</code></td>
+<td><code>RANGE</code> texture</td>
+<td>Texture layers, radial/nine-slice geometry</td>
+<td><code>R</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ScrollBar</code></td>
+<td><code>SelectionControls.cs</code></td>
+<td><code>RANGE</code> scrollbar</td>
+<td>Paging, thumb drag, wheel, smooth/drag-node scrolling</td>
+<td><code>R</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>HScrollBar</code></td>
+<td><code>SelectionControls.cs</code></td>
+<td><code>RANGE</code> horizontal scrollbar</td>
+<td>ScrollBar semantics with fixed orientation</td>
+<td><code>R</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>VScrollBar</code></td>
+<td><code>SelectionControls.cs</code></td>
+<td><code>RANGE</code> vertical scrollbar</td>
+<td>ScrollBar semantics with fixed orientation</td>
+<td><code>R</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>SplitContainer</code></td>
+<td><code>VisualControls.cs</code></td>
+<td><code>SPLIT</code></td>
+<td>Two-child layout, offset, collapse, drag, RTL</td>
+<td><code>B/F</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>HSplitContainer</code></td>
+<td><code>VisualControls.cs</code></td>
+<td><code>SPLIT</code> horizontal</td>
+<td>Split semantics with fixed orientation</td>
+<td><code>B/F</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>VSplitContainer</code></td>
+<td><code>VisualControls.cs</code></td>
+<td><code>SPLIT</code> vertical</td>
+<td>Split semantics with fixed orientation</td>
+<td><code>B/F</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>LineEdit</code></td>
+<td><code>AdvancedControls.cs</code></td>
+<td><code>EDITOR</code> line</td>
+<td>Editing, selection, IME, clipboard, history, secret text</td>
+<td><code>E</code></td>
+<td>Catalog shell/binding/dynamic-size; Signal Run settings</td>
+</tr>
+<tr>
+<td><code>TextEdit</code></td>
+<td><code>AdvancedControls.cs</code></td>
+<td><code>EDITOR</code> text</td>
+<td>Multiline editing, wrapping, gutters and scrolling</td>
+<td><code>E</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>CodeEdit</code></td>
+<td><code>GraphAndCodeControls.cs</code></td>
+<td><code>EDITOR</code> code</td>
+<td>Folding, completion, gutters, minimap, code navigation</td>
+<td><code>E</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>SpinBox</code></td>
+<td><code>AdvancedControls.cs</code></td>
+<td><code>EDITOR</code> numeric</td>
+<td>Numeric parsing, prefix/suffix, repeat and drag adjustment</td>
+<td><code>E/R</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>OptionButton</code></td>
+<td><code>AdvancedControls.cs</code></td>
+<td><code>CHOICE</code> popup</td>
+<td>Item identity, popup selection, shortcuts, longest-fit</td>
+<td><code>B/L</code></td>
+<td>Catalog shell, dynamic-size, icon; custom</td>
+</tr>
+<tr>
+<td><code>TabBar</code></td>
+<td><code>SelectionControls.cs</code></td>
+<td><code>CHOICE</code> tabs</td>
+<td>Selection, disabled/hidden tabs, overflow, reorder</td>
+<td><code>B/L</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>TabContainer</code></td>
+<td><code>AdvancedControls.cs</code></td>
+<td><code>CHOICE</code> pages</td>
+<td>Selected logical page projection and tab policy</td>
+<td><code>B/L</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ScrollContainer</code></td>
+<td><code>AdvancedControls.cs</code></td>
+<td><code>SCROLL</code></td>
+<td>Viewport policy, wheel/touch/focus-follow, hints, RTL</td>
+<td><code>R/V</code></td>
+<td>Catalog shell, icon inventory, custom</td>
+</tr>
+<tr>
+<td><code>Popup</code></td>
+<td><code>AdvancedControls.cs</code></td>
+<td><code>POPUP</code></td>
+<td>Modal focus, outside click, Escape, focus restoration</td>
+<td><code>M</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>PopupPanel</code></td>
+<td><code>AdvancedControls.cs</code></td>
+<td><code>POPUP</code> panel</td>
+<td>Popup behavior with panel chrome</td>
+<td><code>M</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>PopupMenu</code></td>
+<td><code>MenusAndDialogs.cs</code></td>
+<td><code>POPUP</code> menu</td>
+<td>Item state, search, shortcuts, submenus, tooltips</td>
+<td><code>M/L</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>MenuButton</code></td>
+<td><code>MenusAndDialogs.cs</code></td>
+<td><code>BTN</code> menu</td>
+<td>Button behavior plus popup menu ownership</td>
+<td><code>M/B</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>MenuBar</code></td>
+<td><code>MenusAndDialogs.cs</code></td>
+<td><code>POPUP</code> menu bar</td>
+<td>Sibling switching, shortcuts, horizontal menu layout</td>
+<td><code>M</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>AcceptDialog</code></td>
+<td><code>MenusAndDialogs.cs</code></td>
+<td><code>DIALOG</code></td>
+<td>Accept/cancel ordering, actions, modal lifecycle</td>
+<td><code>M</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ConfirmationDialog</code></td>
+<td><code>MenusAndDialogs.cs</code></td>
+<td><code>DIALOG</code> confirm</td>
+<td>Confirmation/cancel semantics and button ordering</td>
+<td><code>M</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>FileDialog</code></td>
+<td><code>MenusAndDialogs.cs</code></td>
+<td><code>DIALOG</code> file</td>
+<td>Filesystem modes, navigation, filter, save/overwrite validation</td>
+<td><code>M/L</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ColorPicker</code></td>
+<td><code>ColorControls.cs</code></td>
+<td><code>COLOR</code></td>
+<td>Color spaces, channels, presets, cursor, deferred changes</td>
+<td><code>C</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ColorPickerPopupPanel</code></td>
+<td><code>ColorControls.cs</code></td>
+<td><code>COLOR</code> popup</td>
+<td>Picker popup ownership, old-color rollback, dismissal</td>
+<td><code>C/M</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ColorPickerDialog</code></td>
+<td><code>ColorControls.cs</code></td>
+<td><code>COLOR</code> dialog</td>
+<td>Picker confirmation/cancel and modal lifecycle</td>
+<td><code>C/M</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>FoldableContainer</code></td>
+<td><code>FoldableControls.cs</code></td>
+<td><code>FOLD</code></td>
+<td>Header interaction, content visibility, accordion group</td>
+<td><code>B</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>GraphElement</code></td>
+<td><code>GraphAndCodeControls.cs</code></td>
+<td><code>GRAPH</code> element</td>
+<td>Graph position/size, selection, drag/resize</td>
+<td><code>G</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>GraphNode</code></td>
+<td><code>GraphAndCodeControls.cs</code></td>
+<td><code>GRAPH</code> node</td>
+<td>Title, slots, ports, connection compatibility</td>
+<td><code>G</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>GraphFrame</code></td>
+<td><code>GraphAndCodeControls.cs</code></td>
+<td><code>GRAPH</code> frame</td>
+<td>Frame title/content, autoshrink and contained nodes</td>
+<td><code>G</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>GraphEdit</code></td>
+<td><code>GraphAndCodeControls.cs</code></td>
+<td><code>GRAPH</code> canvas</td>
+<td>Connections, selection, dragging, framing, zoom, shortcuts</td>
+<td><code>G</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>ItemList</code></td>
+<td><code>SelectionControls.cs</code></td>
+<td><code>COLLECTION</code> items</td>
+<td>Current/selected slots, multi/toggle, search, grid, scroll</td>
+<td><code>L</code></td>
+<td>Catalog shell/auto/custom</td>
+</tr>
+<tr>
+<td><code>RichTextLabel</code></td>
+<td><code>SelectionControls.cs</code></td>
+<td><code>COLLECTION</code> rich text</td>
+<td>BBCode, metadata, selection, scrolling, context menu/effects</td>
+<td><code>L/E</code></td>
+<td>Catalog shell/auto/custom</td>
+</tr>
+<tr>
+<td><code>RichTextDocument</code></td>
+<td><code>SpecializedControls.cs</code></td>
+<td><code>COLLECTION</code> document</td>
+<td>Rich text behavior plus document/effect collection</td>
+<td><code>L/E</code></td>
+<td>Catalog auto</td>
+</tr>
+<tr>
+<td><code>Tree</code></td>
+<td><code>Tree.cs</code></td>
+<td><code>COLLECTION</code> tree</td>
+<td>Items/cells, folding, editing, selection, search, drag, scroll</td>
+<td><code>L/E</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>SubViewportContainer</code></td>
+<td><code>SpecializedControls.cs</code></td>
+<td><code>VIEW</code> viewport</td>
+<td>Independent UI context, target lifetime, input forwarding</td>
+<td><code>V</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+<tr>
+<td><code>VirtualJoystick</code></td>
+<td><code>SpecializedControls.cs</code></td>
+<td><code>VIEW</code> joystick</td>
+<td>Capture, dead zone, normalized output and events</td>
+<td><code>V</code></td>
+<td>Catalog auto/custom</td>
+</tr>
+</tbody>
+</table>
+<h2 id="specialized-parts-and-compatibility">Specialized Parts And Compatibility</h2>
+<p>These types are currently public but are coupled to one semantic owner. The compiler must reject
+them as standalone XAML roots once their owner templates land. Internalization is source-, binary-,
+and XAML-breaking, so exposed members first move to a public base type/interface in this breaking
+release; implementation types can then become internal.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Specialized responsibility</th>
+<th>Owner/disposition</th>
+<th>Gate</th>
+<th>Application ownership</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DynamicGlyphAtlasView</code></td>
+<td><code>Controls.cs</code></td>
+<td>Diagnostic atlas-page rendering</td>
+<td>Move behind diagnostics model/package; not general vocabulary</td>
+<td><code>F</code></td>
+<td>Catalog auto/custom dynamic-text diagnostics</td>
+</tr>
+<tr>
+<td><code>SpinBoxLineEdit</code></td>
+<td><code>AdvancedControls.cs</code></td>
+<td>Route Up/Down while retaining line editing</td>
+<td><code>SpinBox.PART_Editor</code>; change <code>SpinBox.LineEdit</code> return type to <code>LineEdit</code></td>
+<td><code>E</code></td>
+<td>No standalone story; owner custom story</td>
+</tr>
+<tr>
+<td><code>GraphEditMinimap</code></td>
+<td><code>GraphOverlays.cs</code></td>
+<td>Graph/minimap transforms, draw, pan/resize</td>
+<td><code>GraphEdit.PART_Minimap</code>; replace public <code>GraphEdit.Minimap</code> type</td>
+<td><code>G</code></td>
+<td>Catalog auto through owner/custom</td>
+</tr>
+<tr>
+<td><code>GraphEditFilter</code></td>
+<td><code>GraphOverlays.cs</code></td>
+<td>Consume graph-canvas press/release gestures</td>
+<td>Internal input part/interface for <code>GraphEdit</code></td>
+<td><code>G</code></td>
+<td>Catalog auto through owner/custom</td>
+</tr>
+<tr>
+<td><code>SplitContainerDragger</code></td>
+<td><code>GraphOverlays.cs</code></td>
+<td>Forward split-offset drag</td>
+<td>Internal <code>ISplitDragger</code> for <code>SplitContainer</code></td>
+<td><code>B</code></td>
+<td>Catalog auto through owner/custom</td>
+</tr>
+<tr>
+<td><code>SplitContainerMultiDragger</code></td>
+<td><code>GraphOverlays.cs</code></td>
+<td>Multi-split drag forwarding</td>
+<td>Internal <code>ISplitDragger</code> implementation</td>
+<td><code>B</code></td>
+<td>Catalog auto through owner/custom</td>
+</tr>
+<tr>
+<td><code>PopupMenuItems</code></td>
+<td><code>MenusAndDialogs.cs</code></td>
+<td>Menu hit test, wheel and tooltip routing</td>
+<td><code>PopupMenu.PART_Items</code>; change public <code>ItemsControl</code> member to presenter/base contract</td>
+<td><code>M/L</code></td>
+<td>No standalone story; owner custom story</td>
+</tr>
+</tbody>
+</table>
+<p><code>ColorPickerPopupPanel</code> remains a semantic compatibility widget because
+<code>ColorPickerButton.Popup</code> exposes it publicly. It may become a specialized popup part only after
+that API returns a stable public popup contract.</p>
+<h2 id="first-party-continuity-matrix">First-Party Continuity Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Application</th>
+<th>Affected types</th>
+<th>Required migration checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Forma Catalog</td>
+<td>Every public constructible type through automatic stories; named shell, animation, binding, dynamic-size, icon, style, text, graph, menu/dialog, collection, color, viewport, and custom stories above</td>
+<td>Preserve story inventory/search/selection/property editors, DynamicText toggle, 1x/2x metrics and screenshots, exact peer render parity, Debug XAML/effect hot reload, and no temporary legacy chrome.</td>
+</tr>
+<tr>
+<td>Signal Run</td>
+<td><code>BoxContainer</code>, <code>HBoxContainer</code>, <code>VBoxContainer</code>, <code>Label</code>, <code>Button</code>, <code>CheckBox</code>, <code>HSlider</code>, <code>LineEdit</code></td>
+<td>Preserve score/timer/status, pause/resume/restart, player/difficulty/sound/volume two-way bindings, resources/styles, view-model identity and game state across hot reload on both peers. Remain core-only with no DynamicText/Media/compiler-runtime dependency in Release.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="completeness-check">Completeness Check</h2>
+<p>The manifest contains 78 concrete public types: the <code>Control</code> root, 9 drawing primitives, 12
+layout panels, 49 semantic templated widgets, and 7 specialized parts. A type may move between
+public compatibility and internal implementation status only by updating its row, API migration,
+Catalog/Signal Run ownership, and focused parity gate together.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/control-template-migration-manifest.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

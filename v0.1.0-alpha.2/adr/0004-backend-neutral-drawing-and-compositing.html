@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>ADR 0004: Backend-Neutral Drawing and Bounded Compositing | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="ADR 0004: Backend-Neutral Drawing and Bounded Compositing | Forma Documentation ">
+      
+      
+      <link rel="icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/adr/0004-backend-neutral-drawing-and-compositing.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="adr-0004-backend-neutral-drawing-and-bounded-compositing">ADR 0004: Backend-Neutral Drawing and Bounded Compositing</h1>
+
+<ul>
+<li>Status: Accepted</li>
+<li>Date: 2026-08-04</li>
+<li>Owners: Forma maintainers</li>
+<li>Related plan: <code>plans/xaml-templates-items-and-virtualization-plan.md</code>, Phase 0 task 2</li>
+</ul>
+<h2 id="context">Context</h2>
+<p>The template-first visual vocabulary needs paths, transforms, brushes, geometry clips, opacity
+masks, and effects without exposing MonoGame/FNA types beyond the shared XNA-compatible surface.
+The two runtime peers must produce equivalent pixels and hit geometry without reflection, runtime
+XAML interpretation, or runtime shader compilation. Tessellation, offscreen work, and caches must
+also have finite limits before public visual APIs are frozen.</p>
+<h2 id="decision">Decision</h2>
+<h3 id="shared-drawing-pipeline">Shared drawing pipeline</h3>
+<p><code>UIRenderContext.Drawing</code> exposes a backend-neutral <code>DrawingContext</code>. A normalized <code>DrawingPath</code>
+records move, line, cubic, and close commands. Curves are transformed and then flattened with a
+fixed tolerance and bounded subdivision. The same transformed contours drive fill tessellation,
+stroke tessellation, clipping, and nonzero-winding hit testing.</p>
+<p>The CPU emits indexed triangle meshes. <code>UIRenderContext</code> converts them to vertex-colored triangles
+and submits them with the peer-provided <code>BasicEffect</code>; no runtime-specific public type or runtime
+shader compiler is required. Brushes and the first bounded effect are evaluated per mesh vertex
+before submission. Existing <code>SpriteBatch</code> drawing and rectangular scissor clips remain available
+and batch state is restored after neutral mesh submission.</p>
+<p>Drawing state is explicit and stack-based. The proven composition slice applies:</p>
+<ol>
+<li>transformed path flattening and tessellation;</li>
+<li>one convex arbitrary-geometry clip by triangle/polygon intersection;</li>
+<li>one two-stop linear opacity mask by vertex alpha;</li>
+<li>one finite 4x5 color matrix;</li>
+<li>final vertex-color triangle submission.</li>
+</ol>
+<p>The feasibility fixture renders and pixel-checks a transformed cubic fill, gradient stroke,
+geometry clip, opacity mask, and color matrix on MonoGame DesktopGL and FNA Metal. Neutral tests run
+the same geometry and transformed hit-test contracts against both package peers.</p>
+<h3 id="finite-limits">Finite limits</h3>
+<p><code>DrawingContextLimits</code> is the runtime source of truth for the initial limits:</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th style="text-align: right;">Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Saved drawing-state depth</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td>Commands per path</td>
+<td style="text-align: right;">4,096</td>
+</tr>
+<tr>
+<td>Curve subdivision depth</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td>Vertices in one clip contour</td>
+<td style="text-align: right;">256</td>
+</tr>
+<tr>
+<td>Vertices per generated mesh</td>
+<td style="text-align: right;">16,384</td>
+</tr>
+<tr>
+<td>Indices per generated mesh</td>
+<td style="text-align: right;">49,152</td>
+</tr>
+<tr>
+<td>Effect groups per composited element</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Shadows per element</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>Blur radius</td>
+<td style="text-align: right;">64 logical units</td>
+</tr>
+<tr>
+<td>Offscreen expansion per side</td>
+<td style="text-align: right;">128 logical units</td>
+</tr>
+<tr>
+<td>Nested offscreen passes</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>Render-target width or height</td>
+<td style="text-align: right;">4,096 pixels</td>
+</tr>
+<tr>
+<td>Render-target area</td>
+<td style="text-align: right;">16,777,216 pixels</td>
+</tr>
+<tr>
+<td>Device-scoped render-target/effect cache</td>
+<td style="text-align: right;">64 MiB</td>
+</tr>
+</tbody>
+</table>
+<p>Path, state, clip, and mesh limits are enforced by the feasibility implementation. Phase 1's
+compositor must enforce the reserved shadow, blur, expansion, offscreen, target, and cache limits
+without increasing them. A statically known violation is a compiler diagnostic. A data-bound
+runtime violation omits the affected effect and reports one bounded diagnostic; it may not allocate
+past the budget. Cache eviction is least-recently-used with frame-safe disposal.</p>
+<h3 id="explicitly-narrowed-behavior">Explicitly narrowed behavior</h3>
+<p>The Phase 0 implementation proves one simple contour per fill, segment-quad strokes, convex
+single-contour clips, two-stop linear gradients/masks, and one color matrix. Phase 1 may broaden
+path commands, fill rules, joins/caps, gradient families, geometry Boolean operations, shadows, and
+blur only while preserving this architecture and the limits above.</p>
+<p>Concave or multi-contour clips require deterministic CPU decomposition into convex pieces before
+submission. Until that implementation lands, direct <code>DrawingContext.Clip</code> rejects them with
+<code>NotSupportedException</code>; it does not silently approximate them. Blur and shadows require the
+bounded offscreen scheduler and target pool and are not implemented by the Phase 0 immediate mesh
+slice. Device loss recreates GPU effects, targets, and cached resources from retained neutral data;
+controls never own backend resources.</p>
+<p>Arbitrary shader/filter graphs, runtime shader source compilation, unbounded filter chains, SVG
+filters, and backend-specific public drawing APIs are outside the contract. Custom rendering uses
+the future non-templated <code>DrawingElement</code> extension point and must provide peer implementations
+under the same budgets.</p>
+<h2 id="rejected-alternatives">Rejected Alternatives</h2>
+<ul>
+<li>SpriteBatch-only shape approximation: rejected because arbitrary transformed paths, shared hit
+geometry, masks, and future vector assets need one retained geometry model.</li>
+<li>Backend-specific tessellation or effects: rejected because it permits peer drift and leaks
+implementation constraints into public APIs.</li>
+<li>Render-target composition for every primitive: rejected because it adds avoidable allocations and
+device-loss state; direct vertex geometry is the default and offscreen passes are effect-driven.</li>
+<li>Runtime shader compilation: rejected because it conflicts with deterministic packaging and
+NativeAOT guarantees.</li>
+<li>Unlimited adaptive tessellation or caches: rejected because malformed/data-bound content could
+create unbounded CPU, GPU, or memory work.</li>
+</ul>
+<h2 id="consequences">Consequences</h2>
+<p>Forma gains one drawing and hit-test geometry contract shared by MonoGame and FNA. The initial
+feature envelope is intentionally narrow, but failures are explicit and every future expansion has
+a fixed resource budget. Phase 1 must add retained resource caches, offscreen scheduling, pooling,
+and device recreation behind <code>DrawingContext</code>; foundational elements and templates do not select a
+runtime backend or compile shaders.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/adr/0004-backend-neutral-drawing-and-compositing.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

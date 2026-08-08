@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>ThorVG Build, Provenance, and Host Integration | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="ThorVG Build, Provenance, and Host Integration | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/thorvg-build-and-provenance.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="thorvg-build-provenance-and-host-integration">ThorVG Build, Provenance, and Host Integration</h1>
+
+<h2 id="source-pin">Source Pin</h2>
+<ul>
+<li>Upstream: <code>https://github.com/thorvg/thorvg.git</code></li>
+<li>Release: <code>v1.1.0</code></li>
+<li>Commit: <code>1b3aed2c188571f49ef4d87062b9f92ff1426c57</code></li>
+<li>License: MIT, Copyright (c) 2020-2026 ThorVG Project</li>
+<li>Reproducible <code>git archive --format=tar v1.1.0</code> SHA-256:
+<code>5511d2412a2dc88e420bb90590e842a6e70e0c339c76f7f735e524e3b8434a20</code></li>
+<li>License SHA-256: <code>74242cdc4ccaebc73fa04fbd52a538429eae2be7a231f9eaf1dbf59d2bedc16b</code></li>
+<li>Build system: Meson 1.9.1 and Ninja</li>
+</ul>
+<p>ThorVG is a pinned Git submodule because source and history must be available to private restricted
+builds without a runtime download. Update by reviewing a signed/tagged upstream release, changing the
+submodule commit and checksums, rebuilding every declared RID, running sanitizers/profile/lifetime
+checks, reviewing output differences, and only then updating package/version evidence.</p>
+<h2 id="minimal-configuration">Minimal Configuration</h2>
+<p><code>scripts/build-thorvg-spike.sh</code> configures a static ThorVG core with CPU engine and SVG loader only.
+C API bindings are compiled for upstream verification, while managed code calls the narrower Forma
+ABI. File I/O, threads, SIMD, partial rendering, logs, tools, tests, savers, image/font/Lottie loaders,
+OpenMP, exceptions, RTTI, and sized deallocation are disabled. Sized deallocation is disabled because
+ThorVG 1.1.0 pairs its <code>malloc</code>-backed global <code>new</code> with unsized <code>free</code>-backed <code>delete</code>; GCC otherwise
+selects an unmatched sized runtime delete. A build needs only the pinned source, C++ compiler,
+Meson, Ninja, and platform system libraries; ThorVG itself fetches no dependency.</p>
+<pre><code class="lang-sh">make thorvg-spike
+make thorvg-linux
+THORVG_SANITIZE=true THORVG_ARTIFACTS_DIR=&quot;$PWD/artifacts/native/thorvg/sanitized&quot; \
+  bash scripts/build-thorvg-spike.sh
+</code></pre>
+<p>Validated source builds are macOS arm64 with Apple Clang 21 and Linux x64 with GCC 13.3. Windows is
+not in the initial declared matrix. ASan+UBSan passed the native ABI smoke. Raw malformed/truncated
+mutation seeds exercise bounded parse and ownership only because the ABI requires core-validated
+input; well-formed bounded profile seeds exercise parse plus rasterization. macOS Leaks reported
+zero leaks after 1,000 parse/raster/dispose lifetimes and a 2,976 KiB final / 8,304 KiB peak process
+footprint for the static smoke host.</p>
+<h2 id="forma-abi-1">Forma ABI 1</h2>
+<p><code>native/Forma.ThorVG/include/forma_thorvg.h</code> is the authority. The dynamic library exports only:</p>
+<ul>
+<li>ABI/backend version and bounded last-error retrieval;</li>
+<li>explicit engine initialize/terminate;</li>
+<li>document create/destroy and intrinsic size;</li>
+<li>exact-size rasterization into caller-owned memory.</li>
+</ul>
+<p>No C++ type, exception, allocator, callback, file path, URI, ThorVG object, or graphics-device handle
+crosses the boundary. Source is copied in-memory. Output is exactly <code>width * height * 4</code>, top-left,
+premultiplied sRGB RGBA8. Managed ownership uses source-generated <code>LibraryImport</code> and <code>SafeHandle</code>.
+ABI mismatch and missing entry points fail health probing before parsing.</p>
+<p>Desktop packages place dynamic libraries under NuGet RID native paths. Restricted hosts compile the
+same adapter source and link the same ABI symbols statically. The checked-in static smoke host proves
+symbol behavior and dead stripping, but does not qualify any console. Private adapters must not
+commit SDK details and must record only policy-approved target ID, ABI/profile/source versions,
+manifest hash, pass/fail counts, budget status, and approval date.</p>
+<p>Official package maintainers own public desktop binaries. Source customers or engine integrations
+own compilation/final linking for unshipped targets. Console platform owners/integrators own all
+proprietary compilation and qualification evidence.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/thorvg-build-and-provenance.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

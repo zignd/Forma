@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>SVG Backend Selection and Migration | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="SVG Backend Selection and Migration | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/svg-backend-migration.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="svg-backend-selection-and-migration">SVG Backend Selection and Migration</h1>
+
+<h2 id="explicit-packages">Explicit Packages</h2>
+<p>Choose exactly one runtime-matched backend:</p>
+<pre><code class="lang-xml">&lt;PackageReference Include=&quot;Forma.Svg.Skia.MonoGame&quot; Version=&quot;0.1.0-alpha.2&quot; /&gt;
+</code></pre>
+<p>or:</p>
+<pre><code class="lang-xml">&lt;PackageReference Include=&quot;Forma.Svg.ThorVG.MonoGame&quot; Version=&quot;0.1.0-alpha.2&quot; /&gt;
+</code></pre>
+<p>Use <code>.FNA</code> peers with <code>Forma.FNA</code>. Package build targets install the selected backend without
+reflection. Source-project hosts call <code>SvgSkiaBackendDefaults.Install()</code> or
+<code>SvgThorvgBackendDefaults.Install()</code> before first SVG use; <code>Verify()</code> additionally runs a bounded
+2x2 raster check.</p>
+<p>Forma's Catalog and SVG smoke hosts default to ThorVG on validated macOS arm64 and Linux x64
+systems. Pass <code>-p:SvgBackend=Skia</code> for explicit rollback. Windows remains on explicit Skia until
+ThorVG Windows native assets are qualified and distributed.</p>
+<p>The unused <code>Forma.Svg.MonoGame</code> and <code>Forma.Svg.FNA</code> compatibility identities have no prior public
+release to support and are excluded from the initial package manifest. Choose an explicit backend
+package directly. Build guards reject mixed runtime peers and mixed SVG backends.</p>
+<p><code>SvgRuntime.Health</code> exposes <code>BackendId</code>, <code>Version</code>, <code>ProfileVersion</code>, <code>NativeAvailability</code>,
+<code>LinkMode</code>, tested features, and a bounded diagnostic. Missing native assets, ABI mismatch, conflict,
+and late selection fail explicitly. Forma never falls back from ThorVG to Skia. Default theme icons
+can still use <code>ThemeIconRenderingPolicy.BitmapAtlas</code> as the renderer-independent rollback.</p>
+<h2 id="deployment-status">Deployment Status</h2>
+<table>
+<thead>
+<tr>
+<th>Backend</th>
+<th>macOS arm64</th>
+<th>Linux x64</th>
+<th>Windows x64</th>
+<th>Restricted/console</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Skia 5.2.0</td>
+<td>Supported reference</td>
+<td>Supported reference</td>
+<td>Supported reference</td>
+<td>Untested</td>
+</tr>
+<tr>
+<td>ThorVG 1.1.0 dynamic</td>
+<td>Experimental, validated</td>
+<td>Experimental, validated</td>
+<td>Untested</td>
+<td>Not applicable</td>
+</tr>
+<tr>
+<td>ThorVG ABI 1 static</td>
+<td>Reference host validated</td>
+<td>Reference host validated</td>
+<td>Untested</td>
+<td>Console-ready architecture only</td>
+</tr>
+</tbody>
+</table>
+<p>&quot;Console-ready&quot; means source/static integration is available. &quot;Console-qualified&quot; requires current
+authorized evidence for the exact SDK, compiler, linker, hardware, source commit, ABI/profile, and
+Forma release. No console is currently qualified.</p>
+<p>Rollback consists of removing the ThorVG package and selecting explicit Skia, or selecting bitmap
+atlas policy when runtime SVG is optional. Application SVG failures remain explicit; only default
+theme icons have their documented PNG fallback.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/svg-backend-migration.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

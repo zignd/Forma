@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Contributor Architecture | Forma Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Contributor Architecture | Forma Documentation ">
+      
+      
+      <link rel="icon" href="favicon.ico">
+      <link rel="stylesheet" href="public/docfx.min.css">
+      <link rel="stylesheet" href="public/main.css">
+      <meta name="docfx:navrel" content="toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/contributor-architecture.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="index.html">
+            <img id="logo" class="svg" src="logo.svg" alt="Forma">
+            Forma
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="contributor-architecture">Contributor Architecture</h1>
+
+<p>Forma keeps public UI behavior runtime-neutral while producing separate MonoGame and FNA binaries.
+The runtime packages share the <code>Forma</code> namespace and API surface but are not binary substitutes.</p>
+<h2 id="ownership-boundaries">Ownership Boundaries</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Primary paths</th>
+<th>Focused validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core controls, layout, input, themes</td>
+<td><code>src/Forma</code>, <code>tests/Forma.Tests</code></td>
+<td><code>make test-unit</code>, <code>make parity</code></td>
+</tr>
+<tr>
+<td>Dynamic text and Unicode</td>
+<td><code>src/Forma.DynamicText</code>, <code>tools/Forma.UnicodeGenerator</code></td>
+<td><code>make test-unit</code>, <code>make unicode-verify</code></td>
+</tr>
+<tr>
+<td>Media</td>
+<td><code>src/Forma.Media</code>, video fixtures</td>
+<td><code>make video-smoke</code>, <code>make parity</code></td>
+</tr>
+<tr>
+<td>XAML compiler/build/hot reload</td>
+<td><code>src/Forma.Xaml.*</code>, <code>tests/Forma.Xaml.*</code></td>
+<td><code>make test-xaml</code>, <code>make format-xaml-check</code></td>
+</tr>
+<tr>
+<td>SVG API and Skia backend</td>
+<td><code>src/Forma.Svg</code>, SVG consumer tests</td>
+<td><code>make svg-selection</code>, <code>make svg-packages</code></td>
+</tr>
+<tr>
+<td>ThorVG backend/native ABI</td>
+<td><code>src/Forma.Svg.ThorVG</code>, <code>native</code>, <code>external/ThorVG</code></td>
+<td><code>make thorvg-render</code>, <code>make thorvg-nativeaot</code></td>
+</tr>
+<tr>
+<td>Catalog and visual stories</td>
+<td><code>samples/Forma.Catalog*</code>, render tests</td>
+<td><code>make smoke</code>, <code>make render-parity</code></td>
+</tr>
+<tr>
+<td>End-to-end XAML sample</td>
+<td><code>samples/Forma.Xaml.Game*</code></td>
+<td><code>make test-xaml</code></td>
+</tr>
+<tr>
+<td>Packages and release</td>
+<td>project pack metadata, <code>scripts/release-packages.json</code></td>
+<td><code>bash scripts/pack-release-packages.sh</code></td>
+</tr>
+<tr>
+<td>Documentation and API reference</td>
+<td><code>docs</code>, XML comments, Docfx config</td>
+<td><code>make docs-check</code></td>
+</tr>
+<tr>
+<td>Licenses and provenance</td>
+<td>legal files, package payloads, asset manifests</td>
+<td><code>make compliance</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="runtime-peer-rule">Runtime Peer Rule</h2>
+<p>Shared projects receive <code>FormaRuntime=MonoGame</code> or <code>FormaRuntime=FNA</code> and select exactly one framework
+reference. Runtime adapters live behind narrow compile-time boundaries. A change to public shared API
+must produce the same documented signatures in both peers; <code>scripts/check-runtime-parity.sh</code> is the
+authority.</p>
+<h2 id="data-and-resource-ownership">Data and Resource Ownership</h2>
+<p><code>UIContext</code> owns UI traversal and device-bound caches; controls own their retained child structure;
+applications own resources they pass unless an API explicitly transfers ownership. Build-time XAML
+injects production loaders into application assemblies. Debug hot reload is a separate package and
+must not leak into release output. Native backends must fail explicitly when ABI or RID requirements
+are unmet and may not silently select another renderer.</p>
+<h2 id="generated-surfaces">Generated Surfaces</h2>
+<p>Theme icons, Unicode data, packages, API YAML, screenshots, metrics, and baselines each have a named
+generator or source manifest. Change the owner first and run its verification command. Files under
+<code>Artifacts/</code>, <code>docs/api/</code>, and <code>docs/_generated/</code> are outputs and are not reviewed as source.</p>
+<h2 id="review-expectations">Review Expectations</h2>
+<p>Cross-boundary changes need the focused checks for every affected owner. Public API changes also
+need parity and documentation. Rendering changes need visual evidence from both peers or an explicit
+reason a peer cannot execute on the current host. Native/dependency changes need provenance,
+redistribution review, clean consumers, and supported-RID evidence.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/zigrok/Forma/blob/e7555447cbdab423e527e29a966046aaa294c6b3/docs/contributor-architecture.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Forma 0.1.0-alpha.2 · Preview release · e7555447cbda · <a href="/Forma/versions/">All versions</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

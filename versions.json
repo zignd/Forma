@@ -1,11 +1,19 @@
 {
   "schemaVersion": 1,
-  "defaultPath": "/Forma/dev/",
+  "defaultPath": "/Forma/v0.1.0-alpha.2/",
   "development": {
     "version": "0.1.0-alpha.2",
     "maturity": "Development preview",
     "revision": "2be07e73e0f9be1682d57da1ea1bc22bba4adc64",
     "path": "/Forma/dev/"
   },
-  "releases": []
+  "releases": [
+    {
+      "version": "0.1.0-alpha.2",
+      "channel": "v0.1.0-alpha.2",
+      "maturity": "Preview release",
+      "revision": "e7555447cbdab423e527e29a966046aaa294c6b3",
+      "path": "/Forma/v0.1.0-alpha.2/"
+    }
+  ]
 }

@@ -16,9 +16,13 @@ hash_outputs() {
 
 for runtime in MonoGame FNA; do
   echo "Validating Forma XAML build fixtures for $runtime"
+  runtime_environment=(env)
+  if [[ "$runtime" == "FNA" ]]; then
+    runtime_environment+=(SDL_VIDEODRIVER=offscreen FNA3D_FORCE_DRIVER=OpenGL FNA3D_OPENGL_WINDOW_DEPTHSTENCILFORMAT=None)
+  fi
   MSBUILDDISABLENODEREUSE=1 dotnet clean "$valid_project" --configuration Debug --nologo -p:FormaRuntime="$runtime" >/dev/null
   MSBUILDDISABLENODEREUSE=1 dotnet build "$valid_project" --configuration Debug --nologo -p:FormaRuntime="$runtime" >/dev/null
-  dotnet run --project "$valid_project" --configuration Debug --no-build -p:FormaRuntime="$runtime" | grep -q 'Forma XAML build integration: PASS'
+  "${runtime_environment[@]}" dotnet run --project "$valid_project" --configuration Debug --no-build -p:FormaRuntime="$runtime" | grep -q 'Forma XAML build integration: PASS'
 
   output="$repo_root/tests/Forma.Xaml.Build.Integration/bin/$runtime/Debug/net10.0"
   test "$(dd if="$output/Forma.Xaml.Build.Integration.pdb" bs=4 count=1 2>/dev/null)" = "BSJB"

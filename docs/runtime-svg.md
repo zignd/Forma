@@ -9,8 +9,8 @@ reference either renderer or its native assets.
 Reference exactly one backend matching the selected Forma runtime:
 
 ```xml
-<PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.1" />
-<PackageReference Include="Forma.Svg.ThorVG.MonoGame" Version="0.1.0-alpha.1" />
+<PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.2" />
+<PackageReference Include="Forma.Svg.ThorVG.MonoGame" Version="0.1.0-alpha.2" />
 ```
 
 ThorVG is the default used by Forma's Catalog and SVG smoke hosts on validated macOS arm64 and

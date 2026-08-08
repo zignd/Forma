@@ -61,9 +61,9 @@ MSBuild targets and compiler tools:
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.1" />
+  <PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.2" />
   <PackageReference Include="Forma.Xaml.Build.MonoGame"
-                    Version="0.1.0-alpha.1"
+                    Version="0.1.0-alpha.2"
                     PrivateAssets="All" />
 </ItemGroup>
 ```

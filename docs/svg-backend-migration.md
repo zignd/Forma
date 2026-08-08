@@ -5,13 +5,13 @@
 Choose exactly one runtime-matched backend:
 
 ```xml
-<PackageReference Include="Forma.Svg.Skia.MonoGame" Version="0.1.0-alpha.1" />
+<PackageReference Include="Forma.Svg.Skia.MonoGame" Version="0.1.0-alpha.2" />
 ```
 
 or:
 
 ```xml
-<PackageReference Include="Forma.Svg.ThorVG.MonoGame" Version="0.1.0-alpha.1" />
+<PackageReference Include="Forma.Svg.ThorVG.MonoGame" Version="0.1.0-alpha.2" />
 ```
 
 Use `.FNA` peers with `Forma.FNA`. Package build targets install the selected backend without

@@ -1,6 +1,6 @@
 # Release Notes
 
-## Unreleased
+## 0.1.0-alpha.2
 
 - Added explicit `Forma.Svg.Skia.*` and `Forma.Svg.ThorVG.*` backend packages with one
   immutable process-wide selection contract. Legacy `Forma.Svg.*` packages retain Skia behavior for

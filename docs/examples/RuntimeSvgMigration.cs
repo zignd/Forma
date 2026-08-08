@@ -12,12 +12,12 @@
 // Prerequisites: add the runtime-matched companion alongside the core package.
 //
 //   MonoGame:
-//     <PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.1" />
-//     <PackageReference Include="Forma.Svg.MonoGame" Version="0.1.0-alpha.1" />
+//     <PackageReference Include="Forma.MonoGame" Version="0.1.0-alpha.2" />
+//     <PackageReference Include="Forma.Svg.MonoGame" Version="0.1.0-alpha.2" />
 //
 //   FNA:
-//     <PackageReference Include="Forma.FNA" Version="0.1.0-alpha.1" />
-//     <PackageReference Include="Forma.Svg.FNA" Version="0.1.0-alpha.1" />
+//     <PackageReference Include="Forma.FNA" Version="0.1.0-alpha.2" />
+//     <PackageReference Include="Forma.Svg.FNA" Version="0.1.0-alpha.2" />
 //
 // The package module initializer installs the backend automatically. Call
 // SvgBackendDefaults.Verify() for an explicit startup probe.

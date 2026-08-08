@@ -106,6 +106,24 @@ for runtime in MonoGame FNA; do
   fi
 done
 
+for runtime in MonoGame FNA; do
+  package_id="Forma.Svg.ThorVG.$runtime"
+  package_path="$output_root/$package_id.$version.nupkg"
+  entries="$(unzip -Z1 "$package_path")"
+  for required_entry in \
+    runtimes/linux-x64/native/libforma_thorvg.so \
+    runtimes/osx-arm64/native/libforma_thorvg.dylib; do
+    grep -Fxq "$required_entry" <<<"$entries" || {
+      printf '%s is missing required native release asset %s.\n' "$package_id" "$required_entry" >&2
+      exit 1
+    }
+  done
+  if unzip -p "$package_path" "$package_id.nuspec" | grep -Fq 'SkiaSharp'; then
+    printf '%s must not depend on SkiaSharp.\n' "$package_id" >&2
+    exit 1
+  fi
+done
+
 if [[ "$validate_only" != "true" ]]; then
 for runtime in MonoGame FNA; do
   consumer_cache="$output_root/.hot-reload-consumer/$runtime/packages"

@@ -14,7 +14,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  thorvg-linux-native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Install Linux native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang g++ ninja-build python3-venv zlib1g-dev
+      - name: Build Linux x64 ThorVG native assets
+        run: make thorvg-spike
+      - uses: actions/upload-artifact@v7
+        with:
+          name: thorvg-linux-x64-release-native
+          path: artifacts/native/thorvg/linux-x64/output/libforma_thorvg.so
+          if-no-files-found: error
+
+  thorvg-macos-native:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Build macOS arm64 ThorVG native assets
+        run: make thorvg-spike
+      - uses: actions/upload-artifact@v7
+        with:
+          name: thorvg-osx-arm64-release-native
+          path: artifacts/native/thorvg/osx-arm64/output/libforma_thorvg.dylib
+          if-no-files-found: error
+
   package:
+    needs: [thorvg-linux-native, thorvg-macos-native]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -23,6 +56,14 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
+      - uses: actions/download-artifact@v8
+        with:
+          name: thorvg-linux-x64-release-native
+          path: artifacts/native/thorvg/linux-x64/output
+      - uses: actions/download-artifact@v8
+        with:
+          name: thorvg-osx-arm64-release-native
+          path: artifacts/native/thorvg/osx-arm64/output
       - name: Install Linux graphics dependencies
         run: |
           sudo apt-get update

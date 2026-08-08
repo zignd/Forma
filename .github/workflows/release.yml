@@ -191,3 +191,11 @@ jobs:
             --verify-tag \
             --generate-notes \
             --title "Forma ${GITHUB_REF_NAME#v}"
+
+  publish-documentation:
+    needs: publish
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/docs.yml

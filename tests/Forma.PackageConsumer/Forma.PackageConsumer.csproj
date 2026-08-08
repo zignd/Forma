@@ -40,6 +40,10 @@
     <Compile Include="../../docs/examples/DynamicTextQuickStart.cs" Link="Examples/DynamicTextQuickStart.cs" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(IncludeFormaSvg)' == 'true'">
+    <Compile Include="../../docs/examples/RuntimeSvgMigration.cs" Link="Examples/RuntimeSvgMigration.cs" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(ExerciseSpriteFont)' == 'true'">
     <Content Include="../Assets/Fonts/Catalog.xnb" Link="Content/Fonts/Catalog.xnb" CopyToOutputDirectory="PreserveNewest" />
     <RdXmlFile Include="FnaNativeAot.rd.xml" Condition="'$(FormaRuntime)' == 'FNA' and '$(PublishAot)' == 'true'" />

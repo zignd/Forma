@@ -26,3 +26,9 @@ Catalog: [ItemList](https://github.com/zigrok/Forma/blob/main/samples/Forma.Cata
 [Tree](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/Tree.xaml),
 [DataGrid](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/DataGrid.xaml).
 The feature stories cover [flat and hierarchical grids](https://github.com/zigrok/Forma/tree/main/samples/Forma.Catalog).
+Their exact Catalog names are **Collection Systems**, **Flat Data Grid**, and
+**Hierarchical Data Grid**.
+
+Every public type in the table has a Catalog story with the exact unqualified type name. Its stable
+identifier is `catalog-` plus the kebab-case type name, such as `catalog-data-grid`; the Catalog's
+**Open reference** link returns to this page.

@@ -565,6 +565,12 @@ state, focus/capture within the replaced subtree, or animation clock position. I
 in trimmed or NativeAOT builds. Release, trimmed, and NativeAOT builds use only injected IL and may
 not contain source XAML, watchers, SRE, XamlX, Cecil, or Forma compiler/hot-reload assemblies.
 
+## Catalog Stories
+
+The Catalog stories **Selector Styles**, **Template Systems**, **Composition Systems**,
+**Storyboards and Triggers**, and **Compiled Data Binding** link to this guide. Their stable
+identifiers are the kebab-case names prefixed with `catalog-`, such as `catalog-selector-styles`.
+
 ## Compatibility Matrix
 
 | Concept | Forma XAML v1 | XAML 2006 / WPF / Avalonia comparison |

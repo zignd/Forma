@@ -26,3 +26,7 @@ Catalog: [Label](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog
 [RichTextLabel](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/RichTextLabel.xaml),
 [ProgressBar](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/ProgressBar.xaml),
 [RectangleShape](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/RectangleShape.xaml).
+
+Every public type in the table has a Catalog story with the exact unqualified type name. Its stable
+identifier is `catalog-` plus the kebab-case type name, such as `catalog-rich-text-label`; the
+Catalog's **Open reference** link returns to this page.

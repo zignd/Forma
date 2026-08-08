@@ -107,7 +107,7 @@
             <VBoxContainer
                 Separation="4"
                 Margins="24,18,24,12"
-                CustomMinimumSize="0,106">
+                CustomMinimumSize="0,132">
                 <Label
                     x:Name="StoryCategory"
                     Text="{Binding StoryCategory}"
@@ -118,6 +118,15 @@
                     x:Name="StoryTitle"
                     Text="{Binding StoryTitle}"
                     CustomMinimumSize="0,30" />
+                <HBoxContainer Separation="10" CustomMinimumSize="0,24">
+                    <Label
+                        Text="{Binding DocumentationId}"
+                        FontColor="#FF8F99AA" />
+                    <LinkButton
+                        x:Name="ReferenceLink"
+                        Text="Open reference"
+                        Uri="{Binding ReferenceUrl}" />
+                </HBoxContainer>
                 <RichTextLabel
                     x:Name="Description"
                     Text="{Binding Description}"

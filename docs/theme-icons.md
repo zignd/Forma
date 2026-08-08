@@ -86,3 +86,9 @@ Only runtime icons mapped to behavior Forma currently exposes are imported. Dial
 icons, ColorPicker pipette/shape/overbright icons, tab drop marks,
 and CodeEdit completion-color backgrounds remain excluded until corresponding interactive behavior
 exists. Godot's editor icon collection is excluded entirely.
+
+## Catalog Stories
+
+The exact theme-icon story names are **Complete icon inventory**, **Runtime SVG**,
+**Override and suppression**, and **Atlas diagnostics**. Their stable identifiers are the
+kebab-case names prefixed with `catalog-`, such as `catalog-runtime-svg`.

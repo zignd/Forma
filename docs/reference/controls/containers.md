@@ -32,3 +32,7 @@ Catalog: [GridPanel](https://github.com/zigrok/Forma/blob/main/samples/Forma.Cat
 [ScrollContainer](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/ScrollContainer.xaml),
 [SplitContainer](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/SplitContainer.xaml),
 [WrapPanel](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/WrapPanel.xaml).
+
+Every public type in the tables has a Catalog story with the exact unqualified type name. Its stable
+identifier is `catalog-` plus the kebab-case type name, such as `catalog-grid-panel`; the Catalog's
+**Open reference** link returns to this page.

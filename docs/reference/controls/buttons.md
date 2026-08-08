@@ -30,3 +30,7 @@ Catalog: [Button](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalo
 [LinkButton](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/LinkButton.xaml),
 [TextureButton](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/TextureButton.xaml),
 [MenuButton](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/MenuButton.xaml).
+
+Every public type in the table has a Catalog story with the exact unqualified type name. Its stable
+identifier is `catalog-` plus the kebab-case type name, such as `catalog-base-button`; the Catalog's
+**Open reference** link returns to this page.

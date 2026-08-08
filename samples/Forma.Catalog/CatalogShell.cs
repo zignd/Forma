@@ -38,6 +38,7 @@ public sealed class CatalogShell : BoxContainer
     private Tree _navigation;
     private Label _storyTitle;
     private Label _storyCategory;
+    private LinkButton _referenceLink;
     private RichTextLabel _description;
     private CatalogPreviewContainer _preview;
     private VBoxContainer _inspector;
@@ -147,6 +148,12 @@ public sealed class CatalogShell : BoxContainer
         _navigation = scope.Find<Tree>("Navigation") ?? throw MissingName("Navigation");
         _storyTitle = scope.Find<Label>("StoryTitle") ?? throw MissingName("StoryTitle");
         _storyCategory = scope.Find<Label>("StoryCategory") ?? throw MissingName("StoryCategory");
+        _referenceLink = scope.Find<LinkButton>("ReferenceLink") ?? throw MissingName("ReferenceLink");
+        _referenceLink.UriLauncher = static (_, uri) =>
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+            return true;
+        };
         _description = scope.Find<RichTextLabel>("Description") ?? throw MissingName("Description");
         _preview = scope.Find<CatalogPreviewContainer>("Preview") ?? throw MissingName("Preview");
         _inspector = scope.Find<VBoxContainer>("Inspector") ?? throw MissingName("Inspector");
@@ -286,6 +293,8 @@ public sealed class CatalogShell : BoxContainer
         _viewModel.StoryCategory = story.Category;
         _viewModel.StoryTitle = story.Name;
         _viewModel.Description = story.Description;
+        _viewModel.DocumentationId = story.DocumentationId;
+        _viewModel.ReferenceUrl = story.ReferenceUrl;
         _storyCategory.Text = _viewModel.StoryCategory;
         _storyTitle.Text = _viewModel.StoryTitle;
         _description.Text = _viewModel.Description;

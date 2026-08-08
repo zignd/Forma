@@ -27,3 +27,7 @@ Catalog: [AcceptDialog](https://github.com/zigrok/Forma/blob/main/samples/Forma.
 [FileDialog](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/FileDialog.xaml),
 [PopupMenu](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/PopupMenu.xaml),
 [ColorPickerDialog](https://github.com/zigrok/Forma/blob/main/samples/Forma.Catalog/Stories/Controls/ColorPickerDialog.xaml).
+
+Every public type in the table has a Catalog story with the exact unqualified type name. Its stable
+identifier is `catalog-` plus the kebab-case type name, such as `catalog-confirmation-dialog`; the
+Catalog's **Open reference** link returns to this page.

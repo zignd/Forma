@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 
+using System.Globalization;
 using Forma.QuickStart;
 
 var maximumFrames = 0;
 string? screenshotPath = null;
 var viewKind = QuickStartViewKind.CSharp;
+var displayScale = 1f;
 for (var index = 0; index < args.Length; index++)
 {
     switch (args[index])
@@ -21,6 +23,15 @@ for (var index = 0; index < args.Length; index++)
         case "--settings-form":
             viewKind = QuickStartViewKind.SettingsForm;
             break;
+        case "--responsive-hud":
+            viewKind = QuickStartViewKind.ResponsiveHud;
+            break;
+        case "--display-scale" when index + 1 < args.Length
+            && float.TryParse(args[++index], NumberStyles.Float, CultureInfo.InvariantCulture, out var scale)
+            && float.IsFinite(scale)
+            && scale > 0:
+            displayScale = scale;
+            break;
         default:
             throw new ArgumentException($"Unknown or invalid argument: {args[index]}");
     }
@@ -29,5 +40,5 @@ for (var index = 0; index < args.Length; index++)
 #if FORMA_QUICKSTART_FNA
 Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
 #endif
-using var game = new QuickStartGame(maximumFrames, screenshotPath, viewKind);
+using var game = new QuickStartGame(maximumFrames, screenshotPath, viewKind, displayScale);
 game.Run();

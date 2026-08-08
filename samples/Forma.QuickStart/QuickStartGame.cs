@@ -14,6 +14,7 @@ public enum QuickStartViewKind
     CSharp,
     Xaml,
     SettingsForm,
+    ResponsiveHud,
 }
 
 public sealed class QuickStartGame : Game
@@ -23,6 +24,7 @@ public sealed class QuickStartGame : Game
     private readonly int _maximumFrames;
     private readonly string? _screenshotPath;
     private readonly QuickStartViewKind _viewKind;
+    private readonly float _displayScale;
     private Control? _root;
     private UIFontFace? _fontFace;
     private int _renderedFrames;
@@ -34,11 +36,13 @@ public sealed class QuickStartGame : Game
     public QuickStartGame(
         int maximumFrames = 0,
         string? screenshotPath = null,
-        QuickStartViewKind viewKind = QuickStartViewKind.CSharp)
+        QuickStartViewKind viewKind = QuickStartViewKind.CSharp,
+        float displayScale = 1)
     {
         _maximumFrames = maximumFrames;
         _screenshotPath = screenshotPath;
         _viewKind = viewKind;
+        _displayScale = displayScale;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 800,
@@ -61,11 +65,13 @@ public sealed class QuickStartGame : Game
         var font = new DynamicUIFont(_fontFace, 20);
         _ui.Theme.FontFamily = new UIFontFamily(new[] { font });
         _ui.TooltipUIFont = font;
+        _ui.DisplayScale = _displayScale;
 
         _root = _viewKind switch
         {
             QuickStartViewKind.Xaml => new FirstView(),
             QuickStartViewKind.SettingsForm => new SettingsFormView(),
+            QuickStartViewKind.ResponsiveHud => ResponsiveHudView.Create(_displayScale),
             _ => QuickStartView.Create(),
         };
         _ui.Add(_root);
@@ -81,10 +87,12 @@ public sealed class QuickStartGame : Game
         if (_root is not null)
         {
             var viewport = GraphicsDevice.Viewport;
+            var logicalViewport = new Vector2(viewport.Width, viewport.Height) / _displayScale;
+            _ui.ViewportSize = logicalViewport;
             _root.Position = new Vector2(40, 40);
             _root.Size = new Vector2(
-                Math.Max(0, viewport.Width - 80),
-                Math.Max(0, viewport.Height - 80));
+                Math.Max(0, logicalViewport.X - 80),
+                Math.Max(0, logicalViewport.Y - 80));
         }
         base.Update(gameTime);
     }

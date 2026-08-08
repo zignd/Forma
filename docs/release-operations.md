@@ -16,9 +16,11 @@ Before creating a tag:
 1. Confirm CI and the non-publishing Release dry run pass on the exact commit.
 2. Confirm the version in `Directory.Build.props` matches the intended tag without the leading `v`.
 3. Recheck every ID in `scripts/release-packages.json` on NuGet.org.
-4. Review `RELEASE_NOTES.md`, the API compatibility report, package contents, checksums, and the
-   complete runtime-peer manifest.
-5. Create and push the tag only after those checks pass. The tag starts protected OIDC publication;
+4. Run `make docs-check`. Review documentation for every changed API, behavior, package, support
+   claim, migration, and screenshot; confirm visible maturity/version labels match the release.
+5. Review `RELEASE_NOTES.md` against those documentation changes, the API compatibility report,
+   package contents, checksums, and the complete runtime-peer manifest.
+6. Create and push the tag only after those checks pass. The tag starts protected OIDC publication;
    no long-lived NuGet credential is involved.
 
 The workflow publishes the validated artifact without rebuilding, waits for every primary package

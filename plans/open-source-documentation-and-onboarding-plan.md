@@ -641,7 +641,7 @@ Each curated control entry should include:
 - [ ] Publish stable documentation through GitHub Pages, keep default-branch previews visibly
   separate, and generate immutable release paths plus a version manifest for supported package lines.
 - [ ] Add redirects and link-stability rules before publishing public URLs.
-- [ ] Include documentation changes in release checklists and release-note review.
+- [x] Include documentation changes in release checklists and release-note review.
 
 ### Exit Criteria
 

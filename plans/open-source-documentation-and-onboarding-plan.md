@@ -200,8 +200,8 @@ documentation requirements.
 - [x] Phase 1: README and Documentation Front Door
 - [ ] Phase 2: Tested MonoGame and FNA Quick Starts
 - [x] Phase 3: Core Conceptual Guides
-- [ ] Phase 4: Control and API Reference
-- [ ] Phase 5: Focused Example Gallery and Catalog Cross-Links
+- [x] Phase 4: Control and API Reference
+- [x] Phase 5: Focused Example Gallery and Catalog Cross-Links
 - [x] Phase 6: Contributor and Community Health
 - [ ] Phase 7: Documentation Site, Versioning, and CI Quality Gates
 
@@ -221,39 +221,39 @@ validation criteria.
 
 ## Success Criteria
 
-- [ ] A developer starting from a clean machine can follow either runtime quick start and display a
+- [x] A developer starting from a clean machine can follow either runtime quick start and display a
   working Forma UI without consulting repository source or internal build scripts.
-- [ ] The quick starts state prerequisites, supported package/source route, exact commands, expected
+- [x] The quick starts state prerequisites, supported package/source route, exact commands, expected
   result, and common failure recovery.
-- [ ] A reader can find installation, first UI, XAML, layout, input, styling, data binding, dynamic
+- [x] A reader can find installation, first UI, XAML, layout, input, styling, data binding, dynamic
   text, SVG, platform support, migration, troubleshooting, and contribution material from one
   documentation landing page.
-- [ ] The README explains what Forma is, its current release maturity, which runtime variants exist,
+- [x] The README explains what Forma is, its current release maturity, which runtime variants exist,
   and the shortest supported path to trying it.
-- [ ] Every supported installation snippet references packages or source projects that are actually
+- [x] Every supported installation snippet references packages or source projects that are actually
   available and validated from an empty package cache or clean checkout.
 - [ ] Every package in the initial public manifest, including both ThorVG peers, is owned by the
   Zigrok NuGet.org organization, published at the same version, indexed, and restorable without an
   authenticated package source.
 - [ ] Public publication uses a protected GitHub environment and NuGet.org trusted publishing; no
   long-lived registry credential is stored in the repository or GitHub Actions secrets.
-- [ ] The layout guide explains `Size`, `Width`, `Height`, `CustomMinimumSize`,
+- [x] The layout guide explains `Size`, `Width`, `Height`, `CustomMinimumSize`,
   `CustomMaximumSize`, size flags, parent-container ownership, margin, padding, content alignment,
   viewport size, and display scale with runnable examples and diagrams.
-- [ ] The input guide explains `UIContext.Update`, text input, focus, mouse filtering, keyboard
+- [x] The input guide explains `UIContext.Update`, text input, focus, mouse filtering, keyboard
   interaction, clipboard capabilities, and host-specific adapters.
-- [ ] Every public control has a searchable API entry and a curated summary containing purpose,
+- [x] Every public control has a searchable API entry and a curated summary containing purpose,
   defaults, common properties/events, sizing behavior, related controls, and at least one C# or XAML
   example where applicable.
-- [ ] Every Catalog story links to a stable control or feature reference, and reference pages identify
+- [x] Every Catalog story links to a stable control or feature reference, and reference pages identify
   their corresponding story names.
-- [ ] At least six focused examples build for both runtimes or share one runtime-neutral core with
+- [x] At least six focused examples build for both runtimes or share one runtime-neutral core with
   thin peer hosts.
-- [ ] `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, and `SUPPORT.md` define project-owned
+- [x] `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, and `SUPPORT.md` define project-owned
   policies and link from the README.
-- [ ] Issue and pull-request templates collect runtime, backend, operating system, reproduction,
+- [x] Issue and pull-request templates collect runtime, backend, operating system, reproduction,
   logs, visual evidence, test coverage, and compatibility impact where relevant.
-- [ ] CI rejects broken internal links, uncompilable documented code, failed quick-start builds,
+- [x] CI rejects broken internal links, uncompilable documented code, failed quick-start builds,
   missing required reference metadata, and unclassified documentation drift.
 - [ ] Documentation is versioned with releases so users can distinguish the default branch from the
   latest stable or preview package contract.
@@ -457,7 +457,7 @@ Each curated control entry should include:
   and both XAML hot-reload peers, and attaches the same validated artifacts to its GitHub release.
 - [ ] Every published package restores from NuGet.org in a clean consumer without authentication;
   ThorVG consumers receive only supported RID assets and no Skia dependency.
-- [ ] The installation route used by quick starts is executable from a clean environment.
+- [x] The installation route used by quick starts is executable from a clean environment.
 - [x] The documentation toolchain decision records alternatives, tradeoffs, and maintenance cost.
 - [x] Every duplicated volatile claim has one proposed canonical source or a removal decision.
 
@@ -541,7 +541,7 @@ Each curated control entry should include:
 
 - [x] Enable XML documentation output for all public runtime packages intended for reference.
 - [x] Measure public type/member XML coverage and define an initial enforced threshold.
-- [ ] Document every public control type and high-value public member lacking a useful summary.
+- [x] Document every public control type and high-value public member lacking a useful summary.
 - [x] Build the canonical MonoGame release-family assemblies, XML documentation, and portable PDBs
   before Docfx metadata generation, and require runtime API parity to pass first.
 - [x] Configure Docfx metadata from those prebuilt artifacts with stable `zigrok/Forma` Source Link
@@ -570,24 +570,24 @@ Each curated control entry should include:
 - [x] Add a settings or login form demonstrating layout, validation, focus, and two-way input.
 - [x] Add a responsive HUD demonstrating anchors/containers, resize, and display scale.
 - [x] Add a scrollable inventory demonstrating item templates and selection.
-- [ ] Add a dialog workflow demonstrating modal ownership and result handling.
-- [ ] Add a list/DataGrid example demonstrating typed data binding and observable updates.
-- [ ] Add a custom theme/control example demonstrating styles, templates, and default icons.
-- [ ] Add focused dynamic-text and runtime-SVG examples or convert existing snippets into executable
+- [x] Add a dialog workflow demonstrating modal ownership and result handling.
+- [x] Add a list/DataGrid example demonstrating typed data binding and observable updates.
+- [x] Add a custom theme/control example demonstrating styles, templates, and default icons.
+- [x] Add focused dynamic-text and runtime-SVG examples or convert existing snippets into executable
   fixtures.
-- [ ] Give every sample a short README with purpose, run commands, concepts, expected result, and
+- [x] Give every sample a short README with purpose, run commands, concepts, expected result, and
   links to guides/reference.
-- [ ] Add stable documentation identifiers to Catalog stories where needed.
-- [ ] Link Catalog stories to reference URLs and reference pages back to exact story names.
-- [ ] Add screenshot refresh and review ownership for user-facing examples.
+- [x] Add stable documentation identifiers to Catalog stories where needed.
+- [x] Link Catalog stories to reference URLs and reference pages back to exact story names.
+- [x] Add screenshot refresh and review ownership for user-facing examples.
 
 ### Exit Criteria
 
-- [ ] At least six focused examples build for both runtimes or use verified shared core code with thin
+- [x] At least six focused examples build for both runtimes or use verified shared core code with thin
   peer hosts.
-- [ ] Examples are individually understandable and do not require reading Signal Run first.
-- [ ] Every example has bounded CI validation appropriate to its graphics/input needs.
-- [ ] Catalog/reference cross-links are complete for the supported public-control inventory.
+- [x] Examples are individually understandable and do not require reading Signal Run first.
+- [x] Every example has bounded CI validation appropriate to its graphics/input needs.
+- [x] Catalog/reference cross-links are complete for the supported public-control inventory.
 
 ## Phase 6: Contributor and Community Health
 
@@ -629,8 +629,8 @@ Each curated control entry should include:
 - [x] Publish preview artifacts in pull requests or workflow artifacts before enabling public hosting.
 - [x] Treat Docfx internal-link, cross-reference, and content warnings as CI failures; run Linkspector,
   Lychee, or another maintained external-link checker with a documented transient-failure policy.
-- [ ] Compile or import every important snippet from executable fixtures.
-- [ ] Build all quick-start and focused sample projects from clean caches in CI.
+- [x] Compile or import every important snippet from executable fixtures.
+- [x] Build all quick-start and focused sample projects from clean caches in CI.
 - [x] Add spell/style checks with a narrow project dictionary and no blanket suppression.
 - [x] Validate package IDs and versions against generated build/package metadata.
 - [x] Validate the NuGet.org publication manifest against packable project IDs so newly approved
@@ -640,13 +640,13 @@ Each curated control entry should include:
 - [x] Add a control-story-reference completeness check.
 - [ ] Publish stable documentation through GitHub Pages, keep default-branch previews visibly
   separate, and generate immutable release paths plus a version manifest for supported package lines.
-- [ ] Add redirects and link-stability rules before publishing public URLs.
+- [x] Add redirects and link-stability rules before publishing public URLs.
 - [x] Include documentation changes in release checklists and release-note review.
 
 ### Exit Criteria
 
 - [x] The documentation site builds deterministically from a clean checkout.
-- [ ] CI fails on broken internal links, missing pages, failed snippets, failed quick starts, or
+- [x] CI fails on broken internal links, missing pages, failed snippets, failed quick starts, or
   incomplete control mappings.
 - [ ] Published pages visibly identify their Forma version and support maturity.
 - [ ] API source links resolve to the release commit in `zigrok/Forma`, and GitHub Pages versioned

@@ -109,7 +109,8 @@ versions and counts tied to the canonical sources listed in
 
 ## Commits and Pull Requests
 
-Use imperative, contextual commit messages and avoid unrelated formatting churn. A pull request must
+Use [Conventional Commits](https://www.conventionalcommits.org/) with an imperative, contextual
+subject, and avoid unrelated formatting churn. A pull request must
 explain runtime/backend impact, tests, public API or XAML changes, documentation, visual evidence for
 rendering changes, and dependency/license impact. Complete the repository pull-request template;
 maintainers may ask for a smaller scope when independent changes cannot be reviewed safely together.

@@ -297,12 +297,10 @@ validation criteria.
 ### Gaps
 
 - The README leads with architecture and package constraints instead of a minimal successful use.
-- NuGet publication is disabled, so package artifacts are reviewable but not yet available through
-  the default public .NET package source.
-- The release workflow does not currently add `Forma.Svg.ThorVG.MonoGame` and
-  `Forma.Svg.ThorVG.FNA` to its uploaded package artifact or run the SVG package-consumer gate.
-- NuGet.org organization ownership, trusted-publishing policy, protected approval environment, and
-  post-publication restore verification are not configured yet.
+- No approved preview has been published, so package artifacts are reviewable but not yet available
+  through the default public .NET package source.
+- Backup NuGet.org ownership and post-publication indexing and restore verification have not been
+  exercised yet.
 - `docs/` has no landing page or navigation hierarchy.
 - There are no dedicated first-UI, layout/sizing, input/focus, controls/containers, styling/theme,
   or troubleshooting guides.
@@ -421,14 +419,14 @@ Each curated control entry should include:
   release evidence.
 - [x] Finalize the fourteen-package initial public manifest, including both ThorVG and XAML
   hot-reload peers, while rejecting the two unused SVG compatibility package IDs.
-- [ ] Configure a NuGet.org trusted-publishing policy for GitHub owner `zigrok`, repository `Forma`,
+- [x] Configure a NuGet.org trusted-publishing policy for GitHub owner `zigrok`, repository `Forma`,
   and workflow `.github/workflows/release.yml`, owned by the Zigrok NuGet.org organization and
   restricted to the protected `nuget-production` environment.
-- [ ] Configure required maintainers for the GitHub `nuget-production` environment so validation and
+- [x] Configure required maintainers for the GitHub `nuget-production` environment so validation and
   artifact review complete before publication approval.
 - [x] Extend the release package job to pack, inspect, and upload both ThorVG peers, both XAML
   hot-reload peers, and their symbol packages where produced.
-- [ ] Run `scripts/test-svg-package-consumers.sh` or an equivalent release gate before publication,
+- [x] Run `scripts/test-svg-package-consumers.sh` or an equivalent release gate before publication,
   including native RID selection, absent/mismatched ABI failures, no-Skia checks, single-file
   behavior, and mixed-backend rejection.
 - [x] Add a publish job that downloads the validated artifact, verifies it exactly matches the

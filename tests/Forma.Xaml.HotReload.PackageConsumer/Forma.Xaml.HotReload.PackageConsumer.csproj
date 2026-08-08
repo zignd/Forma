@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <FormaRuntime Condition="'$(FormaRuntime)' == ''">MonoGame</FormaRuntime>
-    <FormaPackageVersion>0.1.0-alpha.1</FormaPackageVersion>
+    <FormaPackageVersion>$(FormaVersion)</FormaPackageVersion>
     <RestoreSources>$(FormaPackageSource);https://api.nuget.org/v3/index.json</RestoreSources>
   </PropertyGroup>
 

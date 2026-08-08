@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-version="0.1.0-alpha.1"
+version="$(grep -oE '<FormaVersion>[^<]+</FormaVersion>' "$repo_root/Directory.Build.props" | sed -E 's/<\/?FormaVersion>//g')"
 package_root="$repo_root/artifacts/svg-package-consumers/packages"
 consumer_root="$repo_root/artifacts/svg-package-consumers/consumers"
 project="$repo_root/tests/Forma.Svg.PackageConsumer/Forma.Svg.PackageConsumer.csproj"

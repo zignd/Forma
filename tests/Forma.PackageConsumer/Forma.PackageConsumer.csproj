@@ -10,7 +10,7 @@
     <FormaSvgRuntime Condition="'$(FormaSvgRuntime)' == ''">$(FormaRuntime)</FormaSvgRuntime>
     <ExerciseSpriteFont Condition="'$(ExerciseSpriteFont)' == ''">false</ExerciseSpriteFont>
     <ExpectDynamicTextDefault Condition="'$(ExpectDynamicTextDefault)' == '' and '$(IncludeDynamicText)' == 'true'">true</ExpectDynamicTextDefault>
-    <FormaPackageVersion>0.1.0-alpha.1</FormaPackageVersion>
+    <FormaPackageVersion>$(FormaVersion)</FormaPackageVersion>
     <FormaPackageSource Condition="'$(FormaPackageSource)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../Artifacts/packages/$(FormaRuntime)'))</FormaPackageSource>
     <RestoreSources>$(FormaPackageSource);$(FormaAdditionalPackageSource);https://api.nuget.org/v3/index.json</RestoreSources>
     <DefineConstants Condition="'$(IncludeFormaMedia)' != 'true'">$(DefineConstants);FORMA_CORE_ONLY</DefineConstants>

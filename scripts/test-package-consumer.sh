@@ -9,7 +9,7 @@ repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 package_root="$repository_root/Artifacts/packages"
 repro_root="$repository_root/Artifacts/package-repro"
 consumer_project="$repository_root/tests/Forma.PackageConsumer/Forma.PackageConsumer.csproj"
-version="0.1.0-alpha.1"
+version="$(grep -oE '<FormaVersion>[^<]+</FormaVersion>' "$repository_root/Directory.Build.props" | sed -E 's/<\/?FormaVersion>//g')"
 commit_sha="$(git -C "$repository_root" rev-parse HEAD)"
 
 rm -rf "$package_root" "$repro_root" \
